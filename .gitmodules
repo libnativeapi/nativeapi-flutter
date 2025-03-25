@@ -1,0 +1,3 @@
+[submodule "src/libnativeapi"]
+	path = src/libnativeapi
+	url = https://github.com/leanflutter/libnativeapi.git
