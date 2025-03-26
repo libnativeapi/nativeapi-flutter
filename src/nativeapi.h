@@ -36,13 +36,13 @@ FFI_PLUGIN_EXPORT int sum(int a, int b);
 FFI_PLUGIN_EXPORT int sum_long_running(int a, int b);
 
 // Get primary display
-FFI_PLUGIN_EXPORT struct Display get_primary_display();
+FFI_PLUGIN_EXPORT struct Display get_primary_display() noexcept(false);
 
 // Get all displays
-FFI_PLUGIN_EXPORT struct DisplayList get_all_displays();
+FFI_PLUGIN_EXPORT struct DisplayList get_all_displays() noexcept(false);
 
 // Get the current cursor position
-FFI_PLUGIN_EXPORT int get_cursor_screen_point();
+FFI_PLUGIN_EXPORT int get_cursor_screen_point() noexcept(false);
 
 #ifdef __cplusplus
 }
