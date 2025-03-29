@@ -21,6 +21,11 @@
 extern "C" {
 #endif
 
+typedef void (*EventCallback)(int eventType, const char* eventData);
+
+FFI_PLUGIN_EXPORT void register_event_callback(EventCallback callback);
+FFI_PLUGIN_EXPORT void start_event_loop();
+
 // A very short-lived native function.
 //
 // For very short-lived functions, it is fine to call them on the main isolate.

@@ -4,7 +4,11 @@
 #include <iostream>
 
 // Global instance of ScreenRetriever
-static nativeapi::ScreenRetriever& g_screen_retriever = nativeapi::ScreenRetriever::GetInstance();
+static nativeapi::ScreenRetriever& g_screen_retriever =
+    nativeapi::ScreenRetriever::GetInstance();
+
+// 声明一个全局的回调函数指针
+static EventCallback g_callback = nullptr;
 
 // A very short-lived native function.
 //
@@ -12,23 +16,6 @@ static nativeapi::ScreenRetriever& g_screen_retriever = nativeapi::ScreenRetriev
 // They will block the Dart execution while running the native function, so
 // only do this for native functions which are guaranteed to be short-lived.
 FFI_PLUGIN_EXPORT int sum(int a, int b) {
-  g_screen_retriever.AddEventListener(nativeapi::ScreenEventType::kDisplayAdded,
-      [](const void* data) {
-          const auto* display = static_cast<const nativeapi::Display*>(data);
-          std::cout << "\nNew display connected!" << std::endl;
-          std::cout << "Display: " << display->name 
-                    << " (" << display->width << "x" << display->height << ")" 
-                    << std::endl;
-          std::cout << "Position: (" << display->visiblePositionX 
-                    << ", " << display->visiblePositionY << ")" << std::endl;
-      });
-
-  g_screen_retriever.AddEventListener(nativeapi::ScreenEventType::kDisplayRemoved,
-      [](const void* data) {
-          const auto* display = static_cast<const nativeapi::Display*>(data);
-          std::cout << "\nDisplay disconnected!" << std::endl;
-          std::cout << "Display: " << display->name << std::endl;
-      });
   return a + b;
 }
 
@@ -88,4 +75,34 @@ FFI_PLUGIN_EXPORT struct NativePoint get_cursor_screen_point() {
   native_point.x = cursorPoint.x;
   native_point.y = cursorPoint.y;
   return native_point;
+}
+
+FFI_PLUGIN_EXPORT void register_event_callback(EventCallback callback) {
+  g_callback = callback;
+
+  // 注册显示器添加事件监听器
+  g_screen_retriever.AddEventListener(
+      nativeapi::ScreenEventType::kDisplayAdded, [](const void* data) {
+        if (g_callback) {
+          const auto* display = static_cast<const nativeapi::Display*>(data);
+          // 构造事件数据字符串
+          char eventData[256];
+          snprintf(eventData, sizeof(eventData), "display_added");
+          // 调用回调函数，事件类型 1 表示显示器添加
+          g_callback(1, eventData);
+        }
+      });
+
+  // 注册显示器移除事件监听器
+  g_screen_retriever.AddEventListener(
+      nativeapi::ScreenEventType::kDisplayRemoved, [](const void* data) {
+        if (g_callback) {
+          const auto* display = static_cast<const nativeapi::Display*>(data);
+          // 构造事件数据字符串
+          char eventData[256];
+          snprintf(eventData, sizeof(eventData), "display_removed");
+          // 调用回调函数，事件类型 2 表示显示器移除
+          g_callback(2, eventData);
+        }
+      });
 }

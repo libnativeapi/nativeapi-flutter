@@ -49,6 +49,7 @@ class _MyAppState extends State<MyApp> {
     // allDisplays = nativeapi.getAllDisplays();
 
     allDisplays = [];
+    nativeapi.startEventLoop();
   }
 
   @override

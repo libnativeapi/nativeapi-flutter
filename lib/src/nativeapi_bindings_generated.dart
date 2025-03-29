@@ -27,6 +27,29 @@ class NativeApiBindings {
           lookup)
       : _lookup = lookup;
 
+  void register_event_callback(
+    EventCallback callback,
+  ) {
+    return _register_event_callback(
+      callback,
+    );
+  }
+
+  late final _register_event_callbackPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(EventCallback)>>(
+          'register_event_callback');
+  late final _register_event_callback =
+      _register_event_callbackPtr.asFunction<void Function(EventCallback)>();
+
+  void start_event_loop() {
+    return _start_event_loop();
+  }
+
+  late final _start_event_loopPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('start_event_loop');
+  late final _start_event_loop =
+      _start_event_loopPtr.asFunction<void Function()>();
+
   /// A very short-lived native function.
   ///
   /// For very short-lived functions, it is fine to call them on the main isolate.
@@ -144,3 +167,9 @@ final class NativePoint extends ffi.Struct {
   @ffi.Double()
   external double y;
 }
+
+typedef EventCallback = ffi.Pointer<ffi.NativeFunction<EventCallbackFunction>>;
+typedef EventCallbackFunction = ffi.Void Function(
+    ffi.Int eventType, ffi.Pointer<ffi.Char> eventData);
+typedef DartEventCallbackFunction = void Function(
+    int eventType, ffi.Pointer<ffi.Char> eventData);

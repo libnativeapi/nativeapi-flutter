@@ -6,6 +6,20 @@ import 'dart:isolate';
 
 import 'nativeapi_bindings_generated.dart';
 
+// Static function for event callback
+void _eventCallback(int eventType, ffi.Pointer<ffi.Char> eventData) {
+  print('Event received: $eventType, $eventData');
+}
+
+// Keep a reference to the callback to prevent it from being garbage collected
+late final NativeCallable<EventCallbackFunction> _eventCallbackCallable;
+
+Future<void> startEventLoop() async {
+  _eventCallbackCallable =
+      NativeCallable<EventCallbackFunction>.listener(_eventCallback);
+  _bindings.register_event_callback(_eventCallbackCallable.nativeFunction);
+}
+
 NativeDisplay getPrimaryDisplay() {
   final pointer = _bindings.get_primary_display();
 
