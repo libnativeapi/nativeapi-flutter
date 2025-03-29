@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:ffi/ffi.dart';
 
-import 'package:nativeapi/nativeapi.dart'
-    as nativeapi;
-import 'package:nativeapi/nativeapi_bindings_generated.dart';
+import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi/src/nativeapi_bindings_generated.dart';
 
-extension DisplayExtension on Display {
+extension DisplayExtension on NativeDisplay {
   Map<String, dynamic> toJson() {
     return {
       'id': id.cast<Utf8>().toDartString(),
@@ -38,8 +37,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late int sumResult;
   late Future<int> sumAsyncResult;
-  late Display primaryDisplay;
-  late List<Display> allDisplays;
+  late NativeDisplay primaryDisplay;
+  late List<NativeDisplay> allDisplays;
 
   @override
   void initState() {
@@ -47,7 +46,9 @@ class _MyAppState extends State<MyApp> {
     sumResult = nativeapi.sum(1, 2);
     sumAsyncResult = nativeapi.sumAsync(3, 4);
     primaryDisplay = nativeapi.getPrimaryDisplay();
-    allDisplays = nativeapi.getAllDisplays();
+    // allDisplays = nativeapi.getAllDisplays();
+
+    allDisplays = [];
   }
 
   @override

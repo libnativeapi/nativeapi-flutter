@@ -1,21 +1,17 @@
 # Run with `dart run ffigen --config ffigen.yaml`.
-name: ScreenRetrieverFfiBindings
+name: NativeApiBindings
 description: |
   Bindings for `src/nativeapi.h`.
 
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/nativeapi_bindings_generated.dart'
+output: 'lib/src/nativeapi_bindings_generated.dart'
 headers:
   entry-points:
     - 'src/nativeapi.h'
-    - 'src/screen_retriever.h'
-    - 'src/screen_retriever_macos.h'
-    - 'src/screen_retriever_windows.h'
+    - 'src/display.h'
   include-directives:
     - 'src/nativeapi.h'
-    - 'src/screen_retriever.h'
-    - 'src/screen_retriever_macos.h'
-    - 'src/screen_retriever_windows.h'
+    - 'src/display.h'
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types

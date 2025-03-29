@@ -7,13 +7,13 @@ project(nativeapi_library VERSION 0.0.1 LANGUAGES CXX)
 
 # Add the libnativeapi source files
 file(GLOB NATIVEAPI_SOURCES
-  "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/**/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp"
 )
 
 if(APPLE)
   file(GLOB NATIVEAPI_MM_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*.mm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/**/*.mm"
   )
   list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_MM_SOURCES})
 endif()
@@ -21,7 +21,7 @@ endif()
 add_library(nativeapi SHARED ${NATIVEAPI_SOURCES})
 
 set_target_properties(nativeapi PROPERTIES
-  PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*.h"
+  PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/**/*.h"
   OUTPUT_NAME "nativeapi"
 )
 
