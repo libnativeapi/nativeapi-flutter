@@ -7,15 +7,30 @@ project(nativeapi_library VERSION 0.0.1 LANGUAGES CXX)
 
 # Add the libnativeapi source files
 file(GLOB NATIVEAPI_SOURCES
-  "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/**/*.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
+list(FILTER NATIVEAPI_SOURCES EXCLUDE REGEX "_linux.*|_macos.*|_windows.*")
 
 if(APPLE)
   file(GLOB NATIVEAPI_MM_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/**/*.mm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*_macos.mm"
   )
   list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_MM_SOURCES})
+endif()
+
+if(WIN32)
+  file(GLOB NATIVEAPI_WIN_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*_windows.cpp"
+  )
+  list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_WIN_SOURCES})
+endif()
+
+if(LINUX)
+  file(GLOB NATIVEAPI_LINUX_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*_linux.cpp"
+  )
+  list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_LINUX_SOURCES})
 endif()
 
 add_library(nativeapi SHARED ${NATIVEAPI_SOURCES})
