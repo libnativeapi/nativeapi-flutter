@@ -1,11 +1,12 @@
 #include "nativeapi.h"
-#include "libnativeapi/src/libnativeapi.h"
+#include "libnativeapi/include/nativeapi.h"
 
 #include <iostream>
 
+using namespace nativeapi;
+
 // Global instance of ScreenRetriever
-static nativeapi::ScreenRetriever& g_screen_retriever =
-    nativeapi::ScreenRetriever::GetInstance();
+static ScreenRetriever g_screen_retriever = ScreenRetriever();
 
 // 声明一个全局的回调函数指针
 static EventCallback g_callback = nullptr;
@@ -79,29 +80,21 @@ FFI_PLUGIN_EXPORT struct NativePoint get_cursor_screen_point() {
 
 FFI_PLUGIN_EXPORT void register_event_callback(EventCallback callback) {
   g_callback = callback;
-
-  // 注册显示器添加事件监听器
   g_screen_retriever.AddEventListener(
-      nativeapi::ScreenEventType::kDisplayAdded, [](const void* data) {
+      ScreenEventType::DisplayAdded, [](const void* data) {
         if (g_callback) {
-          const auto* display = static_cast<const nativeapi::Display*>(data);
-          // 构造事件数据字符串
           char eventData[256];
           snprintf(eventData, sizeof(eventData), "display_added");
-          // 调用回调函数，事件类型 1 表示显示器添加
           g_callback(1, eventData);
         }
       });
 
   // 注册显示器移除事件监听器
   g_screen_retriever.AddEventListener(
-      nativeapi::ScreenEventType::kDisplayRemoved, [](const void* data) {
+      ScreenEventType::DisplayRemoved, [](const void* data) {
         if (g_callback) {
-          const auto* display = static_cast<const nativeapi::Display*>(data);
-          // 构造事件数据字符串
           char eventData[256];
           snprintf(eventData, sizeof(eventData), "display_removed");
-          // 调用回调函数，事件类型 2 表示显示器移除
           g_callback(2, eventData);
         }
       });

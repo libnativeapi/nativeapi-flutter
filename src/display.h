@@ -15,7 +15,7 @@ struct NativeDisplay {
 // Representation of a list of displays
 struct NativeDisplayList {
   struct NativeDisplay* displays;
-  int count;
+  long count;
 };
 
 struct NativePoint {
