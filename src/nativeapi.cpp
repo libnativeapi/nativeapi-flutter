@@ -2,6 +2,7 @@
 #include "libnativeapi/include/nativeapi.h"
 
 #include <iostream>
+#include <string.h>
 
 using namespace nativeapi;
 
