@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "display.h"
+//#include "display.h"
 
 #if _WIN32
 #include <windows.h>
@@ -39,15 +39,6 @@ FFI_PLUGIN_EXPORT int sum(int a, int b);
 // block Dart execution. This will cause dropped frames in Flutter applications.
 // Instead, call these native functions on a separate isolate.
 FFI_PLUGIN_EXPORT int sum_long_running(int a, int b);
-
-// Get primary display
-FFI_PLUGIN_EXPORT struct NativeDisplay get_primary_display();
-
-// Get all displays
-FFI_PLUGIN_EXPORT struct NativeDisplayList get_all_displays();
-
-// Get the current cursor position
-FFI_PLUGIN_EXPORT struct NativePoint get_cursor_screen_point();
 
 #ifdef __cplusplus
 }

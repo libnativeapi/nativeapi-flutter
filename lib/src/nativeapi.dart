@@ -4,6 +4,9 @@ import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:nativeapi/src/screen_retriever.dart';
+import 'package:nativeapi/src/window_manager.dart';
+
 import 'nativeapi_bindings_generated.dart';
 
 // Static function for event callback
@@ -19,19 +22,6 @@ Future<void> startEventLoop() async {
       NativeCallable<EventCallbackFunction>.listener(_eventCallback);
   _bindings.register_event_callback(_eventCallbackCallable.nativeFunction);
 }
-
-NativeDisplay getPrimaryDisplay() {
-  final pointer = _bindings.get_primary_display();
-
-  return pointer;
-}
-
-List<NativeDisplay> getAllDisplays() {
-  final displayList = _bindings.get_all_displays();
-  return List.generate(displayList.count, (i) => displayList.displays[i]);
-}
-
-NativePoint getCursorScreenPoint() => _bindings.get_cursor_screen_point();
 
 /// A very short-lived native function.
 ///
@@ -155,3 +145,13 @@ Future<SendPort> _helperIsolateSendPort = () async {
   // can start sending requests.
   return completer.future;
 }();
+
+class NativeApi {
+  NativeApi._();
+
+  /// The shared instance of [NativeApi].
+  static final NativeApi instance = NativeApi._();
+
+  ScreenRetriever get screen => ScreenRetriever();
+  WindowManager get windows => WindowManager();
+}

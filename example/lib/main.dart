@@ -1,27 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:ffi/ffi.dart';
+import 'package:nativeapi/nativeapi.dart';
 
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
-import 'package:nativeapi/src/nativeapi_bindings_generated.dart';
-
-extension DisplayExtension on NativeDisplay {
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id.cast<Utf8>().toDartString(),
-      'name': name.cast<Utf8>().toDartString(),
-      'width': width,
-      'height': height,
-      'visiblePositionX': visiblePositionX,
-      'visiblePositionY': visiblePositionY,
-      'visibleSizeWidth': visibleSizeWidth,
-      'visibleSizeHeight': visibleSizeHeight,
-      'scaleFactor': scaleFactor,
-    };
-  }
-}
+NativeApi nativeapi = NativeApi.instance;
 
 void main() {
   runApp(const MyApp());
@@ -35,21 +15,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late int sumResult;
-  late Future<int> sumAsyncResult;
-  late NativeDisplay primaryDisplay;
-  late List<NativeDisplay> allDisplays;
+  late Display primaryDisplay;
+  late List<Display> allDisplays;
 
   @override
   void initState() {
     super.initState();
-    sumResult = nativeapi.sum(1, 2);
-    sumAsyncResult = nativeapi.sumAsync(3, 4);
-    primaryDisplay = nativeapi.getPrimaryDisplay();
-    // allDisplays = nativeapi.getAllDisplays();
-
+    primaryDisplay = nativeapi.screen.getPrimaryDisplay();
+    // nativeapi.windows.getCurrent();
     allDisplays = [];
-    nativeapi.startEventLoop();
   }
 
   @override
@@ -59,41 +33,16 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Native Packages'),
+          title: const Text('Native API'),
         ),
         body: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
-                const Text(
-                  'This calls a native function through FFI that is shipped as source in the package. '
-                  'The native code is built as part of the Flutter Runner build.',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
                 spacerSmall,
                 Text(
-                  'sum(1, 2) = $sumResult',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
-                spacerSmall,
-                FutureBuilder<int>(
-                  future: sumAsyncResult,
-                  builder: (BuildContext context, AsyncSnapshot<int> value) {
-                    final displayValue =
-                        (value.hasData) ? value.data : 'loading';
-                    return Text(
-                      'await sumAsync(3, 4) = $displayValue',
-                      style: textStyle,
-                      textAlign: TextAlign.center,
-                    );
-                  },
-                ),
-                spacerSmall,
-                Text(
-                  'primaryDisplay = ${json.encode(primaryDisplay.toJson())}',
+                  'primaryDisplay = ${primaryDisplay.id} ${primaryDisplay.name} ${primaryDisplay.size} ${primaryDisplay.scaleFactor}',
                   style: textStyle,
                   textAlign: TextAlign.center,
                 ),

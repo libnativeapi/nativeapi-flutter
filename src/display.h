@@ -1,5 +1,3 @@
-
-// Representation of a display
 struct NativeDisplay {
   char* id;
   char* name;
@@ -12,13 +10,7 @@ struct NativeDisplay {
   double scaleFactor;
 };
 
-// Representation of a list of displays
 struct NativeDisplayList {
   struct NativeDisplay* displays;
   long count;
-};
-
-struct NativePoint {
-  double x;
-  double y;
 };

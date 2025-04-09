@@ -9,9 +9,13 @@ headers:
   entry-points:
     - 'src/nativeapi.h'
     - 'src/display.h'
+    - 'src/point.h'
+    - 'src/screen_retriever.h'
   include-directives:
     - 'src/nativeapi.h'
     - 'src/display.h'
+    - 'src/point.h'
+    - 'src/screen_retriever.h'
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
