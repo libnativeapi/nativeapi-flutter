@@ -4,7 +4,7 @@ import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:nativeapi/src/screen_retriever.dart';
+import 'package:nativeapi/src/display_manager.dart';
 import 'package:nativeapi/src/window_manager.dart';
 
 import 'nativeapi_bindings_generated.dart';
@@ -152,6 +152,6 @@ class NativeApi {
   /// The shared instance of [NativeApi].
   static final NativeApi instance = NativeApi._();
 
-  ScreenRetriever get screen => ScreenRetriever();
+  DisplayManager get display => DisplayManager();
   WindowManager get windows => WindowManager();
 }

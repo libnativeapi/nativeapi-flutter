@@ -6,21 +6,21 @@ import 'package:nativeapi/src/nativeapi_bindings_generated.dart';
 import 'display.dart';
 import 'nativeapi_bindings.dart';
 
-class ScreenRetriever {
-  ScreenRetriever();
+class DisplayManager {
+  DisplayManager();
 
   NativeApiBindings get _bindings => nativeApiBindings;
 
-  Offset getCursorScreenPoint() {
-    return _bindings.screen_retriever_get_cursor_screen_point().dartify();
+  Offset getCursorPosition() {
+    return _bindings.display_manager_get_cursor_position().dartify();
   }
 
-  Display getPrimaryDisplay() {
-    return _bindings.screen_retriever_get_primary_display().dartify();
+  Display getPrimary() {
+    return _bindings.display_manager_get_primary().dartify();
   }
 
-  List<Display> getAllDisplays() {
-    return _bindings.screen_retriever_get_all_displays().dartify();
+  List<Display> getAll() {
+    return _bindings.display_manager_get_all().dartify();
   }
 }
 

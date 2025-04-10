@@ -27,6 +27,37 @@ class NativeApiBindings {
           lookup)
       : _lookup = lookup;
 
+  NativeDisplayList display_manager_get_all() {
+    return _display_manager_get_all();
+  }
+
+  late final _display_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<NativeDisplayList Function()>>(
+          'display_manager_get_all');
+  late final _display_manager_get_all =
+      _display_manager_get_allPtr.asFunction<NativeDisplayList Function()>();
+
+  NativeDisplay display_manager_get_primary() {
+    return _display_manager_get_primary();
+  }
+
+  late final _display_manager_get_primaryPtr =
+      _lookup<ffi.NativeFunction<NativeDisplay Function()>>(
+          'display_manager_get_primary');
+  late final _display_manager_get_primary =
+      _display_manager_get_primaryPtr.asFunction<NativeDisplay Function()>();
+
+  NativePoint display_manager_get_cursor_position() {
+    return _display_manager_get_cursor_position();
+  }
+
+  late final _display_manager_get_cursor_positionPtr =
+      _lookup<ffi.NativeFunction<NativePoint Function()>>(
+          'display_manager_get_cursor_position');
+  late final _display_manager_get_cursor_position =
+      _display_manager_get_cursor_positionPtr
+          .asFunction<NativePoint Function()>();
+
   void register_event_callback(
     EventCallback callback,
   ) {
@@ -89,46 +120,7 @@ class NativeApiBindings {
           'sum_long_running');
   late final _sum_long_running =
       _sum_long_runningPtr.asFunction<int Function(int, int)>();
-
-  NativePoint screen_retriever_get_cursor_screen_point() {
-    return _screen_retriever_get_cursor_screen_point();
-  }
-
-  late final _screen_retriever_get_cursor_screen_pointPtr =
-      _lookup<ffi.NativeFunction<NativePoint Function()>>(
-          'screen_retriever_get_cursor_screen_point');
-  late final _screen_retriever_get_cursor_screen_point =
-      _screen_retriever_get_cursor_screen_pointPtr
-          .asFunction<NativePoint Function()>();
-
-  NativeDisplay screen_retriever_get_primary_display() {
-    return _screen_retriever_get_primary_display();
-  }
-
-  late final _screen_retriever_get_primary_displayPtr =
-      _lookup<ffi.NativeFunction<NativeDisplay Function()>>(
-          'screen_retriever_get_primary_display');
-  late final _screen_retriever_get_primary_display =
-      _screen_retriever_get_primary_displayPtr
-          .asFunction<NativeDisplay Function()>();
-
-  NativeDisplayList screen_retriever_get_all_displays() {
-    return _screen_retriever_get_all_displays();
-  }
-
-  late final _screen_retriever_get_all_displaysPtr =
-      _lookup<ffi.NativeFunction<NativeDisplayList Function()>>(
-          'screen_retriever_get_all_displays');
-  late final _screen_retriever_get_all_displays =
-      _screen_retriever_get_all_displaysPtr
-          .asFunction<NativeDisplayList Function()>();
 }
-
-typedef EventCallback = ffi.Pointer<ffi.NativeFunction<EventCallbackFunction>>;
-typedef EventCallbackFunction = ffi.Void Function(
-    ffi.Int eventType, ffi.Pointer<ffi.Char> eventData);
-typedef DartEventCallbackFunction = void Function(
-    int eventType, ffi.Pointer<ffi.Char> eventData);
 
 final class NativeDisplay extends ffi.Struct {
   external ffi.Pointer<ffi.Char> id;
@@ -171,3 +163,9 @@ final class NativePoint extends ffi.Struct {
   @ffi.Double()
   external double y;
 }
+
+typedef EventCallback = ffi.Pointer<ffi.NativeFunction<EventCallbackFunction>>;
+typedef EventCallbackFunction = ffi.Void Function(
+    ffi.Int eventType, ffi.Pointer<ffi.Char> eventData);
+typedef DartEventCallbackFunction = void Function(
+    int eventType, ffi.Pointer<ffi.Char> eventData);

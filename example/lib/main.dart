@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
-NativeApi nativeapi = NativeApi.instance;
+final nativeapi = NativeApi.instance;
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +21,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    primaryDisplay = nativeapi.screen.getPrimaryDisplay();
-    // nativeapi.windows.getCurrent();
+    primaryDisplay = nativeapi.display.getPrimary();
+    // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
   }
 

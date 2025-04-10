@@ -12,13 +12,13 @@ extern "C" {
 #endif
 
 FFI_PLUGIN_EXPORT
-struct NativePoint screen_retriever_get_cursor_screen_point();
+struct NativeDisplayList display_manager_get_all();
 
 FFI_PLUGIN_EXPORT
-struct NativeDisplay screen_retriever_get_primary_display();
+struct NativeDisplay display_manager_get_primary();
 
 FFI_PLUGIN_EXPORT
-struct NativeDisplayList screen_retriever_get_all_displays();
+struct NativePoint display_manager_get_cursor_position();
 
 #ifdef __cplusplus
 }

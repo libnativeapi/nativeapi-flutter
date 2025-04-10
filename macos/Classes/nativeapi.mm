@@ -5,10 +5,10 @@
 #import <Cocoa/Cocoa.h>
 
 // Include source files
-#include "../../src/libnativeapi/src/screen_retriever.cpp"
-#include "../../src/libnativeapi/src/screen_retriever_macos.mm"
+#include "../../src/libnativeapi/src/display_manager.cpp"
+#include "../../src/libnativeapi/src/display_manager_macos.mm"
 #include "../../src/libnativeapi/src/window_macos.mm"
 #include "../../src/libnativeapi/src/window_manager_macos.mm"
 
 #include "../../src/nativeapi.cpp"
-#include "../../src/screen_retriever.cpp"
+#include "../../src/display_manager.cpp"

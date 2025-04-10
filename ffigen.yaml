@@ -4,18 +4,18 @@ description: |
   Bindings for `src/nativeapi.h`.
 
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/src/nativeapi_bindings_generated.dart'
+output: "lib/src/nativeapi_bindings_generated.dart"
 headers:
   entry-points:
-    - 'src/nativeapi.h'
-    - 'src/display.h'
-    - 'src/point.h'
-    - 'src/screen_retriever.h'
+    - "src/display_manager.h"
+    - "src/display.h"
+    - "src/nativeapi.h"
+    - "src/point.h"
   include-directives:
-    - 'src/nativeapi.h'
-    - 'src/display.h'
-    - 'src/point.h'
-    - 'src/screen_retriever.h'
+    - "src/display_manager.h"
+    - "src/display.h"
+    - "src/nativeapi.h"
+    - "src/point.h"
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
