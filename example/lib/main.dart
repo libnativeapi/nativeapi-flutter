@@ -14,16 +14,39 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with DisplayListener {
   late Display primaryDisplay;
-  late List<Display> allDisplays;
+  List<Display> allDisplays = [];
 
   @override
   void initState() {
     super.initState();
     primaryDisplay = nativeapi.display.getPrimary();
+    nativeapi.display.addListener(this);
     // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
+  }
+
+  @override
+  void dispose() {
+    nativeapi.display.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onDisplayAdded(Display display) {
+    print('>>>>> added $display');
+    setState(() {
+      allDisplays.add(display);
+    });
+  }
+
+  @override
+  void onDisplayRemoved(Display display) {
+    print('>>>>> removed $display');
+    setState(() {
+      allDisplays.remove(display);
+    });
   }
 
   @override
@@ -48,10 +71,16 @@ class _MyAppState extends State<MyApp> {
                 ),
                 spacerSmall,
                 Text(
-                  'allDisplays = $allDisplays',
+                  'allDisplays',
                   style: textStyle,
                   textAlign: TextAlign.center,
                 ),
+                for (var display in allDisplays)
+                  Text(
+                    '${display.id} ${display.name} ${display.size} ${display.scaleFactor}',
+                    style: textStyle,
+                    textAlign: TextAlign.center,
+                  ),
               ],
             ),
           ),

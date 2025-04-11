@@ -58,6 +58,56 @@ class NativeApiBindings {
       _display_manager_get_cursor_positionPtr
           .asFunction<NativePoint Function()>();
 
+  void display_manager_start_listening() {
+    return _display_manager_start_listening();
+  }
+
+  late final _display_manager_start_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'display_manager_start_listening');
+  late final _display_manager_start_listening =
+      _display_manager_start_listeningPtr.asFunction<void Function()>();
+
+  void display_manager_stop_listening() {
+    return _display_manager_stop_listening();
+  }
+
+  late final _display_manager_stop_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'display_manager_stop_listening');
+  late final _display_manager_stop_listening =
+      _display_manager_stop_listeningPtr.asFunction<void Function()>();
+
+  void display_manager_on_display_added(
+    DisplayAddedCallback callback,
+  ) {
+    return _display_manager_on_display_added(
+      callback,
+    );
+  }
+
+  late final _display_manager_on_display_addedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(DisplayAddedCallback)>>(
+          'display_manager_on_display_added');
+  late final _display_manager_on_display_added =
+      _display_manager_on_display_addedPtr
+          .asFunction<void Function(DisplayAddedCallback)>();
+
+  void display_manager_on_display_removed(
+    DisplayRemovedCallback callback,
+  ) {
+    return _display_manager_on_display_removed(
+      callback,
+    );
+  }
+
+  late final _display_manager_on_display_removedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(DisplayRemovedCallback)>>(
+          'display_manager_on_display_removed');
+  late final _display_manager_on_display_removed =
+      _display_manager_on_display_removedPtr
+          .asFunction<void Function(DisplayRemovedCallback)>();
+
   void register_event_callback(
     EventCallback callback,
   ) {
@@ -164,6 +214,16 @@ final class NativePoint extends ffi.Struct {
   external double y;
 }
 
+typedef DisplayAddedCallback
+    = ffi.Pointer<ffi.NativeFunction<DisplayAddedCallbackFunction>>;
+typedef DisplayAddedCallbackFunction = ffi.Void Function(NativeDisplay display);
+typedef DartDisplayAddedCallbackFunction = void Function(NativeDisplay display);
+typedef DisplayRemovedCallback
+    = ffi.Pointer<ffi.NativeFunction<DisplayRemovedCallbackFunction>>;
+typedef DisplayRemovedCallbackFunction = ffi.Void Function(
+    NativeDisplay display);
+typedef DartDisplayRemovedCallbackFunction = void Function(
+    NativeDisplay display);
 typedef EventCallback = ffi.Pointer<ffi.NativeFunction<EventCallbackFunction>>;
 typedef EventCallbackFunction = ffi.Void Function(
     ffi.Int eventType, ffi.Pointer<ffi.Char> eventData);

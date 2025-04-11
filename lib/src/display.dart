@@ -12,4 +12,15 @@ class Display {
     required this.size,
     required this.scaleFactor,
   });
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is Display) {
+      return id == other.id;
+    }
+    return false;
+  }
 }
