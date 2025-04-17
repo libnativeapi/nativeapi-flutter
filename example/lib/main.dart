@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
-final nativeapi = NativeApi.instance;
+final displayManager = DisplayManager.instance;
+final windowManager = WindowManager.instance;
 
 void main() {
   runApp(const MyApp());
@@ -18,18 +19,20 @@ class _MyAppState extends State<MyApp> with DisplayListener {
   late Display primaryDisplay;
   List<Display> allDisplays = [];
 
+  Size currentWindowSize = Size(0, 0);
+
   @override
   void initState() {
     super.initState();
-    primaryDisplay = nativeapi.display.getPrimary();
-    nativeapi.display.addListener(this);
+    primaryDisplay = displayManager.getPrimary();
+    displayManager.addListener(this);
     // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
   }
 
   @override
   void dispose() {
-    nativeapi.display.removeListener(this);
+    displayManager.removeListener(this);
     super.dispose();
   }
 
@@ -81,6 +84,38 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                     style: textStyle,
                     textAlign: TextAlign.center,
                   ),
+                TextButton(
+                  onPressed: () {
+                    final currentWindow = windowManager.getCurrent();
+                    print('currentWindow = $currentWindow');
+                    print('currentWindow size = ${currentWindow.size}');
+                    setState(() {
+                      currentWindowSize = currentWindow.size;
+                    });
+                  },
+                  child: const Text('Get Current Window'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      currentWindowSize = Size(0, 0);
+                    });
+                  },
+                  child: const Text('Clear Current Window Size'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    final allWindows = windowManager.getAll();
+                    print('allWindows = $allWindows');
+                  },
+                  child: const Text('Get All Windows'),
+                ),
+                
+                Text(
+                  'currentWindowSize = $currentWindowSize',
+                  style: textStyle,
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),

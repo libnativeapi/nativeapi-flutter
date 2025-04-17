@@ -12,3 +12,5 @@
 
 #include "../../src/nativeapi.cpp"
 #include "../../src/display_manager.cpp"
+#include "../../src/window_manager.cpp"
+#include "../../src/window.cpp"

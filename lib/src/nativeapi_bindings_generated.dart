@@ -108,29 +108,6 @@ class NativeApiBindings {
       _display_manager_on_display_removedPtr
           .asFunction<void Function(DisplayRemovedCallback)>();
 
-  void register_event_callback(
-    EventCallback callback,
-  ) {
-    return _register_event_callback(
-      callback,
-    );
-  }
-
-  late final _register_event_callbackPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(EventCallback)>>(
-          'register_event_callback');
-  late final _register_event_callback =
-      _register_event_callbackPtr.asFunction<void Function(EventCallback)>();
-
-  void start_event_loop() {
-    return _start_event_loop();
-  }
-
-  late final _start_event_loopPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>('start_event_loop');
-  late final _start_event_loop =
-      _start_event_loopPtr.asFunction<void Function()>();
-
   /// A very short-lived native function.
   ///
   /// For very short-lived functions, it is fine to call them on the main isolate.
@@ -170,6 +147,79 @@ class NativeApiBindings {
           'sum_long_running');
   late final _sum_long_running =
       _sum_long_runningPtr.asFunction<int Function(int, int)>();
+
+  NativeWindowIDList window_manager_get_all() {
+    return _window_manager_get_all();
+  }
+
+  late final _window_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<NativeWindowIDList Function()>>(
+          'window_manager_get_all');
+  late final _window_manager_get_all =
+      _window_manager_get_allPtr.asFunction<NativeWindowIDList Function()>();
+
+  int window_manager_get_current() {
+    return _window_manager_get_current();
+  }
+
+  late final _window_manager_get_currentPtr =
+      _lookup<ffi.NativeFunction<NativeWindowID Function()>>(
+          'window_manager_get_current');
+  late final _window_manager_get_current =
+      _window_manager_get_currentPtr.asFunction<int Function()>();
+
+  void window_manager_start_listening() {
+    return _window_manager_start_listening();
+  }
+
+  late final _window_manager_start_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'window_manager_start_listening');
+  late final _window_manager_start_listening =
+      _window_manager_start_listeningPtr.asFunction<void Function()>();
+
+  void window_manager_stop_listening() {
+    return _window_manager_stop_listening();
+  }
+
+  late final _window_manager_stop_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'window_manager_stop_listening');
+  late final _window_manager_stop_listening =
+      _window_manager_stop_listeningPtr.asFunction<void Function()>();
+
+  NativeSize window_get_size(
+    int id,
+  ) {
+    return _window_get_size(
+      id,
+    );
+  }
+
+  late final _window_get_sizePtr =
+      _lookup<ffi.NativeFunction<NativeSize Function(NativeWindowID)>>(
+          'window_get_size');
+  late final _window_get_size =
+      _window_get_sizePtr.asFunction<NativeSize Function(int)>();
+
+  void window_start_listening() {
+    return _window_start_listening();
+  }
+
+  late final _window_start_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'window_start_listening');
+  late final _window_start_listening =
+      _window_start_listeningPtr.asFunction<void Function()>();
+
+  void window_stop_listening() {
+    return _window_stop_listening();
+  }
+
+  late final _window_stop_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('window_stop_listening');
+  late final _window_stop_listening =
+      _window_stop_listeningPtr.asFunction<void Function()>();
 }
 
 final class NativeDisplay extends ffi.Struct {
@@ -224,8 +274,21 @@ typedef DisplayRemovedCallbackFunction = ffi.Void Function(
     NativeDisplay display);
 typedef DartDisplayRemovedCallbackFunction = void Function(
     NativeDisplay display);
-typedef EventCallback = ffi.Pointer<ffi.NativeFunction<EventCallbackFunction>>;
-typedef EventCallbackFunction = ffi.Void Function(
-    ffi.Int eventType, ffi.Pointer<ffi.Char> eventData);
-typedef DartEventCallbackFunction = void Function(
-    int eventType, ffi.Pointer<ffi.Char> eventData);
+
+final class NativeWindowIDList extends ffi.Struct {
+  external ffi.Pointer<NativeWindowID> ids;
+
+  @ffi.Long()
+  external int count;
+}
+
+typedef NativeWindowID = ffi.Int;
+typedef DartNativeWindowID = int;
+
+final class NativeSize extends ffi.Struct {
+  @ffi.Double()
+  external double width;
+
+  @ffi.Double()
+  external double height;
+}

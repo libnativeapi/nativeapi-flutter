@@ -1,27 +1,9 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:nativeapi/src/display_manager.dart';
-import 'package:nativeapi/src/window_manager.dart';
-
 import 'nativeapi_bindings_generated.dart';
-
-// Static function for event callback
-void _eventCallback(int eventType, ffi.Pointer<ffi.Char> eventData) {
-  print('Event received: $eventType, $eventData');
-}
-
-// Keep a reference to the callback to prevent it from being garbage collected
-late final NativeCallable<EventCallbackFunction> _eventCallbackCallable;
-
-Future<void> startEventLoop() async {
-  _eventCallbackCallable =
-      NativeCallable<EventCallbackFunction>.listener(_eventCallback);
-  _bindings.register_event_callback(_eventCallbackCallable.nativeFunction);
-}
 
 /// A very short-lived native function.
 ///
@@ -145,13 +127,3 @@ Future<SendPort> _helperIsolateSendPort = () async {
   // can start sending requests.
   return completer.future;
 }();
-
-class NativeApi {
-  NativeApi._();
-
-  /// The shared instance of [NativeApi].
-  static final NativeApi instance = NativeApi._();
-
-  DisplayManager get display => DisplayManager();
-  WindowManager get windows => WindowManager();
-}

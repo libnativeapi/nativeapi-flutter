@@ -10,6 +10,12 @@ import 'display.dart';
 import 'nativeapi_bindings.dart';
 
 class DisplayManager with EventListenerMixin<DisplayListener> {
+  DisplayManager._();
+
+  static final DisplayManager instance = DisplayManager._();
+
+  NativeApiBindings get _bindings => nativeApiBindings;
+
   late final ffi.NativeCallable<DisplayAddedCallbackFunction>
       _addedCallbackCallable;
   late final ffi.NativeCallable<DisplayRemovedCallbackFunction>
@@ -28,8 +34,6 @@ class DisplayManager with EventListenerMixin<DisplayListener> {
     _bindings.display_manager_on_display_removed(
         _removedCallbackCallable.nativeFunction);
   }
-
-  NativeApiBindings get _bindings => nativeApiBindings;
 
   void _onDisplayAdded(NativeDisplay display) {
     print('onDisplayAdded: ${display.dartify()}');

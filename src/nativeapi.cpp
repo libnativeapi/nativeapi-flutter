@@ -1,16 +1,8 @@
 #include "nativeapi.h"
-#include "libnativeapi/include/nativeapi.h"
 
 #include <iostream>
 #include <string.h>
 
-using namespace nativeapi;
-
-// Global instance of ScreenRetriever
-//static ScreenRetriever g_screen_retriever = ScreenRetriever();
-
-// 声明一个全局的回调函数指针
-static EventCallback g_callback = nullptr;
 
 // A very short-lived native function.
 //
@@ -34,26 +26,4 @@ FFI_PLUGIN_EXPORT int sum_long_running(int a, int b) {
   usleep(5000 * 1000);
 #endif
   return a + b;
-}
-
-FFI_PLUGIN_EXPORT void register_event_callback(EventCallback callback) {
-  g_callback = callback;
-//  g_screen_retriever.AddEventListener(
-//      ScreenEventType::DisplayAdded, [](const void* data) {
-//        if (g_callback) {
-//          char eventData[256];
-//          snprintf(eventData, sizeof(eventData), "display_added");
-//          g_callback(1, eventData);
-//        }
-//      });
-//
-//  // 注册显示器移除事件监听器
-//  g_screen_retriever.AddEventListener(
-//      ScreenEventType::DisplayRemoved, [](const void* data) {
-//        if (g_callback) {
-//          char eventData[256];
-//          snprintf(eventData, sizeof(eventData), "display_removed");
-//          g_callback(2, eventData);
-//        }
-//      });
 }

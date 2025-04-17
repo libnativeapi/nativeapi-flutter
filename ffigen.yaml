@@ -11,11 +11,15 @@ headers:
     - "src/display.h"
     - "src/nativeapi.h"
     - "src/point.h"
+    - "src/window_manager.h"
+    - "src/window.h"
   include-directives:
     - "src/display_manager.h"
     - "src/display.h"
     - "src/nativeapi.h"
     - "src/point.h"
+    - "src/window_manager.h"
+    - "src/window.h"
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
