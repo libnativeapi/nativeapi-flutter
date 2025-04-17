@@ -11,6 +11,8 @@ headers:
     - "src/display.h"
     - "src/nativeapi.h"
     - "src/point.h"
+    - "src/rectangle.h"
+    - "src/size.h"
     - "src/window_manager.h"
     - "src/window.h"
   include-directives:
@@ -18,6 +20,8 @@ headers:
     - "src/display.h"
     - "src/nativeapi.h"
     - "src/point.h"
+    - "src/rectangle.h"
+    - "src/size.h"
     - "src/window_manager.h"
     - "src/window.h"
 preamble: |

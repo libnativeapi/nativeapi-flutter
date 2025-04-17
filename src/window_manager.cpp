@@ -20,7 +20,7 @@ struct NativeWindowIDList window_manager_get_all() {
 }
 
 FFI_PLUGIN_EXPORT
-int window_manager_get_current() {
+long window_manager_get_current() {
   auto window = g_window_manager.GetCurrent();
   return window.id;
 }

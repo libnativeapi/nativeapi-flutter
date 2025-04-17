@@ -87,10 +87,23 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                 TextButton(
                   onPressed: () {
                     final currentWindow = windowManager.getCurrent();
-                    print('currentWindow = $currentWindow');
-                    print('currentWindow size = ${currentWindow.size}');
+
+                    String log = '';
+
+                    log += 'size = ${currentWindow.getSize()}\n';
+                    log += 'position = ${currentWindow.getPosition()}\n';
+                    log += 'title = ${currentWindow.getTitle()}\n';
+                    log += 'is focused = ${currentWindow.isFocused()}\n';
+                    log += 'is visible = ${currentWindow.isVisible()}\n';
+                    log += 'is always on top = ${currentWindow.isAlwaysOnTop()}\n';
+                    log += 'is full screen = ${currentWindow.isFullScreen()}\n';
+                    log += 'is minimized = ${currentWindow.isMinimized()}\n';
+                    log += 'is maximized = ${currentWindow.isMaximized()}\n';
+
+                    print(log);
+
                     setState(() {
-                      currentWindowSize = currentWindow.size;
+                      currentWindowSize = currentWindow.getSize();
                     });
                   },
                   child: const Text('Get Current Window'),
@@ -110,7 +123,6 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                   },
                   child: const Text('Get All Windows'),
                 ),
-                
                 Text(
                   'currentWindowSize = $currentWindowSize',
                   style: textStyle,

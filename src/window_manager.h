@@ -1,5 +1,5 @@
 struct NativeWindowIDList {
-  int* ids;
+  long* ids;
   long count;
 };
 
@@ -17,7 +17,7 @@ FFI_PLUGIN_EXPORT
 struct NativeWindowIDList window_manager_get_all();
 
 FFI_PLUGIN_EXPORT
-int window_manager_get_current();
+long window_manager_get_current();
 
 FFI_PLUGIN_EXPORT
 void window_manager_start_listening();
