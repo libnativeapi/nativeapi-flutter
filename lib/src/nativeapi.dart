@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'nativeapi_bindings_generated.dart';
+import 'ffi/bindings_generated.dart';
 
 /// A very short-lived native function.
 ///

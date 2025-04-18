@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 
-import 'nativeapi_bindings_generated.dart';
+import 'bindings_generated.dart';
 
 const String _libName = 'nativeapi';
 

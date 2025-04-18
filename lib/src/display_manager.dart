@@ -1,13 +1,13 @@
 import 'dart:ffi' as ffi;
 import 'dart:ui';
 
-import 'package:ffi/ffi.dart';
 import 'package:nativeapi/src/display_listener.dart';
 import 'package:nativeapi/src/event_listener_mixin.dart';
-import 'package:nativeapi/src/nativeapi_bindings_generated.dart';
-
+import 'package:nativeapi/src/ffi/bindings_generated.dart';
+import 'package:nativeapi/src/ffi/extensions/native_display.dart';
+import 'package:nativeapi/src/ffi/extensions/native_point.dart';
 import 'display.dart';
-import 'nativeapi_bindings.dart';
+import 'ffi/bindings.dart';
 
 class DisplayManager with EventListenerMixin<DisplayListener> {
   DisplayManager._();
@@ -76,40 +76,5 @@ class DisplayManager with EventListenerMixin<DisplayListener> {
   void removeListener(DisplayListener listener) {
     super.removeListener(listener);
     if (!hasListeners) _bindings.display_manager_stop_listening();
-  }
-}
-
-extension on NativeDisplay {
-  Display dartify() {
-    String id, name;
-    try {
-      id = this.id.cast<Utf8>().toDartString();
-    } catch (e) {
-      id = '';
-    }
-    try {
-      name = this.name.cast<Utf8>().toDartString();
-    } catch (e) {
-      name = '';
-    }
-
-    return Display(
-      id: id,
-      name: name,
-      size: Size(width, height),
-      scaleFactor: scaleFactor,
-    );
-  }
-}
-
-extension on NativeDisplayList {
-  List<Display> dartify() {
-    return List.generate(count, (index) => displays[index].dartify());
-  }
-}
-
-extension on NativePoint {
-  Offset dartify() {
-    return Offset(x, y);
   }
 }

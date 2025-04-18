@@ -4,7 +4,7 @@ description: |
   Bindings for `src/nativeapi.h`.
 
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: "lib/src/nativeapi_bindings_generated.dart"
+output: "lib/src/ffi/bindings_generated.dart"
 headers:
   entry-points:
     - "src/display_manager.h"
