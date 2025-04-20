@@ -14,7 +14,7 @@ struct NativeWindowIDList window_manager_get_all() {
   NativeWindowIDList native_window_id_list;
   native_window_id_list.count = windows.size();
   for (size_t i = 0; i < windows.size(); i++) {
-    native_window_id_list.ids[i] = windows[i].id;
+    native_window_id_list.ids[i] = windows[i]->id;
   }
   return native_window_id_list;
 }
@@ -22,7 +22,7 @@ struct NativeWindowIDList window_manager_get_all() {
 FFI_PLUGIN_EXPORT
 long window_manager_get_current() {
   auto window = g_window_manager.GetCurrent();
-  return window.id;
+  return window->id;
 }
 
 FFI_PLUGIN_EXPORT

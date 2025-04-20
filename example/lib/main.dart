@@ -95,10 +95,13 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                     log += 'title = ${currentWindow.getTitle()}\n';
                     log += 'is focused = ${currentWindow.isFocused()}\n';
                     log += 'is visible = ${currentWindow.isVisible()}\n';
-                    log += 'is always on top = ${currentWindow.isAlwaysOnTop()}\n';
+                    log +=
+                        'is always on top = ${currentWindow.isAlwaysOnTop()}\n';
                     log += 'is full screen = ${currentWindow.isFullScreen()}\n';
                     log += 'is minimized = ${currentWindow.isMinimized()}\n';
                     log += 'is maximized = ${currentWindow.isMaximized()}\n';
+
+                    currentWindow.setOpacity(0.5);
 
                     print(log);
 
@@ -107,6 +110,21 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                     });
                   },
                   child: const Text('Get Current Window'),
+                ),
+                ToggleButtons(
+                  children: [
+                    Text('Set Opacity'),
+                    Text('Clear Opacity'),
+                  ],
+                  isSelected: [false, false],
+                  onPressed: (index) {
+                    final currentWindow = windowManager.getCurrent();
+                    if (index == 0) {
+                      currentWindow.setOpacity(0.5);
+                    } else {
+                      currentWindow.setOpacity(1.0);
+                    }
+                  },
                 ),
                 TextButton(
                   onPressed: () {

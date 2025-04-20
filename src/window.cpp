@@ -8,88 +8,82 @@ using namespace nativeapi;
 
 extern WindowManager g_window_manager;
 
+Window* __window(long window_id) {
+  std::shared_ptr<Window> window_ptr = g_window_manager.Get(window_id);
+  if (window_ptr != nullptr) {
+    return window_ptr.get();
+  }
+  return nullptr;
+}
+
 FFI_PLUGIN_EXPORT
 void window_focus(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Focus();
+  __window(window_id)->Focus();
 }
 
 FFI_PLUGIN_EXPORT
 void window_blur(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Blur();
+  __window(window_id)->Blur();
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_focused(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsFocused();
+  return __window(window_id)->IsFocused();
 }
 
 FFI_PLUGIN_EXPORT
 void window_show(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Show();
+  __window(window_id)->Show();
 }
 
 FFI_PLUGIN_EXPORT
 void window_hide(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Hide();
+  __window(window_id)->Hide();
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_visible(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsVisible();
+  return __window(window_id)->IsVisible();
 }
 
 FFI_PLUGIN_EXPORT
 void window_maximize(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Maximize();
+  __window(window_id)->Maximize();
 }
 
 FFI_PLUGIN_EXPORT
 void window_unmaximize(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Unmaximize();
+  __window(window_id)->Unmaximize();
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_maximized(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsMaximized();
+  return __window(window_id)->IsMaximized();
 }
 
 FFI_PLUGIN_EXPORT
 void window_minimize(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Minimize();
+  __window(window_id)->Minimize();
 }
 
 FFI_PLUGIN_EXPORT
 void window_restore(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.Restore();
+  __window(window_id)->Restore();
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_minimized(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsMinimized();
+  return __window(window_id)->IsMinimized();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_full_screen(long window_id, bool is_full_screen) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetFullScreen(is_full_screen);
+  __window(window_id)->SetFullScreen(is_full_screen);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_full_screen(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsFullScreen();
+  return __window(window_id)->IsFullScreen();
 }
 
 // FFI_PLUGIN_EXPORT
@@ -100,226 +94,191 @@ bool window_is_full_screen(long window_id) {
 
 FFI_PLUGIN_EXPORT
 void window_set_bounds(long window_id, struct NativeRectangle bounds) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetBounds({bounds.x, bounds.y, bounds.width, bounds.height});
+  __window(window_id)->SetBounds(
+      {bounds.x, bounds.y, bounds.width, bounds.height});
 }
 
 FFI_PLUGIN_EXPORT
 struct NativeRectangle window_get_bounds(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  auto bounds = window.GetBounds();
+  auto bounds = __window(window_id)->GetBounds();
   return {bounds.x, bounds.y, bounds.width, bounds.height};
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_size(long window_id, struct NativeSize size) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetSize({size.width, size.height});
+  __window(window_id)->SetSize({size.width, size.height});
 }
 
 FFI_PLUGIN_EXPORT
 struct NativeSize window_get_size(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  auto size = window.GetSize();
+  auto size = __window(window_id)->GetSize();
   return {size.width, size.height};
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_content_size(long window_id, struct NativeSize size) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetContentSize({size.width, size.height});
+  __window(window_id)->SetContentSize({size.width, size.height});
 }
 
 FFI_PLUGIN_EXPORT
 NativeSize window_get_content_size(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  auto size = window.GetContentSize();
+  auto size = __window(window_id)->GetContentSize();
   return {size.width, size.height};
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_minimum_size(long window_id, struct NativeSize size) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetMinimumSize({size.width, size.height});
+  __window(window_id)->SetMinimumSize({size.width, size.height});
 }
 
 FFI_PLUGIN_EXPORT
 struct NativeSize window_get_minimum_size(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  auto size = window.GetMinimumSize();
+  auto size = __window(window_id)->GetMinimumSize();
   return {size.width, size.height};
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_maximum_size(long window_id, struct NativeSize size) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetMaximumSize({size.width, size.height});
+  __window(window_id)->SetMaximumSize({size.width, size.height});
 }
 
 FFI_PLUGIN_EXPORT
 struct NativeSize window_get_maximum_size(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  auto size = window.GetMaximumSize();
+  auto size = __window(window_id)->GetMaximumSize();
   return {size.width, size.height};
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_resizable(long window_id, bool is_resizable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetResizable(is_resizable);
+  __window(window_id)->SetResizable(is_resizable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_resizable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsResizable();
+  return __window(window_id)->IsResizable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_movable(long window_id, bool is_movable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetMovable(is_movable);
+  __window(window_id)->SetMovable(is_movable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_movable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsMovable();
+  return __window(window_id)->IsMovable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_minimizable(long window_id, bool is_minimizable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetMinimizable(is_minimizable);
+  __window(window_id)->SetMinimizable(is_minimizable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_minimizable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsMinimizable();
+  return __window(window_id)->IsMinimizable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_maximizable(long window_id, bool is_maximizable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetMaximizable(is_maximizable);
+  __window(window_id)->SetMaximizable(is_maximizable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_maximizable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsMaximizable();
+  return __window(window_id)->IsMaximizable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_full_screenable(long window_id, bool is_full_screenable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetFullScreenable(is_full_screenable);
+  __window(window_id)->SetFullScreenable(is_full_screenable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_full_screenable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsFullScreenable();
+  return __window(window_id)->IsFullScreenable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_closable(long window_id, bool is_closable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetClosable(is_closable);
+  __window(window_id)->SetClosable(is_closable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_closable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsClosable();
+  return __window(window_id)->IsClosable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_always_on_top(long window_id, bool is_always_on_top) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetAlwaysOnTop(is_always_on_top);
+  __window(window_id)->SetAlwaysOnTop(is_always_on_top);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_always_on_top(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsAlwaysOnTop();
+  return __window(window_id)->IsAlwaysOnTop();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_position(long window_id, struct NativePoint point) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetPosition({point.x, point.y});
+  __window(window_id)->SetPosition({point.x, point.y});
 }
 
 FFI_PLUGIN_EXPORT
 struct NativePoint window_get_position(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  auto position = window.GetPosition();
+  auto position = __window(window_id)->GetPosition();
   return {position.x, position.y};
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_title(long window_id, const char* title) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetTitle(title);
+  __window(window_id)->SetTitle(title);
 }
 
 FFI_PLUGIN_EXPORT
 const char* window_get_title(long window_id) {
   static std::string title_storage;  // Static storage for the returned string
-  auto window = g_window_manager.Get(window_id);
-  title_storage = window.GetTitle();  // Store the string
+  title_storage = __window(window_id)->GetTitle();  // Store the string
   return title_storage.c_str();  // Return pointer to the stored string
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_has_shadow(long window_id, bool has_shadow) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetHasShadow(has_shadow);
+  __window(window_id)->SetHasShadow(has_shadow);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_has_shadow(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.HasShadow();
+  return __window(window_id)->HasShadow();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_opacity(long window_id, float opacity) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetOpacity(opacity);
+  __window(window_id)->SetOpacity(opacity);
 }
 
 FFI_PLUGIN_EXPORT
 float window_get_opacity(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.GetOpacity();
+  return __window(window_id)->GetOpacity();
 }
 
 FFI_PLUGIN_EXPORT
 void window_set_focusable(long window_id, bool is_focusable) {
-  auto window = g_window_manager.Get(window_id);
-  window.SetFocusable(is_focusable);
+  __window(window_id)->SetFocusable(is_focusable);
 }
 
 FFI_PLUGIN_EXPORT
 bool window_is_focusable(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  return window.IsFocusable();
+  return __window(window_id)->IsFocusable();
 }
 
 FFI_PLUGIN_EXPORT
 void window_start_dragging(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.StartDragging();
+  __window(window_id)->StartDragging();
 }
 
 FFI_PLUGIN_EXPORT
 void window_start_resizing(long window_id) {
-  auto window = g_window_manager.Get(window_id);
-  window.StartResizing();
+  __window(window_id)->StartResizing();
 }
 
 FFI_PLUGIN_EXPORT
