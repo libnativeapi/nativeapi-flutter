@@ -236,9 +236,8 @@ void window_set_title(long window_id, const char* title) {
 
 FFI_PLUGIN_EXPORT
 const char* window_get_title(long window_id) {
-  static std::string title_storage;  // Static storage for the returned string
-  title_storage = __window(window_id)->GetTitle();  // Store the string
-  return title_storage.c_str();  // Return pointer to the stored string
+  static std::string title_storage = __window(window_id)->GetTitle();
+  return title_storage.c_str();
 }
 
 FFI_PLUGIN_EXPORT

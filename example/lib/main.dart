@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
 final displayManager = DisplayManager.instance;
+final trayManager = TrayManager.instance;
 final windowManager = WindowManager.instance;
 
 void main() {
@@ -101,8 +102,6 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                     log += 'is minimized = ${currentWindow.isMinimized()}\n';
                     log += 'is maximized = ${currentWindow.isMaximized()}\n';
 
-                    currentWindow.setOpacity(0.5);
-
                     print(log);
 
                     setState(() {
@@ -112,10 +111,6 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                   child: const Text('Get Current Window'),
                 ),
                 ToggleButtons(
-                  children: [
-                    Text('Set Opacity'),
-                    Text('Clear Opacity'),
-                  ],
                   isSelected: [false, false],
                   onPressed: (index) {
                     final currentWindow = windowManager.getCurrent();
@@ -125,6 +120,10 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                       currentWindow.setOpacity(1.0);
                     }
                   },
+                  children: const [
+                    Text('Set Opacity'),
+                    Text('Clear Opacity'),
+                  ],
                 ),
                 TextButton(
                   onPressed: () {
@@ -145,6 +144,16 @@ class _MyAppState extends State<MyApp> with DisplayListener {
                   'currentWindowSize = $currentWindowSize',
                   style: textStyle,
                   textAlign: TextAlign.center,
+                ),
+                TextButton(
+                  onPressed: () {
+                    final tray = trayManager.create();
+                    print('tray = $tray');
+                    tray.setTitle('Hello World');
+                    tray.setIcon('assets/icon.png');
+                    tray.setTooltip('This is a tooltip');
+                  },
+                  child: const Text('Create Tray'),
                 ),
               ],
             ),

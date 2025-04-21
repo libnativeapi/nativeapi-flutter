@@ -148,6 +148,151 @@ class NativeApiBindings {
   late final _sum_long_running =
       _sum_long_runningPtr.asFunction<int Function(int, int)>();
 
+  int tray_manager_create() {
+    return _tray_manager_create();
+  }
+
+  late final _tray_manager_createPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function()>>('tray_manager_create');
+  late final _tray_manager_create =
+      _tray_manager_createPtr.asFunction<int Function()>();
+
+  NativeTrayIDList tray_manager_get_all() {
+    return _tray_manager_get_all();
+  }
+
+  late final _tray_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<NativeTrayIDList Function()>>(
+          'tray_manager_get_all');
+  late final _tray_manager_get_all =
+      _tray_manager_get_allPtr.asFunction<NativeTrayIDList Function()>();
+
+  void tray_manager_start_listening() {
+    return _tray_manager_start_listening();
+  }
+
+  late final _tray_manager_start_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'tray_manager_start_listening');
+  late final _tray_manager_start_listening =
+      _tray_manager_start_listeningPtr.asFunction<void Function()>();
+
+  void tray_manager_stop_listening() {
+    return _tray_manager_stop_listening();
+  }
+
+  late final _tray_manager_stop_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'tray_manager_stop_listening');
+  late final _tray_manager_stop_listening =
+      _tray_manager_stop_listeningPtr.asFunction<void Function()>();
+
+  void tray_set_icon(
+    int tray_id,
+    ffi.Pointer<ffi.Char> icon,
+  ) {
+    return _tray_set_icon(
+      tray_id,
+      icon,
+    );
+  }
+
+  late final _tray_set_iconPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Long, ffi.Pointer<ffi.Char>)>>('tray_set_icon');
+  late final _tray_set_icon =
+      _tray_set_iconPtr.asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+
+  void tray_set_title(
+    int tray_id,
+    ffi.Pointer<ffi.Char> title,
+  ) {
+    return _tray_set_title(
+      tray_id,
+      title,
+    );
+  }
+
+  late final _tray_set_titlePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Long, ffi.Pointer<ffi.Char>)>>(
+      'tray_set_title');
+  late final _tray_set_title = _tray_set_titlePtr
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<ffi.Char> tray_get_title(
+    int tray_id,
+  ) {
+    return _tray_get_title(
+      tray_id,
+    );
+  }
+
+  late final _tray_get_titlePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(ffi.Long)>>(
+          'tray_get_title');
+  late final _tray_get_title =
+      _tray_get_titlePtr.asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  void tray_set_tooltip(
+    int tray_id,
+    ffi.Pointer<ffi.Char> tooltip,
+  ) {
+    return _tray_set_tooltip(
+      tray_id,
+      tooltip,
+    );
+  }
+
+  late final _tray_set_tooltipPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Long, ffi.Pointer<ffi.Char>)>>(
+      'tray_set_tooltip');
+  late final _tray_set_tooltip = _tray_set_tooltipPtr
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<ffi.Char> tray_get_tooltip(
+    int tray_id,
+  ) {
+    return _tray_get_tooltip(
+      tray_id,
+    );
+  }
+
+  late final _tray_get_tooltipPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(ffi.Long)>>(
+          'tray_get_tooltip');
+  late final _tray_get_tooltip =
+      _tray_get_tooltipPtr.asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  void tray_start_listening(
+    int tray_id,
+  ) {
+    return _tray_start_listening(
+      tray_id,
+    );
+  }
+
+  late final _tray_start_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long)>>(
+          'tray_start_listening');
+  late final _tray_start_listening =
+      _tray_start_listeningPtr.asFunction<void Function(int)>();
+
+  void tray_stop_listening(
+    int tray_id,
+  ) {
+    return _tray_stop_listening(
+      tray_id,
+    );
+  }
+
+  late final _tray_stop_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long)>>(
+          'tray_stop_listening');
+  late final _tray_stop_listening =
+      _tray_stop_listeningPtr.asFunction<void Function(int)>();
+
   NativeWindowIDList window_manager_get_all() {
     return _window_manager_get_all();
   }
@@ -1021,6 +1166,13 @@ final class NativeSize extends ffi.Struct {
 
   @ffi.Double()
   external double height;
+}
+
+final class NativeTrayIDList extends ffi.Struct {
+  external ffi.Pointer<ffi.Long> ids;
+
+  @ffi.Long()
+  external int count;
 }
 
 final class NativeWindowIDList extends ffi.Struct {

@@ -7,10 +7,14 @@
 // Include source files
 #include "../../src/libnativeapi/src/display_manager.cpp"
 #include "../../src/libnativeapi/src/display_manager_macos.mm"
+#include "../../src/libnativeapi/src/tray_macos.mm"
+#include "../../src/libnativeapi/src/tray_manager_macos.mm"
 #include "../../src/libnativeapi/src/window_macos.mm"
 #include "../../src/libnativeapi/src/window_manager_macos.mm"
 
 #include "../../src/nativeapi.cpp"
 #include "../../src/display_manager.cpp"
+#include "../../src/tray_manager.cpp"
+#include "../../src/tray.cpp"
 #include "../../src/window_manager.cpp"
 #include "../../src/window.cpp"

@@ -268,4 +268,12 @@ class Window {
   }
 
   void addListener(VoidCallback listener) {}
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  operator ==(Object other) {
+    return other is Window && other.id == id;
+  }
 }

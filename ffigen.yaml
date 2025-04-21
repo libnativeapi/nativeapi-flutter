@@ -13,6 +13,8 @@ headers:
     - "src/point.h"
     - "src/rectangle.h"
     - "src/size.h"
+    - "src/tray_manager.h"
+    - "src/tray.h"
     - "src/window_manager.h"
     - "src/window.h"
   include-directives:
@@ -22,6 +24,8 @@ headers:
     - "src/point.h"
     - "src/rectangle.h"
     - "src/size.h"
+    - "src/tray_manager.h"
+    - "src/tray.h"
     - "src/window_manager.h"
     - "src/window.h"
 preamble: |
