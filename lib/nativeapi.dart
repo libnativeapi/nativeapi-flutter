@@ -1,5 +1,7 @@
 library;
 
+export 'src/broadcast_center.dart';
+export 'src/broadcast_receiver.dart';
 export 'src/display.dart';
 export 'src/display_listener.dart';
 export 'src/display_manager.dart';

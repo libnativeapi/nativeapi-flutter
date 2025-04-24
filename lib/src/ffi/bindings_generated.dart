@@ -27,6 +27,41 @@ class NativeApiBindings {
           lookup)
       : _lookup = lookup;
 
+  void broadcast_center_start_listening() {
+    return _broadcast_center_start_listening();
+  }
+
+  late final _broadcast_center_start_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'broadcast_center_start_listening');
+  late final _broadcast_center_start_listening =
+      _broadcast_center_start_listeningPtr.asFunction<void Function()>();
+
+  void broadcast_center_stop_listening() {
+    return _broadcast_center_stop_listening();
+  }
+
+  late final _broadcast_center_stop_listeningPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'broadcast_center_stop_listening');
+  late final _broadcast_center_stop_listening =
+      _broadcast_center_stop_listeningPtr.asFunction<void Function()>();
+
+  void broadcast_center_on_broadcast_received(
+    BroadcastReceivedCallback callback,
+  ) {
+    return _broadcast_center_on_broadcast_received(
+      callback,
+    );
+  }
+
+  late final _broadcast_center_on_broadcast_receivedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(BroadcastReceivedCallback)>>(
+          'broadcast_center_on_broadcast_received');
+  late final _broadcast_center_on_broadcast_received =
+      _broadcast_center_on_broadcast_receivedPtr
+          .asFunction<void Function(BroadcastReceivedCallback)>();
+
   NativeDisplayList display_manager_get_all() {
     return _display_manager_get_all();
   }
@@ -1092,6 +1127,13 @@ class NativeApiBindings {
   late final _window_stop_listening =
       _window_stop_listeningPtr.asFunction<void Function(int)>();
 }
+
+typedef BroadcastReceivedCallback
+    = ffi.Pointer<ffi.NativeFunction<BroadcastReceivedCallbackFunction>>;
+typedef BroadcastReceivedCallbackFunction = ffi.Void Function(
+    ffi.Pointer<ffi.Char> message);
+typedef DartBroadcastReceivedCallbackFunction = void Function(
+    ffi.Pointer<ffi.Char> message);
 
 final class NativeDisplay extends ffi.Struct {
   external ffi.Pointer<ffi.Char> id;

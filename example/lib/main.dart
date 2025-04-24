@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
+final broadcastCenter = BroadcastCenter.instance;
 final displayManager = DisplayManager.instance;
 final trayManager = TrayManager.instance;
 final windowManager = WindowManager.instance;
@@ -16,7 +17,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with DisplayListener {
+class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
   late Display primaryDisplay;
   List<Display> allDisplays = [];
 
@@ -27,6 +28,7 @@ class _MyAppState extends State<MyApp> with DisplayListener {
     super.initState();
     primaryDisplay = displayManager.getPrimary();
     displayManager.addListener(this);
+    broadcastCenter.addListener(this);
     // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
   }
@@ -35,6 +37,11 @@ class _MyAppState extends State<MyApp> with DisplayListener {
   void dispose() {
     displayManager.removeListener(this);
     super.dispose();
+  }
+
+  @override
+  void onBroadcastReceived(String message) {
+    print('>>>>> received $message');
   }
 
   @override
