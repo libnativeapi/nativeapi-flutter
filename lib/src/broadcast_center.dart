@@ -6,7 +6,7 @@ import 'package:nativeapi/src/event_listener_mixin.dart';
 import 'package:nativeapi/src/ffi/bindings_generated.dart';
 import 'ffi/bindings.dart';
 
-class BroadcastCenter with EventListenerMixin<BroadcastReceiver> {
+class BroadcastCenter {
   BroadcastCenter._();
 
   static final BroadcastCenter instance = BroadcastCenter._();
@@ -16,30 +16,63 @@ class BroadcastCenter with EventListenerMixin<BroadcastReceiver> {
   late final ffi.NativeCallable<BroadcastReceivedCallbackFunction>
       _broadcastReceivedCallbackCallable;
 
-  BroadcastCenter() {
+  final Map<String, List<BroadcastReceiver>> _receivers = {};
+
+  constBroadcastCenter() {
     _broadcastReceivedCallbackCallable =
         ffi.NativeCallable<BroadcastReceivedCallbackFunction>.listener(
             _onBroadcastReceived);
-
     _bindings.broadcast_center_on_broadcast_received(
         _broadcastReceivedCallbackCallable.nativeFunction);
   }
 
-  void _onBroadcastReceived(ffi.Pointer<ffi.Char> message) {
-    print('onBroadcastReceived: ${message.cast<Utf8>().toDartString()}');
-    notifyListeners(
-        (l) => l.onBroadcastReceived(message.cast<Utf8>().toDartString()));
+  void _onBroadcastReceived(
+    ffi.Pointer<ffi.Char> topic,
+    ffi.Pointer<ffi.Char> message,
+  ) {
+    notifyReceivers(
+      topic.cast<Utf8>().toDartString(),
+      (l) => l.onBroadcastReceived(
+        topic.cast<Utf8>().toDartString(),
+        message.cast<Utf8>().toDartString(),
+      ),
+    );
   }
 
-  @override
-  void addListener(BroadcastReceiver listener) {
-    super.addListener(listener);
-    if (hasListeners) _bindings.broadcast_center_start_listening();
+  /// Send a broadcast message to all receivers of a given topic
+  void sendBroadcast(String topic, String message) {
+    _bindings.broadcast_center_send_broadcast(
+      topic.toNativeUtf8().cast<ffi.Char>(),
+      message.toNativeUtf8().cast<ffi.Char>(),
+    );
   }
 
-  @override
-  void removeListener(BroadcastReceiver listener) {
-    super.removeListener(listener);
-    if (!hasListeners) _bindings.broadcast_center_stop_listening();
+  /// Register a receiver for a given topic
+  void registerReceiver(String topic, BroadcastReceiver listener) {
+    if (_receivers[topic] == null) {
+      _receivers[topic] = [];
+    }
+    _receivers[topic]?.add(listener);
+    _bindings.broadcast_center_register_receiver(
+      topic.toNativeUtf8().cast<ffi.Char>(),
+    );
+  }
+
+  /// Unregister a receiver for a given topic
+  void unregisterReceiver(String topic, BroadcastReceiver listener) {
+    _receivers[topic]?.remove(listener);
+    _bindings.broadcast_center_unregister_receiver(
+      topic.toNativeUtf8().cast<ffi.Char>(),
+    );
+  }
+
+  /// Notify all receivers of a given topic and message
+  ///
+  /// The [topic] is the topic of the broadcast.
+  /// The [callback] is called for each receiver.
+  void notifyReceivers(String topic, Function(BroadcastReceiver) callback) {
+    for (var listener in _receivers[topic] ?? []) {
+      callback(listener);
+    }
   }
 }

@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
     super.initState();
     primaryDisplay = displayManager.getPrimary();
     displayManager.addListener(this);
-    broadcastCenter.addListener(this);
+    broadcastCenter.registerReceiver('com.example.myNotification', this);
     // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
   }
@@ -36,12 +36,13 @@ class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
   @override
   void dispose() {
     displayManager.removeListener(this);
+    broadcastCenter.unregisterReceiver('com.example.myNotification', this);
     super.dispose();
   }
 
   @override
-  void onBroadcastReceived(String message) {
-    print('>>>>> received $message');
+  void onBroadcastReceived(String topic, String message) {
+    print('>>>>> received $topic -> $message');
   }
 
   @override
@@ -161,6 +162,15 @@ class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
                     tray.setTooltip('This is a tooltip');
                   },
                   child: const Text('Create Tray'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    broadcastCenter.sendBroadcast(
+                      'com.example.myNotification',
+                      'Hello World, from Dart!',
+                    );
+                  },
+                  child: const Text('Send Broadcast'),
                 ),
               ],
             ),

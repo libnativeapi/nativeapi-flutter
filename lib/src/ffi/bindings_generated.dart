@@ -27,25 +27,53 @@ class NativeApiBindings {
           lookup)
       : _lookup = lookup;
 
-  void broadcast_center_start_listening() {
-    return _broadcast_center_start_listening();
+  void broadcast_center_send_broadcast(
+    ffi.Pointer<ffi.Char> topic,
+    ffi.Pointer<ffi.Char> message,
+  ) {
+    return _broadcast_center_send_broadcast(
+      topic,
+      message,
+    );
   }
 
-  late final _broadcast_center_start_listeningPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'broadcast_center_start_listening');
-  late final _broadcast_center_start_listening =
-      _broadcast_center_start_listeningPtr.asFunction<void Function()>();
+  late final _broadcast_center_send_broadcastPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('broadcast_center_send_broadcast');
+  late final _broadcast_center_send_broadcast =
+      _broadcast_center_send_broadcastPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
-  void broadcast_center_stop_listening() {
-    return _broadcast_center_stop_listening();
+  void broadcast_center_register_receiver(
+    ffi.Pointer<ffi.Char> topic,
+  ) {
+    return _broadcast_center_register_receiver(
+      topic,
+    );
   }
 
-  late final _broadcast_center_stop_listeningPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'broadcast_center_stop_listening');
-  late final _broadcast_center_stop_listening =
-      _broadcast_center_stop_listeningPtr.asFunction<void Function()>();
+  late final _broadcast_center_register_receiverPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'broadcast_center_register_receiver');
+  late final _broadcast_center_register_receiver =
+      _broadcast_center_register_receiverPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void broadcast_center_unregister_receiver(
+    ffi.Pointer<ffi.Char> topic,
+  ) {
+    return _broadcast_center_unregister_receiver(
+      topic,
+    );
+  }
+
+  late final _broadcast_center_unregister_receiverPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'broadcast_center_unregister_receiver');
+  late final _broadcast_center_unregister_receiver =
+      _broadcast_center_unregister_receiverPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
   void broadcast_center_on_broadcast_received(
     BroadcastReceivedCallback callback,
@@ -1131,9 +1159,9 @@ class NativeApiBindings {
 typedef BroadcastReceivedCallback
     = ffi.Pointer<ffi.NativeFunction<BroadcastReceivedCallbackFunction>>;
 typedef BroadcastReceivedCallbackFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Char> message);
+    ffi.Pointer<ffi.Char> topic, ffi.Pointer<ffi.Char> message);
 typedef DartBroadcastReceivedCallbackFunction = void Function(
-    ffi.Pointer<ffi.Char> message);
+    ffi.Pointer<ffi.Char> topic, ffi.Pointer<ffi.Char> message);
 
 final class NativeDisplay extends ffi.Struct {
   external ffi.Pointer<ffi.Char> id;

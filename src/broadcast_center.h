@@ -10,13 +10,16 @@
 extern "C" {
 #endif
 
-typedef void (*BroadcastReceivedCallback)(const char* message);
+typedef void (*BroadcastReceivedCallback)(const char* topic, const char* message);
 
 FFI_PLUGIN_EXPORT
-void broadcast_center_start_listening();
+void broadcast_center_send_broadcast(const char* topic, const char* message);
 
 FFI_PLUGIN_EXPORT
-void broadcast_center_stop_listening();
+void broadcast_center_register_receiver(const char* topic);
+
+FFI_PLUGIN_EXPORT
+void broadcast_center_unregister_receiver(const char* topic);
 
 FFI_PLUGIN_EXPORT
 void broadcast_center_on_broadcast_received(BroadcastReceivedCallback callback);
