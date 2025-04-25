@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart';
 import 'package:nativeapi/src/ffi/bindings.dart';
@@ -211,7 +212,12 @@ class Window {
   }
 
   /// Sets the position of the window.
-  void setPosition(Offset offset) {}
+  void setPosition(Offset offset) {
+    final pointPtr = malloc<NativePoint>();
+    pointPtr.ref.x = offset.dx;
+    pointPtr.ref.y = offset.dy;
+    _bindings.window_set_position(id, pointPtr.ref);
+  }
 
   /// Gets the position of the window.
   Offset getPosition() {

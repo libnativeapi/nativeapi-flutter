@@ -2,12 +2,17 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart';
 
 import 'package:nativeapi/src/broadcast_receiver.dart';
-import 'package:nativeapi/src/event_listener_mixin.dart';
 import 'package:nativeapi/src/ffi/bindings_generated.dart';
 import 'ffi/bindings.dart';
 
 class BroadcastCenter {
-  BroadcastCenter._();
+  BroadcastCenter._() {
+    _broadcastReceivedCallbackCallable =
+        ffi.NativeCallable<BroadcastReceivedCallbackFunction>.listener(
+            _onBroadcastReceived);
+    _bindings.broadcast_center_on_broadcast_received(
+        _broadcastReceivedCallbackCallable.nativeFunction);
+  }
 
   static final BroadcastCenter instance = BroadcastCenter._();
 
@@ -18,23 +23,33 @@ class BroadcastCenter {
 
   final Map<String, List<BroadcastReceiver>> _receivers = {};
 
-  constBroadcastCenter() {
-    _broadcastReceivedCallbackCallable =
-        ffi.NativeCallable<BroadcastReceivedCallbackFunction>.listener(
-            _onBroadcastReceived);
-    _bindings.broadcast_center_on_broadcast_received(
-        _broadcastReceivedCallbackCallable.nativeFunction);
-  }
-
   void _onBroadcastReceived(
     ffi.Pointer<ffi.Char> topic,
     ffi.Pointer<ffi.Char> message,
   ) {
+    String topicStr;
+    String messageStr;
+
+    try {
+      topicStr = topic.cast<Utf8>().toDartString();
+    } catch (e) {
+      print('Error converting topic to string: $e');
+      topicStr = 'invalid_topic';
+    }
+
+    try {
+      messageStr = message.cast<Utf8>().toDartString();
+    } catch (e) {
+      print('Error converting message to string: $e');
+      messageStr = 'invalid_message';
+    }
+
+    print('onBroadcastReceived: $topicStr, $messageStr');
     notifyReceivers(
-      topic.cast<Utf8>().toDartString(),
+      topicStr,
       (l) => l.onBroadcastReceived(
-        topic.cast<Utf8>().toDartString(),
-        message.cast<Utf8>().toDartString(),
+        topicStr,
+        messageStr,
       ),
     );
   }
@@ -71,7 +86,12 @@ class BroadcastCenter {
   /// The [topic] is the topic of the broadcast.
   /// The [callback] is called for each receiver.
   void notifyReceivers(String topic, Function(BroadcastReceiver) callback) {
-    for (var listener in _receivers[topic] ?? []) {
+    print('notifyReceivers: $topic');
+
+    final firstTopic = _receivers.keys.first.toString();
+
+    for (var listener in _receivers[firstTopic] ?? []) {
+      print('notifyReceivers: $topic, $listener');
       callback(listener);
     }
   }

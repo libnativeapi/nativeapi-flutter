@@ -21,9 +21,10 @@ void broadcast_center_register_receiver(const char* topic) {
   std::unique_ptr<BroadcastEventHandler> broadcast_event_handler =
       std::make_unique<BroadcastEventHandler>(
           [](const std::string& topic, const std::string& message) {
-            std::cout << "Broadcast received: " << message << std::endl;
             if (g_broadcast_received_callback) {
-              g_broadcast_received_callback(topic.c_str(), message.c_str());
+              char* topic_cstr = strdup(topic.c_str());
+              char* message_cstr = strdup(message.c_str());
+              g_broadcast_received_callback(topic_cstr, message_cstr);
             }
           });
   g_broadcast_event_handlers[topic] = std::move(broadcast_event_handler);

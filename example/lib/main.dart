@@ -135,6 +135,13 @@ class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
                 ),
                 TextButton(
                   onPressed: () {
+                    final currentWindow = windowManager.getCurrent();
+                    currentWindow.setPosition(Offset(100, 100));
+                  },
+                  child: const Text('Set Current Window Position'),
+                ),
+                TextButton(
+                  onPressed: () {
                     setState(() {
                       currentWindowSize = Size(0, 0);
                     });
