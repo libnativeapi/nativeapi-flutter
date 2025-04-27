@@ -27,6 +27,26 @@ class NativeApiBindings {
           lookup)
       : _lookup = lookup;
 
+  void accessibility_manager_enable() {
+    return _accessibility_manager_enable();
+  }
+
+  late final _accessibility_manager_enablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'accessibility_manager_enable');
+  late final _accessibility_manager_enable =
+      _accessibility_manager_enablePtr.asFunction<void Function()>();
+
+  bool accessibility_manager_is_enabled() {
+    return _accessibility_manager_is_enabled();
+  }
+
+  late final _accessibility_manager_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+          'accessibility_manager_is_enabled');
+  late final _accessibility_manager_is_enabled =
+      _accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
+
   void broadcast_center_send_broadcast(
     ffi.Pointer<ffi.Char> topic,
     ffi.Pointer<ffi.Char> message,

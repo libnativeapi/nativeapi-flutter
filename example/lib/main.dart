@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
+final accessibilityManager = AccessibilityManager.instance;
 final broadcastCenter = BroadcastCenter.instance;
 final displayManager = DisplayManager.instance;
 final trayManager = TrayManager.instance;
@@ -17,7 +18,24 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
+class _MyAppState extends State<MyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage>
+    with DisplayListener, BroadcastReceiver {
   late Display primaryDisplay;
   List<Display> allDisplays = [];
 
@@ -93,6 +111,22 @@ class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
                     style: textStyle,
                     textAlign: TextAlign.center,
                   ),
+                TextButton(
+                  onPressed: () {
+                    bool isEnabled = accessibilityManager.isEnabled();
+                    if (!isEnabled) {
+                      accessibilityManager.enable();
+                    }
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('Accessibility'),
+                        content: Text('isEnabled = $isEnabled'),
+                      ),
+                    );
+                  },
+                  child: const Text('Enable Accessibility'),
+                ),
                 TextButton(
                   onPressed: () {
                     final currentWindow = windowManager.getCurrent();

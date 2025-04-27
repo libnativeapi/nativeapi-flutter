@@ -1,5 +1,6 @@
 library;
 
+export 'src/accessibility_manager.dart';
 export 'src/broadcast_center.dart';
 export 'src/broadcast_receiver.dart';
 export 'src/display.dart';
