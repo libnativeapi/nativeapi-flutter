@@ -106,7 +106,18 @@ class Window {
   }
 
   /// Sets the size of the window.
-  void setSize(Size size) {}
+  ///
+  /// If [animate] is true, the window will resize with an animation.
+  /// Only works on macOS.
+  void setSize(
+    Size size, {
+    bool animate = false,
+  }) {
+    final nativeSize = malloc<NativeSize>();
+    nativeSize.ref.width = size.width;
+    nativeSize.ref.height = size.height;
+    _bindings.window_set_size(id, nativeSize.ref, animate);
+  }
 
   /// Gets the size of the window.
   Size getSize() {

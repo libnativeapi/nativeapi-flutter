@@ -621,18 +621,21 @@ class NativeApiBindings {
   void window_set_size(
     int window_id,
     NativeSize size,
+    bool animate,
   ) {
     return _window_set_size(
       window_id,
       size,
+      animate,
     );
   }
 
-  late final _window_set_sizePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long, NativeSize)>>(
-          'window_set_size');
+  late final _window_set_sizePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Long, NativeSize, ffi.Bool)>>(
+      'window_set_size');
   late final _window_set_size =
-      _window_set_sizePtr.asFunction<void Function(int, NativeSize)>();
+      _window_set_sizePtr.asFunction<void Function(int, NativeSize, bool)>();
 
   NativeSize window_get_size(
     int window_id,

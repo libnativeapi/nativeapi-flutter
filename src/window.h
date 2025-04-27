@@ -69,7 +69,7 @@ FFI_PLUGIN_EXPORT
 struct NativeRectangle window_get_bounds(long window_id);
 
 FFI_PLUGIN_EXPORT
-void window_set_size(long window_id, struct NativeSize size);
+void window_set_size(long window_id, struct NativeSize size, bool animate);
 
 FFI_PLUGIN_EXPORT
 struct NativeSize window_get_size(long window_id);

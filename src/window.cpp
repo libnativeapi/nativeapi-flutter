@@ -105,8 +105,8 @@ struct NativeRectangle window_get_bounds(long window_id) {
 }
 
 FFI_PLUGIN_EXPORT
-void window_set_size(long window_id, struct NativeSize size) {
-  __window(window_id)->SetSize({size.width, size.height});
+void window_set_size(long window_id, struct NativeSize size, bool animate) {
+  __window(window_id)->SetSize({size.width, size.height}, animate);
 }
 
 FFI_PLUGIN_EXPORT

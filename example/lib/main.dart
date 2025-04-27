@@ -96,6 +96,13 @@ class _MyAppState extends State<MyApp> with DisplayListener, BroadcastReceiver {
                 TextButton(
                   onPressed: () {
                     final currentWindow = windowManager.getCurrent();
+                    currentWindow.setSize(Size(100, 100), animate: true);
+                  },
+                  child: const Text('Set size'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    final currentWindow = windowManager.getCurrent();
 
                     String log = '';
 
