@@ -191,6 +191,55 @@ class NativeApiBindings {
       _display_manager_on_display_removedPtr
           .asFunction<void Function(DisplayRemovedCallback)>();
 
+  void keyboard_monitor_start() {
+    return _keyboard_monitor_start();
+  }
+
+  late final _keyboard_monitor_startPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'keyboard_monitor_start');
+  late final _keyboard_monitor_start =
+      _keyboard_monitor_startPtr.asFunction<void Function()>();
+
+  void keyboard_monitor_stop() {
+    return _keyboard_monitor_stop();
+  }
+
+  late final _keyboard_monitor_stopPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>('keyboard_monitor_stop');
+  late final _keyboard_monitor_stop =
+      _keyboard_monitor_stopPtr.asFunction<void Function()>();
+
+  void keyboard_monitor_on_key_pressed(
+    KeyPressedCallback callback,
+  ) {
+    return _keyboard_monitor_on_key_pressed(
+      callback,
+    );
+  }
+
+  late final _keyboard_monitor_on_key_pressedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(KeyPressedCallback)>>(
+          'keyboard_monitor_on_key_pressed');
+  late final _keyboard_monitor_on_key_pressed =
+      _keyboard_monitor_on_key_pressedPtr
+          .asFunction<void Function(KeyPressedCallback)>();
+
+  void keyboard_monitor_on_key_released(
+    KeyReleasedCallback callback,
+  ) {
+    return _keyboard_monitor_on_key_released(
+      callback,
+    );
+  }
+
+  late final _keyboard_monitor_on_key_releasedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(KeyReleasedCallback)>>(
+          'keyboard_monitor_on_key_released');
+  late final _keyboard_monitor_on_key_released =
+      _keyboard_monitor_on_key_releasedPtr
+          .asFunction<void Function(KeyReleasedCallback)>();
+
   /// A very short-lived native function.
   ///
   /// For very short-lived functions, it is fine to call them on the main isolate.
@@ -1238,6 +1287,18 @@ typedef DisplayRemovedCallbackFunction = ffi.Void Function(
     NativeDisplay display);
 typedef DartDisplayRemovedCallbackFunction = void Function(
     NativeDisplay display);
+typedef KeyPressedCallback
+    = ffi.Pointer<ffi.NativeFunction<KeyPressedCallbackFunction>>;
+typedef KeyPressedCallbackFunction = ffi.Void Function(
+    ffi.Pointer<ffi.Char> key);
+typedef DartKeyPressedCallbackFunction = void Function(
+    ffi.Pointer<ffi.Char> key);
+typedef KeyReleasedCallback
+    = ffi.Pointer<ffi.NativeFunction<KeyReleasedCallbackFunction>>;
+typedef KeyReleasedCallbackFunction = ffi.Void Function(
+    ffi.Pointer<ffi.Char> key);
+typedef DartKeyReleasedCallbackFunction = void Function(
+    ffi.Pointer<ffi.Char> key);
 
 final class NativeRectangle extends ffi.Struct {
   @ffi.Double()

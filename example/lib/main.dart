@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide KeyboardListener;
 import 'package:nativeapi/nativeapi.dart';
 
 final accessibilityManager = AccessibilityManager.instance;
@@ -6,6 +6,7 @@ final broadcastCenter = BroadcastCenter.instance;
 final displayManager = DisplayManager.instance;
 final trayManager = TrayManager.instance;
 final windowManager = WindowManager.instance;
+final keyboardMonitor = KeyboardMonitor.instance;
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    with DisplayListener, BroadcastReceiver {
+    with DisplayListener, BroadcastReceiver, KeyboardListener {
   late Display primaryDisplay;
   List<Display> allDisplays = [];
 
@@ -47,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage>
     primaryDisplay = displayManager.getPrimary();
     displayManager.addListener(this);
     broadcastCenter.registerReceiver('com.example.myNotification', this);
+    keyboardMonitor.addListener(this);
     // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
   }
@@ -55,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage>
   void dispose() {
     displayManager.removeListener(this);
     broadcastCenter.unregisterReceiver('com.example.myNotification', this);
+    keyboardMonitor.removeListener(this);
     super.dispose();
   }
 
@@ -77,6 +80,16 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       allDisplays.remove(display);
     });
+  }
+
+  @override
+  void onKeyPressed(String key) {
+    print('>>>>> keyPressed $key');
+  }
+
+  @override
+  void onKeyReleased(String key) {
+    print('>>>>> keyReleased $key');
   }
 
   @override
@@ -126,6 +139,18 @@ class _MyHomePageState extends State<MyHomePage>
                     );
                   },
                   child: const Text('Enable Accessibility'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    keyboardMonitor.start();
+                  },
+                  child: const Text('Start Keyboard Monitor'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    keyboardMonitor.stop();
+                  },
+                  child: const Text('Stop Keyboard Monitor'),
                 ),
                 TextButton(
                   onPressed: () {
