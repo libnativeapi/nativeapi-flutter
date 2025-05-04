@@ -11,12 +11,13 @@ WindowManager g_window_manager = WindowManager();
 FFI_PLUGIN_EXPORT
 struct NativeWindowIDList window_manager_get_all() {
   auto windows = g_window_manager.GetAll();
-  NativeWindowIDList native_window_id_list;
-  native_window_id_list.count = windows.size();
-  for (size_t i = 0; i < windows.size(); i++) {
-    native_window_id_list.ids[i] = windows[i]->id;
+  NativeWindowIDList window_id_list;
+  window_id_list.count = windows.size();
+  window_id_list.ids = (long*)malloc(sizeof(long) * window_id_list.count);
+  for (size_t i = 0; i < window_id_list.count; i++) {
+    window_id_list.ids[i] = windows[i]->id;
   }
-  return native_window_id_list;
+  return window_id_list;
 }
 
 FFI_PLUGIN_EXPORT

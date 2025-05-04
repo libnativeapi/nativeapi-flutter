@@ -1,5 +1,7 @@
 import 'package:nativeapi/src/ffi/bindings.dart';
 import 'package:nativeapi/src/ffi/bindings_generated.dart';
+import 'dart:ffi';
+import 'package:ffi/ffi.dart' as ffi;
 
 import 'window.dart';
 
@@ -20,7 +22,13 @@ class WindowManager {
   ///
   /// Returns a list of all windows.
   List<Window> getAll() {
-    return [];
+    final windowIdList = _bindings.window_manager_get_all();
+    final List<int> idList = List.generate(
+      windowIdList.count,
+      (index) => windowIdList.ids[index],
+    );
+    ffi.malloc.free(windowIdList.ids);
+    return idList.map((id) => Window(id: id)).toList();
   }
 
   /// Get the current window.

@@ -106,6 +106,16 @@ class _MyHomePageState extends State<MyHomePage>
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
+                TextButton(
+                  onPressed: () {
+                    final windows = windowManager.getAll();
+                    print('windows = ${windows.length}, ${windows.map((e) => e.id).join(',')}');
+
+                    final firstWindow = windows.first;
+                    firstWindow.setSize(Size(100, 100), animate: true);
+                  },
+                  child: const Text('All Windows'),
+                ),
                 spacerSmall,
                 Text(
                   'primaryDisplay = ${primaryDisplay.id} ${primaryDisplay.name} ${primaryDisplay.size} ${primaryDisplay.scaleFactor}',
