@@ -38,6 +38,11 @@ class Window {
     _bindings.window_show(id);
   }
 
+  /// Shows the window but doesn't focus on it.
+  void showInactive() {
+    _bindings.window_show_inactive(id);
+  }
+
   /// Hides the window.
   void hide() {
     _bindings.window_hide(id);
@@ -262,6 +267,27 @@ class Window {
   /// Gets the opacity of the window.
   double getOpacity() {
     return _bindings.window_get_opacity(id);
+  }
+
+  /// Sets whether the window is visible on all workspaces.
+  void setVisibleOnAllWorkspaces(bool isVisibleOnAllWorkspaces) {
+    _bindings.window_set_visible_on_all_workspaces(
+        id, isVisibleOnAllWorkspaces);
+  }
+
+  /// Checks if the window is visible on all workspaces.
+  bool isVisibleOnAllWorkspaces() {
+    return _bindings.window_is_visible_on_all_workspaces(id);
+  }
+
+  /// Sets whether the window ignores mouse events.
+  void setIgnoreMouseEvents(bool isIgnoreMouseEvents) {
+    _bindings.window_set_ignore_mouse_events(id, isIgnoreMouseEvents);
+  }
+
+  /// Checks if the window ignores mouse events.
+  bool isIgnoreMouseEvents() {
+    return _bindings.window_is_ignore_mouse_events(id);
   }
 
   /// Sets whether the window is focusable.

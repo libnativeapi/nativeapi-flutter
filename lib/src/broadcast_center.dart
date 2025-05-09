@@ -86,7 +86,15 @@ class BroadcastCenter {
   /// The [topic] is the topic of the broadcast.
   /// The [callback] is called for each receiver.
   void notifyReceivers(String topic, Function(BroadcastReceiver) callback) {
-    print('notifyReceivers: $topic');
+    print('--------------------------------');
+    print('hashcode: ${hashCode}');
+
+    print('notifyReceivers: $topic , ${receiverCount}');
+
+    if (_receivers.isEmpty) {
+      print('No receivers registered');
+      return;
+    }
 
     final firstTopic = _receivers.keys.first.toString();
 
@@ -94,5 +102,16 @@ class BroadcastCenter {
       print('notifyReceivers: $topic, $listener');
       callback(listener);
     }
+  }
+
+  int get receiverCount {
+    print('--------------------------------');
+    print('hashcode: ${hashCode}');
+    int count = 0;
+    for (var topic in _receivers.keys) {
+      print('receiverCount: $topic, ${_receivers[topic]?.length}');
+      count += _receivers[topic]?.length ?? 0;
+    }
+    return count;
   }
 }

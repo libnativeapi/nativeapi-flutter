@@ -37,6 +37,11 @@ void window_show(long window_id) {
 }
 
 FFI_PLUGIN_EXPORT
+void window_show_inactive(long window_id) {
+  __window(window_id)->ShowInactive();
+}
+
+FFI_PLUGIN_EXPORT
 void window_hide(long window_id) {
   __window(window_id)->Hide();
 }
@@ -258,6 +263,28 @@ void window_set_opacity(long window_id, float opacity) {
 FFI_PLUGIN_EXPORT
 float window_get_opacity(long window_id) {
   return __window(window_id)->GetOpacity();
+}
+
+FFI_PLUGIN_EXPORT
+void window_set_visible_on_all_workspaces(long window_id,
+                                          bool is_visible_on_all_workspaces) {
+  __window(window_id)->SetVisibleOnAllWorkspaces(is_visible_on_all_workspaces);
+}
+
+FFI_PLUGIN_EXPORT
+bool window_is_visible_on_all_workspaces(long window_id) {
+  return __window(window_id)->IsVisibleOnAllWorkspaces();
+}
+
+FFI_PLUGIN_EXPORT
+void window_set_ignore_mouse_events(long window_id,
+                                    bool is_ignore_mouse_events) {
+  __window(window_id)->SetIgnoreMouseEvents(is_ignore_mouse_events);
+}
+
+FFI_PLUGIN_EXPORT
+bool window_is_ignore_mouse_events(long window_id) {
+  return __window(window_id)->IsIgnoreMouseEvents();
 }
 
 FFI_PLUGIN_EXPORT

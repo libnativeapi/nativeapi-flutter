@@ -515,6 +515,20 @@ class NativeApiBindings {
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long)>>('window_show');
   late final _window_show = _window_showPtr.asFunction<void Function(int)>();
 
+  void window_show_inactive(
+    int window_id,
+  ) {
+    return _window_show_inactive(
+      window_id,
+    );
+  }
+
+  late final _window_show_inactivePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long)>>(
+          'window_show_inactive');
+  late final _window_show_inactive =
+      _window_show_inactivePtr.asFunction<void Function(int)>();
+
   void window_hide(
     int window_id,
   ) {
@@ -1140,6 +1154,67 @@ class NativeApiBindings {
           'window_get_opacity');
   late final _window_get_opacity =
       _window_get_opacityPtr.asFunction<double Function(int)>();
+
+  void window_set_visible_on_all_workspaces(
+    int window_id,
+    bool is_visible_on_all_workspaces,
+  ) {
+    return _window_set_visible_on_all_workspaces(
+      window_id,
+      is_visible_on_all_workspaces,
+    );
+  }
+
+  late final _window_set_visible_on_all_workspacesPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long, ffi.Bool)>>(
+          'window_set_visible_on_all_workspaces');
+  late final _window_set_visible_on_all_workspaces =
+      _window_set_visible_on_all_workspacesPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool window_is_visible_on_all_workspaces(
+    int window_id,
+  ) {
+    return _window_is_visible_on_all_workspaces(
+      window_id,
+    );
+  }
+
+  late final _window_is_visible_on_all_workspacesPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Long)>>(
+          'window_is_visible_on_all_workspaces');
+  late final _window_is_visible_on_all_workspaces =
+      _window_is_visible_on_all_workspacesPtr.asFunction<bool Function(int)>();
+
+  void window_set_ignore_mouse_events(
+    int window_id,
+    bool is_ignore_mouse_events,
+  ) {
+    return _window_set_ignore_mouse_events(
+      window_id,
+      is_ignore_mouse_events,
+    );
+  }
+
+  late final _window_set_ignore_mouse_eventsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Long, ffi.Bool)>>(
+          'window_set_ignore_mouse_events');
+  late final _window_set_ignore_mouse_events =
+      _window_set_ignore_mouse_eventsPtr.asFunction<void Function(int, bool)>();
+
+  bool window_is_ignore_mouse_events(
+    int window_id,
+  ) {
+    return _window_is_ignore_mouse_events(
+      window_id,
+    );
+  }
+
+  late final _window_is_ignore_mouse_eventsPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Long)>>(
+          'window_is_ignore_mouse_events');
+  late final _window_is_ignore_mouse_events =
+      _window_is_ignore_mouse_eventsPtr.asFunction<bool Function(int)>();
 
   void window_set_focusable(
     int window_id,
