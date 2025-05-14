@@ -83,13 +83,13 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   @override
-  void onKeyPressed(String key) {
-    print('>>>>> keyPressed $key');
+  void onKeyPressed(int keyCode) {
+    print('>>>>> keyPressed $keyCode');
   }
 
   @override
-  void onKeyReleased(String key) {
-    print('>>>>> keyReleased $key');
+  void onKeyReleased(int keyCode) {
+    print('>>>>> keyReleased $keyCode');
   }
 
   @override
@@ -109,7 +109,8 @@ class _MyHomePageState extends State<MyHomePage>
                 TextButton(
                   onPressed: () {
                     final windows = windowManager.getAll();
-                    print('windows = ${windows.length}, ${windows.map((e) => e.id).join(',')}');
+                    print(
+                        'windows = ${windows.length}, ${windows.map((e) => e.id).join(',')}');
 
                     final firstWindow = windows.first;
                     firstWindow.setSize(Size(100, 100), animate: true);

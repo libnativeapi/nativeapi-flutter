@@ -1364,16 +1364,12 @@ typedef DartDisplayRemovedCallbackFunction = void Function(
     NativeDisplay display);
 typedef KeyPressedCallback
     = ffi.Pointer<ffi.NativeFunction<KeyPressedCallbackFunction>>;
-typedef KeyPressedCallbackFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Char> key);
-typedef DartKeyPressedCallbackFunction = void Function(
-    ffi.Pointer<ffi.Char> key);
+typedef KeyPressedCallbackFunction = ffi.Void Function(ffi.Int keycode);
+typedef DartKeyPressedCallbackFunction = void Function(int keycode);
 typedef KeyReleasedCallback
     = ffi.Pointer<ffi.NativeFunction<KeyReleasedCallbackFunction>>;
-typedef KeyReleasedCallbackFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Char> key);
-typedef DartKeyReleasedCallbackFunction = void Function(
-    ffi.Pointer<ffi.Char> key);
+typedef KeyReleasedCallbackFunction = ffi.Void Function(ffi.Int keycode);
+typedef DartKeyReleasedCallbackFunction = void Function(int keycode);
 
 final class NativeRectangle extends ffi.Struct {
   @ffi.Double()

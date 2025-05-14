@@ -10,8 +10,8 @@
 extern "C" {
 #endif
 
-typedef void (*KeyPressedCallback)(const char* key);
-typedef void (*KeyReleasedCallback)(const char* key);
+typedef void (*KeyPressedCallback)(int keycode);
+typedef void (*KeyReleasedCallback)(int keycode);
 
 FFI_PLUGIN_EXPORT
 void keyboard_monitor_start();

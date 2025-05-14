@@ -10,18 +10,16 @@ static KeyReleasedCallback g_key_released_callback = nullptr;
 
 KeyboardMonitor g_keyboard_monitor = KeyboardMonitor();
 KeyboardEventHandler g_keyboard_event_handler = KeyboardEventHandler(
-    [](const std::string& key) {
-      std::cout << "Key pressed: " << key << std::endl;
+    [](int keycode) {
+      std::cout << "Key pressed: " << keycode << std::endl;
       if (g_key_pressed_callback) {
-        char* key_cstr = strdup(key.c_str());
-        g_key_pressed_callback(key_cstr);
+        g_key_pressed_callback(keycode);
       }
     },
-    [](const std::string& key) {
-      std::cout << "Key released: " << key << std::endl;
+    [](int keycode) {
+      std::cout << "Key released: " << keycode << std::endl;
       if (g_key_released_callback) {
-        char* key_cstr = strdup(key.c_str());
-        g_key_released_callback(key_cstr);
+        g_key_released_callback(keycode);
       }
     });
 

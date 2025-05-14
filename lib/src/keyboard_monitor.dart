@@ -1,6 +1,5 @@
 import 'dart:ffi' as ffi;
 
-import 'package:ffi/ffi.dart';
 import 'package:nativeapi/src/event_listener_mixin.dart';
 import 'package:nativeapi/src/ffi/bindings.dart';
 import 'package:nativeapi/src/ffi/bindings_generated.dart';
@@ -38,11 +37,11 @@ class KeyboardMonitor with EventListenerMixin<KeyboardListener> {
     _bindings.keyboard_monitor_stop();
   }
 
-  void _onKeyPressed(ffi.Pointer<ffi.Char> key) {
-    notifyListeners((l) => l.onKeyPressed(key.cast<Utf8>().toDartString()));
+  void _onKeyPressed(int keyCode) {
+    notifyListeners((l) => l.onKeyPressed(keyCode));
   }
 
-  void _onKeyReleased(ffi.Pointer<ffi.Char> key) {
-    notifyListeners((l) => l.onKeyReleased(key.cast<Utf8>().toDartString()));
+  void _onKeyReleased(int keyCode) {
+    notifyListeners((l) => l.onKeyReleased(keyCode));
   }
 }
