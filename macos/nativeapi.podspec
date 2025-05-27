@@ -31,7 +31,7 @@ A new Flutter FFI plugin project.
   # Add Cocoa framework dependency
   s.framework = 'Cocoa'
 
-  s.platform = :osx, '10.11'
+  s.platform = :osx, '10.15'
   s.pod_target_xcconfig = { 
     'DEFINES_MODULE' => 'YES',
     # Configure to compile .cpp files as Objective-C++
@@ -42,7 +42,7 @@ A new Flutter FFI plugin project.
     # Enable Objective-C++ compilation for .cpp files
     'OTHER_CFLAGS' => '-DOBJC_OLD_DISPATCH_PROTOTYPES=0',
     'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited)',
-    'MACOSX_DEPLOYMENT_TARGET' => '10.11'
+    'MACOSX_DEPLOYMENT_TARGET' => '10.15'
   }
   s.swift_version = '5.0'
   

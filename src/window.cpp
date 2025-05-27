@@ -241,8 +241,8 @@ void window_set_title(long window_id, const char* title) {
 
 FFI_PLUGIN_EXPORT
 const char* window_get_title(long window_id) {
-  static std::string title_storage = __window(window_id)->GetTitle();
-  return title_storage.c_str();
+  std::string title = __window(window_id)->GetTitle();
+  return strdup(title.c_str());
 }
 
 FFI_PLUGIN_EXPORT
