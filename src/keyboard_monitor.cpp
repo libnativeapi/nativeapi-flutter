@@ -7,9 +7,10 @@ using namespace nativeapi;
 
 static KeyPressedCallback g_key_pressed_callback = nullptr;
 static KeyReleasedCallback g_key_released_callback = nullptr;
+static uint32_t g_modifier_keys = static_cast<uint32_t>(ModifierKey::None);
 
-KeyboardMonitor g_keyboard_monitor = KeyboardMonitor();
-KeyboardEventHandler g_keyboard_event_handler = KeyboardEventHandler(
+KeyboardMonitor g_keyboard_monitor;
+KeyboardEventHandler g_keyboard_event_handler(
     [](int keycode) {
       std::cout << "Key pressed: " << keycode << std::endl;
       if (g_key_pressed_callback) {
@@ -21,6 +22,10 @@ KeyboardEventHandler g_keyboard_event_handler = KeyboardEventHandler(
       if (g_key_released_callback) {
         g_key_released_callback(keycode);
       }
+    },
+    [](uint32_t modifier_keys) {
+      std::cout << "Modifier keys changed: " << modifier_keys << std::endl;
+      g_modifier_keys = modifier_keys;
     });
 
 FFI_PLUGIN_EXPORT
@@ -33,6 +38,31 @@ FFI_PLUGIN_EXPORT
 void keyboard_monitor_stop() {
   g_keyboard_monitor.Stop();
   g_keyboard_monitor.SetEventHandler(nullptr);
+}
+
+FFI_PLUGIN_EXPORT
+bool keyboard_monitor_is_shift_pressed() {
+  return g_modifier_keys & static_cast<uint32_t>(ModifierKey::Shift);
+}
+
+FFI_PLUGIN_EXPORT
+bool keyboard_monitor_is_ctrl_pressed() {
+  return g_modifier_keys & static_cast<uint32_t>(ModifierKey::Ctrl);
+}
+
+FFI_PLUGIN_EXPORT
+bool keyboard_monitor_is_alt_pressed() {
+  return g_modifier_keys & static_cast<uint32_t>(ModifierKey::Alt);
+}
+
+FFI_PLUGIN_EXPORT
+bool keyboard_monitor_is_meta_pressed() {
+  return g_modifier_keys & static_cast<uint32_t>(ModifierKey::Meta);
+}
+
+FFI_PLUGIN_EXPORT
+bool keyboard_monitor_is_fn_pressed() {
+  return g_modifier_keys & static_cast<uint32_t>(ModifierKey::Fn);
 }
 
 FFI_PLUGIN_EXPORT

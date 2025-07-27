@@ -37,6 +37,31 @@ class KeyboardMonitor with EventListenerMixin<KeyboardListener> {
     _bindings.keyboard_monitor_stop();
   }
 
+  /// Returns true if the shift key is pressed.
+  bool isShiftPressed() {
+    return _bindings.keyboard_monitor_is_shift_pressed();
+  }
+
+  /// Returns true if the ctrl key is pressed.
+  bool isCtrlPressed() {
+    return _bindings.keyboard_monitor_is_ctrl_pressed();
+  }
+
+  /// Returns true if the alt key is pressed.
+  bool isAltPressed() {
+    return _bindings.keyboard_monitor_is_alt_pressed();
+  }
+
+  /// Returns true if the meta key is pressed.
+  bool isMetaPressed() {
+    return _bindings.keyboard_monitor_is_meta_pressed();
+  }
+
+  /// Returns true if the fn key is pressed.
+  bool isFnPressed() {
+    return _bindings.keyboard_monitor_is_fn_pressed();
+  }
+
   void _onKeyPressed(int keyCode) {
     notifyListeners((l) => l.onKeyPressed(keyCode));
   }

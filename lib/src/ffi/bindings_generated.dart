@@ -210,6 +210,56 @@ class NativeApiBindings {
   late final _keyboard_monitor_stop =
       _keyboard_monitor_stopPtr.asFunction<void Function()>();
 
+  bool keyboard_monitor_is_shift_pressed() {
+    return _keyboard_monitor_is_shift_pressed();
+  }
+
+  late final _keyboard_monitor_is_shift_pressedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+          'keyboard_monitor_is_shift_pressed');
+  late final _keyboard_monitor_is_shift_pressed =
+      _keyboard_monitor_is_shift_pressedPtr.asFunction<bool Function()>();
+
+  bool keyboard_monitor_is_ctrl_pressed() {
+    return _keyboard_monitor_is_ctrl_pressed();
+  }
+
+  late final _keyboard_monitor_is_ctrl_pressedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+          'keyboard_monitor_is_ctrl_pressed');
+  late final _keyboard_monitor_is_ctrl_pressed =
+      _keyboard_monitor_is_ctrl_pressedPtr.asFunction<bool Function()>();
+
+  bool keyboard_monitor_is_alt_pressed() {
+    return _keyboard_monitor_is_alt_pressed();
+  }
+
+  late final _keyboard_monitor_is_alt_pressedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+          'keyboard_monitor_is_alt_pressed');
+  late final _keyboard_monitor_is_alt_pressed =
+      _keyboard_monitor_is_alt_pressedPtr.asFunction<bool Function()>();
+
+  bool keyboard_monitor_is_meta_pressed() {
+    return _keyboard_monitor_is_meta_pressed();
+  }
+
+  late final _keyboard_monitor_is_meta_pressedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+          'keyboard_monitor_is_meta_pressed');
+  late final _keyboard_monitor_is_meta_pressed =
+      _keyboard_monitor_is_meta_pressedPtr.asFunction<bool Function()>();
+
+  bool keyboard_monitor_is_fn_pressed() {
+    return _keyboard_monitor_is_fn_pressed();
+  }
+
+  late final _keyboard_monitor_is_fn_pressedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+          'keyboard_monitor_is_fn_pressed');
+  late final _keyboard_monitor_is_fn_pressed =
+      _keyboard_monitor_is_fn_pressedPtr.asFunction<bool Function()>();
+
   void keyboard_monitor_on_key_pressed(
     KeyPressedCallback callback,
   ) {
