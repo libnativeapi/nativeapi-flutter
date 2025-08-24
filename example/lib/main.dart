@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:nativeapi/nativeapi.dart';
 
 final accessibilityManager = AccessibilityManager.instance;
-final broadcastCenter = BroadcastCenter.instance;
 final displayManager = DisplayManager.instance;
 final trayManager = TrayManager.instance;
 final windowManager = WindowManager.instance;
@@ -37,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    with DisplayListener, BroadcastReceiver, KeyboardListener {
+    with DisplayListener, KeyboardListener {
   late Display primaryDisplay;
   List<Display> allDisplays = [];
 
@@ -48,7 +47,6 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
     primaryDisplay = displayManager.getPrimary();
     displayManager.addListener(this);
-    broadcastCenter.registerReceiver('com.example.myNotification', this);
     keyboardMonitor.addListener(this);
     // allDisplays = nativeapi.display.getAll();
     allDisplays = [];
@@ -57,7 +55,6 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void dispose() {
     displayManager.removeListener(this);
-    broadcastCenter.unregisterReceiver('com.example.myNotification', this);
     keyboardMonitor.removeListener(this);
     super.dispose();
   }
@@ -247,15 +244,6 @@ class _MyHomePageState extends State<MyHomePage>
                     tray.setTooltip('This is a tooltip');
                   },
                   child: const Text('Create Tray'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    broadcastCenter.sendBroadcast(
-                      'com.example.myNotification',
-                      'Hello World, from Dart!',
-                    );
-                  },
-                  child: const Text('Send Broadcast'),
                 ),
               ],
             ),

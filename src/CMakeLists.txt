@@ -13,24 +13,24 @@ file(GLOB NATIVEAPI_SOURCES
 list(FILTER NATIVEAPI_SOURCES EXCLUDE REGEX "_linux.*|_macos.*|_windows.*")
 
 if(APPLE)
-  file(GLOB NATIVEAPI_MM_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*_macos.mm"
+    file(GLOB NATIVEAPI_MM_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_macos.mm"
   )
-  list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_MM_SOURCES})
+    list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_MM_SOURCES})
 endif()
 
 if(WIN32)
-  file(GLOB NATIVEAPI_WIN_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*_windows.cpp"
+    file(GLOB NATIVEAPI_WIN_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_windows.cpp"
   )
-  list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_WIN_SOURCES})
+    list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_WIN_SOURCES})
 endif()
 
 if(LINUX)
-  file(GLOB NATIVEAPI_LINUX_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*_linux.cpp"
+    file(GLOB NATIVEAPI_LINUX_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_linux.cpp"
   )
-  list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_LINUX_SOURCES})
+    list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_LINUX_SOURCES})
 endif()
 
 add_library(nativeapi SHARED ${NATIVEAPI_SOURCES})
@@ -43,6 +43,6 @@ set_target_properties(nativeapi PROPERTIES
 target_compile_definitions(nativeapi PUBLIC DART_SHARED_LIB)
 
 if(ANDROID)
-  # Support Android 15 16k page size
-  target_link_options(nativeapi PRIVATE "-Wl,-z,max-page-size=16384")
+    # Support Android 15 16k page size
+    target_link_options(nativeapi PRIVATE "-Wl,-z,max-page-size=16384")
 endif()

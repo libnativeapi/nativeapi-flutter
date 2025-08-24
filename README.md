@@ -1,4 +1,4 @@
-# nativeapi-flutter
+# nativeapi
 
 🚧 WIP: Providing unified access to native system APIs for Flutter
 

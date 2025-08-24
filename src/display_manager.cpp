@@ -10,12 +10,12 @@ struct NativeDisplay to_native_display(const Display& display) {
   NativeDisplay native_display;
   native_display.id = strdup(display.id.c_str());
   native_display.name = strdup(display.name.c_str());
-  native_display.width = display.width;
-  native_display.height = display.height;
-  native_display.visiblePositionX = display.visiblePositionX;
-  native_display.visiblePositionY = display.visiblePositionY;
-  native_display.visibleSizeWidth = display.visibleSizeWidth;
-  native_display.visibleSizeHeight = display.visibleSizeHeight;
+  native_display.width = display.size.width;
+  native_display.height = display.size.height;
+  native_display.visiblePositionX = display.workArea.x;
+  native_display.visiblePositionY = display.workArea.y;
+  native_display.visibleSizeWidth = display.workArea.width;
+  native_display.visibleSizeHeight = display.workArea.height;
   native_display.scaleFactor = display.scaleFactor;
   return native_display;
 }

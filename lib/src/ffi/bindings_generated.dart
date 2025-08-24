@@ -47,69 +47,6 @@ class NativeApiBindings {
   late final _accessibility_manager_is_enabled =
       _accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
-  void broadcast_center_send_broadcast(
-    ffi.Pointer<ffi.Char> topic,
-    ffi.Pointer<ffi.Char> message,
-  ) {
-    return _broadcast_center_send_broadcast(
-      topic,
-      message,
-    );
-  }
-
-  late final _broadcast_center_send_broadcastPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('broadcast_center_send_broadcast');
-  late final _broadcast_center_send_broadcast =
-      _broadcast_center_send_broadcastPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
-
-  void broadcast_center_register_receiver(
-    ffi.Pointer<ffi.Char> topic,
-  ) {
-    return _broadcast_center_register_receiver(
-      topic,
-    );
-  }
-
-  late final _broadcast_center_register_receiverPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-          'broadcast_center_register_receiver');
-  late final _broadcast_center_register_receiver =
-      _broadcast_center_register_receiverPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
-
-  void broadcast_center_unregister_receiver(
-    ffi.Pointer<ffi.Char> topic,
-  ) {
-    return _broadcast_center_unregister_receiver(
-      topic,
-    );
-  }
-
-  late final _broadcast_center_unregister_receiverPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-          'broadcast_center_unregister_receiver');
-  late final _broadcast_center_unregister_receiver =
-      _broadcast_center_unregister_receiverPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
-
-  void broadcast_center_on_broadcast_received(
-    BroadcastReceivedCallback callback,
-  ) {
-    return _broadcast_center_on_broadcast_received(
-      callback,
-    );
-  }
-
-  late final _broadcast_center_on_broadcast_receivedPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(BroadcastReceivedCallback)>>(
-          'broadcast_center_on_broadcast_received');
-  late final _broadcast_center_on_broadcast_received =
-      _broadcast_center_on_broadcast_receivedPtr
-          .asFunction<void Function(BroadcastReceivedCallback)>();
-
   NativeDisplayList display_manager_get_all() {
     return _display_manager_get_all();
   }
@@ -1352,13 +1289,6 @@ class NativeApiBindings {
   late final _window_stop_listening =
       _window_stop_listeningPtr.asFunction<void Function(int)>();
 }
-
-typedef BroadcastReceivedCallback
-    = ffi.Pointer<ffi.NativeFunction<BroadcastReceivedCallbackFunction>>;
-typedef BroadcastReceivedCallbackFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Char> topic, ffi.Pointer<ffi.Char> message);
-typedef DartBroadcastReceivedCallbackFunction = void Function(
-    ffi.Pointer<ffi.Char> topic, ffi.Pointer<ffi.Char> message);
 
 final class NativeDisplay extends ffi.Struct {
   external ffi.Pointer<ffi.Char> id;

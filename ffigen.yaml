@@ -8,7 +8,6 @@ output: "lib/src/ffi/bindings_generated.dart"
 headers:
   entry-points:
     - "src/accessibility_manager.h"
-    - "src/broadcast_center.h"
     - "src/display_manager.h"
     - "src/display.h"
     - "src/keyboard_monitor.h"
@@ -22,7 +21,6 @@ headers:
     - "src/window.h"
   include-directives:
     - "src/accessibility_manager.h"
-    - "src/broadcast_center.h"
     - "src/display_manager.h"
     - "src/display.h"
     - "src/keyboard_monitor.h"
