@@ -1,7 +1,7 @@
 name: nativeapi
 description: "Providing unified access to native system APIs for Flutter"
 version: 0.1.0-dev.1
-homepage: https://github.com/leanflutter/nativeapi-flutter
+homepage: https://github.com/libnativeapi/nativeapi-flutter
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
