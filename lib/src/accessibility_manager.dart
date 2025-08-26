@@ -10,11 +10,11 @@ class AccessibilityManager {
 
   /// Enable the accessibility permission.
   void enable() {
-    _bindings.accessibility_manager_enable();
+    _bindings.native_accessibility_manager_enable();
   }
 
   /// Whether the accessibility permission is enabled.
   bool isEnabled() {
-    return _bindings.accessibility_manager_is_enabled();
+    return _bindings.native_accessibility_manager_is_enabled();
   }
 }

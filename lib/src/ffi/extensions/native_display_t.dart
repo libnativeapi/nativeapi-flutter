@@ -4,7 +4,7 @@ import 'package:ffi/ffi.dart';
 import 'package:nativeapi/src/display.dart';
 import 'package:nativeapi/src/ffi/bindings_generated.dart';
 
-extension DisplayDartify on NativeDisplay {
+extension DisplayDartify on native_display_t {
   Display dartify() {
     String id, name;
     try {
@@ -21,13 +21,16 @@ extension DisplayDartify on NativeDisplay {
     return Display(
       id: id,
       name: name,
-      size: Size(width, height),
-      scaleFactor: scaleFactor,
+      position: Offset(0, 0),
+      size: Size(0, 0),
+      workArea: Rect.fromLTWH(0, 0, 0, 0),
+      scaleFactor: scale_factor.toDouble(),
+      isPrimary: is_primary,
     );
   }
 }
 
-extension DisplayListDartify on NativeDisplayList {
+extension DisplayListDartify on native_display_list_t {
   List<Display> dartify() {
     return [];
   }

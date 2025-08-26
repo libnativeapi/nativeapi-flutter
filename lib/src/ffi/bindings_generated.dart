@@ -27,106 +27,397 @@ class NativeApiBindings {
           lookup)
       : _lookup = lookup;
 
-  void accessibility_manager_enable() {
-    return _accessibility_manager_enable();
+  void native_accessibility_manager_enable() {
+    return _native_accessibility_manager_enable();
   }
 
-  late final _accessibility_manager_enablePtr =
+  late final _native_accessibility_manager_enablePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'accessibility_manager_enable');
-  late final _accessibility_manager_enable =
-      _accessibility_manager_enablePtr.asFunction<void Function()>();
+          'native_accessibility_manager_enable');
+  late final _native_accessibility_manager_enable =
+      _native_accessibility_manager_enablePtr.asFunction<void Function()>();
 
-  bool accessibility_manager_is_enabled() {
-    return _accessibility_manager_is_enabled();
+  bool native_accessibility_manager_is_enabled() {
+    return _native_accessibility_manager_is_enabled();
   }
 
-  late final _accessibility_manager_is_enabledPtr =
+  late final _native_accessibility_manager_is_enabledPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-          'accessibility_manager_is_enabled');
-  late final _accessibility_manager_is_enabled =
-      _accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
+          'native_accessibility_manager_is_enabled');
+  late final _native_accessibility_manager_is_enabled =
+      _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
-  NativeDisplayList display_manager_get_all() {
-    return _display_manager_get_all();
+  /// Create a new display structure with default values
+  /// @return Pointer to newly allocated display structure, or NULL on failure
+  ffi.Pointer<native_display_t> native_display_create() {
+    return _native_display_create();
   }
 
-  late final _display_manager_get_allPtr =
-      _lookup<ffi.NativeFunction<NativeDisplayList Function()>>(
-          'display_manager_get_all');
-  late final _display_manager_get_all =
-      _display_manager_get_allPtr.asFunction<NativeDisplayList Function()>();
+  late final _native_display_createPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<native_display_t> Function()>>(
+          'native_display_create');
+  late final _native_display_create = _native_display_createPtr
+      .asFunction<ffi.Pointer<native_display_t> Function()>();
 
-  NativeDisplay display_manager_get_primary() {
-    return _display_manager_get_primary();
-  }
-
-  late final _display_manager_get_primaryPtr =
-      _lookup<ffi.NativeFunction<NativeDisplay Function()>>(
-          'display_manager_get_primary');
-  late final _display_manager_get_primary =
-      _display_manager_get_primaryPtr.asFunction<NativeDisplay Function()>();
-
-  NativePoint display_manager_get_cursor_position() {
-    return _display_manager_get_cursor_position();
-  }
-
-  late final _display_manager_get_cursor_positionPtr =
-      _lookup<ffi.NativeFunction<NativePoint Function()>>(
-          'display_manager_get_cursor_position');
-  late final _display_manager_get_cursor_position =
-      _display_manager_get_cursor_positionPtr
-          .asFunction<NativePoint Function()>();
-
-  void display_manager_start_listening() {
-    return _display_manager_start_listening();
-  }
-
-  late final _display_manager_start_listeningPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'display_manager_start_listening');
-  late final _display_manager_start_listening =
-      _display_manager_start_listeningPtr.asFunction<void Function()>();
-
-  void display_manager_stop_listening() {
-    return _display_manager_stop_listening();
-  }
-
-  late final _display_manager_stop_listeningPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'display_manager_stop_listening');
-  late final _display_manager_stop_listening =
-      _display_manager_stop_listeningPtr.asFunction<void Function()>();
-
-  void display_manager_on_display_added(
-    DisplayAddedCallback callback,
+  /// Free a display structure and all its allocated strings
+  /// @param display Pointer to display structure to free
+  void native_display_destroy(
+    ffi.Pointer<native_display_t> display,
   ) {
-    return _display_manager_on_display_added(
-      callback,
+    return _native_display_destroy(
+      display,
     );
   }
 
-  late final _display_manager_on_display_addedPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(DisplayAddedCallback)>>(
-          'display_manager_on_display_added');
-  late final _display_manager_on_display_added =
-      _display_manager_on_display_addedPtr
-          .asFunction<void Function(DisplayAddedCallback)>();
+  late final _native_display_destroyPtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_display_t>)>>(
+      'native_display_destroy');
+  late final _native_display_destroy = _native_display_destroyPtr
+      .asFunction<void Function(ffi.Pointer<native_display_t>)>();
 
-  void display_manager_on_display_removed(
-    DisplayRemovedCallback callback,
+  /// Set the ID of a display
+  /// @param display Pointer to display structure
+  /// @param id ID string (will be copied)
+  /// @return true on success, false on failure
+  bool native_display_set_id(
+    ffi.Pointer<native_display_t> display,
+    ffi.Pointer<ffi.Char> id,
   ) {
-    return _display_manager_on_display_removed(
-      callback,
+    return _native_display_set_id(
+      display,
+      id,
     );
   }
 
-  late final _display_manager_on_display_removedPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(DisplayRemovedCallback)>>(
-          'display_manager_on_display_removed');
-  late final _display_manager_on_display_removed =
-      _display_manager_on_display_removedPtr
-          .asFunction<void Function(DisplayRemovedCallback)>();
+  late final _native_display_set_idPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_display_t>,
+              ffi.Pointer<ffi.Char>)>>('native_display_set_id');
+  late final _native_display_set_id = _native_display_set_idPtr.asFunction<
+      bool Function(ffi.Pointer<native_display_t>, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the name of a display
+  /// @param display Pointer to display structure
+  /// @param name Name string (will be copied)
+  /// @return true on success, false on failure
+  bool native_display_set_name(
+    ffi.Pointer<native_display_t> display,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _native_display_set_name(
+      display,
+      name,
+    );
+  }
+
+  late final _native_display_set_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_display_t>,
+              ffi.Pointer<ffi.Char>)>>('native_display_set_name');
+  late final _native_display_set_name = _native_display_set_namePtr.asFunction<
+      bool Function(ffi.Pointer<native_display_t>, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the manufacturer of a display
+  /// @param display Pointer to display structure
+  /// @param manufacturer Manufacturer string (will be copied)
+  /// @return true on success, false on failure
+  bool native_display_set_manufacturer(
+    ffi.Pointer<native_display_t> display,
+    ffi.Pointer<ffi.Char> manufacturer,
+  ) {
+    return _native_display_set_manufacturer(
+      display,
+      manufacturer,
+    );
+  }
+
+  late final _native_display_set_manufacturerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_display_t>,
+              ffi.Pointer<ffi.Char>)>>('native_display_set_manufacturer');
+  late final _native_display_set_manufacturer =
+      _native_display_set_manufacturerPtr.asFunction<
+          bool Function(
+              ffi.Pointer<native_display_t>, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the model of a display
+  /// @param display Pointer to display structure
+  /// @param model Model string (will be copied)
+  /// @return true on success, false on failure
+  bool native_display_set_model(
+    ffi.Pointer<native_display_t> display,
+    ffi.Pointer<ffi.Char> model,
+  ) {
+    return _native_display_set_model(
+      display,
+      model,
+    );
+  }
+
+  late final _native_display_set_modelPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_display_t>,
+              ffi.Pointer<ffi.Char>)>>('native_display_set_model');
+  late final _native_display_set_model =
+      _native_display_set_modelPtr.asFunction<
+          bool Function(
+              ffi.Pointer<native_display_t>, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the serial number of a display
+  /// @param display Pointer to display structure
+  /// @param serial_number Serial number string (will be copied)
+  /// @return true on success, false on failure
+  bool native_display_set_serial_number(
+    ffi.Pointer<native_display_t> display,
+    ffi.Pointer<ffi.Char> serial_number,
+  ) {
+    return _native_display_set_serial_number(
+      display,
+      serial_number,
+    );
+  }
+
+  late final _native_display_set_serial_numberPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_display_t>,
+              ffi.Pointer<ffi.Char>)>>('native_display_set_serial_number');
+  late final _native_display_set_serial_number =
+      _native_display_set_serial_numberPtr.asFunction<
+          bool Function(
+              ffi.Pointer<native_display_t>, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the position of a display
+  /// @param display Pointer to display structure
+  /// @param x X coordinate
+  /// @param y Y coordinate
+  void native_display_set_position(
+    ffi.Pointer<native_display_t> display,
+    double x,
+    double y,
+  ) {
+    return _native_display_set_position(
+      display,
+      x,
+      y,
+    );
+  }
+
+  late final _native_display_set_positionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>, ffi.Double,
+              ffi.Double)>>('native_display_set_position');
+  late final _native_display_set_position =
+      _native_display_set_positionPtr.asFunction<
+          void Function(ffi.Pointer<native_display_t>, double, double)>();
+
+  /// Set the size of a display
+  /// @param display Pointer to display structure
+  /// @param width Width in logical pixels
+  /// @param height Height in logical pixels
+  void native_display_set_size(
+    ffi.Pointer<native_display_t> display,
+    double width,
+    double height,
+  ) {
+    return _native_display_set_size(
+      display,
+      width,
+      height,
+    );
+  }
+
+  late final _native_display_set_sizePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>, ffi.Double,
+              ffi.Double)>>('native_display_set_size');
+  late final _native_display_set_size = _native_display_set_sizePtr.asFunction<
+      void Function(ffi.Pointer<native_display_t>, double, double)>();
+
+  /// Set the work area of a display
+  /// @param display Pointer to display structure
+  /// @param x X coordinate of work area
+  /// @param y Y coordinate of work area
+  /// @param width Width of work area
+  /// @param height Height of work area
+  void native_display_set_work_area(
+    ffi.Pointer<native_display_t> display,
+    double x,
+    double y,
+    double width,
+    double height,
+  ) {
+    return _native_display_set_work_area(
+      display,
+      x,
+      y,
+      width,
+      height,
+    );
+  }
+
+  late final _native_display_set_work_areaPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<native_display_t>,
+              ffi.Double,
+              ffi.Double,
+              ffi.Double,
+              ffi.Double)>>('native_display_set_work_area');
+  late final _native_display_set_work_area =
+      _native_display_set_work_areaPtr.asFunction<
+          void Function(
+              ffi.Pointer<native_display_t>, double, double, double, double)>();
+
+  /// Set the scale factor of a display
+  /// @param display Pointer to display structure
+  /// @param scale_factor Scale factor (1.0 = 100%, 2.0 = 200%, etc.)
+  void native_display_set_scale_factor(
+    ffi.Pointer<native_display_t> display,
+    double scale_factor,
+  ) {
+    return _native_display_set_scale_factor(
+      display,
+      scale_factor,
+    );
+  }
+
+  late final _native_display_set_scale_factorPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>,
+              ffi.Double)>>('native_display_set_scale_factor');
+  late final _native_display_set_scale_factor =
+      _native_display_set_scale_factorPtr
+          .asFunction<void Function(ffi.Pointer<native_display_t>, double)>();
+
+  /// Set whether a display is primary
+  /// @param display Pointer to display structure
+  /// @param is_primary true if primary display, false otherwise
+  void native_display_set_primary(
+    ffi.Pointer<native_display_t> display,
+    bool is_primary,
+  ) {
+    return _native_display_set_primary(
+      display,
+      is_primary,
+    );
+  }
+
+  late final _native_display_set_primaryPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>,
+              ffi.Bool)>>('native_display_set_primary');
+  late final _native_display_set_primary = _native_display_set_primaryPtr
+      .asFunction<void Function(ffi.Pointer<native_display_t>, bool)>();
+
+  /// Set the orientation of a display
+  /// @param display Pointer to display structure
+  /// @param orientation Display orientation
+  void native_display_set_orientation(
+    ffi.Pointer<native_display_t> display,
+    native_display_orientation_t orientation,
+  ) {
+    return _native_display_set_orientation(
+      display,
+      orientation.value,
+    );
+  }
+
+  late final _native_display_set_orientationPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>,
+              ffi.UnsignedInt)>>('native_display_set_orientation');
+  late final _native_display_set_orientation =
+      _native_display_set_orientationPtr
+          .asFunction<void Function(ffi.Pointer<native_display_t>, int)>();
+
+  /// Set the refresh rate of a display
+  /// @param display Pointer to display structure
+  /// @param refresh_rate Refresh rate in Hz (0 if unknown)
+  void native_display_set_refresh_rate(
+    ffi.Pointer<native_display_t> display,
+    int refresh_rate,
+  ) {
+    return _native_display_set_refresh_rate(
+      display,
+      refresh_rate,
+    );
+  }
+
+  late final _native_display_set_refresh_ratePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>,
+              ffi.Int)>>('native_display_set_refresh_rate');
+  late final _native_display_set_refresh_rate =
+      _native_display_set_refresh_ratePtr
+          .asFunction<void Function(ffi.Pointer<native_display_t>, int)>();
+
+  /// Set the bit depth of a display
+  /// @param display Pointer to display structure
+  /// @param bit_depth Color bit depth (0 if unknown)
+  void native_display_set_bit_depth(
+    ffi.Pointer<native_display_t> display,
+    int bit_depth,
+  ) {
+    return _native_display_set_bit_depth(
+      display,
+      bit_depth,
+    );
+  }
+
+  late final _native_display_set_bit_depthPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_t>,
+              ffi.Int)>>('native_display_set_bit_depth');
+  late final _native_display_set_bit_depth = _native_display_set_bit_depthPtr
+      .asFunction<void Function(ffi.Pointer<native_display_t>, int)>();
+
+  native_display_list_t native_display_manager_get_all() {
+    return _native_display_manager_get_all();
+  }
+
+  late final _native_display_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<native_display_list_t Function()>>(
+          'native_display_manager_get_all');
+  late final _native_display_manager_get_all =
+      _native_display_manager_get_allPtr
+          .asFunction<native_display_list_t Function()>();
+
+  native_display_t native_display_manager_get_primary() {
+    return _native_display_manager_get_primary();
+  }
+
+  late final _native_display_manager_get_primaryPtr =
+      _lookup<ffi.NativeFunction<native_display_t Function()>>(
+          'native_display_manager_get_primary');
+  late final _native_display_manager_get_primary =
+      _native_display_manager_get_primaryPtr
+          .asFunction<native_display_t Function()>();
+
+  native_point_t native_display_manager_get_cursor_position() {
+    return _native_display_manager_get_cursor_position();
+  }
+
+  late final _native_display_manager_get_cursor_positionPtr =
+      _lookup<ffi.NativeFunction<native_point_t Function()>>(
+          'native_display_manager_get_cursor_position');
+  late final _native_display_manager_get_cursor_position =
+      _native_display_manager_get_cursor_positionPtr
+          .asFunction<native_point_t Function()>();
+
+  void native_display_list_free(
+    ffi.Pointer<native_display_list_t> list,
+  ) {
+    return _native_display_list_free(
+      list,
+    );
+  }
+
+  late final _native_display_list_freePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<native_display_list_t>)>>('native_display_list_free');
+  late final _native_display_list_free = _native_display_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_display_list_t>)>();
 
   void keyboard_monitor_start() {
     return _keyboard_monitor_start();
@@ -1290,41 +1581,74 @@ class NativeApiBindings {
       _window_stop_listeningPtr.asFunction<void Function(int)>();
 }
 
-final class NativeDisplay extends ffi.Struct {
+/// Display orientation enumeration
+enum native_display_orientation_t {
+  NATIVE_DISPLAY_ORIENTATION_PORTRAIT(0),
+  NATIVE_DISPLAY_ORIENTATION_LANDSCAPE(90),
+  NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED(180),
+  NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED(270);
+
+  final int value;
+  const native_display_orientation_t(this.value);
+
+  static native_display_orientation_t fromValue(int value) => switch (value) {
+        0 => NATIVE_DISPLAY_ORIENTATION_PORTRAIT,
+        90 => NATIVE_DISPLAY_ORIENTATION_LANDSCAPE,
+        180 => NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED,
+        270 => NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED,
+        _ => throw ArgumentError(
+            "Unknown value for native_display_orientation_t: $value"),
+      };
+}
+
+/// Representation of a display/monitor
+final class native_display_t extends ffi.Struct {
+  /// Unique identifier for the display
   external ffi.Pointer<ffi.Char> id;
 
+  /// Human-readable display name
   external ffi.Pointer<ffi.Char> name;
 
-  @ffi.Double()
-  external double width;
+  /// Display position in virtual desktop coordinates
+  external native_point_t position;
 
-  @ffi.Double()
-  external double height;
+  /// Full display size in logical pixels
+  external native_size_t size;
 
-  @ffi.Double()
-  external double visiblePositionX;
+  /// Available work area (excluding taskbars, docks, etc.)
+  external native_rectangle_t work_area;
 
+  /// Display scaling factor (1.0 = 100%, 2.0 = 200%, etc.)
   @ffi.Double()
-  external double visiblePositionY;
+  external double scale_factor;
 
-  @ffi.Double()
-  external double visibleSizeWidth;
+  /// Whether this is the primary display
+  @ffi.Bool()
+  external bool is_primary;
 
-  @ffi.Double()
-  external double visibleSizeHeight;
+  /// Current display orientation
+  @ffi.UnsignedInt()
+  external int orientation;
 
-  @ffi.Double()
-  external double scaleFactor;
+  /// Refresh rate in Hz (0 if unknown)
+  @ffi.Int()
+  external int refresh_rate;
+
+  /// Color bit depth (0 if unknown)
+  @ffi.Int()
+  external int bit_depth;
+
+  /// Display manufacturer
+  external ffi.Pointer<ffi.Char> manufacturer;
+
+  /// Display model
+  external ffi.Pointer<ffi.Char> model;
+
+  /// Display serial number (if available)
+  external ffi.Pointer<ffi.Char> serial_number;
 }
 
-final class NativeDisplayList extends ffi.Struct {
-  external ffi.Pointer<NativeDisplay> displays;
-
-  @ffi.Long()
-  external int count;
-}
-
-final class NativePoint extends ffi.Struct {
+final class native_point_t extends ffi.Struct {
   @ffi.Double()
   external double x;
 
@@ -1332,16 +1656,36 @@ final class NativePoint extends ffi.Struct {
   external double y;
 }
 
-typedef DisplayAddedCallback
-    = ffi.Pointer<ffi.NativeFunction<DisplayAddedCallbackFunction>>;
-typedef DisplayAddedCallbackFunction = ffi.Void Function(NativeDisplay display);
-typedef DartDisplayAddedCallbackFunction = void Function(NativeDisplay display);
-typedef DisplayRemovedCallback
-    = ffi.Pointer<ffi.NativeFunction<DisplayRemovedCallbackFunction>>;
-typedef DisplayRemovedCallbackFunction = ffi.Void Function(
-    NativeDisplay display);
-typedef DartDisplayRemovedCallbackFunction = void Function(
-    NativeDisplay display);
+final class native_size_t extends ffi.Struct {
+  @ffi.Double()
+  external double width;
+
+  @ffi.Double()
+  external double height;
+}
+
+final class native_rectangle_t extends ffi.Struct {
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+
+  @ffi.Double()
+  external double width;
+
+  @ffi.Double()
+  external double height;
+}
+
+/// Representation of a list of displays
+final class native_display_list_t extends ffi.Struct {
+  external ffi.Pointer<native_display_t> displays;
+
+  @ffi.Long()
+  external int count;
+}
+
 typedef KeyPressedCallback
     = ffi.Pointer<ffi.NativeFunction<KeyPressedCallbackFunction>>;
 typedef KeyPressedCallbackFunction = ffi.Void Function(ffi.Int keycode);
@@ -1350,6 +1694,14 @@ typedef KeyReleasedCallback
     = ffi.Pointer<ffi.NativeFunction<KeyReleasedCallbackFunction>>;
 typedef KeyReleasedCallbackFunction = ffi.Void Function(ffi.Int keycode);
 typedef DartKeyReleasedCallbackFunction = void Function(int keycode);
+
+final class NativePoint extends ffi.Struct {
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+}
 
 final class NativeRectangle extends ffi.Struct {
   @ffi.Double()

@@ -7,3 +7,9 @@ extension PointDartify on NativePoint {
     return Offset(x, y);
   }
 }
+
+extension PointDartify2 on native_point_t {
+  Offset dartify() {
+    return Offset(x, y);
+  }
+}
