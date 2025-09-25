@@ -12,13 +12,6 @@ file(GLOB NATIVEAPI_SOURCES
 )
 list(FILTER NATIVEAPI_SOURCES EXCLUDE REGEX "_linux.*|_macos.*|_windows.*")
 
-if(APPLE)
-    file(GLOB NATIVEAPI_MM_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_macos.mm"
-  )
-    list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_MM_SOURCES})
-endif()
-
 if(WIN32)
     file(GLOB NATIVEAPI_WIN_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_windows.cpp"

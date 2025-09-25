@@ -19,10 +19,3 @@
 #include "../../src/libnativeapi/src/accessibility_manager.cpp"
 #include "../../src/libnativeapi/src/display_manager.cpp"
 #include "../../src/libnativeapi/src/keyboard_monitor.cpp"
-
-#include "../../src/nativeapi.cpp"
-#include "../../src/keyboard_monitor.cpp"
-#include "../../src/tray_manager.cpp"
-#include "../../src/tray.cpp"
-#include "../../src/window_manager.cpp"
-#include "../../src/window.cpp"
