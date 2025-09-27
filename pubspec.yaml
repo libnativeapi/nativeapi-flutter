@@ -1,0 +1,9 @@
+name: nativeapi_flutter
+publish_to: none
+environment:
+  sdk: ^3.9.0
+
+workspace:
+  - packages/cnativeapi
+dev_dependencies:
+  melos: ^7.1.1
