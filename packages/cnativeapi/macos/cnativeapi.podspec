@@ -3,7 +3,7 @@
 # Run `pod lib lint nativeapi.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'nativeapi'
+  s.name             = 'cnativeapi'
   s.version          = '0.0.1'
   s.summary          = 'A new Flutter FFI plugin project.'
   s.description      = <<-DESC
@@ -24,15 +24,15 @@ A new Flutter FFI plugin project.
   # data, update the PrivacyInfo.xcprivacy file to describe your plugin's
   # privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-  # s.resource_bundles = {'nativeapi_privacy' => ['nativeapi/Sources/nativeapi/PrivacyInfo.xcprivacy']}
+  # s.resource_bundles = {'cnativeapi_privacy' => ['nativeapi/Sources/nativeapi/PrivacyInfo.xcprivacy']}
 
   s.dependency 'FlutterMacOS'
-  
+
   # Add Cocoa framework dependency
   s.framework = 'Cocoa'
 
   s.platform = :osx, '10.15'
-  s.pod_target_xcconfig = { 
+  s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     # Configure to compile .cpp files as Objective-C++
     'CLANG_ENABLE_OBJC_ARC' => 'YES',
@@ -45,7 +45,7 @@ A new Flutter FFI plugin project.
     'MACOSX_DEPLOYMENT_TARGET' => '10.15'
   }
   s.swift_version = '5.0'
-  
+
   # Explicitly set file types to compile as Objective-C++
   s.compiler_flags = '-x objective-c++'
 end

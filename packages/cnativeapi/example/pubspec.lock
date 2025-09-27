@@ -33,6 +33,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+  cnativeapi:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.1.0-dev.1"
   collection:
     dependency: transitive
     description:
@@ -139,13 +146,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.16.0"
-  nativeapi:
-    dependency: "direct main"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "0.1.0-dev.1"
   path:
     dependency: transitive
     description:
@@ -224,5 +224,5 @@ packages:
     source: hosted
     version: "15.0.0"
 sdks:
-  dart: ">=3.8.0-0 <4.0.0"
-  flutter: ">=3.18.0-18.0.pre.54"
+  dart: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.0"

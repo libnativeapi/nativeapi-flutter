@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'bindings_generated.dart';
 
-const String _libName = 'nativeapi';
+const String _libName = 'cnativeapi';
 
 /// The dynamic library in which the symbols for [NativeApiBindings] can be found.
 final DynamicLibrary _dylib = () {

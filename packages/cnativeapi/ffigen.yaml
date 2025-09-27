@@ -1,10 +1,10 @@
 # Run with `dart run ffigen --config ffigen.yaml`.
-name: NativeApiBindings
+name: CNativeApiBindings
 description: |
-  Bindings for `src/nativeapi.h`.
+  Bindings for `nativeapi capi`.
 
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: "lib/src/ffi/bindings_generated.dart"
+output: "lib/src/bindings_generated.dart"
 headers:
   entry-points:
     - "src/libnativeapi/src/capi/accessibility_manager_c.h"
