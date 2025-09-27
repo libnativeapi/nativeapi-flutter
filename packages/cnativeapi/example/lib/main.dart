@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide KeyboardListener;
-import 'package:flutter/services.dart';
 import 'package:nativeapi/nativeapi.dart';
 
 void main() {
@@ -62,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       print('Display ${i + 1}');
                     }
                   },
-                  child: const Text('All Windows'),
+                  child: const Text('All Displays'),
                 ),
                 spacerSmall,
               ],

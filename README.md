@@ -69,7 +69,7 @@ flutter run
 This project uses ffigen to generate Dart FFI bindings from C headers. To regenerate the bindings:
 
 ```bash
-flutter pub run ffigen
+dart run ffigen --config ffigen.yaml
 ```
 
 The ffigen configuration is defined in `ffigen.yaml`. You typically need to regenerate bindings when:
