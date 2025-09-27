@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextButton(
                   onPressed: () {
                     native_display_list_t displayList =
-                        nativeApiBindings.native_display_manager_get_all();
+                        cnativeApiBindings.native_display_manager_get_all();
 
                     for (int i = 0; i < displayList.count; i++) {
                       print('Display ${i + 1}');

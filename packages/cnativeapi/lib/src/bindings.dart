@@ -20,4 +20,4 @@ final DynamicLibrary _dylib = () {
 }();
 
 /// The bindings to the native functions in [_dylib].
-final NativeApiBindings nativeApiBindings = NativeApiBindings(_dylib);
+final CNativeApiBindings cnativeApiBindings = CNativeApiBindings(_dylib);

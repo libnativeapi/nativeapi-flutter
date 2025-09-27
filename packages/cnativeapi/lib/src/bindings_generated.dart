@@ -331,8 +331,6 @@ enum native_display_orientation_t {
   };
 }
 
-final class native_display_handle extends ffi.Opaque {}
-
 /// Display list structure
 final class native_display_list_t extends ffi.Struct {
   external ffi.Pointer<native_display_t> displays;
@@ -342,7 +340,8 @@ final class native_display_list_t extends ffi.Struct {
 }
 
 /// Opaque display handle
-typedef native_display_t = ffi.Pointer<native_display_handle>;
+/// Align with window handle design: use a raw pointer to underlying C++ type
+typedef native_display_t = ffi.Pointer<ffi.Void>;
 
 /// Representation of a point
 final class native_point_t extends ffi.Struct {
