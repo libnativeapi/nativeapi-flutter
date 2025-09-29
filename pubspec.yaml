@@ -5,5 +5,7 @@ environment:
 
 workspace:
   - packages/cnativeapi
+  - packages/nativeapi
+
 dev_dependencies:
   melos: ^7.1.1

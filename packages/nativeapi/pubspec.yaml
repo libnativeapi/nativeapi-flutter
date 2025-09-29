@@ -1,0 +1,19 @@
+name: nativeapi
+description: "Providing unified access to native system APIs for Flutter"
+version: 0.1.0-dev.1
+homepage: https://github.com/libnativeapi/nativeapi-flutter
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cnativeapi: ^0.1.0-dev.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
