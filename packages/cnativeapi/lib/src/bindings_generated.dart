@@ -308,6 +308,1508 @@ class CNativeApiBindings {
   late final _native_display_manager_get_cursor_position =
       _native_display_manager_get_cursor_positionPtr
           .asFunction<native_point_t Function()>();
+
+  /// Create a new menu item
+  /// @param text The display text for the menu item
+  /// @param type The type of menu item to create
+  /// @return Menu item handle, or NULL if creation failed
+  native_menu_item_t native_menu_item_create(
+    ffi.Pointer<ffi.Char> text,
+    native_menu_item_type_t type,
+  ) {
+    return _native_menu_item_create(text, type.value);
+  }
+
+  late final _native_menu_item_createPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_menu_item_t Function(ffi.Pointer<ffi.Char>, ffi.UnsignedInt)
+        >
+      >('native_menu_item_create');
+  late final _native_menu_item_create = _native_menu_item_createPtr
+      .asFunction<native_menu_item_t Function(ffi.Pointer<ffi.Char>, int)>();
+
+  /// Create a separator menu item
+  /// @return Menu item handle, or NULL if creation failed
+  native_menu_item_t native_menu_item_create_separator() {
+    return _native_menu_item_create_separator();
+  }
+
+  late final _native_menu_item_create_separatorPtr =
+      _lookup<ffi.NativeFunction<native_menu_item_t Function()>>(
+        'native_menu_item_create_separator',
+      );
+  late final _native_menu_item_create_separator =
+      _native_menu_item_create_separatorPtr
+          .asFunction<native_menu_item_t Function()>();
+
+  /// Destroy a menu item and release its resources
+  /// @param item The menu item to destroy
+  void native_menu_item_destroy(native_menu_item_t item) {
+    return _native_menu_item_destroy(item);
+  }
+
+  late final _native_menu_item_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_t)>>(
+        'native_menu_item_destroy',
+      );
+  late final _native_menu_item_destroy = _native_menu_item_destroyPtr
+      .asFunction<void Function(native_menu_item_t)>();
+
+  /// Get the ID of a menu item
+  /// @param item The menu item
+  /// @return The menu item ID
+  int native_menu_item_get_id(native_menu_item_t item) {
+    return _native_menu_item_get_id(item);
+  }
+
+  late final _native_menu_item_get_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_menu_item_id_t Function(native_menu_item_t)>
+      >('native_menu_item_get_id');
+  late final _native_menu_item_get_id = _native_menu_item_get_idPtr
+      .asFunction<int Function(native_menu_item_t)>();
+
+  /// Get the type of a menu item
+  /// @param item The menu item
+  /// @return The menu item type
+  native_menu_item_type_t native_menu_item_get_type(native_menu_item_t item) {
+    return native_menu_item_type_t.fromValue(_native_menu_item_get_type(item));
+  }
+
+  late final _native_menu_item_get_typePtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_menu_item_t)>>(
+        'native_menu_item_get_type',
+      );
+  late final _native_menu_item_get_type = _native_menu_item_get_typePtr
+      .asFunction<int Function(native_menu_item_t)>();
+
+  /// Set the label of a menu item
+  /// @param item The menu item
+  /// @param label The label to set
+  void native_menu_item_set_label(
+    native_menu_item_t item,
+    ffi.Pointer<ffi.Char> label,
+  ) {
+    return _native_menu_item_set_label(item, label);
+  }
+
+  late final _native_menu_item_set_labelPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_menu_item_set_label');
+  late final _native_menu_item_set_label = _native_menu_item_set_labelPtr
+      .asFunction<void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>();
+
+  /// Get the label of a menu item
+  /// @param item The menu item
+  /// @param buffer Buffer to store the label (caller allocated)
+  /// @param buffer_size Size of the buffer
+  /// @return Length of the label, or -1 if buffer too small
+  int native_menu_item_get_label(
+    native_menu_item_t item,
+    ffi.Pointer<ffi.Char> buffer,
+    int buffer_size,
+  ) {
+    return _native_menu_item_get_label(item, buffer, buffer_size);
+  }
+
+  late final _native_menu_item_get_labelPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, ffi.Size)
+        >
+      >('native_menu_item_get_label');
+  late final _native_menu_item_get_label = _native_menu_item_get_labelPtr
+      .asFunction<
+        int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, int)
+      >();
+
+  /// Set the icon of a menu item
+  /// @param item The menu item
+  /// @param icon Path to icon file or base64 data
+  void native_menu_item_set_icon(
+    native_menu_item_t item,
+    ffi.Pointer<ffi.Char> icon,
+  ) {
+    return _native_menu_item_set_icon(item, icon);
+  }
+
+  late final _native_menu_item_set_iconPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_menu_item_set_icon');
+  late final _native_menu_item_set_icon = _native_menu_item_set_iconPtr
+      .asFunction<void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>();
+
+  /// Get the icon of a menu item
+  /// @param item The menu item
+  /// @param buffer Buffer to store the icon path/data (caller allocated)
+  /// @param buffer_size Size of the buffer
+  /// @return Length of the icon string, or -1 if buffer too small
+  int native_menu_item_get_icon(
+    native_menu_item_t item,
+    ffi.Pointer<ffi.Char> buffer,
+    int buffer_size,
+  ) {
+    return _native_menu_item_get_icon(item, buffer, buffer_size);
+  }
+
+  late final _native_menu_item_get_iconPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, ffi.Size)
+        >
+      >('native_menu_item_get_icon');
+  late final _native_menu_item_get_icon = _native_menu_item_get_iconPtr
+      .asFunction<
+        int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, int)
+      >();
+
+  /// Set the tooltip of a menu item
+  /// @param item The menu item
+  /// @param tooltip The tooltip text to set
+  void native_menu_item_set_tooltip(
+    native_menu_item_t item,
+    ffi.Pointer<ffi.Char> tooltip,
+  ) {
+    return _native_menu_item_set_tooltip(item, tooltip);
+  }
+
+  late final _native_menu_item_set_tooltipPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_menu_item_set_tooltip');
+  late final _native_menu_item_set_tooltip = _native_menu_item_set_tooltipPtr
+      .asFunction<void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>();
+
+  /// Get the tooltip of a menu item
+  /// @param item The menu item
+  /// @param buffer Buffer to store the tooltip (caller allocated)
+  /// @param buffer_size Size of the buffer
+  /// @return Length of the tooltip, or -1 if buffer too small
+  int native_menu_item_get_tooltip(
+    native_menu_item_t item,
+    ffi.Pointer<ffi.Char> buffer,
+    int buffer_size,
+  ) {
+    return _native_menu_item_get_tooltip(item, buffer, buffer_size);
+  }
+
+  late final _native_menu_item_get_tooltipPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, ffi.Size)
+        >
+      >('native_menu_item_get_tooltip');
+  late final _native_menu_item_get_tooltip = _native_menu_item_get_tooltipPtr
+      .asFunction<
+        int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, int)
+      >();
+
+  /// Set the keyboard accelerator for a menu item
+  /// @param item The menu item
+  /// @param accelerator The keyboard accelerator to set
+  void native_menu_item_set_accelerator(
+    native_menu_item_t item,
+    ffi.Pointer<native_keyboard_accelerator_t> accelerator,
+  ) {
+    return _native_menu_item_set_accelerator(item, accelerator);
+  }
+
+  late final _native_menu_item_set_acceleratorPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            native_menu_item_t,
+            ffi.Pointer<native_keyboard_accelerator_t>,
+          )
+        >
+      >('native_menu_item_set_accelerator');
+  late final _native_menu_item_set_accelerator =
+      _native_menu_item_set_acceleratorPtr
+          .asFunction<
+            void Function(
+              native_menu_item_t,
+              ffi.Pointer<native_keyboard_accelerator_t>,
+            )
+          >();
+
+  /// Get the keyboard accelerator of a menu item
+  /// @param item The menu item
+  /// @param accelerator Pointer to store the accelerator (caller allocated)
+  /// @return true if accelerator exists, false otherwise
+  bool native_menu_item_get_accelerator(
+    native_menu_item_t item,
+    ffi.Pointer<native_keyboard_accelerator_t> accelerator,
+  ) {
+    return _native_menu_item_get_accelerator(item, accelerator);
+  }
+
+  late final _native_menu_item_get_acceleratorPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_menu_item_t,
+            ffi.Pointer<native_keyboard_accelerator_t>,
+          )
+        >
+      >('native_menu_item_get_accelerator');
+  late final _native_menu_item_get_accelerator =
+      _native_menu_item_get_acceleratorPtr
+          .asFunction<
+            bool Function(
+              native_menu_item_t,
+              ffi.Pointer<native_keyboard_accelerator_t>,
+            )
+          >();
+
+  /// Remove the keyboard accelerator from a menu item
+  /// @param item The menu item
+  void native_menu_item_remove_accelerator(native_menu_item_t item) {
+    return _native_menu_item_remove_accelerator(item);
+  }
+
+  late final _native_menu_item_remove_acceleratorPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_t)>>(
+        'native_menu_item_remove_accelerator',
+      );
+  late final _native_menu_item_remove_accelerator =
+      _native_menu_item_remove_acceleratorPtr
+          .asFunction<void Function(native_menu_item_t)>();
+
+  /// Set the enabled state of a menu item
+  /// @param item The menu item
+  /// @param enabled true to enable, false to disable
+  void native_menu_item_set_enabled(native_menu_item_t item, bool enabled) {
+    return _native_menu_item_set_enabled(item, enabled);
+  }
+
+  late final _native_menu_item_set_enabledPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_menu_item_t, ffi.Bool)>
+      >('native_menu_item_set_enabled');
+  late final _native_menu_item_set_enabled = _native_menu_item_set_enabledPtr
+      .asFunction<void Function(native_menu_item_t, bool)>();
+
+  /// Check if a menu item is enabled
+  /// @param item The menu item
+  /// @return true if enabled, false otherwise
+  bool native_menu_item_is_enabled(native_menu_item_t item) {
+    return _native_menu_item_is_enabled(item);
+  }
+
+  late final _native_menu_item_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_item_t)>>(
+        'native_menu_item_is_enabled',
+      );
+  late final _native_menu_item_is_enabled = _native_menu_item_is_enabledPtr
+      .asFunction<bool Function(native_menu_item_t)>();
+
+  /// Set the visibility of a menu item
+  /// @param item The menu item
+  /// @param visible true to show, false to hide
+  void native_menu_item_set_visible(native_menu_item_t item, bool visible) {
+    return _native_menu_item_set_visible(item, visible);
+  }
+
+  late final _native_menu_item_set_visiblePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_menu_item_t, ffi.Bool)>
+      >('native_menu_item_set_visible');
+  late final _native_menu_item_set_visible = _native_menu_item_set_visiblePtr
+      .asFunction<void Function(native_menu_item_t, bool)>();
+
+  /// Check if a menu item is visible
+  /// @param item The menu item
+  /// @return true if visible, false otherwise
+  bool native_menu_item_is_visible(native_menu_item_t item) {
+    return _native_menu_item_is_visible(item);
+  }
+
+  late final _native_menu_item_is_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_item_t)>>(
+        'native_menu_item_is_visible',
+      );
+  late final _native_menu_item_is_visible = _native_menu_item_is_visiblePtr
+      .asFunction<bool Function(native_menu_item_t)>();
+
+  /// Set the state of a checkbox/radio menu item
+  /// @param item The menu item
+  /// @param state The state to set (unchecked, checked, or mixed)
+  void native_menu_item_set_state(
+    native_menu_item_t item,
+    native_menu_item_state_t state,
+  ) {
+    return _native_menu_item_set_state(item, state.value);
+  }
+
+  late final _native_menu_item_set_statePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_menu_item_t, ffi.UnsignedInt)
+        >
+      >('native_menu_item_set_state');
+  late final _native_menu_item_set_state = _native_menu_item_set_statePtr
+      .asFunction<void Function(native_menu_item_t, int)>();
+
+  /// Get the state of a menu item
+  /// @param item The menu item
+  /// @return The current state of the menu item
+  native_menu_item_state_t native_menu_item_get_state(native_menu_item_t item) {
+    return native_menu_item_state_t.fromValue(
+      _native_menu_item_get_state(item),
+    );
+  }
+
+  late final _native_menu_item_get_statePtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_menu_item_t)>>(
+        'native_menu_item_get_state',
+      );
+  late final _native_menu_item_get_state = _native_menu_item_get_statePtr
+      .asFunction<int Function(native_menu_item_t)>();
+
+  /// Set the radio group ID for a radio menu item
+  /// @param item The menu item
+  /// @param group_id The radio group identifier
+  void native_menu_item_set_radio_group(native_menu_item_t item, int group_id) {
+    return _native_menu_item_set_radio_group(item, group_id);
+  }
+
+  late final _native_menu_item_set_radio_groupPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_menu_item_t, ffi.Int)>
+      >('native_menu_item_set_radio_group');
+  late final _native_menu_item_set_radio_group =
+      _native_menu_item_set_radio_groupPtr
+          .asFunction<void Function(native_menu_item_t, int)>();
+
+  /// Get the radio group ID of a menu item
+  /// @param item The menu item
+  /// @return The radio group ID, or -1 if not set
+  int native_menu_item_get_radio_group(native_menu_item_t item) {
+    return _native_menu_item_get_radio_group(item);
+  }
+
+  late final _native_menu_item_get_radio_groupPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(native_menu_item_t)>>(
+        'native_menu_item_get_radio_group',
+      );
+  late final _native_menu_item_get_radio_group =
+      _native_menu_item_get_radio_groupPtr
+          .asFunction<int Function(native_menu_item_t)>();
+
+  /// Set the submenu for a menu item
+  /// @param item The menu item
+  /// @param submenu The submenu to attach
+  void native_menu_item_set_submenu(
+    native_menu_item_t item,
+    native_menu_t submenu,
+  ) {
+    return _native_menu_item_set_submenu(item, submenu);
+  }
+
+  late final _native_menu_item_set_submenuPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_menu_item_t, native_menu_t)>
+      >('native_menu_item_set_submenu');
+  late final _native_menu_item_set_submenu = _native_menu_item_set_submenuPtr
+      .asFunction<void Function(native_menu_item_t, native_menu_t)>();
+
+  /// Get the submenu of a menu item
+  /// @param item The menu item
+  /// @return The submenu handle, or NULL if no submenu
+  native_menu_t native_menu_item_get_submenu(native_menu_item_t item) {
+    return _native_menu_item_get_submenu(item);
+  }
+
+  late final _native_menu_item_get_submenuPtr =
+      _lookup<ffi.NativeFunction<native_menu_t Function(native_menu_item_t)>>(
+        'native_menu_item_get_submenu',
+      );
+  late final _native_menu_item_get_submenu = _native_menu_item_get_submenuPtr
+      .asFunction<native_menu_t Function(native_menu_item_t)>();
+
+  /// Remove the submenu from a menu item
+  /// @param item The menu item
+  void native_menu_item_remove_submenu(native_menu_item_t item) {
+    return _native_menu_item_remove_submenu(item);
+  }
+
+  late final _native_menu_item_remove_submenuPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_t)>>(
+        'native_menu_item_remove_submenu',
+      );
+  late final _native_menu_item_remove_submenu =
+      _native_menu_item_remove_submenuPtr
+          .asFunction<void Function(native_menu_item_t)>();
+
+  /// Add event listener for a menu item
+  /// @param item The menu item
+  /// @param event_type The type of event to listen for
+  /// @param callback The callback function
+  /// @param user_data User data passed to callback
+  /// @return A listener ID that can be used to remove the listener, or -1 on error
+  int native_menu_item_add_listener(
+    native_menu_item_t item,
+    native_menu_item_event_type_t event_type,
+    native_menu_item_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_menu_item_add_listener(
+      item,
+      event_type.value,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_menu_item_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            native_menu_item_t,
+            ffi.UnsignedInt,
+            native_menu_item_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_menu_item_add_listener');
+  late final _native_menu_item_add_listener = _native_menu_item_add_listenerPtr
+      .asFunction<
+        int Function(
+          native_menu_item_t,
+          int,
+          native_menu_item_event_callback_t,
+          ffi.Pointer<ffi.Void>,
+        )
+      >();
+
+  /// Remove event listener from a menu item
+  /// @param item The menu item
+  /// @param listener_id The listener ID returned by native_menu_item_add_listener
+  /// @return true if removed successfully, false otherwise
+  bool native_menu_item_remove_listener(
+    native_menu_item_t item,
+    int listener_id,
+  ) {
+    return _native_menu_item_remove_listener(item, listener_id);
+  }
+
+  late final _native_menu_item_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_menu_item_t, ffi.Int)>
+      >('native_menu_item_remove_listener');
+  late final _native_menu_item_remove_listener =
+      _native_menu_item_remove_listenerPtr
+          .asFunction<bool Function(native_menu_item_t, int)>();
+
+  /// Programmatically trigger a menu item
+  /// @param item The menu item
+  /// @return true if triggered successfully, false otherwise
+  bool native_menu_item_trigger(native_menu_item_t item) {
+    return _native_menu_item_trigger(item);
+  }
+
+  late final _native_menu_item_triggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_item_t)>>(
+        'native_menu_item_trigger',
+      );
+  late final _native_menu_item_trigger = _native_menu_item_triggerPtr
+      .asFunction<bool Function(native_menu_item_t)>();
+
+  /// Create a new menu
+  /// @return Menu handle, or NULL if creation failed
+  native_menu_t native_menu_create() {
+    return _native_menu_create();
+  }
+
+  late final _native_menu_createPtr =
+      _lookup<ffi.NativeFunction<native_menu_t Function()>>(
+        'native_menu_create',
+      );
+  late final _native_menu_create = _native_menu_createPtr
+      .asFunction<native_menu_t Function()>();
+
+  /// Destroy a menu and release its resources
+  /// @param menu The menu to destroy
+  void native_menu_destroy(native_menu_t menu) {
+    return _native_menu_destroy(menu);
+  }
+
+  late final _native_menu_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t)>>(
+        'native_menu_destroy',
+      );
+  late final _native_menu_destroy = _native_menu_destroyPtr
+      .asFunction<void Function(native_menu_t)>();
+
+  /// Get the ID of a menu
+  /// @param menu The menu
+  /// @return The menu ID
+  int native_menu_get_id(native_menu_t menu) {
+    return _native_menu_get_id(menu);
+  }
+
+  late final _native_menu_get_idPtr =
+      _lookup<ffi.NativeFunction<native_menu_id_t Function(native_menu_t)>>(
+        'native_menu_get_id',
+      );
+  late final _native_menu_get_id = _native_menu_get_idPtr
+      .asFunction<int Function(native_menu_t)>();
+
+  /// Add a menu item to the end of the menu
+  /// @param menu The menu
+  /// @param item The menu item to add
+  void native_menu_add_item(native_menu_t menu, native_menu_item_t item) {
+    return _native_menu_add_item(menu, item);
+  }
+
+  late final _native_menu_add_itemPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_menu_t, native_menu_item_t)>
+      >('native_menu_add_item');
+  late final _native_menu_add_item = _native_menu_add_itemPtr
+      .asFunction<void Function(native_menu_t, native_menu_item_t)>();
+
+  /// Insert a menu item at a specific position
+  /// @param menu The menu
+  /// @param item The menu item to insert
+  /// @param index The position to insert at (0-based)
+  void native_menu_insert_item(
+    native_menu_t menu,
+    native_menu_item_t item,
+    int index,
+  ) {
+    return _native_menu_insert_item(menu, item, index);
+  }
+
+  late final _native_menu_insert_itemPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_menu_t, native_menu_item_t, ffi.Size)
+        >
+      >('native_menu_insert_item');
+  late final _native_menu_insert_item = _native_menu_insert_itemPtr
+      .asFunction<void Function(native_menu_t, native_menu_item_t, int)>();
+
+  /// Remove a menu item from the menu
+  /// @param menu The menu
+  /// @param item The menu item to remove
+  /// @return true if item was found and removed, false otherwise
+  bool native_menu_remove_item(native_menu_t menu, native_menu_item_t item) {
+    return _native_menu_remove_item(menu, item);
+  }
+
+  late final _native_menu_remove_itemPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_menu_t, native_menu_item_t)>
+      >('native_menu_remove_item');
+  late final _native_menu_remove_item = _native_menu_remove_itemPtr
+      .asFunction<bool Function(native_menu_t, native_menu_item_t)>();
+
+  /// Remove a menu item by its ID
+  /// @param menu The menu
+  /// @param item_id The ID of the item to remove
+  /// @return true if item was found and removed, false otherwise
+  bool native_menu_remove_item_by_id(native_menu_t menu, int item_id) {
+    return _native_menu_remove_item_by_id(menu, item_id);
+  }
+
+  late final _native_menu_remove_item_by_idPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_menu_t, native_menu_item_id_t)
+        >
+      >('native_menu_remove_item_by_id');
+  late final _native_menu_remove_item_by_id = _native_menu_remove_item_by_idPtr
+      .asFunction<bool Function(native_menu_t, int)>();
+
+  /// Remove a menu item at a specific position
+  /// @param menu The menu
+  /// @param index The position of the item to remove (0-based)
+  /// @return true if item was removed, false if index out of bounds
+  bool native_menu_remove_item_at(native_menu_t menu, int index) {
+    return _native_menu_remove_item_at(menu, index);
+  }
+
+  late final _native_menu_remove_item_atPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.Size)>>(
+        'native_menu_remove_item_at',
+      );
+  late final _native_menu_remove_item_at = _native_menu_remove_item_atPtr
+      .asFunction<bool Function(native_menu_t, int)>();
+
+  /// Remove all items from the menu
+  /// @param menu The menu
+  void native_menu_clear(native_menu_t menu) {
+    return _native_menu_clear(menu);
+  }
+
+  late final _native_menu_clearPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t)>>(
+        'native_menu_clear',
+      );
+  late final _native_menu_clear = _native_menu_clearPtr
+      .asFunction<void Function(native_menu_t)>();
+
+  /// Add a separator to the end of the menu
+  /// @param menu The menu
+  void native_menu_add_separator(native_menu_t menu) {
+    return _native_menu_add_separator(menu);
+  }
+
+  late final _native_menu_add_separatorPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t)>>(
+        'native_menu_add_separator',
+      );
+  late final _native_menu_add_separator = _native_menu_add_separatorPtr
+      .asFunction<void Function(native_menu_t)>();
+
+  /// Insert a separator at a specific position
+  /// @param menu The menu
+  /// @param index The position to insert the separator at (0-based)
+  void native_menu_insert_separator(native_menu_t menu, int index) {
+    return _native_menu_insert_separator(menu, index);
+  }
+
+  late final _native_menu_insert_separatorPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t, ffi.Size)>>(
+        'native_menu_insert_separator',
+      );
+  late final _native_menu_insert_separator = _native_menu_insert_separatorPtr
+      .asFunction<void Function(native_menu_t, int)>();
+
+  /// Get the number of items in the menu
+  /// @param menu The menu
+  /// @return The number of items
+  int native_menu_get_item_count(native_menu_t menu) {
+    return _native_menu_get_item_count(menu);
+  }
+
+  late final _native_menu_get_item_countPtr =
+      _lookup<ffi.NativeFunction<ffi.Size Function(native_menu_t)>>(
+        'native_menu_get_item_count',
+      );
+  late final _native_menu_get_item_count = _native_menu_get_item_countPtr
+      .asFunction<int Function(native_menu_t)>();
+
+  /// Get a menu item at a specific position
+  /// @param menu The menu
+  /// @param index The position of the item (0-based)
+  /// @return The menu item handle, or NULL if index out of bounds
+  native_menu_item_t native_menu_get_item_at(native_menu_t menu, int index) {
+    return _native_menu_get_item_at(menu, index);
+  }
+
+  late final _native_menu_get_item_atPtr =
+      _lookup<
+        ffi.NativeFunction<native_menu_item_t Function(native_menu_t, ffi.Size)>
+      >('native_menu_get_item_at');
+  late final _native_menu_get_item_at = _native_menu_get_item_atPtr
+      .asFunction<native_menu_item_t Function(native_menu_t, int)>();
+
+  /// Get a menu item by its ID
+  /// @param menu The menu
+  /// @param item_id The ID of the item to find
+  /// @return The menu item handle, or NULL if not found
+  native_menu_item_t native_menu_get_item_by_id(
+    native_menu_t menu,
+    int item_id,
+  ) {
+    return _native_menu_get_item_by_id(menu, item_id);
+  }
+
+  late final _native_menu_get_item_by_idPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_menu_item_t Function(native_menu_t, native_menu_item_id_t)
+        >
+      >('native_menu_get_item_by_id');
+  late final _native_menu_get_item_by_id = _native_menu_get_item_by_idPtr
+      .asFunction<native_menu_item_t Function(native_menu_t, int)>();
+
+  /// Get all menu items
+  /// @param menu The menu
+  /// @return List of menu items (caller must free with native_menu_item_list_free)
+  native_menu_item_list_t native_menu_get_all_items(native_menu_t menu) {
+    return _native_menu_get_all_items(menu);
+  }
+
+  late final _native_menu_get_all_itemsPtr =
+      _lookup<
+        ffi.NativeFunction<native_menu_item_list_t Function(native_menu_t)>
+      >('native_menu_get_all_items');
+  late final _native_menu_get_all_items = _native_menu_get_all_itemsPtr
+      .asFunction<native_menu_item_list_t Function(native_menu_t)>();
+
+  /// Find a menu item by text
+  /// @param menu The menu
+  /// @param text The text to search for
+  /// @return The first menu item with matching text, or NULL if not found
+  native_menu_item_t native_menu_find_item_by_text(
+    native_menu_t menu,
+    ffi.Pointer<ffi.Char> text,
+  ) {
+    return _native_menu_find_item_by_text(menu, text);
+  }
+
+  late final _native_menu_find_item_by_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_menu_item_t Function(native_menu_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_menu_find_item_by_text');
+  late final _native_menu_find_item_by_text = _native_menu_find_item_by_textPtr
+      .asFunction<
+        native_menu_item_t Function(native_menu_t, ffi.Pointer<ffi.Char>)
+      >();
+
+  /// Show the menu as a context menu at specified coordinates
+  /// @param menu The menu
+  /// @param x The x-coordinate in screen coordinates
+  /// @param y The y-coordinate in screen coordinates
+  /// @return true if menu was shown successfully, false otherwise
+  bool native_menu_show_as_context_menu(
+    native_menu_t menu,
+    double x,
+    double y,
+  ) {
+    return _native_menu_show_as_context_menu(menu, x, y);
+  }
+
+  late final _native_menu_show_as_context_menuPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_menu_t, ffi.Double, ffi.Double)
+        >
+      >('native_menu_show_as_context_menu');
+  late final _native_menu_show_as_context_menu =
+      _native_menu_show_as_context_menuPtr
+          .asFunction<bool Function(native_menu_t, double, double)>();
+
+  /// Show the menu as a context menu at default location
+  /// @param menu The menu
+  /// @return true if menu was shown successfully, false otherwise
+  bool native_menu_show_as_context_menu_default(native_menu_t menu) {
+    return _native_menu_show_as_context_menu_default(menu);
+  }
+
+  late final _native_menu_show_as_context_menu_defaultPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
+        'native_menu_show_as_context_menu_default',
+      );
+  late final _native_menu_show_as_context_menu_default =
+      _native_menu_show_as_context_menu_defaultPtr
+          .asFunction<bool Function(native_menu_t)>();
+
+  /// Close the menu if it's currently showing
+  /// @param menu The menu
+  /// @return true if menu was closed, false otherwise
+  bool native_menu_close(native_menu_t menu) {
+    return _native_menu_close(menu);
+  }
+
+  late final _native_menu_closePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
+        'native_menu_close',
+      );
+  late final _native_menu_close = _native_menu_closePtr
+      .asFunction<bool Function(native_menu_t)>();
+
+  /// Check if the menu is currently visible
+  /// @param menu The menu
+  /// @return true if visible, false otherwise
+  bool native_menu_is_visible(native_menu_t menu) {
+    return _native_menu_is_visible(menu);
+  }
+
+  late final _native_menu_is_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
+        'native_menu_is_visible',
+      );
+  late final _native_menu_is_visible = _native_menu_is_visiblePtr
+      .asFunction<bool Function(native_menu_t)>();
+
+  /// Set the enabled state of the menu
+  /// @param menu The menu
+  /// @param enabled true to enable, false to disable
+  void native_menu_set_enabled(native_menu_t menu, bool enabled) {
+    return _native_menu_set_enabled(menu, enabled);
+  }
+
+  late final _native_menu_set_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t, ffi.Bool)>>(
+        'native_menu_set_enabled',
+      );
+  late final _native_menu_set_enabled = _native_menu_set_enabledPtr
+      .asFunction<void Function(native_menu_t, bool)>();
+
+  /// Check if the menu is enabled
+  /// @param menu The menu
+  /// @return true if enabled, false otherwise
+  bool native_menu_is_enabled(native_menu_t menu) {
+    return _native_menu_is_enabled(menu);
+  }
+
+  late final _native_menu_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
+        'native_menu_is_enabled',
+      );
+  late final _native_menu_is_enabled = _native_menu_is_enabledPtr
+      .asFunction<bool Function(native_menu_t)>();
+
+  /// Add event listener for a menu
+  /// @param menu The menu
+  /// @param event_type The type of event to listen for
+  /// @param callback The callback function
+  /// @param user_data User data passed to callback
+  /// @return A listener ID that can be used to remove the listener, or -1 on error
+  int native_menu_add_listener(
+    native_menu_t menu,
+    native_menu_event_type_t event_type,
+    native_menu_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_menu_add_listener(
+      menu,
+      event_type.value,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_menu_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            native_menu_t,
+            ffi.UnsignedInt,
+            native_menu_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_menu_add_listener');
+  late final _native_menu_add_listener = _native_menu_add_listenerPtr
+      .asFunction<
+        int Function(
+          native_menu_t,
+          int,
+          native_menu_event_callback_t,
+          ffi.Pointer<ffi.Void>,
+        )
+      >();
+
+  /// Remove event listener from a menu
+  /// @param menu The menu
+  /// @param listener_id The listener ID returned by native_menu_add_listener
+  /// @return true if removed successfully, false otherwise
+  bool native_menu_remove_listener(native_menu_t menu, int listener_id) {
+    return _native_menu_remove_listener(menu, listener_id);
+  }
+
+  late final _native_menu_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.Int)>>(
+        'native_menu_remove_listener',
+      );
+  late final _native_menu_remove_listener = _native_menu_remove_listenerPtr
+      .asFunction<bool Function(native_menu_t, int)>();
+
+  /// Create and add a menu item in one operation
+  /// @param menu The menu
+  /// @param text The item text
+  /// @param type The item type
+  /// @return The created menu item handle
+  native_menu_item_t native_menu_create_and_add_item(
+    native_menu_t menu,
+    ffi.Pointer<ffi.Char> text,
+    native_menu_item_type_t type,
+  ) {
+    return _native_menu_create_and_add_item(menu, text, type.value);
+  }
+
+  late final _native_menu_create_and_add_itemPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_menu_item_t Function(
+            native_menu_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.UnsignedInt,
+          )
+        >
+      >('native_menu_create_and_add_item');
+  late final _native_menu_create_and_add_item =
+      _native_menu_create_and_add_itemPtr
+          .asFunction<
+            native_menu_item_t Function(
+              native_menu_t,
+              ffi.Pointer<ffi.Char>,
+              int,
+            )
+          >();
+
+  /// Create and add a submenu item in one operation
+  /// @param menu The menu
+  /// @param text The item text
+  /// @param submenu The submenu to attach
+  /// @return The created menu item handle
+  native_menu_item_t native_menu_create_and_add_submenu(
+    native_menu_t menu,
+    ffi.Pointer<ffi.Char> text,
+    native_menu_t submenu,
+  ) {
+    return _native_menu_create_and_add_submenu(menu, text, submenu);
+  }
+
+  late final _native_menu_create_and_add_submenuPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_menu_item_t Function(
+            native_menu_t,
+            ffi.Pointer<ffi.Char>,
+            native_menu_t,
+          )
+        >
+      >('native_menu_create_and_add_submenu');
+  late final _native_menu_create_and_add_submenu =
+      _native_menu_create_and_add_submenuPtr
+          .asFunction<
+            native_menu_item_t Function(
+              native_menu_t,
+              ffi.Pointer<ffi.Char>,
+              native_menu_t,
+            )
+          >();
+
+  /// Free a menu item list
+  /// @param list The list to free
+  void native_menu_item_list_free(native_menu_item_list_t list) {
+    return _native_menu_item_list_free(list);
+  }
+
+  late final _native_menu_item_list_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_list_t)>>(
+        'native_menu_item_list_free',
+      );
+  late final _native_menu_item_list_free = _native_menu_item_list_freePtr
+      .asFunction<void Function(native_menu_item_list_t)>();
+
+  /// Convert keyboard accelerator to string representation
+  /// @param accelerator The accelerator
+  /// @param buffer Buffer to store the string (caller allocated)
+  /// @param buffer_size Size of the buffer
+  /// @return Length of the string, or -1 if buffer too small
+  int native_keyboard_accelerator_to_string(
+    ffi.Pointer<native_keyboard_accelerator_t> accelerator,
+    ffi.Pointer<ffi.Char> buffer,
+    int buffer_size,
+  ) {
+    return _native_keyboard_accelerator_to_string(
+      accelerator,
+      buffer,
+      buffer_size,
+    );
+  }
+
+  late final _native_keyboard_accelerator_to_stringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            ffi.Pointer<native_keyboard_accelerator_t>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Size,
+          )
+        >
+      >('native_keyboard_accelerator_to_string');
+  late final _native_keyboard_accelerator_to_string =
+      _native_keyboard_accelerator_to_stringPtr
+          .asFunction<
+            int Function(
+              ffi.Pointer<native_keyboard_accelerator_t>,
+              ffi.Pointer<ffi.Char>,
+              int,
+            )
+          >();
+
+  /// Create a new tray icon
+  /// @return Tray icon handle, or NULL if creation failed
+  native_tray_icon_t native_tray_icon_create() {
+    return _native_tray_icon_create();
+  }
+
+  late final _native_tray_icon_createPtr =
+      _lookup<ffi.NativeFunction<native_tray_icon_t Function()>>(
+        'native_tray_icon_create',
+      );
+  late final _native_tray_icon_create = _native_tray_icon_createPtr
+      .asFunction<native_tray_icon_t Function()>();
+
+  /// Create a tray icon from a native platform object
+  /// @param native_tray Pointer to platform-specific tray icon object
+  /// @return Tray icon handle, or NULL if creation failed
+  native_tray_icon_t native_tray_icon_create_from_native(
+    ffi.Pointer<ffi.Void> native_tray,
+  ) {
+    return _native_tray_icon_create_from_native(native_tray);
+  }
+
+  late final _native_tray_icon_create_from_nativePtr =
+      _lookup<
+        ffi.NativeFunction<native_tray_icon_t Function(ffi.Pointer<ffi.Void>)>
+      >('native_tray_icon_create_from_native');
+  late final _native_tray_icon_create_from_native =
+      _native_tray_icon_create_from_nativePtr
+          .asFunction<native_tray_icon_t Function(ffi.Pointer<ffi.Void>)>();
+
+  /// Destroy a tray icon and release its resources
+  /// @param tray_icon The tray icon to destroy
+  void native_tray_icon_destroy(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_destroy(tray_icon);
+  }
+
+  late final _native_tray_icon_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_tray_icon_t)>>(
+        'native_tray_icon_destroy',
+      );
+  late final _native_tray_icon_destroy = _native_tray_icon_destroyPtr
+      .asFunction<void Function(native_tray_icon_t)>();
+
+  /// Get the ID of a tray icon
+  /// @param tray_icon The tray icon
+  /// @return The tray icon ID
+  int native_tray_icon_get_id(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_get_id(tray_icon);
+  }
+
+  late final _native_tray_icon_get_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_tray_icon_id_t Function(native_tray_icon_t)>
+      >('native_tray_icon_get_id');
+  late final _native_tray_icon_get_id = _native_tray_icon_get_idPtr
+      .asFunction<int Function(native_tray_icon_t)>();
+
+  /// Set the icon image for the tray icon
+  /// @param tray_icon The tray icon
+  /// @param icon Path to icon file or base64 encoded image data
+  void native_tray_icon_set_icon(
+    native_tray_icon_t tray_icon,
+    ffi.Pointer<ffi.Char> icon,
+  ) {
+    return _native_tray_icon_set_icon(tray_icon, icon);
+  }
+
+  late final _native_tray_icon_set_iconPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_tray_icon_set_icon');
+  late final _native_tray_icon_set_icon = _native_tray_icon_set_iconPtr
+      .asFunction<void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the title text for the tray icon
+  /// @param tray_icon The tray icon
+  /// @param title The title text to set
+  void native_tray_icon_set_title(
+    native_tray_icon_t tray_icon,
+    ffi.Pointer<ffi.Char> title,
+  ) {
+    return _native_tray_icon_set_title(tray_icon, title);
+  }
+
+  late final _native_tray_icon_set_titlePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_tray_icon_set_title');
+  late final _native_tray_icon_set_title = _native_tray_icon_set_titlePtr
+      .asFunction<void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)>();
+
+  /// Get the title text of the tray icon
+  /// @param tray_icon The tray icon
+  /// @param buffer Buffer to store the title (caller allocated)
+  /// @param buffer_size Size of the buffer
+  /// @return Length of the title, or -1 if buffer too small
+  int native_tray_icon_get_title(
+    native_tray_icon_t tray_icon,
+    ffi.Pointer<ffi.Char> buffer,
+    int buffer_size,
+  ) {
+    return _native_tray_icon_get_title(tray_icon, buffer, buffer_size);
+  }
+
+  late final _native_tray_icon_get_titlePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, ffi.Size)
+        >
+      >('native_tray_icon_get_title');
+  late final _native_tray_icon_get_title = _native_tray_icon_get_titlePtr
+      .asFunction<
+        int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, int)
+      >();
+
+  /// Set the tooltip text for the tray icon
+  /// @param tray_icon The tray icon
+  /// @param tooltip The tooltip text to set
+  void native_tray_icon_set_tooltip(
+    native_tray_icon_t tray_icon,
+    ffi.Pointer<ffi.Char> tooltip,
+  ) {
+    return _native_tray_icon_set_tooltip(tray_icon, tooltip);
+  }
+
+  late final _native_tray_icon_set_tooltipPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_tray_icon_set_tooltip');
+  late final _native_tray_icon_set_tooltip = _native_tray_icon_set_tooltipPtr
+      .asFunction<void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)>();
+
+  /// Get the tooltip text of the tray icon
+  /// @param tray_icon The tray icon
+  /// @param buffer Buffer to store the tooltip (caller allocated)
+  /// @param buffer_size Size of the buffer
+  /// @return Length of the tooltip, or -1 if buffer too small
+  int native_tray_icon_get_tooltip(
+    native_tray_icon_t tray_icon,
+    ffi.Pointer<ffi.Char> buffer,
+    int buffer_size,
+  ) {
+    return _native_tray_icon_get_tooltip(tray_icon, buffer, buffer_size);
+  }
+
+  late final _native_tray_icon_get_tooltipPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, ffi.Size)
+        >
+      >('native_tray_icon_get_tooltip');
+  late final _native_tray_icon_get_tooltip = _native_tray_icon_get_tooltipPtr
+      .asFunction<
+        int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, int)
+      >();
+
+  /// Set the context menu for the tray icon
+  /// @param tray_icon The tray icon
+  /// @param menu The context menu to set
+  void native_tray_icon_set_context_menu(
+    native_tray_icon_t tray_icon,
+    native_menu_t menu,
+  ) {
+    return _native_tray_icon_set_context_menu(tray_icon, menu);
+  }
+
+  late final _native_tray_icon_set_context_menuPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_tray_icon_t, native_menu_t)>
+      >('native_tray_icon_set_context_menu');
+  late final _native_tray_icon_set_context_menu =
+      _native_tray_icon_set_context_menuPtr
+          .asFunction<void Function(native_tray_icon_t, native_menu_t)>();
+
+  /// Get the context menu of the tray icon
+  /// @param tray_icon The tray icon
+  /// @return The context menu handle, or NULL if no menu set
+  native_menu_t native_tray_icon_get_context_menu(
+    native_tray_icon_t tray_icon,
+  ) {
+    return _native_tray_icon_get_context_menu(tray_icon);
+  }
+
+  late final _native_tray_icon_get_context_menuPtr =
+      _lookup<ffi.NativeFunction<native_menu_t Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_context_menu',
+      );
+  late final _native_tray_icon_get_context_menu =
+      _native_tray_icon_get_context_menuPtr
+          .asFunction<native_menu_t Function(native_tray_icon_t)>();
+
+  /// Get the screen bounds of the tray icon
+  /// @param tray_icon The tray icon
+  /// @param bounds Pointer to store the bounds (caller allocated)
+  /// @return true if bounds were retrieved successfully, false otherwise
+  bool native_tray_icon_get_bounds(
+    native_tray_icon_t tray_icon,
+    ffi.Pointer<native_rectangle_t> bounds,
+  ) {
+    return _native_tray_icon_get_bounds(tray_icon, bounds);
+  }
+
+  late final _native_tray_icon_get_boundsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_tray_icon_t, ffi.Pointer<native_rectangle_t>)
+        >
+      >('native_tray_icon_get_bounds');
+  late final _native_tray_icon_get_bounds = _native_tray_icon_get_boundsPtr
+      .asFunction<
+        bool Function(native_tray_icon_t, ffi.Pointer<native_rectangle_t>)
+      >();
+
+  /// Show the tray icon in the system tray
+  /// @param tray_icon The tray icon
+  /// @return true if shown successfully, false otherwise
+  bool native_tray_icon_show(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_show(tray_icon);
+  }
+
+  late final _native_tray_icon_showPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_show',
+      );
+  late final _native_tray_icon_show = _native_tray_icon_showPtr
+      .asFunction<bool Function(native_tray_icon_t)>();
+
+  /// Hide the tray icon from the system tray
+  /// @param tray_icon The tray icon
+  /// @return true if hidden successfully, false otherwise
+  bool native_tray_icon_hide(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_hide(tray_icon);
+  }
+
+  late final _native_tray_icon_hidePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_hide',
+      );
+  late final _native_tray_icon_hide = _native_tray_icon_hidePtr
+      .asFunction<bool Function(native_tray_icon_t)>();
+
+  /// Check if the tray icon is currently visible
+  /// @param tray_icon The tray icon
+  /// @return true if visible, false otherwise
+  bool native_tray_icon_is_visible(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_is_visible(tray_icon);
+  }
+
+  late final _native_tray_icon_is_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_is_visible',
+      );
+  late final _native_tray_icon_is_visible = _native_tray_icon_is_visiblePtr
+      .asFunction<bool Function(native_tray_icon_t)>();
+
+  /// Add an event listener for tray icon events
+  /// @param tray_icon The tray icon
+  /// @param event_type The type of event to listen for
+  /// @param callback The callback function
+  /// @param user_data User data to pass to callback
+  /// @return Listener ID that can be used to remove the listener, or -1 on error
+  int native_tray_icon_add_listener(
+    native_tray_icon_t tray_icon,
+    native_tray_icon_event_type_t event_type,
+    native_tray_icon_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_tray_icon_add_listener(
+      tray_icon,
+      event_type.value,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_tray_icon_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            native_tray_icon_t,
+            ffi.UnsignedInt,
+            native_tray_icon_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_tray_icon_add_listener');
+  late final _native_tray_icon_add_listener = _native_tray_icon_add_listenerPtr
+      .asFunction<
+        int Function(
+          native_tray_icon_t,
+          int,
+          native_tray_icon_event_callback_t,
+          ffi.Pointer<ffi.Void>,
+        )
+      >();
+
+  /// Remove an event listener
+  /// @param tray_icon The tray icon
+  /// @param listener_id The listener ID returned by add_listener
+  /// @return true if the listener was found and removed, false otherwise
+  bool native_tray_icon_remove_listener(
+    native_tray_icon_t tray_icon,
+    int listener_id,
+  ) {
+    return _native_tray_icon_remove_listener(tray_icon, listener_id);
+  }
+
+  late final _native_tray_icon_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t, ffi.Int)>
+      >('native_tray_icon_remove_listener');
+  late final _native_tray_icon_remove_listener =
+      _native_tray_icon_remove_listenerPtr
+          .asFunction<bool Function(native_tray_icon_t, int)>();
+
+  /// Show the context menu at specified coordinates
+  /// @param tray_icon The tray icon
+  /// @param x The x-coordinate in screen coordinates
+  /// @param y The y-coordinate in screen coordinates
+  /// @return true if menu was shown successfully, false otherwise
+  bool native_tray_icon_show_context_menu(
+    native_tray_icon_t tray_icon,
+    double x,
+    double y,
+  ) {
+    return _native_tray_icon_show_context_menu(tray_icon, x, y);
+  }
+
+  late final _native_tray_icon_show_context_menuPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_tray_icon_t, ffi.Double, ffi.Double)
+        >
+      >('native_tray_icon_show_context_menu');
+  late final _native_tray_icon_show_context_menu =
+      _native_tray_icon_show_context_menuPtr
+          .asFunction<bool Function(native_tray_icon_t, double, double)>();
+
+  /// Show the context menu at default location
+  /// @param tray_icon The tray icon
+  /// @return true if menu was shown successfully, false otherwise
+  bool native_tray_icon_show_context_menu_default(
+    native_tray_icon_t tray_icon,
+  ) {
+    return _native_tray_icon_show_context_menu_default(tray_icon);
+  }
+
+  late final _native_tray_icon_show_context_menu_defaultPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_show_context_menu_default',
+      );
+  late final _native_tray_icon_show_context_menu_default =
+      _native_tray_icon_show_context_menu_defaultPtr
+          .asFunction<bool Function(native_tray_icon_t)>();
+
+  /// Check if system tray is supported on the current platform
+  /// @return true if system tray is supported, false otherwise
+  bool native_tray_manager_is_supported() {
+    return _native_tray_manager_is_supported();
+  }
+
+  late final _native_tray_manager_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_tray_manager_is_supported',
+      );
+  late final _native_tray_manager_is_supported =
+      _native_tray_manager_is_supportedPtr.asFunction<bool Function()>();
+
+  /// Create a new tray icon
+  /// @return Tray icon handle, or NULL if creation failed
+  native_tray_icon_t native_tray_manager_create() {
+    return _native_tray_manager_create();
+  }
+
+  late final _native_tray_manager_createPtr =
+      _lookup<ffi.NativeFunction<native_tray_icon_t Function()>>(
+        'native_tray_manager_create',
+      );
+  late final _native_tray_manager_create = _native_tray_manager_createPtr
+      .asFunction<native_tray_icon_t Function()>();
+
+  /// Get a tray icon by its ID
+  /// @param tray_icon_id The tray icon ID
+  /// @return Tray icon handle, or NULL if not found
+  native_tray_icon_t native_tray_manager_get(int tray_icon_id) {
+    return _native_tray_manager_get(tray_icon_id);
+  }
+
+  late final _native_tray_manager_getPtr =
+      _lookup<
+        ffi.NativeFunction<native_tray_icon_t Function(native_tray_icon_id_t)>
+      >('native_tray_manager_get');
+  late final _native_tray_manager_get = _native_tray_manager_getPtr
+      .asFunction<native_tray_icon_t Function(int)>();
+
+  /// Get all managed tray icons
+  /// @return List of all tray icons (caller must free with native_tray_icon_list_free)
+  native_tray_icon_list_t native_tray_manager_get_all() {
+    return _native_tray_manager_get_all();
+  }
+
+  late final _native_tray_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<native_tray_icon_list_t Function()>>(
+        'native_tray_manager_get_all',
+      );
+  late final _native_tray_manager_get_all = _native_tray_manager_get_allPtr
+      .asFunction<native_tray_icon_list_t Function()>();
+
+  /// Destroy a tray icon by its ID
+  /// @param tray_icon_id The tray icon ID to destroy
+  /// @return true if tray icon was found and destroyed, false otherwise
+  bool native_tray_manager_destroy(int tray_icon_id) {
+    return _native_tray_manager_destroy(tray_icon_id);
+  }
+
+  late final _native_tray_manager_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_id_t)>>(
+        'native_tray_manager_destroy',
+      );
+  late final _native_tray_manager_destroy = _native_tray_manager_destroyPtr
+      .asFunction<bool Function(int)>();
+
+  /// Free a tray icon list
+  /// @param list The list to free
+  void native_tray_icon_list_free(native_tray_icon_list_t list) {
+    return _native_tray_icon_list_free(list);
+  }
+
+  late final _native_tray_icon_list_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_tray_icon_list_t)>>(
+        'native_tray_icon_list_free',
+      );
+  late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
+      .asFunction<void Function(native_tray_icon_list_t)>();
+}
+
+/// Representation of a point
+final class native_point_t extends ffi.Struct {
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+}
+
+/// Representation of a point
+final class native_size_t extends ffi.Struct {
+  @ffi.Double()
+  external double width;
+
+  @ffi.Double()
+  external double height;
+}
+
+/// Representation of a rectangle
+final class native_rectangle_t extends ffi.Struct {
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+
+  @ffi.Double()
+  external double width;
+
+  @ffi.Double()
+  external double height;
 }
 
 /// Display orientation enumeration
@@ -343,35 +1845,252 @@ final class native_display_list_t extends ffi.Struct {
 /// Align with window handle design: use a raw pointer to underlying C++ type
 typedef native_display_t = ffi.Pointer<ffi.Void>;
 
-/// Representation of a point
-final class native_point_t extends ffi.Struct {
-  @ffi.Double()
-  external double x;
+/// Menu item types
+enum native_menu_item_type_t {
+  NATIVE_MENU_ITEM_TYPE_NORMAL(0),
+  NATIVE_MENU_ITEM_TYPE_CHECKBOX(1),
+  NATIVE_MENU_ITEM_TYPE_RADIO(2),
+  NATIVE_MENU_ITEM_TYPE_SEPARATOR(3),
+  NATIVE_MENU_ITEM_TYPE_SUBMENU(4);
 
-  @ffi.Double()
-  external double y;
+  final int value;
+  const native_menu_item_type_t(this.value);
+
+  static native_menu_item_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MENU_ITEM_TYPE_NORMAL,
+    1 => NATIVE_MENU_ITEM_TYPE_CHECKBOX,
+    2 => NATIVE_MENU_ITEM_TYPE_RADIO,
+    3 => NATIVE_MENU_ITEM_TYPE_SEPARATOR,
+    4 => NATIVE_MENU_ITEM_TYPE_SUBMENU,
+    _ => throw ArgumentError(
+      "Unknown value for native_menu_item_type_t: $value",
+    ),
+  };
 }
 
-/// Representation of a point
-final class native_size_t extends ffi.Struct {
-  @ffi.Double()
-  external double width;
+/// Menu item states
+enum native_menu_item_state_t {
+  NATIVE_MENU_ITEM_STATE_UNCHECKED(0),
+  NATIVE_MENU_ITEM_STATE_CHECKED(1),
+  NATIVE_MENU_ITEM_STATE_MIXED(2);
 
-  @ffi.Double()
-  external double height;
+  final int value;
+  const native_menu_item_state_t(this.value);
+
+  static native_menu_item_state_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MENU_ITEM_STATE_UNCHECKED,
+    1 => NATIVE_MENU_ITEM_STATE_CHECKED,
+    2 => NATIVE_MENU_ITEM_STATE_MIXED,
+    _ => throw ArgumentError(
+      "Unknown value for native_menu_item_state_t: $value",
+    ),
+  };
 }
 
-/// Representation of a rectangle
-final class native_rectangle_t extends ffi.Struct {
-  @ffi.Double()
-  external double x;
+/// Keyboard accelerator modifier flags
+enum native_accelerator_modifier_t {
+  NATIVE_ACCELERATOR_MODIFIER_NONE(0),
+  NATIVE_ACCELERATOR_MODIFIER_CTRL(1),
+  NATIVE_ACCELERATOR_MODIFIER_ALT(2),
+  NATIVE_ACCELERATOR_MODIFIER_SHIFT(4),
+  NATIVE_ACCELERATOR_MODIFIER_META(8);
 
-  @ffi.Double()
-  external double y;
+  final int value;
+  const native_accelerator_modifier_t(this.value);
 
-  @ffi.Double()
-  external double width;
+  static native_accelerator_modifier_t fromValue(int value) => switch (value) {
+    0 => NATIVE_ACCELERATOR_MODIFIER_NONE,
+    1 => NATIVE_ACCELERATOR_MODIFIER_CTRL,
+    2 => NATIVE_ACCELERATOR_MODIFIER_ALT,
+    4 => NATIVE_ACCELERATOR_MODIFIER_SHIFT,
+    8 => NATIVE_ACCELERATOR_MODIFIER_META,
+    _ => throw ArgumentError(
+      "Unknown value for native_accelerator_modifier_t: $value",
+    ),
+  };
+}
 
-  @ffi.Double()
-  external double height;
+/// Keyboard accelerator structure
+final class native_keyboard_accelerator_t extends ffi.Struct {
+  @ffi.Int()
+  external int modifiers;
+
+  @ffi.Array.multi([64])
+  external ffi.Array<ffi.Char> key;
+}
+
+/// Menu item clicked event
+final class native_menu_item_clicked_event_t extends ffi.Struct {
+  @native_menu_item_id_t()
+  external int item_id;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> item_text;
+}
+
+typedef native_menu_item_id_t = ffi.Long;
+typedef Dartnative_menu_item_id_t = int;
+
+/// Menu item submenu opened event
+final class native_menu_item_submenu_opened_event_t extends ffi.Struct {
+  @native_menu_item_id_t()
+  external int item_id;
+}
+
+/// Menu item submenu closed event
+final class native_menu_item_submenu_closed_event_t extends ffi.Struct {
+  @native_menu_item_id_t()
+  external int item_id;
+}
+
+/// Menu item list structure
+final class native_menu_item_list_t extends ffi.Struct {
+  external ffi.Pointer<native_menu_item_t> items;
+
+  @ffi.Size()
+  external int count;
+}
+
+typedef native_menu_item_t = ffi.Pointer<ffi.Void>;
+
+/// Menu opened event
+final class native_menu_opened_event_t extends ffi.Struct {
+  @native_menu_id_t()
+  external int menu_id;
+}
+
+/// Menu and menu item identifiers
+typedef native_menu_id_t = ffi.Long;
+typedef Dartnative_menu_id_t = int;
+
+/// Menu closed event
+final class native_menu_closed_event_t extends ffi.Struct {
+  @native_menu_id_t()
+  external int menu_id;
+}
+
+/// Event types for menu item events
+enum native_menu_item_event_type_t {
+  NATIVE_MENU_ITEM_EVENT_CLICKED(0),
+  NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED(1),
+  NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED(2);
+
+  final int value;
+  const native_menu_item_event_type_t(this.value);
+
+  static native_menu_item_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MENU_ITEM_EVENT_CLICKED,
+    1 => NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED,
+    2 => NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED,
+    _ => throw ArgumentError(
+      "Unknown value for native_menu_item_event_type_t: $value",
+    ),
+  };
+}
+
+/// Event types for menu events
+enum native_menu_event_type_t {
+  NATIVE_MENU_EVENT_OPENED(0),
+  NATIVE_MENU_EVENT_CLOSED(1);
+
+  final int value;
+  const native_menu_event_type_t(this.value);
+
+  static native_menu_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MENU_EVENT_OPENED,
+    1 => NATIVE_MENU_EVENT_CLOSED,
+    _ => throw ArgumentError(
+      "Unknown value for native_menu_event_type_t: $value",
+    ),
+  };
+}
+
+/// Opaque handles for menu objects
+typedef native_menu_t = ffi.Pointer<ffi.Void>;
+
+/// Event listener registration function types
+typedef native_menu_item_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_menu_item_event_callback_tFunction>>;
+typedef native_menu_item_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_menu_item_event_callback_tFunction =
+    void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+typedef native_menu_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_menu_event_callback_tFunction>>;
+typedef native_menu_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_menu_event_callback_tFunction =
+    void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+
+/// Tray icon clicked event
+final class native_tray_icon_clicked_event_t extends ffi.Struct {
+  @native_tray_icon_id_t()
+  external int tray_icon_id;
+
+  /// "left", "right", etc.
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Char> button;
+}
+
+/// Tray icon identifier
+typedef native_tray_icon_id_t = ffi.Long;
+typedef Dartnative_tray_icon_id_t = int;
+
+/// Tray icon right-clicked event
+final class native_tray_icon_right_clicked_event_t extends ffi.Struct {
+  @native_tray_icon_id_t()
+  external int tray_icon_id;
+}
+
+/// Tray icon double-clicked event
+final class native_tray_icon_double_clicked_event_t extends ffi.Struct {
+  @native_tray_icon_id_t()
+  external int tray_icon_id;
+}
+
+/// Event types for tray icon events
+enum native_tray_icon_event_type_t {
+  NATIVE_TRAY_ICON_EVENT_CLICKED(0),
+  NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED(1),
+  NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED(2);
+
+  final int value;
+  const native_tray_icon_event_type_t(this.value);
+
+  static native_tray_icon_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TRAY_ICON_EVENT_CLICKED,
+    1 => NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED,
+    2 => NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED,
+    _ => throw ArgumentError(
+      "Unknown value for native_tray_icon_event_type_t: $value",
+    ),
+  };
+}
+
+/// Opaque handle for tray icon objects
+typedef native_tray_icon_t = ffi.Pointer<ffi.Void>;
+
+/// Event callback function type
+typedef native_tray_icon_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_tray_icon_event_callback_tFunction>>;
+typedef native_tray_icon_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_tray_icon_event_callback_tFunction =
+    void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+
+/// Tray icon list structure
+final class native_tray_icon_list_t extends ffi.Struct {
+  external ffi.Pointer<native_tray_icon_t> tray_icons;
+
+  @ffi.Size()
+  external int count;
 }

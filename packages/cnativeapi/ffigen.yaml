@@ -10,12 +10,20 @@ headers:
     - "src/libnativeapi/src/capi/accessibility_manager_c.h"
     - "src/libnativeapi/src/capi/display_c.h"
     - "src/libnativeapi/src/capi/display_manager_c.h"
-    - "src/libnativeapi/src/capi/geometry.h"
+    - "src/libnativeapi/src/capi/geometry_c.h"
+    - "src/libnativeapi/src/capi/menu_c.h"
+    - "src/libnativeapi/src/capi/tray_icon_c.h"
+    - "src/libnativeapi/src/capi/tray_manager_c.h"
+
   include-directives:
     - "src/libnativeapi/src/capi/accessibility_manager_c.h"
     - "src/libnativeapi/src/capi/display_c.h"
     - "src/libnativeapi/src/capi/display_manager_c.h"
-    - "src/libnativeapi/src/capi/geometry.h"
+    - "src/libnativeapi/src/capi/geometry_c.h"
+    - "src/libnativeapi/src/capi/menu_c.h"
+    - "src/libnativeapi/src/capi/tray_icon_c.h"
+    - "src/libnativeapi/src/capi/tray_manager_c.h"
+
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types

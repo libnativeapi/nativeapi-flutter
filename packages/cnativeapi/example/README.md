@@ -1,6 +1,6 @@
-# nativeapi_example
+# cnativeapi_example
 
-Demonstrates how to use the nativeapi plugin.
+A new Flutter project.
 
 ## Getting Started
 
