@@ -1,7 +1,8 @@
-import 'dart:ffi' as ffi;
+import 'dart:ffi';
+import 'package:ffi/ffi.dart' as ffi;
+import 'dart:typed_data';
 
 import 'package:cnativeapi/cnativeapi.dart';
-
 import 'tray_icon.dart';
 
 class TrayManager {
@@ -10,75 +11,49 @@ class TrayManager {
   static final TrayManager _instance = TrayManager._();
   static TrayManager get instance => _instance;
 
-  final Map<String, TrayIcon> _trayIcons = {};
-
-  Future<void> createTrayIcon(TrayIcon trayIcon) async {
-    // TODO: Call native tray manager create function when available
-    // final handle = cnativeApiBindings.native_tray_manager_create(trayIcon.id, ...);
-    // final nativeTrayIcon = TrayIcon._(handle, ...);
-    _trayIcons[trayIcon.id] = trayIcon;
+  static bool get isSupported {
+    return cnativeApiBindings.native_tray_manager_is_supported();
   }
 
-  Future<void> updateTrayIcon(String id, TrayIcon trayIcon) async {
-    if (_trayIcons.containsKey(id)) {
-      // TODO: Call native tray manager update function when available
-      // cnativeApiBindings.native_tray_manager_update(id, ...);
-      _trayIcons[id] = trayIcon;
-    } else {
-      throw ArgumentError('Tray icon with id "$id" not found');
+  TrayIcon? createTrayIcon() {
+    final handle = cnativeApiBindings.native_tray_manager_create();
+    if (handle == nullptr) {
+      return null;
     }
+    return TrayIcon(handle);
   }
 
-  Future<void> removeTrayIcon(String id) async {
-    final trayIcon = _trayIcons[id];
-    if (trayIcon != null) {
-      // TODO: Call native tray manager remove function when available
-      // cnativeApiBindings.native_tray_manager_remove(id);
-      trayIcon.dispose();
-      _trayIcons.remove(id);
+  TrayIcon? getTrayIcon(int trayIconId) {
+    final handle = cnativeApiBindings.native_tray_manager_get(trayIconId);
+    if (handle == nullptr) {
+      return null;
     }
-  }
-
-  TrayIcon? getTrayIcon(String id) {
-    return _trayIcons[id];
+    return TrayIcon(handle);
   }
 
   List<TrayIcon> getAllTrayIcons() {
-    return _trayIcons.values.toList();
-  }
+    final trayIconList = cnativeApiBindings.native_tray_manager_get_all();
+    final result = <TrayIcon>[];
 
-  bool hasTrayIcon(String id) {
-    return _trayIcons.containsKey(id);
-  }
-
-  Future<void> showTrayIcon(String id) async {
-    final trayIcon = _trayIcons[id];
-    if (trayIcon == null) {
-      throw ArgumentError('Tray icon with id "$id" not found');
+    if (trayIconList.count > 0 && trayIconList.tray_icons != nullptr) {
+      for (int i = 0; i < trayIconList.count; i++) {
+        final handle = trayIconList.tray_icons.elementAt(i).value;
+        if (handle != nullptr) {
+          result.add(TrayIcon(handle));
+        }
+      }
     }
+
+    // Free the native list
+    cnativeApiBindings.native_tray_icon_list_free(trayIconList);
+
+    return result;
   }
 
-  Future<void> hideTrayIcon(String id) async {
-    final trayIcon = _trayIcons[id];
-    if (trayIcon == null) {
-      throw ArgumentError('Tray icon with id "$id" not found');
-    }
+  bool destroyTrayIcon(int trayIconId) {
+    return cnativeApiBindings.native_tray_manager_destroy(trayIconId);
   }
 
-  Future<void> setTooltip(String id, String tooltip) async {
-    final trayIcon = _trayIcons[id];
-    if (trayIcon == null) {
-      throw ArgumentError('Tray icon with id "$id" not found');
-    }
-    _trayIcons[id] = trayIcon.copyWith(tooltip: tooltip);
-  }
-
-  Future<void> clearAll() async {
-    // TODO: Call native tray manager clear function when available
-    // cnativeApiBindings.native_tray_manager_clear();
-    for (final trayIcon in _trayIcons.values) {
-      trayIcon.dispose();
-    }
-    _trayIcons.clear();
-  }
+  @override
+  String toString() => 'TrayManager()';
 }

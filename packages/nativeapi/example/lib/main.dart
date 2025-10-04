@@ -57,9 +57,31 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  void addTrayIcon() {
+    final trayManager = TrayManager.instance;
+    TrayIcon? trayIcon = trayManager.createTrayIcon();
+    if (trayIcon != null) {
+      trayIcon.setTitle('My App');
+      trayIcon.setTooltip('This is my app');
+      trayIcon.setIcon('assets/icon.png');
+
+      Menu menu = Menu();
+      menu.addItem(
+        MenuItem(label: 'Item 1', onClicked: () => print('Item 1 clicked')),
+      );
+      menu.addItem(
+        MenuItem(label: 'Item 2', onClicked: () => print('Item 2 clicked')),
+      );
+
+      trayIcon.setContextMenu(menu);
+
+      trayIcon.show();
+    }
+  }
+
   void _incrementCounter() {
     final displayManager = DisplayManager.instance;
-    final displays = displayManager.getAllDisplays();
+    final displays = displayManager.getAll();
 
     for (final display in displays) {
       print('Display ID: ${display.id}');
@@ -120,6 +142,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            FilledButton(
+              child: Text('Add TrayIcon'),
+              onPressed: () {
+                addTrayIcon();
+              },
             ),
           ],
         ),

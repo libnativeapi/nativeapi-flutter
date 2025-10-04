@@ -1,5 +1,7 @@
+import 'dart:ui';
+
 import 'package:ffi/ffi.dart' as ffi;
-import 'dart:ffi';
+import 'dart:ffi' hide Size;
 
 import 'package:cnativeapi/cnativeapi.dart';
 
@@ -28,80 +30,12 @@ enum DisplayOrientation {
   }
 }
 
-class Point {
-  const Point(this.x, this.y);
-  final double x;
-  final double y;
-
-  @override
-  String toString() => 'Point($x, $y)';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Point &&
-          runtimeType == other.runtimeType &&
-          x == other.x &&
-          y == other.y;
-
-  @override
-  int get hashCode => x.hashCode ^ y.hashCode;
-}
-
-class Size {
-  const Size(this.width, this.height);
-  final double width;
-  final double height;
-
-  @override
-  String toString() => 'Size($width, $height)';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Size &&
-          runtimeType == other.runtimeType &&
-          width == other.width &&
-          height == other.height;
-
-  @override
-  int get hashCode => width.hashCode ^ height.hashCode;
-}
-
-class Rectangle {
-  const Rectangle(this.x, this.y, this.width, this.height);
-  final double x;
-  final double y;
-  final double width;
-  final double height;
-
-  Point get position => Point(x, y);
-  Size get size => Size(width, height);
-
-  @override
-  String toString() => 'Rectangle($x, $y, $width, $height)';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Rectangle &&
-          runtimeType == other.runtimeType &&
-          x == other.x &&
-          y == other.y &&
-          width == other.width &&
-          height == other.height;
-
-  @override
-  int get hashCode =>
-      x.hashCode ^ y.hashCode ^ width.hashCode ^ height.hashCode;
-}
-
 class Display {
-  Display._(this._handle);
-
-  Display.fromHandle(native_display_t handle) : _handle = handle;
-
   final native_display_t _handle;
+
+  Display(native_display_t handle) : _handle = handle;
+
+  native_display_t get handle => _handle;
 
   String get id {
     final ptr = cnativeApiBindings.native_display_get_id(_handle);
@@ -117,9 +51,9 @@ class Display {
     return name;
   }
 
-  Point get position {
+  Offset get position {
     final nativePoint = cnativeApiBindings.native_display_get_position(_handle);
-    return Point(nativePoint.x, nativePoint.y);
+    return Offset(nativePoint.x, nativePoint.y);
   }
 
   Size get size {
@@ -127,9 +61,9 @@ class Display {
     return Size(nativeSize.width, nativeSize.height);
   }
 
-  Rectangle get workArea {
+  Rect get workArea {
     final nativeRect = cnativeApiBindings.native_display_get_work_area(_handle);
-    return Rectangle(
+    return Rect.fromLTWH(
       nativeRect.x,
       nativeRect.y,
       nativeRect.width,
