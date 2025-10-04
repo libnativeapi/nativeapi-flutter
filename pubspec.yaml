@@ -4,6 +4,7 @@ environment:
   sdk: ^3.9.0
 
 workspace:
+  - examples/display_example
   - packages/cnativeapi
   - packages/nativeapi
 
