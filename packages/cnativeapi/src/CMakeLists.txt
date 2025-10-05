@@ -3,39 +3,86 @@
 # the plugin to fail to compile for some customers of the plugin.
 cmake_minimum_required(VERSION 3.10)
 
-project(nativeapi_library VERSION 0.0.1 LANGUAGES CXX)
+project(cnativeapi VERSION 0.0.1 LANGUAGES CXX)
 
-# Add the libnativeapi source files
-file(GLOB NATIVEAPI_SOURCES
-  "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/*.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-)
-list(FILTER NATIVEAPI_SOURCES EXCLUDE REGEX "_linux.*|_macos.*|_windows.*")
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(WIN32)
-    file(GLOB NATIVEAPI_WIN_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_windows.cpp"
-  )
-    list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_WIN_SOURCES})
-endif()
+# Define base paths
+set(LIBNATIVEAPI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi")
+set(LIBNATIVEAPI_SRC_DIR "${LIBNATIVEAPI_ROOT}/src")
+set(LIBNATIVEAPI_INCLUDE_DIR "${LIBNATIVEAPI_ROOT}/include")
 
-if(LINUX)
-    file(GLOB NATIVEAPI_LINUX_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/impl/*_linux.cpp"
-  )
-    list(APPEND NATIVEAPI_SOURCES ${NATIVEAPI_LINUX_SOURCES})
-endif()
+# Common source files
+file(GLOB COMMON_SOURCES "${LIBNATIVEAPI_SRC_DIR}/*.cpp")
+list(FILTER COMMON_SOURCES EXCLUDE REGEX "${LIBNATIVEAPI_SRC_DIR}/platform/*")
 
-add_library(nativeapi SHARED ${NATIVEAPI_SOURCES})
+# Foundation source files
+file(GLOB FOUNDATION_SOURCES "${LIBNATIVEAPI_SRC_DIR}/foundation/*.cpp")
 
-set_target_properties(nativeapi PROPERTIES
-  PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/libnativeapi/src/**/*.h"
-  OUTPUT_NAME "nativeapi"
+# C API source files
+file(GLOB CAPI_SOURCES
+        "${LIBNATIVEAPI_SRC_DIR}/capi/*.cpp"
+        "${LIBNATIVEAPI_SRC_DIR}/capi/*.c"
 )
 
-target_compile_definitions(nativeapi PUBLIC DART_SHARED_LIB)
+# Platform-specific source files
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/linux/*_linux.cpp")
+    # Find packages for Linux
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
+    pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
+    pkg_check_modules(XI REQUIRED IMPORTED_TARGET xi)
+    pkg_check_modules(AYATANA_APPINDICATOR REQUIRED IMPORTED_TARGET ayatana-appindicator3-0.1)
+elseif (WIN32)
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/windows/*_windows.cpp")
+elseif (APPLE)
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/macos/*_macos.mm")
+    # Find required frameworks for macOS
+    find_library(COCOA_FRAMEWORK Cocoa)
+    find_library(CARBON_FRAMEWORK Carbon)
+    find_library(COREGRAPHICS_FRAMEWORK CoreGraphics)
+    find_library(APPLICATIONSERVICES_FRAMEWORK ApplicationServices)
+else ()
+    set(PLATFORM_SOURCES "")
+endif ()
 
-if(ANDROID)
-    # Support Android 15 16k page size
-    target_link_options(nativeapi PRIVATE "-Wl,-z,max-page-size=16384")
-endif()
+# Add library target
+add_library(cnativeapi SHARED
+        ${COMMON_SOURCES}
+        ${FOUNDATION_SOURCES}
+        ${PLATFORM_SOURCES}
+        ${CAPI_SOURCES}
+)
+
+# Set library properties
+set_target_properties(cnativeapi PROPERTIES
+        PUBLIC_HEADER "${LIBNATIVEAPI_INCLUDE_DIR}/nativeapi.h"
+)
+
+# Set library include directories
+target_include_directories(cnativeapi PUBLIC
+        $<BUILD_INTERFACE:${LIBNATIVEAPI_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:include>
+)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_include_directories(cnativeapi PUBLIC ${GTK_INCLUDE_DIRS})
+endif ()
+
+# Link required frameworks and libraries
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(cnativeapi PUBLIC
+            PkgConfig::GTK
+            PkgConfig::X11
+            PkgConfig::XI
+            PkgConfig::AYATANA_APPINDICATOR
+            pthread
+    )
+elseif (WIN32)
+    target_link_libraries(cnativeapi PUBLIC user32 shell32 dwmapi)
+endif ()
+
+target_compile_definitions(cnativeapi PUBLIC DART_SHARED_LIB)
