@@ -61,9 +61,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final trayManager = TrayManager.instance;
     TrayIcon? trayIcon = trayManager.createTrayIcon();
     if (trayIcon != null) {
-      trayIcon.setTitle('My App');
-      trayIcon.setTooltip('This is my app');
-      trayIcon.setIcon('assets/icon.png');
+      trayIcon.title = 'My App';
+      trayIcon.tooltip = 'This is my app';
+      trayIcon.icon = 'assets/icon.png';
 
       Menu menu = Menu();
       menu.addItem(
@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
         MenuItem(label: 'Item 2', onClicked: () => print('Item 2 clicked')),
       );
 
-      trayIcon.setContextMenu(menu);
+      trayIcon.contextMenu = menu;
 
       trayIcon.show();
     }

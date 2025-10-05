@@ -1,6 +1,6 @@
 import 'package:cnativeapi/cnativeapi.dart';
 
-export 'package:cnativeapi/cnativeapi.dart';
+export 'package:cnativeapi/cnativeapi.dart' hide cnativeApiBindings;
 
 /// A mixin that exposes the shared [CNativeApiBindings] instance used to
 /// communicate with the underlying native API.

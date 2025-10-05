@@ -46,16 +46,16 @@ class Display
   }
 
   String get id {
-    final ptr = bindings.native_display_get_id(_nativeHandle);
-    final id = ptr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(ptr);
+    final idPtr = bindings.native_display_get_id(_nativeHandle);
+    final id = idPtr.cast<ffi.Utf8>().toDartString();
+    bindings.native_display_free_string(idPtr);
     return id;
   }
 
   String get name {
-    final ptr = bindings.native_display_get_name(_nativeHandle);
-    final name = ptr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(ptr);
+    final namePtr = bindings.native_display_get_name(_nativeHandle);
+    final name = namePtr.cast<ffi.Utf8>().toDartString();
+    bindings.native_display_free_string(namePtr);
     return name;
   }
 
