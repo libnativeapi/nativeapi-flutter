@@ -37,25 +37,17 @@ class Display
 
   Display(native_display_t nativeHandle) : _nativeHandle = nativeHandle;
 
-  @override
-  native_display_t get nativeHandle => _nativeHandle;
-
-  @override
-  void dispose() {
-    bindings.native_display_free(_nativeHandle);
-  }
-
   String get id {
     final idPtr = bindings.native_display_get_id(_nativeHandle);
     final id = idPtr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(idPtr);
+    bindings.free_c_str(idPtr);
     return id;
   }
 
   String get name {
     final namePtr = bindings.native_display_get_name(_nativeHandle);
     final name = namePtr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(namePtr);
+    bindings.free_c_str(namePtr);
     return name;
   }
 
@@ -102,31 +94,15 @@ class Display
     return bindings.native_display_get_bit_depth(_nativeHandle);
   }
 
-  String get manufacturer {
-    final ptr = bindings.native_display_get_manufacturer(_nativeHandle);
-    final manufacturer = ptr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(ptr);
-    return manufacturer;
-  }
-
-  String get model {
-    final ptr = bindings.native_display_get_model(_nativeHandle);
-    final model = ptr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(ptr);
-    return model;
-  }
-
-  String get serialNumber {
-    final ptr = bindings.native_display_get_serial_number(_nativeHandle);
-    final serialNumber = ptr.cast<ffi.Utf8>().toDartString();
-    bindings.native_display_free_string(ptr);
-    return serialNumber;
-  }
-
   Pointer<Void> get nativeObject {
     return bindings.native_display_get_native_object(_nativeHandle);
   }
 
   @override
-  String toString() => 'Display(id: $id, name: $name)';
+  native_display_t get nativeHandle => _nativeHandle;
+
+  @override
+  void dispose() {
+    bindings.native_display_free(_nativeHandle);
+  }
 }

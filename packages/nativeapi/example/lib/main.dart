@@ -57,26 +57,30 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  late final TrayIcon _trayIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    addTrayIcon();
+  }
+
   void addTrayIcon() {
     final trayManager = TrayManager.instance;
-    TrayIcon? trayIcon = trayManager.createTrayIcon();
-    if (trayIcon != null) {
-      trayIcon.title = 'My App';
-      trayIcon.tooltip = 'This is my app';
-      trayIcon.icon = 'assets/icon.png';
+    _trayIcon = trayManager.create();
 
-      Menu menu = Menu();
-      menu.addItem(
-        MenuItem(label: 'Item 1', onClicked: () => print('Item 1 clicked')),
-      );
-      menu.addItem(
-        MenuItem(label: 'Item 2', onClicked: () => print('Item 2 clicked')),
-      );
+    _trayIcon.title = 'My App';
+    _trayIcon.tooltip = 'This is my app';
+    _trayIcon.icon = 'assets/icon.png';
 
-      trayIcon.contextMenu = menu;
+    Menu menu = Menu();
+    MenuItem item1 = MenuItem('Item 1');
+    menu.addItem(item1);
+    MenuItem item2 = MenuItem('Item 2');
+    menu.addItem(item2);
+    _trayIcon.contextMenu = menu;
 
-      trayIcon.show();
-    }
+    _trayIcon.show();
   }
 
   void _incrementCounter() {
@@ -147,6 +151,19 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('Add TrayIcon'),
               onPressed: () {
                 addTrayIcon();
+              },
+            ),
+            FilledButton(
+              child: Text('Show Context Menu'),
+              onPressed: () {
+                Menu menu = Menu();
+                MenuItem item1 = MenuItem('Item1');
+                menu.addItem(item1);
+                print(item1.label);
+                MenuItem item2 = MenuItem('Item2');
+                menu.addItem(item2);
+                print('Context menu shown, item count: ${menu.itemCount}');
+                menu.showAsContextMenu(100, 100);
               },
             ),
           ],

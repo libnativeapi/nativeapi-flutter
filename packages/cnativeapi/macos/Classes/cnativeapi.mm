@@ -12,6 +12,7 @@
 #include "../../src/libnativeapi/src/capi/keyboard_monitor_c.cpp"
 #include "../../src/libnativeapi/src/capi/menu_c.cpp"
 #include "../../src/libnativeapi/src/capi/run_example_app_c.cpp"
+#include "../../src/libnativeapi/src/capi/string_utils_c.cpp"
 #include "../../src/libnativeapi/src/capi/tray_icon_c.cpp"
 #include "../../src/libnativeapi/src/capi/tray_manager_c.cpp"
 #include "../../src/libnativeapi/src/capi/window_c.cpp"

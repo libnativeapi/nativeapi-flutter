@@ -31,6 +31,8 @@ class DisplayManager with CNativeApiBindingsMixin {
       displays.add(Display(nativeHandle));
     }
 
+    // bindings.native_display_list_free(displayList);
+
     return displays;
   }
 

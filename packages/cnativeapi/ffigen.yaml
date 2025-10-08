@@ -12,6 +12,7 @@ headers:
     - "src/libnativeapi/src/capi/display_manager_c.h"
     - "src/libnativeapi/src/capi/geometry_c.h"
     - "src/libnativeapi/src/capi/menu_c.h"
+    - "src/libnativeapi/src/capi/string_utils_c.h"
     - "src/libnativeapi/src/capi/tray_icon_c.h"
     - "src/libnativeapi/src/capi/tray_manager_c.h"
 
@@ -21,6 +22,7 @@ headers:
     - "src/libnativeapi/src/capi/display_manager_c.h"
     - "src/libnativeapi/src/capi/geometry_c.h"
     - "src/libnativeapi/src/capi/menu_c.h"
+    - "src/libnativeapi/src/capi/string_utils_c.h"
     - "src/libnativeapi/src/capi/tray_icon_c.h"
     - "src/libnativeapi/src/capi/tray_manager_c.h"
 

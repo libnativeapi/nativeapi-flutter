@@ -636,8 +636,6 @@ class DisplayDetails extends StatelessWidget {
       ]),
 
       _buildSection('Hardware', [
-        _DetailItem(Icons.business, 'Manufacturer', display.manufacturer),
-        _DetailItem(Icons.computer, 'Model', display.model),
         _DetailItem(
           Icons.aspect_ratio,
           'Scale Factor',

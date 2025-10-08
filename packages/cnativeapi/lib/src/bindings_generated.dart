@@ -182,46 +182,6 @@ class CNativeApiBindings {
   late final _native_display_get_bit_depth = _native_display_get_bit_depthPtr
       .asFunction<int Function(native_display_t)>();
 
-  /// Hardware information getters
-  ffi.Pointer<ffi.Char> native_display_get_manufacturer(
-    native_display_t display,
-  ) {
-    return _native_display_get_manufacturer(display);
-  }
-
-  late final _native_display_get_manufacturerPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
-      >('native_display_get_manufacturer');
-  late final _native_display_get_manufacturer =
-      _native_display_get_manufacturerPtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>();
-
-  ffi.Pointer<ffi.Char> native_display_get_model(native_display_t display) {
-    return _native_display_get_model(display);
-  }
-
-  late final _native_display_get_modelPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
-      >('native_display_get_model');
-  late final _native_display_get_model = _native_display_get_modelPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>();
-
-  ffi.Pointer<ffi.Char> native_display_get_serial_number(
-    native_display_t display,
-  ) {
-    return _native_display_get_serial_number(display);
-  }
-
-  late final _native_display_get_serial_numberPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
-      >('native_display_get_serial_number');
-  late final _native_display_get_serial_number =
-      _native_display_get_serial_numberPtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>();
-
   /// Platform-specific functions
   ffi.Pointer<ffi.Void> native_display_get_native_object(
     native_display_t display,
@@ -238,17 +198,6 @@ class CNativeApiBindings {
           .asFunction<ffi.Pointer<ffi.Void> Function(native_display_t)>();
 
   /// Memory management
-  void native_display_free_string(ffi.Pointer<ffi.Char> str) {
-    return _native_display_free_string(str);
-  }
-
-  late final _native_display_free_stringPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-        'native_display_free_string',
-      );
-  late final _native_display_free_string = _native_display_free_stringPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
-
   void native_display_free(native_display_t display) {
     return _native_display_free(display);
   }
@@ -405,27 +354,17 @@ class CNativeApiBindings {
 
   /// Get the label of a menu item
   /// @param item The menu item
-  /// @param buffer Buffer to store the label (caller allocated)
-  /// @param buffer_size Size of the buffer
-  /// @return Length of the label, or -1 if buffer too small
-  int native_menu_item_get_label(
-    native_menu_item_t item,
-    ffi.Pointer<ffi.Char> buffer,
-    int buffer_size,
-  ) {
-    return _native_menu_item_get_label(item, buffer, buffer_size);
+  /// @return The label string (caller must free), or NULL if item is invalid
+  ffi.Pointer<ffi.Char> native_menu_item_get_label(native_menu_item_t item) {
+    return _native_menu_item_get_label(item);
   }
 
   late final _native_menu_item_get_labelPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, ffi.Size)
-        >
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>
       >('native_menu_item_get_label');
   late final _native_menu_item_get_label = _native_menu_item_get_labelPtr
-      .asFunction<
-        int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, int)
-      >();
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
 
   /// Set the icon of a menu item
   /// @param item The menu item
@@ -448,27 +387,17 @@ class CNativeApiBindings {
 
   /// Get the icon of a menu item
   /// @param item The menu item
-  /// @param buffer Buffer to store the icon path/data (caller allocated)
-  /// @param buffer_size Size of the buffer
-  /// @return Length of the icon string, or -1 if buffer too small
-  int native_menu_item_get_icon(
-    native_menu_item_t item,
-    ffi.Pointer<ffi.Char> buffer,
-    int buffer_size,
-  ) {
-    return _native_menu_item_get_icon(item, buffer, buffer_size);
+  /// @return The icon path/data string (caller must free), or NULL if item is invalid or no icon set
+  ffi.Pointer<ffi.Char> native_menu_item_get_icon(native_menu_item_t item) {
+    return _native_menu_item_get_icon(item);
   }
 
   late final _native_menu_item_get_iconPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, ffi.Size)
-        >
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>
       >('native_menu_item_get_icon');
   late final _native_menu_item_get_icon = _native_menu_item_get_iconPtr
-      .asFunction<
-        int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, int)
-      >();
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
 
   /// Set the tooltip of a menu item
   /// @param item The menu item
@@ -491,27 +420,17 @@ class CNativeApiBindings {
 
   /// Get the tooltip of a menu item
   /// @param item The menu item
-  /// @param buffer Buffer to store the tooltip (caller allocated)
-  /// @param buffer_size Size of the buffer
-  /// @return Length of the tooltip, or -1 if buffer too small
-  int native_menu_item_get_tooltip(
-    native_menu_item_t item,
-    ffi.Pointer<ffi.Char> buffer,
-    int buffer_size,
-  ) {
-    return _native_menu_item_get_tooltip(item, buffer, buffer_size);
+  /// @return The tooltip string (caller must free), or NULL if item is invalid or no tooltip set
+  ffi.Pointer<ffi.Char> native_menu_item_get_tooltip(native_menu_item_t item) {
+    return _native_menu_item_get_tooltip(item);
   }
 
   late final _native_menu_item_get_tooltipPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, ffi.Size)
-        >
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>
       >('native_menu_item_get_tooltip');
   late final _native_menu_item_get_tooltip = _native_menu_item_get_tooltipPtr
-      .asFunction<
-        int Function(native_menu_item_t, ffi.Pointer<ffi.Char>, int)
-      >();
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
 
   /// Set the keyboard accelerator for a menu item
   /// @param item The menu item
@@ -1302,40 +1221,41 @@ class CNativeApiBindings {
 
   /// Convert keyboard accelerator to string representation
   /// @param accelerator The accelerator
-  /// @param buffer Buffer to store the string (caller allocated)
-  /// @param buffer_size Size of the buffer
-  /// @return Length of the string, or -1 if buffer too small
-  int native_keyboard_accelerator_to_string(
+  /// @return The string representation (caller must free), or NULL if accelerator is invalid
+  ffi.Pointer<ffi.Char> native_keyboard_accelerator_to_string(
     ffi.Pointer<native_keyboard_accelerator_t> accelerator,
-    ffi.Pointer<ffi.Char> buffer,
-    int buffer_size,
   ) {
-    return _native_keyboard_accelerator_to_string(
-      accelerator,
-      buffer,
-      buffer_size,
-    );
+    return _native_keyboard_accelerator_to_string(accelerator);
   }
 
   late final _native_keyboard_accelerator_to_stringPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Int Function(
+          ffi.Pointer<ffi.Char> Function(
             ffi.Pointer<native_keyboard_accelerator_t>,
-            ffi.Pointer<ffi.Char>,
-            ffi.Size,
           )
         >
       >('native_keyboard_accelerator_to_string');
   late final _native_keyboard_accelerator_to_string =
       _native_keyboard_accelerator_to_stringPtr
           .asFunction<
-            int Function(
+            ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<native_keyboard_accelerator_t>,
-              ffi.Pointer<ffi.Char>,
-              int,
             )
           >();
+
+  /// Free a C string allocated by to_c_str
+  /// @param str The string to free (can be nullptr)
+  void free_c_str(ffi.Pointer<ffi.Char> str) {
+    return _free_c_str(str);
+  }
+
+  late final _free_c_strPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'free_c_str',
+      );
+  late final _free_c_str = _free_c_strPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
   /// Create a new tray icon
   /// @return Tray icon handle, or NULL if creation failed
@@ -1434,27 +1354,20 @@ class CNativeApiBindings {
 
   /// Get the title text of the tray icon
   /// @param tray_icon The tray icon
-  /// @param buffer Buffer to store the title (caller allocated)
-  /// @param buffer_size Size of the buffer
-  /// @return Length of the title, or -1 if buffer too small
-  int native_tray_icon_get_title(
+  /// @return The title text, or NULL if error. Caller must free the returned
+  /// string.
+  ffi.Pointer<ffi.Char> native_tray_icon_get_title(
     native_tray_icon_t tray_icon,
-    ffi.Pointer<ffi.Char> buffer,
-    int buffer_size,
   ) {
-    return _native_tray_icon_get_title(tray_icon, buffer, buffer_size);
+    return _native_tray_icon_get_title(tray_icon);
   }
 
   late final _native_tray_icon_get_titlePtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, ffi.Size)
-        >
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>
       >('native_tray_icon_get_title');
   late final _native_tray_icon_get_title = _native_tray_icon_get_titlePtr
-      .asFunction<
-        int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, int)
-      >();
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>();
 
   /// Set the tooltip text for the tray icon
   /// @param tray_icon The tray icon
@@ -1477,27 +1390,20 @@ class CNativeApiBindings {
 
   /// Get the tooltip text of the tray icon
   /// @param tray_icon The tray icon
-  /// @param buffer Buffer to store the tooltip (caller allocated)
-  /// @param buffer_size Size of the buffer
-  /// @return Length of the tooltip, or -1 if buffer too small
-  int native_tray_icon_get_tooltip(
+  /// @return The tooltip text, or NULL if error. Caller must free the returned
+  /// string.
+  ffi.Pointer<ffi.Char> native_tray_icon_get_tooltip(
     native_tray_icon_t tray_icon,
-    ffi.Pointer<ffi.Char> buffer,
-    int buffer_size,
   ) {
-    return _native_tray_icon_get_tooltip(tray_icon, buffer, buffer_size);
+    return _native_tray_icon_get_tooltip(tray_icon);
   }
 
   late final _native_tray_icon_get_tooltipPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, ffi.Size)
-        >
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>
       >('native_tray_icon_get_tooltip');
   late final _native_tray_icon_get_tooltip = _native_tray_icon_get_tooltipPtr
-      .asFunction<
-        int Function(native_tray_icon_t, ffi.Pointer<ffi.Char>, int)
-      >();
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>();
 
   /// Set the context menu for the tray icon
   /// @param tray_icon The tray icon
