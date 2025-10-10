@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart' as ffi;
+import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
 
@@ -9,7 +10,7 @@ enum MenuItemType { normal, separator, submenu, checkbox, radio }
 enum MenuItemState { unchecked, checked, mixed }
 
 class MenuItem
-    with CNativeApiBindingsMixin
+    with EventEmitter, CNativeApiBindingsMixin
     implements NativeHandleWrapper<native_menu_item_t> {
   late final native_menu_t _nativeHandle;
 

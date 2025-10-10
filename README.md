@@ -33,8 +33,8 @@ import 'package:nativeapi/nativeapi.dart';
 
 ### Prerequisites
 
-- Flutter (>=3.3.0)
-- Dart SDK (>=3.1.0)
+- Flutter (>=3.35.0)
+- Dart SDK (>=3.9.0)
 
 ### Setup
 
@@ -54,13 +54,13 @@ git submodule update --init --recursive
 3. Install dependencies:
 
 ```bash
-flutter pub get
+melos bootstrap
 ```
 
 4. Run the example app:
 
 ```bash
-cd example
+cd examples/display_example
 flutter run
 ```
 
@@ -69,10 +69,11 @@ flutter run
 This project uses ffigen to generate Dart FFI bindings from C headers. To regenerate the bindings:
 
 ```bash
+cd packages/cnativeapi
 dart run ffigen --config ffigen.yaml
 ```
 
-The ffigen configuration is defined in `ffigen.yaml`. You typically need to regenerate bindings when:
+The ffigen configuration is defined in `packages/cnativeapi/ffigen.yaml`. You typically need to regenerate bindings when:
 - The native C library (libnativeapi) is updated
 - The ffigen configuration is modified
 

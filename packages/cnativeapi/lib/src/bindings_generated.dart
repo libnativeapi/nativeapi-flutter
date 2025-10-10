@@ -1564,44 +1564,58 @@ class CNativeApiBindings {
       _native_tray_icon_remove_listenerPtr
           .asFunction<bool Function(native_tray_icon_t, int)>();
 
-  /// Show the context menu at specified coordinates
+  /// Open the context menu at specified coordinates
   /// @param tray_icon The tray icon
   /// @param x The x-coordinate in screen coordinates
   /// @param y The y-coordinate in screen coordinates
-  /// @return true if menu was shown successfully, false otherwise
-  bool native_tray_icon_show_context_menu(
+  /// @return true if menu was opened successfully, false otherwise
+  bool native_tray_icon_open_context_menu_at(
     native_tray_icon_t tray_icon,
     double x,
     double y,
   ) {
-    return _native_tray_icon_show_context_menu(tray_icon, x, y);
+    return _native_tray_icon_open_context_menu_at(tray_icon, x, y);
   }
 
-  late final _native_tray_icon_show_context_menuPtr =
+  late final _native_tray_icon_open_context_menu_atPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Bool Function(native_tray_icon_t, ffi.Double, ffi.Double)
         >
-      >('native_tray_icon_show_context_menu');
-  late final _native_tray_icon_show_context_menu =
-      _native_tray_icon_show_context_menuPtr
+      >('native_tray_icon_open_context_menu_at');
+  late final _native_tray_icon_open_context_menu_at =
+      _native_tray_icon_open_context_menu_atPtr
           .asFunction<bool Function(native_tray_icon_t, double, double)>();
 
-  /// Show the context menu at default location
+  /// Open the context menu at default location
   /// @param tray_icon The tray icon
-  /// @return true if menu was shown successfully, false otherwise
-  bool native_tray_icon_show_context_menu_default(
-    native_tray_icon_t tray_icon,
-  ) {
-    return _native_tray_icon_show_context_menu_default(tray_icon);
+  /// @return true if menu was opened successfully, false otherwise
+  bool native_tray_icon_open_context_menu(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_open_context_menu(tray_icon);
   }
 
-  late final _native_tray_icon_show_context_menu_defaultPtr =
+  late final _native_tray_icon_open_context_menuPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
-        'native_tray_icon_show_context_menu_default',
+        'native_tray_icon_open_context_menu',
       );
-  late final _native_tray_icon_show_context_menu_default =
-      _native_tray_icon_show_context_menu_defaultPtr
+  late final _native_tray_icon_open_context_menu =
+      _native_tray_icon_open_context_menuPtr
+          .asFunction<bool Function(native_tray_icon_t)>();
+
+  /// Close the currently displayed context menu
+  /// @param tray_icon The tray icon
+  /// @return true if menu was closed successfully or wasn't visible, false on
+  /// error
+  bool native_tray_icon_close_context_menu(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_close_context_menu(tray_icon);
+  }
+
+  late final _native_tray_icon_close_context_menuPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_close_context_menu',
+      );
+  late final _native_tray_icon_close_context_menu =
+      _native_tray_icon_close_context_menuPtr
           .asFunction<bool Function(native_tray_icon_t)>();
 
   /// Check if system tray is supported on the current platform
