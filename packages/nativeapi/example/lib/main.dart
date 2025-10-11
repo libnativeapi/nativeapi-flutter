@@ -81,9 +81,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     Menu menu = Menu();
+    // 为菜单添加事件监听器
+    menu.addCallbackListener<MenuOpenedEvent>((event) {
+      print('主菜单打开了！菜单ID: ${event.menuId}');
+    });
+
+    menu.addCallbackListener<MenuClosedEvent>((event) {
+      print('主菜单关闭了！菜单ID: ${event.menuId}');
+    });
+
     MenuItem item1 = MenuItem('Item 1');
+    item1.on<MenuItemClickedEvent>((event) {
+      print('Item 1 clicked event: $event');
+    });
     menu.addItem(item1);
     MenuItem item2 = MenuItem('Item 2');
+    item2.on<MenuItemClickedEvent>((event) {
+      print('Item 2 clicked event: $event');
+    });
     menu.addItem(item2);
     _trayIcon.contextMenu = menu;
     _trayIcon.isVisible = true;
