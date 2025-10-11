@@ -181,16 +181,12 @@ class TrayIcon
     return bounds;
   }
 
-  bool show() {
-    return bindings.native_tray_icon_show(_nativeHandle);
-  }
-
-  bool hide() {
-    return bindings.native_tray_icon_hide(_nativeHandle);
-  }
-
   bool get isVisible {
     return bindings.native_tray_icon_is_visible(_nativeHandle);
+  }
+
+  set isVisible(bool value) {
+    bindings.native_tray_icon_set_visible(_nativeHandle, value);
   }
 
   void openContextMenu({Offset? at}) {

@@ -86,8 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
     MenuItem item2 = MenuItem('Item 2');
     menu.addItem(item2);
     _trayIcon.contextMenu = menu;
-
-    _trayIcon.show();
+    _trayIcon.isVisible = true;
   }
 
   void _incrementCounter() {

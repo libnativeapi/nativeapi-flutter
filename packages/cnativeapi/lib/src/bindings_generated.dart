@@ -1329,7 +1329,7 @@ class CNativeApiBindings {
 
   /// Set the title text for the tray icon
   /// @param tray_icon The tray icon
-  /// @param title The title text to set
+  /// @param title The title text to set, or NULL to clear the title
   void native_tray_icon_set_title(
     native_tray_icon_t tray_icon,
     ffi.Pointer<ffi.Char> title,
@@ -1348,7 +1348,7 @@ class CNativeApiBindings {
 
   /// Get the title text of the tray icon
   /// @param tray_icon The tray icon
-  /// @return The title text, or NULL if error. Caller must free the returned
+  /// @return The title text, or NULL if no title is set or error. Caller must free the returned
   /// string.
   ffi.Pointer<ffi.Char> native_tray_icon_get_title(
     native_tray_icon_t tray_icon,
@@ -1365,7 +1365,7 @@ class CNativeApiBindings {
 
   /// Set the tooltip text for the tray icon
   /// @param tray_icon The tray icon
-  /// @param tooltip The tooltip text to set
+  /// @param tooltip The tooltip text to set, or NULL to clear the tooltip
   void native_tray_icon_set_tooltip(
     native_tray_icon_t tray_icon,
     ffi.Pointer<ffi.Char> tooltip,
@@ -1384,7 +1384,7 @@ class CNativeApiBindings {
 
   /// Get the tooltip text of the tray icon
   /// @param tray_icon The tray icon
-  /// @return The tooltip text, or NULL if error. Caller must free the returned
+  /// @return The tooltip text, or NULL if no tooltip is set or error. Caller must free the returned
   /// string.
   ffi.Pointer<ffi.Char> native_tray_icon_get_tooltip(
     native_tray_icon_t tray_icon,
@@ -1456,33 +1456,23 @@ class CNativeApiBindings {
         bool Function(native_tray_icon_t, ffi.Pointer<native_rectangle_t>)
       >();
 
-  /// Show the tray icon in the system tray
+  /// Set the visibility of the tray icon in the system tray
   /// @param tray_icon The tray icon
-  /// @return true if shown successfully, false otherwise
-  bool native_tray_icon_show(native_tray_icon_t tray_icon) {
-    return _native_tray_icon_show(tray_icon);
+  /// @param visible true to show the icon, false to hide it
+  /// @return true if visibility was changed successfully, false otherwise
+  bool native_tray_icon_set_visible(
+    native_tray_icon_t tray_icon,
+    bool visible,
+  ) {
+    return _native_tray_icon_set_visible(tray_icon, visible);
   }
 
-  late final _native_tray_icon_showPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
-        'native_tray_icon_show',
-      );
-  late final _native_tray_icon_show = _native_tray_icon_showPtr
-      .asFunction<bool Function(native_tray_icon_t)>();
-
-  /// Hide the tray icon from the system tray
-  /// @param tray_icon The tray icon
-  /// @return true if hidden successfully, false otherwise
-  bool native_tray_icon_hide(native_tray_icon_t tray_icon) {
-    return _native_tray_icon_hide(tray_icon);
-  }
-
-  late final _native_tray_icon_hidePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
-        'native_tray_icon_hide',
-      );
-  late final _native_tray_icon_hide = _native_tray_icon_hidePtr
-      .asFunction<bool Function(native_tray_icon_t)>();
+  late final _native_tray_icon_set_visiblePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t, ffi.Bool)>
+      >('native_tray_icon_set_visible');
+  late final _native_tray_icon_set_visible = _native_tray_icon_set_visiblePtr
+      .asFunction<bool Function(native_tray_icon_t, bool)>();
 
   /// Check if the tray icon is currently visible
   /// @param tray_icon The tray icon
