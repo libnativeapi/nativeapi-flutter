@@ -1,8 +1,9 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart' as ffi;
-import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
+import 'package:nativeapi/src/foundation/event_emitter.dart';
+import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
 
 enum MenuItemType { normal, separator, submenu, checkbox, radio }
@@ -122,9 +123,9 @@ class Menu
     return bindings.native_menu_get_item_count(_nativeHandle);
   }
 
-  bool open({double? x, double? y}) {
-    if (x != null && y != null) {
-      return bindings.native_menu_open_at(_nativeHandle, x, y);
+  bool open({Offset? at}) {
+    if (at != null) {
+      return bindings.native_menu_open_at(_nativeHandle, at.dx, at.dy);
     }
     return bindings.native_menu_open(_nativeHandle);
   }

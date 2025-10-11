@@ -193,9 +193,13 @@ class TrayIcon
     return bindings.native_tray_icon_is_visible(_nativeHandle);
   }
 
-  void openContextMenu({double? x, double? y}) {
-    if (x != null && y != null) {
-      bindings.native_tray_icon_open_context_menu_at(_nativeHandle, x, y);
+  void openContextMenu({Offset? at}) {
+    if (at != null) {
+      bindings.native_tray_icon_open_context_menu_at(
+        _nativeHandle,
+        at.dx,
+        at.dy,
+      );
     } else {
       bindings.native_tray_icon_open_context_menu(_nativeHandle);
     }

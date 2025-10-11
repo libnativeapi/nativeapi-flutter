@@ -170,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 MenuItem item2 = MenuItem('Item2');
                 menu.addItem(item2);
                 print('Context menu shown, item count: ${menu.itemCount}');
-                menu.open(x: 100.0, y: 100.0);
+                menu.open(at: Offset(100.0, 100.0));
               },
             ),
           ],
