@@ -990,43 +990,37 @@ class CNativeApiBindings {
         native_menu_item_t Function(native_menu_t, ffi.Pointer<ffi.Char>)
       >();
 
-  /// Show the menu as a context menu at specified coordinates
+  /// Open the menu as a context menu at specified coordinates
   /// @param menu The menu
   /// @param x The x-coordinate in screen coordinates
   /// @param y The y-coordinate in screen coordinates
-  /// @return true if menu was shown successfully, false otherwise
-  bool native_menu_show_as_context_menu(
-    native_menu_t menu,
-    double x,
-    double y,
-  ) {
-    return _native_menu_show_as_context_menu(menu, x, y);
+  /// @return true if menu was opened successfully, false otherwise
+  bool native_menu_open_at(native_menu_t menu, double x, double y) {
+    return _native_menu_open_at(menu, x, y);
   }
 
-  late final _native_menu_show_as_context_menuPtr =
+  late final _native_menu_open_atPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Bool Function(native_menu_t, ffi.Double, ffi.Double)
         >
-      >('native_menu_show_as_context_menu');
-  late final _native_menu_show_as_context_menu =
-      _native_menu_show_as_context_menuPtr
-          .asFunction<bool Function(native_menu_t, double, double)>();
+      >('native_menu_open_at');
+  late final _native_menu_open_at = _native_menu_open_atPtr
+      .asFunction<bool Function(native_menu_t, double, double)>();
 
-  /// Show the menu as a context menu at default location
+  /// Open the menu as a context menu at default location
   /// @param menu The menu
-  /// @return true if menu was shown successfully, false otherwise
-  bool native_menu_show_as_context_menu_default(native_menu_t menu) {
-    return _native_menu_show_as_context_menu_default(menu);
+  /// @return true if menu was opened successfully, false otherwise
+  bool native_menu_open(native_menu_t menu) {
+    return _native_menu_open(menu);
   }
 
-  late final _native_menu_show_as_context_menu_defaultPtr =
+  late final _native_menu_openPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
-        'native_menu_show_as_context_menu_default',
+        'native_menu_open',
       );
-  late final _native_menu_show_as_context_menu_default =
-      _native_menu_show_as_context_menu_defaultPtr
-          .asFunction<bool Function(native_menu_t)>();
+  late final _native_menu_open = _native_menu_openPtr
+      .asFunction<bool Function(native_menu_t)>();
 
   /// Close the menu if it's currently showing
   /// @param menu The menu

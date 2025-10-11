@@ -1,10 +1,8 @@
 import 'dart:ffi';
-import 'package:ffi/ffi.dart' as ffi;
-import 'dart:typed_data';
 
 import 'package:cnativeapi/cnativeapi.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'tray_icon.dart';
+import 'package:nativeapi/src/tray_icon.dart';
 
 class TrayManager with CNativeApiBindingsMixin {
   static final TrayManager _instance = TrayManager._();

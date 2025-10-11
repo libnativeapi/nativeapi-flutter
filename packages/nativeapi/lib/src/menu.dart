@@ -122,8 +122,11 @@ class Menu
     return bindings.native_menu_get_item_count(_nativeHandle);
   }
 
-  bool showAsContextMenu(double x, double y) {
-    return bindings.native_menu_show_as_context_menu(_nativeHandle, x, y);
+  bool open({double? x, double? y}) {
+    if (x != null && y != null) {
+      return bindings.native_menu_open_at(_nativeHandle, x, y);
+    }
+    return bindings.native_menu_open(_nativeHandle);
   }
 
   bool close() {
