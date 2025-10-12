@@ -337,18 +337,13 @@ class DisplayCanvas extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => onDisplayTap(display),
-          borderRadius: BorderRadius.circular(12),
+
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             width: displayWidth,
             height: displayHeight,
             decoration: BoxDecoration(
               color: _getDisplayBackgroundColor(isSelected, isPrimary),
-              border: Border.all(
-                color: _getDisplayBorderColor(isSelected, isPrimary),
-                width: isSelected ? 3 : 2,
-              ),
-              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(isSelected ? 0.3 : 0.1),
@@ -357,60 +352,50 @@ class DisplayCanvas extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Stack(
-                children: [
-                  // Display bezel
+            child: Stack(
+              children: [
+                // Display bezel
+                Container(
+                  width: displayWidth,
+                  height: displayHeight,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.grey[800]!, Colors.grey[900]!],
+                    ),
+                  ),
+                ),
+                // Screen area (work area)
+                Positioned(
+                  left: workAreaLeft,
+                  top: workAreaTop,
+                  child: Container(
+                    width: workAreaWidth,
+                    height: workAreaHeight,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: _getWorkAreaGradient(isSelected, isPrimary),
+                      ),
+                    ),
+                    child: _buildDisplayContent(
+                      display,
+                      workAreaWidth,
+                      workAreaHeight,
+                      isSelected,
+                    ),
+                  ),
+                ),
+                // Selection overlay
+                if (isSelected)
                   Container(
                     width: displayWidth,
                     height: displayHeight,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.grey[800]!, Colors.grey[900]!],
-                      ),
-                    ),
+                    color: Colors.blue.withOpacity(0.1),
                   ),
-                  // Screen area (work area)
-                  Positioned(
-                    left: workAreaLeft,
-                    top: workAreaTop,
-                    child: Container(
-                      width: workAreaWidth,
-                      height: workAreaHeight,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: _getWorkAreaGradient(isSelected, isPrimary),
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: _buildDisplayContent(
-                        display,
-                        workAreaWidth,
-                        workAreaHeight,
-                        isSelected,
-                      ),
-                    ),
-                  ),
-                  // Selection overlay
-                  if (isSelected)
-                    Container(
-                      width: displayWidth,
-                      height: displayHeight,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.blue.withOpacity(0.5),
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         ),
@@ -461,10 +446,7 @@ class DisplayCanvas extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(top: 4),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Colors.green),
               child: Text(
                 'PRIMARY',
                 style: TextStyle(
