@@ -11,8 +11,6 @@ import 'package:nativeapi/src/tray_icon_event.dart';
 class TrayIcon
     with EventEmitter, CNativeApiBindingsMixin
     implements NativeHandleWrapper<native_tray_icon_t> {
-  final native_tray_icon_t _nativeHandle;
-
   // Static map to track instances by their native handle address
   static final Map<int, TrayIcon> _instances = {};
 
@@ -26,7 +24,10 @@ class TrayIcon
 
   static bool _callbacksInitialized = false;
 
-  TrayIcon(native_tray_icon_t nativeHandle) : _nativeHandle = nativeHandle {
+  late final native_tray_icon_t _nativeHandle;
+
+  TrayIcon() {
+    _nativeHandle = bindings.native_tray_icon_create();
     // Initialize callbacks once
     if (!_callbacksInitialized) {
       _clickedCallback =

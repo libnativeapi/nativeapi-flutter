@@ -1,5 +1,6 @@
 library;
 
+export 'src/widgets/context_menu_region.dart';
 export 'src/accessibility_manager.dart';
 export 'src/display.dart';
 export 'src/display_manager.dart';

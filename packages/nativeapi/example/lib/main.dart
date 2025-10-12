@@ -58,16 +58,40 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   late final TrayIcon _trayIcon;
+  late final Menu _menu;
 
   @override
   void initState() {
     super.initState();
-    addTrayIcon();
+
+    _menu = Menu();
+    _menu.addCallbackListener<MenuOpenedEvent>((event) {
+      print('主菜单打开了！菜单ID: ${event.menuId}');
+    });
+
+    _menu.addCallbackListener<MenuClosedEvent>((event) {
+      print('主菜单关闭了！菜单ID: ${event.menuId}');
+    });
+
+    MenuItem item1 = MenuItem('MenuItem 1');
+    item1.on<MenuItemClickedEvent>((event) {
+      print('MenuItem 1 clicked event: $event');
+    });
+    _menu.addItem(item1);
+    MenuItem item2 = MenuItem('MenuItem 2');
+    item2.on<MenuItemClickedEvent>((event) {
+      print('MenuItem 2 clicked event: $event');
+    });
+    _menu.addItem(item2);
   }
 
   void addTrayIcon() {
     final trayManager = TrayManager.instance;
-    _trayIcon = trayManager.create();
+    if (!trayManager.isSupported) {
+      print('Tray icon is not supported on this platform.');
+      return;
+    }
+    _trayIcon = TrayIcon();
 
     _trayIcon.title = 'My App';
     _trayIcon.tooltip = 'This is my app';
@@ -173,6 +197,16 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 addTrayIcon();
               },
+            ),
+            ContextMenuRegion(
+              menu: _menu,
+              child: Container(
+                color: Colors.blue,
+                padding: EdgeInsets.all(16),
+                width: 100,
+                height: 100,
+                child: Center(child: Text('Context Menu Region')),
+              ),
             ),
             FilledButton(
               child: Text('Show Context Menu'),

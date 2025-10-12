@@ -14,8 +14,6 @@ enum MenuItemState { unchecked, checked, mixed }
 class MenuItem
     with EventEmitter, CNativeApiBindingsMixin
     implements NativeHandleWrapper<native_menu_item_t> {
-  late final native_menu_item_t _nativeHandle;
-
   // Static map to track instances by their native handle address
   static final Map<int, MenuItem> _instances = {};
 
@@ -28,6 +26,8 @@ class MenuItem
   _submenuClosedCallback;
 
   static bool _callbacksInitialized = false;
+
+  late final native_menu_item_t _nativeHandle;
 
   MenuItem(String label, [MenuItemType type = MenuItemType.normal]) {
     final labelPtr = label.toNativeUtf8().cast<Char>();

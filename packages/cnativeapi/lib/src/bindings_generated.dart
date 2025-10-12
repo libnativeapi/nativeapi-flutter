@@ -1615,19 +1615,6 @@ class CNativeApiBindings {
   late final _native_tray_manager_is_supported =
       _native_tray_manager_is_supportedPtr.asFunction<bool Function()>();
 
-  /// Create a new tray icon
-  /// @return Tray icon handle, or NULL if creation failed
-  native_tray_icon_t native_tray_manager_create() {
-    return _native_tray_manager_create();
-  }
-
-  late final _native_tray_manager_createPtr =
-      _lookup<ffi.NativeFunction<native_tray_icon_t Function()>>(
-        'native_tray_manager_create',
-      );
-  late final _native_tray_manager_create = _native_tray_manager_createPtr
-      .asFunction<native_tray_icon_t Function()>();
-
   /// Get a tray icon by its ID
   /// @param tray_icon_id The tray icon ID
   /// @return Tray icon handle, or NULL if not found
@@ -1654,20 +1641,6 @@ class CNativeApiBindings {
       );
   late final _native_tray_manager_get_all = _native_tray_manager_get_allPtr
       .asFunction<native_tray_icon_list_t Function()>();
-
-  /// Destroy a tray icon by its ID
-  /// @param tray_icon_id The tray icon ID to destroy
-  /// @return true if tray icon was found and destroyed, false otherwise
-  bool native_tray_manager_destroy(int tray_icon_id) {
-    return _native_tray_manager_destroy(tray_icon_id);
-  }
-
-  late final _native_tray_manager_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_id_t)>>(
-        'native_tray_manager_destroy',
-      );
-  late final _native_tray_manager_destroy = _native_tray_manager_destroyPtr
-      .asFunction<bool Function(int)>();
 
   /// Free a tray icon list
   /// @param list The list to free
