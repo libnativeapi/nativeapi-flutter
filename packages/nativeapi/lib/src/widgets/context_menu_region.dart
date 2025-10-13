@@ -1,5 +1,4 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/src/menu.dart';
 
@@ -14,40 +13,20 @@ class ContextMenuRegion extends StatefulWidget {
 }
 
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  void _handleSecondaryTapDown(TapDownDetails details) {
-    print(details.globalPosition);
-    widget.menu.open(at: details.globalPosition);
-  }
-
-  void _handleTapDown(TapDownDetails details) {
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-        // Don't open the menu on these platforms with a Ctrl-tap (or a
-        // tap).
-        break;
-      case TargetPlatform.iOS:
-      case TargetPlatform.macOS:
-        // Only open the menu on these platforms if the control button is down
-        // when the tap occurs.
-        if (HardwareKeyboard.instance.logicalKeysPressed.contains(
-              LogicalKeyboardKey.controlLeft,
-            ) ||
-            HardwareKeyboard.instance.logicalKeysPressed.contains(
-              LogicalKeyboardKey.controlRight,
-            )) {
-          widget.menu.open(at: details.localPosition);
-        }
-    }
-  }
+  bool _shouldReact = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onSecondaryTapDown: _handleSecondaryTapDown,
+    return Listener(
+      onPointerDown: (event) {
+        _shouldReact =
+            event.kind == PointerDeviceKind.mouse &&
+            event.buttons == kSecondaryMouseButton;
+      },
+      onPointerUp: (event) {
+        if (!_shouldReact) return;
+        widget.menu.open(at: Offset(event.position.dx, event.position.dy));
+      },
       child: widget.child,
     );
   }
