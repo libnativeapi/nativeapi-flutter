@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   cnativeapi: ^0.1.0-dev.2
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:

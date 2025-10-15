@@ -1,5 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/services.dart';
 import 'package:nativeapi/nativeapi.dart';
+import 'dart:convert';
+
+import 'package:path/path.dart' as path;
+import 'dart:io';
 
 class TrayIconData {
   final int id;
@@ -30,11 +35,11 @@ class TrayIconData {
 }
 
 void main() {
-  runApp(const TrayIconExampleApp());
+  runApp(const MyApp());
 }
 
-class TrayIconExampleApp extends StatelessWidget {
-  const TrayIconExampleApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +83,12 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
   void _addTrayIcon() {
     try {
       final trayIcon = TrayIcon();
+
+      final icon = Image.fromAsset('images/tray_icon.png');
+      if (icon != null) {
+        trayIcon.icon = icon;
+      }
+
       final contextMenu = _createContextMenu(trayIcon);
 
       final trayIconData = TrayIconData(

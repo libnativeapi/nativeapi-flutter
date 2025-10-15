@@ -258,6 +258,127 @@ class CNativeApiBindings {
       _native_display_manager_get_cursor_positionPtr
           .asFunction<native_point_t Function()>();
 
+  /// Create an image from a file path
+  /// @param file_path Path to the image file
+  /// @return Image handle, or NULL if loading failed
+  native_image_t native_image_from_file(ffi.Pointer<ffi.Char> file_path) {
+    return _native_image_from_file(file_path);
+  }
+
+  late final _native_image_from_filePtr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_image_from_file');
+  late final _native_image_from_file = _native_image_from_filePtr
+      .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Create an image from base64-encoded data
+  /// @param base64_data Base64-encoded image data, with or without data URI prefix
+  /// @return Image handle, or NULL if decoding failed
+  native_image_t native_image_from_base64(ffi.Pointer<ffi.Char> base64_data) {
+    return _native_image_from_base64(base64_data);
+  }
+
+  late final _native_image_from_base64Ptr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_image_from_base64');
+  late final _native_image_from_base64 = _native_image_from_base64Ptr
+      .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Create an image from a platform-specific system icon
+  /// @param icon_name Platform-specific system icon name/identifier
+  /// @return Image handle, or NULL if icon not found
+  native_image_t native_image_from_system_icon(
+    ffi.Pointer<ffi.Char> icon_name,
+  ) {
+    return _native_image_from_system_icon(icon_name);
+  }
+
+  late final _native_image_from_system_iconPtr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_image_from_system_icon');
+  late final _native_image_from_system_icon = _native_image_from_system_iconPtr
+      .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Destroy an image and release its resources
+  /// @param image The image to destroy
+  void native_image_destroy(native_image_t image) {
+    return _native_image_destroy(image);
+  }
+
+  late final _native_image_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_image_t)>>(
+        'native_image_destroy',
+      );
+  late final _native_image_destroy = _native_image_destroyPtr
+      .asFunction<void Function(native_image_t)>();
+
+  /// Get the size of an image in pixels
+  /// @param image The image
+  /// @return Size of the image (width and height will be 0 if invalid)
+  native_size_t native_image_get_size(native_image_t image) {
+    return _native_image_get_size(image);
+  }
+
+  late final _native_image_get_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_image_t)>>(
+        'native_image_get_size',
+      );
+  late final _native_image_get_size = _native_image_get_sizePtr
+      .asFunction<native_size_t Function(native_image_t)>();
+
+  /// Get the image format string for debugging purposes
+  /// @param image The image
+  /// @return The image format (e.g., "PNG", "JPEG", "GIF"), or NULL if unknown
+  /// (caller must free)
+  ffi.Pointer<ffi.Char> native_image_get_format(native_image_t image) {
+    return _native_image_get_format(image);
+  }
+
+  late final _native_image_get_formatPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>
+      >('native_image_get_format');
+  late final _native_image_get_format = _native_image_get_formatPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>();
+
+  /// Convert an image to base64-encoded PNG data
+  /// @param image The image
+  /// @return Base64-encoded PNG data with data URI prefix (caller must free), or
+  /// NULL on error
+  ffi.Pointer<ffi.Char> native_image_to_base64(native_image_t image) {
+    return _native_image_to_base64(image);
+  }
+
+  late final _native_image_to_base64Ptr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>
+      >('native_image_to_base64');
+  late final _native_image_to_base64 = _native_image_to_base64Ptr
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>();
+
+  /// Save an image to a file
+  /// @param image The image
+  /// @param file_path Path where the image should be saved
+  /// @return true if saved successfully, false otherwise
+  bool native_image_save_to_file(
+    native_image_t image,
+    ffi.Pointer<ffi.Char> file_path,
+  ) {
+    return _native_image_save_to_file(image, file_path);
+  }
+
+  late final _native_image_save_to_filePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_image_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_image_save_to_file');
+  late final _native_image_save_to_file = _native_image_save_to_filePtr
+      .asFunction<bool Function(native_image_t, ffi.Pointer<ffi.Char>)>();
+
   /// Create a new menu item
   /// @param text The display text for the menu item
   /// @param type The type of menu item to create
@@ -366,38 +487,39 @@ class CNativeApiBindings {
   late final _native_menu_item_get_label = _native_menu_item_get_labelPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
 
-  /// Set the icon of a menu item
+  /// Set the icon of a menu item using an Image object
   /// @param item The menu item
-  /// @param icon Path to icon file or base64 data
+  /// @param image The Image object to set as the icon, or NULL to clear the icon
   void native_menu_item_set_icon(
     native_menu_item_t item,
-    ffi.Pointer<ffi.Char> icon,
+    native_image_t image,
   ) {
-    return _native_menu_item_set_icon(item, icon);
+    return _native_menu_item_set_icon(item, image);
   }
 
   late final _native_menu_item_set_iconPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)
+          ffi.Void Function(native_menu_item_t, native_image_t)
         >
       >('native_menu_item_set_icon');
   late final _native_menu_item_set_icon = _native_menu_item_set_iconPtr
-      .asFunction<void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(native_menu_item_t, native_image_t)>();
 
-  /// Get the icon of a menu item
+  /// Get the current icon image of the menu item
   /// @param item The menu item
-  /// @return The icon path/data string (caller must free), or NULL if item is invalid or no icon set
-  ffi.Pointer<ffi.Char> native_menu_item_get_icon(native_menu_item_t item) {
+  /// @return The Image object, or NULL if no icon is set. Caller must call
+  /// native_image_destroy() when done.
+  native_image_t native_menu_item_get_icon(native_menu_item_t item) {
     return _native_menu_item_get_icon(item);
   }
 
   late final _native_menu_item_get_iconPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>
-      >('native_menu_item_get_icon');
+      _lookup<ffi.NativeFunction<native_image_t Function(native_menu_item_t)>>(
+        'native_menu_item_get_icon',
+      );
   late final _native_menu_item_get_icon = _native_menu_item_get_iconPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
+      .asFunction<native_image_t Function(native_menu_item_t)>();
 
   /// Set the tooltip of a menu item
   /// @param item The menu item
@@ -1242,24 +1364,39 @@ class CNativeApiBindings {
   late final _native_tray_icon_get_id = _native_tray_icon_get_idPtr
       .asFunction<int Function(native_tray_icon_t)>();
 
-  /// Set the icon image for the tray icon
+  /// Set the icon image for the tray icon using an Image object
   /// @param tray_icon The tray icon
-  /// @param icon Path to icon file or base64 encoded image data
+  /// @param image The Image object to set as the icon, or NULL to clear the icon
   void native_tray_icon_set_icon(
     native_tray_icon_t tray_icon,
-    ffi.Pointer<ffi.Char> icon,
+    native_image_t image,
   ) {
-    return _native_tray_icon_set_icon(tray_icon, icon);
+    return _native_tray_icon_set_icon(tray_icon, image);
   }
 
   late final _native_tray_icon_set_iconPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)
+          ffi.Void Function(native_tray_icon_t, native_image_t)
         >
       >('native_tray_icon_set_icon');
   late final _native_tray_icon_set_icon = _native_tray_icon_set_iconPtr
-      .asFunction<void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(native_tray_icon_t, native_image_t)>();
+
+  /// Get the current icon image of the tray icon
+  /// @param tray_icon The tray icon
+  /// @return The Image object, or NULL if no icon is set. Caller must call
+  /// native_image_destroy() when done.
+  native_image_t native_tray_icon_get_icon(native_tray_icon_t tray_icon) {
+    return _native_tray_icon_get_icon(tray_icon);
+  }
+
+  late final _native_tray_icon_get_iconPtr =
+      _lookup<ffi.NativeFunction<native_image_t Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_icon',
+      );
+  late final _native_tray_icon_get_icon = _native_tray_icon_get_iconPtr
+      .asFunction<native_image_t Function(native_tray_icon_t)>();
 
   /// Set the title text for the tray icon
   /// @param tray_icon The tray icon
@@ -1282,8 +1419,8 @@ class CNativeApiBindings {
 
   /// Get the title text of the tray icon
   /// @param tray_icon The tray icon
-  /// @return The title text, or NULL if no title is set or error. Caller must free the returned
-  /// string.
+  /// @return The title text, or NULL if no title is set or error. Caller must free
+  /// the returned string.
   ffi.Pointer<ffi.Char> native_tray_icon_get_title(
     native_tray_icon_t tray_icon,
   ) {
@@ -1318,8 +1455,8 @@ class CNativeApiBindings {
 
   /// Get the tooltip text of the tray icon
   /// @param tray_icon The tray icon
-  /// @return The tooltip text, or NULL if no tooltip is set or error. Caller must free the returned
-  /// string.
+  /// @return The tooltip text, or NULL if no tooltip is set or error. Caller must
+  /// free the returned string.
   ffi.Pointer<ffi.Char> native_tray_icon_get_tooltip(
     native_tray_icon_t tray_icon,
   ) {
@@ -1655,6 +1792,9 @@ final class native_display_list_t extends ffi.Struct {
 /// Opaque display handle
 /// Align with window handle design: use a raw pointer to underlying C++ type
 typedef native_display_t = ffi.Pointer<ffi.Void>;
+
+/// Opaque handle for image objects
+typedef native_image_t = ffi.Pointer<ffi.Void>;
 
 /// Menu item types
 enum native_menu_item_type_t {

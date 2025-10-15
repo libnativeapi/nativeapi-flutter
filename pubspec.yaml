@@ -5,6 +5,8 @@ environment:
 
 workspace:
   - examples/display_example
+  - examples/menu_example
+  - examples/tray_icon_example
   - packages/cnativeapi
   - packages/nativeapi
 

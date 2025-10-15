@@ -95,7 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _trayIcon.title = 'My App';
     _trayIcon.tooltip = 'This is my app';
-    _trayIcon.icon = 'assets/icon.png';
     _trayIcon.on<TrayIconClickedEvent>((event) {
       print('Tray icon clicked event: $event');
       _trayIcon.openContextMenu();

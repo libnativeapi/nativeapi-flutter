@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
 void main() {
-  runApp(const MenuExampleApp());
+  runApp(const MyApp());
 }
 
-class MenuExampleApp extends StatelessWidget {
-  const MenuExampleApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class _MenuExamplePageState extends State<MenuExamplePage>
     with TickerProviderStateMixin {
   late final Menu _contextMenu;
   late final AnimationController _rotationController;
-  
+
   String _lastAction = 'No action yet';
   List<String> _actionHistory = [];
 
@@ -84,7 +84,7 @@ class _MenuExamplePageState extends State<MenuExamplePage>
 
     // Menu item with icon
     final iconItem = MenuItem('Menu Item with Icon');
-    iconItem.icon = 'assets/icon.png'; // If icon resource is available
+    // iconItem.icon = 'assets/icon.png'; // If icon resource is available
     iconItem.on<MenuItemClickedEvent>((event) {
       _addToHistory('Menu item with icon clicked');
     });
@@ -99,11 +99,13 @@ class _MenuExamplePageState extends State<MenuExamplePage>
     _contextMenu.addItem(tooltipItem);
   }
 
-
   void _addToHistory(String action) {
     setState(() {
       _lastAction = action;
-      _actionHistory.insert(0, '${DateTime.now().toString().substring(11, 19)}: $action');
+      _actionHistory.insert(
+        0,
+        '${DateTime.now().toString().substring(11, 19)}: $action',
+      );
       if (_actionHistory.length > 10) {
         _actionHistory.removeLast();
       }
@@ -160,9 +162,9 @@ class _MenuExamplePageState extends State<MenuExamplePage>
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // 菜单区域
             Expanded(
               child: Row(
@@ -190,7 +192,11 @@ class _MenuExamplePageState extends State<MenuExamplePage>
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.menu, size: 48, color: Colors.blue),
+                                    Icon(
+                                      Icons.menu,
+                                      size: 48,
+                                      color: Colors.blue,
+                                    ),
                                     SizedBox(height: 8),
                                     Text(
                                       'Right-click here\nor use buttons below',
@@ -238,7 +244,8 @@ class _MenuExamplePageState extends State<MenuExamplePage>
                           children: [
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () => _showMenuAtPosition(const Offset(200, 200)),
+                                onPressed: () =>
+                                    _showMenuAtPosition(const Offset(200, 200)),
                                 icon: const Icon(Icons.menu),
                                 label: const Text('Show Menu'),
                               ),
@@ -246,7 +253,8 @@ class _MenuExamplePageState extends State<MenuExamplePage>
                             const SizedBox(width: 8),
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () => _showMenuAtPosition(const Offset(400, 300)),
+                                onPressed: () =>
+                                    _showMenuAtPosition(const Offset(400, 300)),
                                 icon: const Icon(Icons.menu_open),
                                 label: const Text('Show Menu (Position 2)'),
                               ),
@@ -256,9 +264,9 @@ class _MenuExamplePageState extends State<MenuExamplePage>
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(width: 16),
-                  
+
                   // 右侧：状态和历史
                   Expanded(
                     flex: 1,
@@ -282,19 +290,23 @@ class _MenuExamplePageState extends State<MenuExamplePage>
                                 const Divider(),
                                 Text(
                                   'Last Action:',
-                                  style: Theme.of(context).textTheme.labelMedium,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.labelMedium,
                                 ),
                                 Text(
                                   _lastAction,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         Text(
                           'Action History',
                           style: Theme.of(context).textTheme.titleMedium,

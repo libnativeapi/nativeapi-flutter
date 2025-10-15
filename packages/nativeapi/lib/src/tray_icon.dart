@@ -5,6 +5,7 @@ import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
+import 'package:nativeapi/src/image.dart';
 import 'package:nativeapi/src/menu.dart';
 import 'package:nativeapi/src/tray_icon_event.dart';
 
@@ -106,10 +107,19 @@ class TrayIcon
 
   int get id => bindings.native_tray_icon_get_id(_nativeHandle);
 
-  set icon(String icon) {
-    final iconPtr = icon.toNativeUtf8().cast<Char>();
-    bindings.native_tray_icon_set_icon(_nativeHandle, iconPtr);
-    ffi.calloc.free(iconPtr);
+  Image? get icon {
+    final iconHandle = bindings.native_tray_icon_get_icon(_nativeHandle);
+    if (iconHandle == nullptr) {
+      return null;
+    }
+    return Image(iconHandle);
+  }
+
+  set icon(Image? icon) {
+    bindings.native_tray_icon_set_icon(
+      _nativeHandle,
+      icon?.nativeHandle ?? nullptr,
+    );
   }
 
   String? get title {

@@ -5,6 +5,7 @@ import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
+import 'package:nativeapi/src/image.dart';
 import 'package:nativeapi/src/menu_event.dart';
 
 enum MenuItemType { normal, separator, submenu, checkbox, radio }
@@ -161,17 +162,19 @@ class MenuItem
     ffi.calloc.free(labelPtr);
   }
 
-  String get icon {
-    final iconPtr = bindings.native_menu_item_get_icon(_nativeHandle);
-    final icon = iconPtr.cast<ffi.Utf8>().toDartString();
-    bindings.free_c_str(iconPtr);
-    return icon;
+  Image? get icon {
+    final iconHandle = bindings.native_menu_item_get_icon(_nativeHandle);
+    if (iconHandle == nullptr) {
+      return null;
+    }
+    return Image(iconHandle);
   }
 
-  set icon(String icon) {
-    final iconPtr = icon.toNativeUtf8().cast<Char>();
-    bindings.native_menu_item_set_icon(_nativeHandle, iconPtr);
-    ffi.calloc.free(iconPtr);
+  set icon(Image? icon) {
+    bindings.native_menu_item_set_icon(
+      _nativeHandle,
+      icon?.nativeHandle ?? nullptr,
+    );
   }
 
   String get tooltip {
