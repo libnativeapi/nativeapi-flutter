@@ -32,7 +32,6 @@
 #include "../../src/libnativeapi/src/accessibility_manager.cpp"
 #include "../../src/libnativeapi/src/app_runner.cpp"
 #include "../../src/libnativeapi/src/display_manager.cpp"
-#include "../../src/libnativeapi/src/foundation/event_emitter.cpp"
 #include "../../src/libnativeapi/src/foundation/id_allocator.cpp"
 #include "../../src/libnativeapi/src/menu.cpp"
 #include "../../src/libnativeapi/src/tray_manager.cpp"
