@@ -160,30 +160,6 @@ class Image
     return Image(handle);
   }
 
-  /// Create an image from a platform-specific system icon.
-  ///
-  /// Loads a system icon using platform-specific icon names/identifiers.
-  ///
-  /// Returns null if icon not found.
-  ///
-  /// Platform-specific icon names:
-  /// - macOS: "NSApplicationIcon", "NSFolder", "NSDocument", etc.
-  /// - Windows: "IDI_APPLICATION", "IDI_INFORMATION", "IDI_WARNING", etc.
-  /// - Linux: Depends on the desktop environment and icon theme
-  static Image? fromSystemIcon(String iconName) {
-    final iconNamePtr = iconName.toNativeUtf8().cast<Char>();
-    final handle = cnativeApiBindings.native_image_from_system_icon(
-      iconNamePtr,
-    );
-    ffi.calloc.free(iconNamePtr);
-
-    if (handle == nullptr) {
-      return null;
-    }
-
-    return Image(handle);
-  }
-
   /// Get the size of the image in pixels.
   ///
   /// Returns a Size object with width and height, or Size.zero if invalid.

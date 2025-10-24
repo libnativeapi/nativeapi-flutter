@@ -62,6 +62,214 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
+  /// @brief Get the singleton instance of Application
+  ///
+  /// @return Handle to the singleton Application instance
+  native_application_t native_application_get_instance() {
+    return _native_application_get_instance();
+  }
+
+  late final _native_application_get_instancePtr =
+      _lookup<ffi.NativeFunction<native_application_t Function()>>(
+        'native_application_get_instance',
+      );
+  late final _native_application_get_instance =
+      _native_application_get_instancePtr
+          .asFunction<native_application_t Function()>();
+
+  /// @brief Run the application main event loop
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @return Exit code of the application (0 for success)
+  int native_application_run(native_application_t app) {
+    return _native_application_run(app);
+  }
+
+  late final _native_application_runPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(native_application_t)>>(
+        'native_application_run',
+      );
+  late final _native_application_run = _native_application_runPtr
+      .asFunction<int Function(native_application_t)>();
+
+  /// @brief Run the application with the specified window
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @param window Window handle (must not be NULL)
+  /// @return Exit code of the application (0 for success)
+  int native_application_run_with_window(
+    native_application_t app,
+    native_window_t window,
+  ) {
+    return _native_application_run_with_window(app, window);
+  }
+
+  late final _native_application_run_with_windowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(native_application_t, native_window_t)
+        >
+      >('native_application_run_with_window');
+  late final _native_application_run_with_window =
+      _native_application_run_with_windowPtr
+          .asFunction<int Function(native_application_t, native_window_t)>();
+
+  /// @brief Request the application to quit
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @param exit_code The exit code to use when quitting (default: 0)
+  void native_application_quit(native_application_t app, int exit_code) {
+    return _native_application_quit(app, exit_code);
+  }
+
+  late final _native_application_quitPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_application_t, ffi.Int)>
+      >('native_application_quit');
+  late final _native_application_quit = _native_application_quitPtr
+      .asFunction<void Function(native_application_t, int)>();
+
+  /// @brief Check if the application is currently running
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @return true if the application is running, false otherwise
+  bool native_application_is_running(native_application_t app) {
+    return _native_application_is_running(app);
+  }
+
+  late final _native_application_is_runningPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_application_t)>>(
+        'native_application_is_running',
+      );
+  late final _native_application_is_running = _native_application_is_runningPtr
+      .asFunction<bool Function(native_application_t)>();
+
+  /// @brief Check if this is a single instance application
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @return true if only one instance is allowed, false otherwise
+  bool native_application_is_single_instance(native_application_t app) {
+    return _native_application_is_single_instance(app);
+  }
+
+  late final _native_application_is_single_instancePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_application_t)>>(
+        'native_application_is_single_instance',
+      );
+  late final _native_application_is_single_instance =
+      _native_application_is_single_instancePtr
+          .asFunction<bool Function(native_application_t)>();
+
+  /// @brief Set the application icon
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @param icon_path Path to the icon file (must not be NULL)
+  /// @return true if the icon was set successfully, false otherwise
+  bool native_application_set_icon(
+    native_application_t app,
+    ffi.Pointer<ffi.Char> icon_path,
+  ) {
+    return _native_application_set_icon(app, icon_path);
+  }
+
+  late final _native_application_set_iconPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_application_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_application_set_icon');
+  late final _native_application_set_icon = _native_application_set_iconPtr
+      .asFunction<bool Function(native_application_t, ffi.Pointer<ffi.Char>)>();
+
+  /// @brief Show or hide the dock icon (macOS only)
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @param visible true to show the dock icon, false to hide it
+  /// @return true if the operation succeeded, false otherwise
+  bool native_application_set_dock_icon_visible(
+    native_application_t app,
+    bool visible,
+  ) {
+    return _native_application_set_dock_icon_visible(app, visible);
+  }
+
+  late final _native_application_set_dock_icon_visiblePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_application_t, ffi.Bool)>
+      >('native_application_set_dock_icon_visible');
+  late final _native_application_set_dock_icon_visible =
+      _native_application_set_dock_icon_visiblePtr
+          .asFunction<bool Function(native_application_t, bool)>();
+
+  /// @brief Add an event listener for application events
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @param callback Event callback function (must not be NULL)
+  /// @return Listener ID that can be used to remove the listener, or 0 on failure
+  int native_application_add_event_listener(
+    native_application_t app,
+    native_application_event_callback_t callback,
+  ) {
+    return _native_application_add_event_listener(app, callback);
+  }
+
+  late final _native_application_add_event_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Size Function(
+            native_application_t,
+            native_application_event_callback_t,
+          )
+        >
+      >('native_application_add_event_listener');
+  late final _native_application_add_event_listener =
+      _native_application_add_event_listenerPtr
+          .asFunction<
+            int Function(
+              native_application_t,
+              native_application_event_callback_t,
+            )
+          >();
+
+  /// @brief Remove an event listener by ID
+  ///
+  /// @param app Application handle (must not be NULL)
+  /// @param listener_id The ID returned by native_application_add_event_listener
+  /// @return true if the listener was found and removed, false otherwise
+  bool native_application_remove_event_listener(
+    native_application_t app,
+    int listener_id,
+  ) {
+    return _native_application_remove_event_listener(app, listener_id);
+  }
+
+  late final _native_application_remove_event_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_application_t, ffi.Size)>
+      >('native_application_remove_event_listener');
+  late final _native_application_remove_event_listener =
+      _native_application_remove_event_listenerPtr
+          .asFunction<bool Function(native_application_t, int)>();
+
+  /// @brief Convenience function to run the application with the specified window
+  ///
+  /// This is equivalent to calling native_application_run_with_window with the singleton instance.
+  /// This function provides a simple way to run an application without explicitly
+  /// accessing the singleton.
+  ///
+  /// @param window Window handle (must not be NULL)
+  /// @return Exit code of the application (0 for success)
+  int native_run_app(native_window_t window) {
+    return _native_run_app(window);
+  }
+
+  late final _native_run_appPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(native_window_t)>>(
+        'native_run_app',
+      );
+  late final _native_run_app = _native_run_appPtr
+      .asFunction<int Function(native_window_t)>();
+
   /// Basic identification getters
   ffi.Pointer<ffi.Char> native_display_get_id(native_display_t display) {
     return _native_display_get_id(display);
@@ -286,22 +494,6 @@ class CNativeApiBindings {
   late final _native_image_from_base64 = _native_image_from_base64Ptr
       .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Create an image from a platform-specific system icon
-  /// @param icon_name Platform-specific system icon name/identifier
-  /// @return Image handle, or NULL if icon not found
-  native_image_t native_image_from_system_icon(
-    ffi.Pointer<ffi.Char> icon_name,
-  ) {
-    return _native_image_from_system_icon(icon_name);
-  }
-
-  late final _native_image_from_system_iconPtr =
-      _lookup<
-        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
-      >('native_image_from_system_icon');
-  late final _native_image_from_system_icon = _native_image_from_system_iconPtr
-      .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
-
   /// Destroy an image and release its resources
   /// @param image The image to destroy
   void native_image_destroy(native_image_t image) {
@@ -379,15 +571,103 @@ class CNativeApiBindings {
   late final _native_image_save_to_file = _native_image_save_to_filePtr
       .asFunction<bool Function(native_image_t, ffi.Pointer<ffi.Char>)>();
 
+  /// Create a positioning strategy for absolute positioning at fixed coordinates
+  /// @param point Point in screen coordinates
+  /// @return Positioning strategy handle
+  native_positioning_strategy_t native_positioning_strategy_absolute(
+    ffi.Pointer<native_point_t> point,
+  ) {
+    return _native_positioning_strategy_absolute(point);
+  }
+
+  late final _native_positioning_strategy_absolutePtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_positioning_strategy_t Function(ffi.Pointer<native_point_t>)
+        >
+      >('native_positioning_strategy_absolute');
+  late final _native_positioning_strategy_absolute =
+      _native_positioning_strategy_absolutePtr
+          .asFunction<
+            native_positioning_strategy_t Function(ffi.Pointer<native_point_t>)
+          >();
+
+  /// Create a positioning strategy for positioning at current mouse location
+  /// @return Positioning strategy handle
+  native_positioning_strategy_t native_positioning_strategy_cursor_position() {
+    return _native_positioning_strategy_cursor_position();
+  }
+
+  late final _native_positioning_strategy_cursor_positionPtr =
+      _lookup<ffi.NativeFunction<native_positioning_strategy_t Function()>>(
+        'native_positioning_strategy_cursor_position',
+      );
+  late final _native_positioning_strategy_cursor_position =
+      _native_positioning_strategy_cursor_positionPtr
+          .asFunction<native_positioning_strategy_t Function()>();
+
+  /// Create a positioning strategy for positioning relative to a rectangle
+  /// @param rect Rectangle in screen coordinates to position relative to
+  /// @param offset Offset point to apply to the position, or NULL for no offset
+  /// @return Positioning strategy handle
+  ///
+  /// @example
+  /// ```c
+  /// native_rectangle_t buttonRect = {100, 100, 50, 30};
+  /// native_point_t offset = {0, 10};
+  /// native_positioning_strategy_t strategy = native_positioning_strategy_relative(&buttonRect,
+  /// &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);
+  /// ```
+  native_positioning_strategy_t native_positioning_strategy_relative(
+    ffi.Pointer<native_rectangle_t> rect,
+    ffi.Pointer<native_point_t> offset,
+  ) {
+    return _native_positioning_strategy_relative(rect, offset);
+  }
+
+  late final _native_positioning_strategy_relativePtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_positioning_strategy_t Function(
+            ffi.Pointer<native_rectangle_t>,
+            ffi.Pointer<native_point_t>,
+          )
+        >
+      >('native_positioning_strategy_relative');
+  late final _native_positioning_strategy_relative =
+      _native_positioning_strategy_relativePtr
+          .asFunction<
+            native_positioning_strategy_t Function(
+              ffi.Pointer<native_rectangle_t>,
+              ffi.Pointer<native_point_t>,
+            )
+          >();
+
+  /// Free a positioning strategy handle
+  /// @param strategy The positioning strategy to free
+  void native_positioning_strategy_free(
+    native_positioning_strategy_t strategy,
+  ) {
+    return _native_positioning_strategy_free(strategy);
+  }
+
+  late final _native_positioning_strategy_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_positioning_strategy_t)>
+      >('native_positioning_strategy_free');
+  late final _native_positioning_strategy_free =
+      _native_positioning_strategy_freePtr
+          .asFunction<void Function(native_positioning_strategy_t)>();
+
   /// Create a new menu item
-  /// @param text The display text for the menu item
+  /// @param label The display label for the menu item
   /// @param type The type of menu item to create
   /// @return Menu item handle, or NULL if creation failed
   native_menu_item_t native_menu_item_create(
-    ffi.Pointer<ffi.Char> text,
+    ffi.Pointer<ffi.Char> label,
     native_menu_item_type_t type,
   ) {
-    return _native_menu_item_create(text, type.value);
+    return _native_menu_item_create(label, type.value);
   }
 
   late final _native_menu_item_createPtr =
@@ -653,34 +933,6 @@ class CNativeApiBindings {
   late final _native_menu_item_is_enabled = _native_menu_item_is_enabledPtr
       .asFunction<bool Function(native_menu_item_t)>();
 
-  /// Set the visibility of a menu item
-  /// @param item The menu item
-  /// @param visible true to show, false to hide
-  void native_menu_item_set_visible(native_menu_item_t item, bool visible) {
-    return _native_menu_item_set_visible(item, visible);
-  }
-
-  late final _native_menu_item_set_visiblePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Void Function(native_menu_item_t, ffi.Bool)>
-      >('native_menu_item_set_visible');
-  late final _native_menu_item_set_visible = _native_menu_item_set_visiblePtr
-      .asFunction<void Function(native_menu_item_t, bool)>();
-
-  /// Check if a menu item is visible
-  /// @param item The menu item
-  /// @return true if visible, false otherwise
-  bool native_menu_item_is_visible(native_menu_item_t item) {
-    return _native_menu_item_is_visible(item);
-  }
-
-  late final _native_menu_item_is_visiblePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_item_t)>>(
-        'native_menu_item_is_visible',
-      );
-  late final _native_menu_item_is_visible = _native_menu_item_is_visiblePtr
-      .asFunction<bool Function(native_menu_item_t)>();
-
   /// Set the state of a checkbox/radio menu item
   /// @param item The menu item
   /// @param state The state to set (unchecked, checked, or mixed)
@@ -850,20 +1102,6 @@ class CNativeApiBindings {
   late final _native_menu_item_remove_listener =
       _native_menu_item_remove_listenerPtr
           .asFunction<bool Function(native_menu_item_t, int)>();
-
-  /// Programmatically trigger a menu item
-  /// @param item The menu item
-  /// @return true if triggered successfully, false otherwise
-  bool native_menu_item_trigger(native_menu_item_t item) {
-    return _native_menu_item_trigger(item);
-  }
-
-  late final _native_menu_item_triggerPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_item_t)>>(
-        'native_menu_item_trigger',
-      );
-  late final _native_menu_item_trigger = _native_menu_item_triggerPtr
-      .asFunction<bool Function(native_menu_item_t)>();
 
   /// Create a new menu
   /// @return Menu handle, or NULL if creation failed
@@ -1090,59 +1328,27 @@ class CNativeApiBindings {
   late final _native_menu_get_all_items = _native_menu_get_all_itemsPtr
       .asFunction<native_menu_item_list_t Function(native_menu_t)>();
 
-  /// Find a menu item by text
+  /// Open the menu as a context menu using the specified positioning strategy
   /// @param menu The menu
-  /// @param text The text to search for
-  /// @return The first menu item with matching text, or NULL if not found
-  native_menu_item_t native_menu_find_item_by_text(
+  /// @param strategy The positioning strategy determining where to display the menu
+  /// @return true if menu was opened successfully, false otherwise
+  bool native_menu_open(
     native_menu_t menu,
-    ffi.Pointer<ffi.Char> text,
+    native_positioning_strategy_t strategy,
   ) {
-    return _native_menu_find_item_by_text(menu, text);
-  }
-
-  late final _native_menu_find_item_by_textPtr =
-      _lookup<
-        ffi.NativeFunction<
-          native_menu_item_t Function(native_menu_t, ffi.Pointer<ffi.Char>)
-        >
-      >('native_menu_find_item_by_text');
-  late final _native_menu_find_item_by_text = _native_menu_find_item_by_textPtr
-      .asFunction<
-        native_menu_item_t Function(native_menu_t, ffi.Pointer<ffi.Char>)
-      >();
-
-  /// Open the menu as a context menu at specified coordinates
-  /// @param menu The menu
-  /// @param x The x-coordinate in screen coordinates
-  /// @param y The y-coordinate in screen coordinates
-  /// @return true if menu was opened successfully, false otherwise
-  bool native_menu_open_at(native_menu_t menu, double x, double y) {
-    return _native_menu_open_at(menu, x, y);
-  }
-
-  late final _native_menu_open_atPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(native_menu_t, ffi.Double, ffi.Double)
-        >
-      >('native_menu_open_at');
-  late final _native_menu_open_at = _native_menu_open_atPtr
-      .asFunction<bool Function(native_menu_t, double, double)>();
-
-  /// Open the menu as a context menu at default location
-  /// @param menu The menu
-  /// @return true if menu was opened successfully, false otherwise
-  bool native_menu_open(native_menu_t menu) {
-    return _native_menu_open(menu);
+    return _native_menu_open(menu, strategy);
   }
 
   late final _native_menu_openPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
-        'native_menu_open',
-      );
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_menu_t, native_positioning_strategy_t)
+        >
+      >('native_menu_open');
   late final _native_menu_open = _native_menu_openPtr
-      .asFunction<bool Function(native_menu_t)>();
+      .asFunction<
+        bool Function(native_menu_t, native_positioning_strategy_t)
+      >();
 
   /// Close the menu if it's currently showing
   /// @param menu The menu
@@ -1156,48 +1362,6 @@ class CNativeApiBindings {
         'native_menu_close',
       );
   late final _native_menu_close = _native_menu_closePtr
-      .asFunction<bool Function(native_menu_t)>();
-
-  /// Check if the menu is currently visible
-  /// @param menu The menu
-  /// @return true if visible, false otherwise
-  bool native_menu_is_visible(native_menu_t menu) {
-    return _native_menu_is_visible(menu);
-  }
-
-  late final _native_menu_is_visiblePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
-        'native_menu_is_visible',
-      );
-  late final _native_menu_is_visible = _native_menu_is_visiblePtr
-      .asFunction<bool Function(native_menu_t)>();
-
-  /// Set the enabled state of the menu
-  /// @param menu The menu
-  /// @param enabled true to enable, false to disable
-  void native_menu_set_enabled(native_menu_t menu, bool enabled) {
-    return _native_menu_set_enabled(menu, enabled);
-  }
-
-  late final _native_menu_set_enabledPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t, ffi.Bool)>>(
-        'native_menu_set_enabled',
-      );
-  late final _native_menu_set_enabled = _native_menu_set_enabledPtr
-      .asFunction<void Function(native_menu_t, bool)>();
-
-  /// Check if the menu is enabled
-  /// @param menu The menu
-  /// @return true if enabled, false otherwise
-  bool native_menu_is_enabled(native_menu_t menu) {
-    return _native_menu_is_enabled(menu);
-  }
-
-  late final _native_menu_is_enabledPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
-        'native_menu_is_enabled',
-      );
-  late final _native_menu_is_enabled = _native_menu_is_enabledPtr
       .asFunction<bool Function(native_menu_t)>();
 
   /// Add event listener for a menu
@@ -1619,29 +1783,6 @@ class CNativeApiBindings {
       _native_tray_icon_remove_listenerPtr
           .asFunction<bool Function(native_tray_icon_t, int)>();
 
-  /// Open the context menu at specified coordinates
-  /// @param tray_icon The tray icon
-  /// @param x The x-coordinate in screen coordinates
-  /// @param y The y-coordinate in screen coordinates
-  /// @return true if menu was opened successfully, false otherwise
-  bool native_tray_icon_open_context_menu_at(
-    native_tray_icon_t tray_icon,
-    double x,
-    double y,
-  ) {
-    return _native_tray_icon_open_context_menu_at(tray_icon, x, y);
-  }
-
-  late final _native_tray_icon_open_context_menu_atPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(native_tray_icon_t, ffi.Double, ffi.Double)
-        >
-      >('native_tray_icon_open_context_menu_at');
-  late final _native_tray_icon_open_context_menu_at =
-      _native_tray_icon_open_context_menu_atPtr
-          .asFunction<bool Function(native_tray_icon_t, double, double)>();
-
   /// Open the context menu at default location
   /// @param tray_icon The tray icon
   /// @return true if menu was opened successfully, false otherwise
@@ -1760,6 +1901,56 @@ final class native_rectangle_t extends ffi.Struct {
   external double height;
 }
 
+/// @brief Application event types
+enum native_application_event_type_t {
+  NATIVE_APPLICATION_EVENT_STARTED(0),
+  NATIVE_APPLICATION_EVENT_EXITING(1),
+  NATIVE_APPLICATION_EVENT_ACTIVATED(2),
+  NATIVE_APPLICATION_EVENT_DEACTIVATED(3),
+  NATIVE_APPLICATION_EVENT_QUIT_REQUESTED(4);
+
+  final int value;
+  const native_application_event_type_t(this.value);
+
+  static native_application_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_APPLICATION_EVENT_STARTED,
+        1 => NATIVE_APPLICATION_EVENT_EXITING,
+        2 => NATIVE_APPLICATION_EVENT_ACTIVATED,
+        3 => NATIVE_APPLICATION_EVENT_DEACTIVATED,
+        4 => NATIVE_APPLICATION_EVENT_QUIT_REQUESTED,
+        _ => throw ArgumentError(
+          "Unknown value for native_application_event_type_t: $value",
+        ),
+      };
+}
+
+/// @brief Application event structure
+final class native_application_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  /// For EXITING event
+  @ffi.Int()
+  external int exit_code;
+}
+
+/// @brief Opaque handle for the Application instance
+typedef native_application_t = ffi.Pointer<ffi.Void>;
+
+/// Opaque window handle
+typedef native_window_t = ffi.Pointer<ffi.Void>;
+
+/// @brief Application event callback function type
+typedef native_application_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_application_event_callback_tFunction>
+    >;
+typedef native_application_event_callback_tFunction =
+    ffi.Void Function(ffi.Pointer<native_application_event_t> event);
+typedef Dartnative_application_event_callback_tFunction =
+    void Function(ffi.Pointer<native_application_event_t> event);
+
 /// Display orientation enumeration
 enum native_display_orientation_t {
   NATIVE_DISPLAY_ORIENTATION_PORTRAIT(0),
@@ -1795,6 +1986,29 @@ typedef native_display_t = ffi.Pointer<ffi.Void>;
 
 /// Opaque handle for image objects
 typedef native_image_t = ffi.Pointer<ffi.Void>;
+
+/// Type of positioning strategy
+enum native_positioning_strategy_type_t {
+  NATIVE_POSITIONING_ABSOLUTE(0),
+  NATIVE_POSITIONING_CURSOR_POSITION(1),
+  NATIVE_POSITIONING_RELATIVE(2);
+
+  final int value;
+  const native_positioning_strategy_type_t(this.value);
+
+  static native_positioning_strategy_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_POSITIONING_ABSOLUTE,
+        1 => NATIVE_POSITIONING_CURSOR_POSITION,
+        2 => NATIVE_POSITIONING_RELATIVE,
+        _ => throw ArgumentError(
+          "Unknown value for native_positioning_strategy_type_t: $value",
+        ),
+      };
+}
+
+/// Opaque handle for positioning strategy
+typedef native_positioning_strategy_t = ffi.Pointer<ffi.Void>;
 
 /// Menu item types
 enum native_menu_item_type_t {
@@ -1874,9 +2088,6 @@ final class native_keyboard_accelerator_t extends ffi.Struct {
 final class native_menu_item_clicked_event_t extends ffi.Struct {
   @native_menu_item_id_t()
   external int item_id;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> item_text;
 }
 
 typedef native_menu_item_id_t = ffi.Long;
@@ -1983,10 +2194,6 @@ typedef Dartnative_menu_event_callback_tFunction =
 final class native_tray_icon_clicked_event_t extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
-
-  /// "left", "right", etc.
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Char> button;
 }
 
 /// Tray icon identifier

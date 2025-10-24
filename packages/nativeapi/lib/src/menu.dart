@@ -5,6 +5,7 @@ import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
+import 'package:nativeapi/src/foundation/positioning_strategy.dart';
 import 'package:nativeapi/src/image.dart';
 import 'package:nativeapi/src/menu_event.dart';
 
@@ -320,11 +321,35 @@ class Menu
     return bindings.native_menu_get_item_count(_nativeHandle);
   }
 
-  bool open({Offset? at}) {
-    if (at != null) {
-      return bindings.native_menu_open_at(_nativeHandle, at.dx, at.dy);
-    }
-    return bindings.native_menu_open(_nativeHandle);
+  /// Display the menu as a context menu using the specified positioning strategy.
+  ///
+  /// Shows the menu according to the provided positioning strategy and waits for
+  /// user interaction. The menu will close when the user clicks outside of it or
+  /// selects an item.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Open context menu at cursor position
+  /// menu.open(PositioningStrategy.cursorPosition());
+  ///
+  /// // Open context menu at specific coordinates
+  /// menu.open(PositioningStrategy.absolute(Offset(100, 200)));
+  ///
+  /// // Open context menu relative to a button with offset
+  /// final buttonRect = button.getBounds();
+  /// menu.open(PositioningStrategy.relative(buttonRect, Offset(0, 10)));
+  /// ```
+  bool open(PositioningStrategy strategy) {
+    // Convert Dart strategy to native strategy
+    final nativeStrategy = strategy.toNative();
+
+    // Open menu with native strategy
+    final result = bindings.native_menu_open(_nativeHandle, nativeStrategy);
+
+    // Free the native strategy
+    bindings.native_positioning_strategy_free(nativeStrategy);
+
+    return result;
   }
 
   bool close() {

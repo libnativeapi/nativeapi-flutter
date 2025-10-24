@@ -6,6 +6,8 @@ export 'src/display.dart';
 export 'src/display_manager.dart';
 export 'src/foundation/event.dart';
 export 'src/foundation/event_emitter.dart';
+export 'src/foundation/geometry.dart';
+export 'src/foundation/positioning_strategy.dart';
 export 'src/image.dart';
 export 'src/menu.dart';
 export 'src/menu_event.dart';

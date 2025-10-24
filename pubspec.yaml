@@ -8,7 +8,9 @@ workspace:
   - examples/menu_example
   - examples/tray_icon_example
   - packages/cnativeapi
+  - packages/cnativeapi/example
   - packages/nativeapi
+  - packages/nativeapi/example
 
 dev_dependencies:
   melos: ^7.1.1

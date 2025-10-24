@@ -113,7 +113,7 @@ class _MenuExamplePageState extends State<MenuExamplePage>
   }
 
   void _showMenuAtPosition(Offset position) {
-    _contextMenu.open(at: position);
+    _contextMenu.open(PositioningStrategy.absolute(position));
   }
 
   void _clearHistory() {

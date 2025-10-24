@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nativeapi/src/foundation/positioning_strategy.dart';
 import 'package:nativeapi/src/menu.dart';
 
 class ContextMenuRegion extends StatefulWidget {
@@ -25,7 +26,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       },
       onPointerUp: (event) {
         if (!_shouldReact) return;
-        widget.menu.open(at: Offset(event.position.dx, event.position.dy));
+        print('object ${event.position}');
+
+        widget.menu.open(
+          PositioningStrategy.absolute(
+            Offset(event.position.dx, event.position.dy),
+          ),
+        );
       },
       child: widget.child,
     );
