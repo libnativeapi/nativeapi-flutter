@@ -26,8 +26,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       },
       onPointerUp: (event) {
         if (!_shouldReact) return;
-        print('object ${event.position}');
-
         widget.menu.open(
           PositioningStrategy.absolute(
             Offset(event.position.dx, event.position.dy),

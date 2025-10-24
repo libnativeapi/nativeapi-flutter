@@ -338,13 +338,23 @@ class Menu
   /// // Open context menu relative to a button with offset
   /// final buttonRect = button.getBounds();
   /// menu.open(PositioningStrategy.relative(buttonRect, Offset(0, 10)));
+  ///
+  /// // Open context menu with custom placement
+  /// menu.open(strategy, Placement.topStart);
   /// ```
-  bool open(PositioningStrategy strategy) {
+  bool open(
+    PositioningStrategy strategy, [
+    Placement placement = Placement.bottomStart,
+  ]) {
     // Convert Dart strategy to native strategy
     final nativeStrategy = strategy.toNative();
 
-    // Open menu with native strategy
-    final result = bindings.native_menu_open(_nativeHandle, nativeStrategy);
+    // Open menu with native strategy and placement
+    final result = bindings.native_menu_open(
+      _nativeHandle,
+      nativeStrategy,
+      placement.toNative(),
+    );
 
     // Free the native strategy
     bindings.native_positioning_strategy_free(nativeStrategy);

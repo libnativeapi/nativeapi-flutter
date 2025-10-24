@@ -1331,23 +1331,30 @@ class CNativeApiBindings {
   /// Open the menu as a context menu using the specified positioning strategy
   /// @param menu The menu
   /// @param strategy The positioning strategy determining where to display the menu
+  /// @param placement The placement option determining how the menu is positioned
+  /// relative to the reference point (default: NATIVE_PLACEMENT_BOTTOM_START)
   /// @return true if menu was opened successfully, false otherwise
   bool native_menu_open(
     native_menu_t menu,
     native_positioning_strategy_t strategy,
+    native_placement_t placement,
   ) {
-    return _native_menu_open(menu, strategy);
+    return _native_menu_open(menu, strategy, placement.value);
   }
 
   late final _native_menu_openPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Bool Function(native_menu_t, native_positioning_strategy_t)
+          ffi.Bool Function(
+            native_menu_t,
+            native_positioning_strategy_t,
+            ffi.UnsignedInt,
+          )
         >
       >('native_menu_open');
   late final _native_menu_open = _native_menu_openPtr
       .asFunction<
-        bool Function(native_menu_t, native_positioning_strategy_t)
+        bool Function(native_menu_t, native_positioning_strategy_t, int)
       >();
 
   /// Close the menu if it's currently showing
@@ -1899,6 +1906,64 @@ final class native_rectangle_t extends ffi.Struct {
 
   @ffi.Double()
   external double height;
+}
+
+/// Placement options for positioning UI elements relative to an anchor.
+enum native_placement_t {
+  /// Position above the anchor, horizontally centered.
+  NATIVE_PLACEMENT_TOP(0),
+
+  /// Position above the anchor, aligned to the start (left).
+  NATIVE_PLACEMENT_TOP_START(1),
+
+  /// Position above the anchor, aligned to the end (right).
+  NATIVE_PLACEMENT_TOP_END(2),
+
+  /// Position to the right of the anchor, vertically centered.
+  NATIVE_PLACEMENT_RIGHT(3),
+
+  /// Position to the right of the anchor, aligned to the start (top).
+  NATIVE_PLACEMENT_RIGHT_START(4),
+
+  /// Position to the right of the anchor, aligned to the end (bottom).
+  NATIVE_PLACEMENT_RIGHT_END(5),
+
+  /// Position below the anchor, horizontally centered.
+  NATIVE_PLACEMENT_BOTTOM(6),
+
+  /// Position below the anchor, aligned to the start (left).
+  NATIVE_PLACEMENT_BOTTOM_START(7),
+
+  /// Position below the anchor, aligned to the end (right).
+  NATIVE_PLACEMENT_BOTTOM_END(8),
+
+  /// Position to the left of the anchor, vertically centered.
+  NATIVE_PLACEMENT_LEFT(9),
+
+  /// Position to the left of the anchor, aligned to the start (top).
+  NATIVE_PLACEMENT_LEFT_START(10),
+
+  /// Position to the left of the anchor, aligned to the end (bottom).
+  NATIVE_PLACEMENT_LEFT_END(11);
+
+  final int value;
+  const native_placement_t(this.value);
+
+  static native_placement_t fromValue(int value) => switch (value) {
+    0 => NATIVE_PLACEMENT_TOP,
+    1 => NATIVE_PLACEMENT_TOP_START,
+    2 => NATIVE_PLACEMENT_TOP_END,
+    3 => NATIVE_PLACEMENT_RIGHT,
+    4 => NATIVE_PLACEMENT_RIGHT_START,
+    5 => NATIVE_PLACEMENT_RIGHT_END,
+    6 => NATIVE_PLACEMENT_BOTTOM,
+    7 => NATIVE_PLACEMENT_BOTTOM_START,
+    8 => NATIVE_PLACEMENT_BOTTOM_END,
+    9 => NATIVE_PLACEMENT_LEFT,
+    10 => NATIVE_PLACEMENT_LEFT_START,
+    11 => NATIVE_PLACEMENT_LEFT_END,
+    _ => throw ArgumentError("Unknown value for native_placement_t: $value"),
+  };
 }
 
 /// @brief Application event types
