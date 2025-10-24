@@ -29,7 +29,7 @@ file(GLOB CAPI_SOURCES
 
 # Platform-specific source files
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/linux/*_linux.cpp")
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/linux/*.cpp")
     # Find packages for Linux
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
@@ -37,9 +37,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     pkg_check_modules(XI REQUIRED IMPORTED_TARGET xi)
     pkg_check_modules(AYATANA_APPINDICATOR REQUIRED IMPORTED_TARGET ayatana-appindicator3-0.1)
 elseif (WIN32)
-    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/windows/*_windows.cpp")
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/windows/*.cpp")
 elseif (APPLE)
-    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/macos/*_macos.mm")
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/macos/*.mm")
     # Find required frameworks for macOS
     find_library(COCOA_FRAMEWORK Cocoa)
     find_library(CARBON_FRAMEWORK Carbon)
@@ -82,7 +82,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
             pthread
     )
 elseif (WIN32)
-    target_link_libraries(cnativeapi PUBLIC user32 shell32 dwmapi)
+    target_link_libraries(cnativeapi PUBLIC user32 shell32 dwmapi gdiplus crypt32)
 endif ()
 
 target_compile_definitions(cnativeapi PUBLIC DART_SHARED_LIB)
