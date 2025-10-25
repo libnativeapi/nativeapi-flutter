@@ -88,7 +88,7 @@ class MenuItem
   static bool _callbacksInitialized = false;
 
   late final native_menu_item_t _nativeHandle;
-  
+
   // Store listener IDs for cleanup
   int? _clickedListenerId;
   int? _submenuOpenedListenerId;
@@ -96,10 +96,7 @@ class MenuItem
 
   MenuItem(String label, [MenuItemType type = MenuItemType.normal]) {
     final labelPtr = label.toNativeUtf8().cast<Char>();
-    _nativeHandle = bindings.native_menu_item_create(
-      labelPtr,
-      type.toNative(),
-    );
+    _nativeHandle = bindings.native_menu_item_create(labelPtr, type.toNative());
     ffi.calloc.free(labelPtr);
 
     // Store instance in static map using handle address as key
@@ -292,7 +289,7 @@ class MenuItem
 
   set submenu(Menu? menu) {
     if (menu == null) {
-      bindings.native_menu_item_remove_submenu(_nativeHandle);
+      bindings.native_menu_item_set_submenu(_nativeHandle, nullptr);
     } else {
       bindings.native_menu_item_set_submenu(_nativeHandle, menu.nativeHandle);
     }
@@ -329,7 +326,7 @@ class Menu
   _closedCallback;
 
   static bool _callbacksInitialized = false;
-  
+
   // Store listener IDs for cleanup
   int? _openedListenerId;
   int? _closedListenerId;
@@ -375,17 +372,11 @@ class Menu
   void stopEventListening() {
     // Remove native listeners using stored IDs
     if (_openedListenerId != null) {
-      bindings.native_menu_remove_listener(
-        _nativeHandle,
-        _openedListenerId!,
-      );
+      bindings.native_menu_remove_listener(_nativeHandle, _openedListenerId!);
       _openedListenerId = null;
     }
     if (_closedListenerId != null) {
-      bindings.native_menu_remove_listener(
-        _nativeHandle,
-        _closedListenerId!,
-      );
+      bindings.native_menu_remove_listener(_nativeHandle, _closedListenerId!);
       _closedListenerId = null;
     }
   }
