@@ -27,8 +27,20 @@ class TrayIcon
 
   late final native_tray_icon_t _nativeHandle;
 
+  // Store listener IDs for cleanup
+  int? _clickedListenerId;
+  int? _rightClickedListenerId;
+  int? _doubleClickedListenerId;
+
   TrayIcon() {
     _nativeHandle = bindings.native_tray_icon_create();
+
+    // Store instance in static map using handle address as key
+    _instances[nativeHandle.address] = this;
+  }
+
+  @override
+  void startEventListening() {
     // Initialize callbacks once
     if (!_callbacksInitialized) {
       _clickedCallback =
@@ -46,29 +58,52 @@ class TrayIcon
       _callbacksInitialized = true;
     }
 
-    // Store instance in static map using handle address as key
-    _instances[nativeHandle.address] = this;
-
-    // Register listeners for each event type with native callbacks
+    // Register listeners for each event type with native callbacks and store IDs
     // Pass the native handle as userData so callbacks can find the instance
-    bindings.native_tray_icon_add_listener(
+    _clickedListenerId = bindings.native_tray_icon_add_listener(
       _nativeHandle,
       native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_CLICKED,
       _clickedCallback.nativeFunction,
       _nativeHandle,
     );
-    bindings.native_tray_icon_add_listener(
+    _rightClickedListenerId = bindings.native_tray_icon_add_listener(
       _nativeHandle,
       native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED,
       _rightClickedCallback.nativeFunction,
       _nativeHandle,
     );
-    bindings.native_tray_icon_add_listener(
+    _doubleClickedListenerId = bindings.native_tray_icon_add_listener(
       _nativeHandle,
       native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED,
       _doubleClickedCallback.nativeFunction,
       _nativeHandle,
     );
+  }
+
+  @override
+  void stopEventListening() {
+    // Remove native listeners using stored IDs
+    if (_clickedListenerId != null) {
+      bindings.native_tray_icon_remove_listener(
+        _nativeHandle,
+        _clickedListenerId!,
+      );
+      _clickedListenerId = null;
+    }
+    if (_rightClickedListenerId != null) {
+      bindings.native_tray_icon_remove_listener(
+        _nativeHandle,
+        _rightClickedListenerId!,
+      );
+      _rightClickedListenerId = null;
+    }
+    if (_doubleClickedListenerId != null) {
+      bindings.native_tray_icon_remove_listener(
+        _nativeHandle,
+        _doubleClickedListenerId!,
+      );
+      _doubleClickedListenerId = null;
+    }
   }
 
   // Static callback functions for FFI
@@ -215,6 +250,9 @@ class TrayIcon
   void dispose() {
     // Remove instance from static map
     _instances.remove(_nativeHandle.address);
+
+    // Dispose event emitter (will call stopEventListening if needed)
+    disposeEventEmitter();
 
     if (contextMenu != null) {
       contextMenu!.dispose();

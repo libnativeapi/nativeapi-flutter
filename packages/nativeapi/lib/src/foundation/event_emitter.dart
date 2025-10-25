@@ -1,15 +1,31 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'event.dart';
 
-/// Mixin that provides event emission capabilities.
+/// Mixin that provides event emission capabilities with lifecycle management.
 /// Classes that use this mixin can easily add listener management
 /// and event dispatching functionality.
 ///
-/// Example usage:
+/// The mixin automatically manages event listening lifecycle:
+/// - `startEventListening()` is called when the first listener is added
+/// - `stopEventListening()` is called when the last listener is removed
+///
+/// Subclasses can override these methods to manage platform-specific resources:
 ///
 /// ```dart
 /// class MyClass with EventEmitter {
+///   @override
+///   void startEventListening() {
+///     // Start platform event monitoring
+///   }
+///
+///   @override
+///   void stopEventListening() {
+///     // Stop platform event monitoring
+///   }
+///
 ///   void doSomething() {
 ///     // Emit an event synchronously
 ///     emitSync(MyEvent("some data"));
@@ -35,6 +51,16 @@ mixin EventEmitter {
   /// Counter for generating unique listener IDs
   int _nextListenerId = 0;
 
+  /// Called when the first listener is added.
+  /// Subclasses can override this to start platform-specific event monitoring.
+  @protected
+  void startEventListening() {}
+
+  /// Called when the last listener is removed.
+  /// Subclasses can override this to stop platform-specific event monitoring.
+  @protected
+  void stopEventListening() {}
+
   /// Add a typed event listener for a specific event type.
   ///
   /// Returns a unique listener ID that can be used to remove the listener.
@@ -42,8 +68,16 @@ mixin EventEmitter {
     final eventType = T;
     final listenerId = _nextListenerId++;
 
+    // Check if this is the first listener
+    final wasEmpty = totalListenerCount == 0;
+
     _listeners.putIfAbsent(eventType, () => <int, EventListener>{});
     _listeners[eventType]![listenerId] = listener;
+
+    // Call hook when transitioning from 0 to 1+ listeners
+    if (wasEmpty) {
+      startEventListening();
+    }
 
     return listenerId;
   }
@@ -61,6 +95,10 @@ mixin EventEmitter {
   bool removeListener(int listenerId) {
     for (final eventListeners in _listeners.values) {
       if (eventListeners.remove(listenerId) != null) {
+        // Check if this was the last listener
+        if (totalListenerCount == 0) {
+          stopEventListening();
+        }
         return true;
       }
     }
@@ -81,6 +119,8 @@ mixin EventEmitter {
   /// emitter.removeAllListeners(MyCustomEvent);
   /// ```
   void removeAllListeners<T extends Event>([Type? eventType]) {
+    final hadListeners = totalListenerCount > 0;
+
     if (eventType != null) {
       final listeners = _listeners[eventType];
       if (listeners != null) {
@@ -91,6 +131,11 @@ mixin EventEmitter {
         eventListeners.clear();
       }
       _listeners.clear();
+    }
+
+    // Call hook if we had listeners and now have none
+    if (hadListeners && totalListenerCount == 0) {
+      stopEventListening();
     }
   }
 
@@ -159,8 +204,15 @@ mixin EventEmitter {
   /// Dispose of the event emitter and clean up resources.
   /// Classes using this mixin should call this method when disposing.
   void disposeEventEmitter() {
+    final hadListeners = totalListenerCount > 0;
+    
     // Clear all listeners
     _listeners.clear();
+    
+    // Call hook if we had listeners
+    if (hadListeners) {
+      stopEventListening();
+    }
   }
 }
 

@@ -30,6 +30,11 @@ class MenuItem
   static bool _callbacksInitialized = false;
 
   late final native_menu_item_t _nativeHandle;
+  
+  // Store listener IDs for cleanup
+  int? _clickedListenerId;
+  int? _submenuOpenedListenerId;
+  int? _submenuClosedListenerId;
 
   MenuItem(String label, [MenuItemType type = MenuItemType.normal]) {
     final labelPtr = label.toNativeUtf8().cast<Char>();
@@ -39,6 +44,12 @@ class MenuItem
     );
     ffi.calloc.free(labelPtr);
 
+    // Store instance in static map using handle address as key
+    _instances[_nativeHandle.address] = this;
+  }
+
+  @override
+  void startEventListening() {
     // Initialize callbacks once
     if (!_callbacksInitialized) {
       _clickedCallback =
@@ -56,28 +67,51 @@ class MenuItem
       _callbacksInitialized = true;
     }
 
-    // Store instance in static map using handle address as key
-    _instances[_nativeHandle.address] = this;
-
-    // Register listeners for each event type with native callbacks
-    bindings.native_menu_item_add_listener(
+    // Register listeners for each event type with native callbacks and store IDs
+    _clickedListenerId = bindings.native_menu_item_add_listener(
       _nativeHandle,
       native_menu_item_event_type_t.NATIVE_MENU_ITEM_EVENT_CLICKED,
       _clickedCallback.nativeFunction,
       _nativeHandle,
     );
-    bindings.native_menu_item_add_listener(
+    _submenuOpenedListenerId = bindings.native_menu_item_add_listener(
       _nativeHandle,
       native_menu_item_event_type_t.NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED,
       _submenuOpenedCallback.nativeFunction,
       _nativeHandle,
     );
-    bindings.native_menu_item_add_listener(
+    _submenuClosedListenerId = bindings.native_menu_item_add_listener(
       _nativeHandle,
       native_menu_item_event_type_t.NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED,
       _submenuClosedCallback.nativeFunction,
       _nativeHandle,
     );
+  }
+
+  @override
+  void stopEventListening() {
+    // Remove native listeners using stored IDs
+    if (_clickedListenerId != null) {
+      bindings.native_menu_item_remove_listener(
+        _nativeHandle,
+        _clickedListenerId!,
+      );
+      _clickedListenerId = null;
+    }
+    if (_submenuOpenedListenerId != null) {
+      bindings.native_menu_item_remove_listener(
+        _nativeHandle,
+        _submenuOpenedListenerId!,
+      );
+      _submenuOpenedListenerId = null;
+    }
+    if (_submenuClosedListenerId != null) {
+      bindings.native_menu_item_remove_listener(
+        _nativeHandle,
+        _submenuClosedListenerId!,
+      );
+      _submenuClosedListenerId = null;
+    }
   }
 
   // Static callback functions for FFI
@@ -199,24 +233,7 @@ class MenuItem
     // Remove instance from static map
     _instances.remove(_nativeHandle.address);
 
-    // // Remove native listeners
-    // bindings.native_menu_item_remove_listener(
-    //   _nativeHandle,
-    //   native_menu_item_event_type_t.NATIVE_MENU_ITEM_EVENT_CLICKED,
-    //   _clickedCallback.nativeFunction,
-    // );
-    // bindings.native_menu_item_remove_listener(
-    //   _nativeHandle,
-    //   native_menu_item_event_type_t.NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED,
-    //   _submenuOpenedCallback.nativeFunction,
-    // );
-    // bindings.native_menu_item_remove_listener(
-    //   _nativeHandle,
-    //   native_menu_item_event_type_t.NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED,
-    //   _submenuClosedCallback.nativeFunction,
-    // );
-
-    // Dispose event emitter
+    // Dispose event emitter (will call stopEventListening if needed)
     disposeEventEmitter();
 
     // Destroy native handle
@@ -239,10 +256,20 @@ class Menu
   _closedCallback;
 
   static bool _callbacksInitialized = false;
+  
+  // Store listener IDs for cleanup
+  int? _openedListenerId;
+  int? _closedListenerId;
 
   Menu([native_menu_t? nativeHandle]) {
     _nativeHandle = nativeHandle ?? bindings.native_menu_create();
 
+    // Store instance in static map using handle address as key
+    _instances[_nativeHandle.address] = this;
+  }
+
+  @override
+  void startEventListening() {
     // Initialize callbacks once
     if (!_callbacksInitialized) {
       _openedCallback =
@@ -256,22 +283,38 @@ class Menu
       _callbacksInitialized = true;
     }
 
-    // Store instance in static map using handle address as key
-    _instances[_nativeHandle.address] = this;
-
-    // Register listeners for each event type with native callbacks
-    bindings.native_menu_add_listener(
+    // Register listeners for each event type with native callbacks and store IDs
+    _openedListenerId = bindings.native_menu_add_listener(
       _nativeHandle,
       native_menu_event_type_t.NATIVE_MENU_EVENT_OPENED,
       _openedCallback.nativeFunction,
       _nativeHandle,
     );
-    bindings.native_menu_add_listener(
+    _closedListenerId = bindings.native_menu_add_listener(
       _nativeHandle,
       native_menu_event_type_t.NATIVE_MENU_EVENT_CLOSED,
       _closedCallback.nativeFunction,
       _nativeHandle,
     );
+  }
+
+  @override
+  void stopEventListening() {
+    // Remove native listeners using stored IDs
+    if (_openedListenerId != null) {
+      bindings.native_menu_remove_listener(
+        _nativeHandle,
+        _openedListenerId!,
+      );
+      _openedListenerId = null;
+    }
+    if (_closedListenerId != null) {
+      bindings.native_menu_remove_listener(
+        _nativeHandle,
+        _closedListenerId!,
+      );
+      _closedListenerId = null;
+    }
   }
 
   // Static callback functions for FFI
@@ -374,13 +417,7 @@ class Menu
     // Remove instance from static map
     _instances.remove(_nativeHandle.address);
 
-    // // Remove native listeners
-    // bindings.native_menu_remove_listener(
-    //   _nativeHandle,
-    //   _openedCallback.nativeFunction,
-    // );
-
-    // Dispose event emitter
+    // Dispose event emitter (will call stopEventListening if needed)
     disposeEventEmitter();
 
     // Destroy native handle

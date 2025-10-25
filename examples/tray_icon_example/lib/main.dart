@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart' hide Image;
-import 'package:flutter/services.dart';
 import 'package:nativeapi/nativeapi.dart';
-import 'dart:convert';
-
-import 'package:path/path.dart' as path;
-import 'dart:io';
 
 class TrayIconData {
   final int id;
