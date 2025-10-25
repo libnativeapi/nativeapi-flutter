@@ -58,7 +58,7 @@ class TrayIconExamplePage extends StatefulWidget {
 
 class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
   final List<TrayIconData> _trayIcons = [];
-  String _status = 'No tray icons created';
+  final List<String> _eventHistory = [];
   int _nextIconId = 1;
 
   @override
@@ -73,6 +73,23 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       trayIconData.dispose();
     }
     super.dispose();
+  }
+
+  void _addToHistory(String message) {
+    setState(() {
+      final timestamp = DateTime.now().toString().substring(11, 19);
+      _eventHistory.insert(0, '[$timestamp] $message');
+      if (_eventHistory.length > 50) {
+        _eventHistory.removeLast();
+      }
+    });
+  }
+
+  void _clearHistory() {
+    setState(() {
+      _eventHistory.clear();
+    });
+    _addToHistory('Event history cleared');
   }
 
   void _addTrayIcon() {
@@ -90,33 +107,30 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         id: _nextIconId++,
         trayIcon: trayIcon,
         contextMenu: contextMenu,
-        title: 'Tray Icon $_nextIconId',
-        tooltip: 'Click me! ($_nextIconId)',
+        title: 'Tray Icon ${_nextIconId - 1}',
+        tooltip: 'Click me! (${_nextIconId - 1})',
       );
 
       // Set up event listeners
       trayIcon.on<TrayIconClickedEvent>((event) {
         setState(() {
           trayIconData.clickCount++;
-          _status =
-              'Tray icon ${trayIconData.id} clicked (${trayIconData.clickCount} times)';
         });
+        _addToHistory('Tray icon ${trayIconData.id} clicked (${trayIconData.clickCount} times)');
       });
 
       trayIcon.on<TrayIconRightClickedEvent>((event) {
         setState(() {
           trayIconData.rightClickCount++;
-          _status =
-              'Tray icon ${trayIconData.id} right clicked (${trayIconData.rightClickCount} times)';
         });
+        _addToHistory('Tray icon ${trayIconData.id} right clicked (${trayIconData.rightClickCount} times)');
       });
 
       trayIcon.on<TrayIconDoubleClickedEvent>((event) {
         setState(() {
           trayIconData.doubleClickCount++;
-          _status =
-              'Tray icon ${trayIconData.id} double clicked (${trayIconData.doubleClickCount} times)';
         });
+        _addToHistory('Tray icon ${trayIconData.id} double clicked (${trayIconData.doubleClickCount} times)');
       });
 
       // Set initial properties
@@ -126,50 +140,56 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
 
       _trayIcons.add(trayIconData);
 
-      setState(() {
-        _status = 'Tray icon ${trayIconData.id} created successfully';
-      });
+      _addToHistory('Tray icon ${trayIconData.id} created successfully');
     } catch (e) {
-      setState(() {
-        _status = 'Error creating tray icon: $e';
-      });
+      _addToHistory('Error creating tray icon: $e');
     }
   }
 
   Menu _createContextMenu(TrayIcon trayIcon) {
     final contextMenu = Menu();
 
+    // Listen to menu events
+    contextMenu.addCallbackListener<MenuOpenedEvent>((event) {
+      _addToHistory('Context menu opened for tray icon ${trayIcon.id}');
+    });
+    contextMenu.addCallbackListener<MenuClosedEvent>((event) {
+      _addToHistory('Context menu closed for tray icon ${trayIcon.id}');
+    });
+
     // Add menu items
     final showItem = MenuItem('Show Window');
     final hideItem = MenuItem('Hide Window');
     final separatorItem = MenuItem('', MenuItemType.separator);
+    final toggleItem = MenuItem('Toggle Visibility');
+    final separatorItem2 = MenuItem('', MenuItemType.separator);
     final aboutItem = MenuItem('About');
     final quitItem = MenuItem('Quit');
 
     // Add event listeners for menu items
     showItem.on<MenuItemClickedEvent>((event) {
-      setState(() {
-        _status = 'Show Window clicked for tray icon ${trayIcon.id}';
-      });
+      _addToHistory('Show Window clicked for tray icon ${trayIcon.id}');
     });
 
     hideItem.on<MenuItemClickedEvent>((event) {
-      setState(() {
-        _status = 'Hide Window clicked for tray icon ${trayIcon.id}';
-      });
+      _addToHistory('Hide Window clicked for tray icon ${trayIcon.id}');
+    });
+
+    toggleItem.on<MenuItemClickedEvent>((event) {
+      final trayIconData = _trayIcons.firstWhere(
+        (data) => data.trayIcon.id == trayIcon.id,
+        orElse: () => throw Exception('Tray icon not found'),
+      );
+      _toggleTrayIconVisibility(trayIconData.id);
     });
 
     aboutItem.on<MenuItemClickedEvent>((event) {
-      setState(() {
-        _status = 'About clicked for tray icon ${trayIcon.id}';
-      });
+      _addToHistory('About clicked for tray icon ${trayIcon.id}');
       _showAboutDialog();
     });
 
     quitItem.on<MenuItemClickedEvent>((event) {
-      setState(() {
-        _status = 'Quit clicked for tray icon ${trayIcon.id}';
-      });
+      _addToHistory('Quit clicked for tray icon ${trayIcon.id}');
       // In a real app, you would close the application here
     });
 
@@ -177,6 +197,8 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     contextMenu.addItem(showItem);
     contextMenu.addItem(hideItem);
     contextMenu.addItem(separatorItem);
+    contextMenu.addItem(toggleItem);
+    contextMenu.addItem(separatorItem2);
     contextMenu.addItem(aboutItem);
     contextMenu.addItem(quitItem);
 
@@ -193,9 +215,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     if (index != -1) {
       final trayIconData = _trayIcons.removeAt(index);
       trayIconData.dispose();
-      setState(() {
-        _status = 'Tray icon $id removed';
-      });
+      _addToHistory('Tray icon $id removed');
     }
   }
 
@@ -204,9 +224,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       trayIconData.dispose();
     }
     _trayIcons.clear();
-    setState(() {
-      _status = 'All tray icons removed';
-    });
+    _addToHistory('All tray icons removed');
   }
 
   void _updateTrayIconTitle(int id, String title) {
@@ -216,9 +234,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     trayIconData.trayIcon.title = title;
     trayIconData.title = title;
-    setState(() {
-      _status = 'Title updated for tray icon $id: $title';
-    });
+    _addToHistory('Title updated for tray icon $id: $title');
   }
 
   void _updateTrayIconTooltip(int id, String tooltip) {
@@ -228,9 +244,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     trayIconData.trayIcon.tooltip = tooltip;
     trayIconData.tooltip = tooltip;
-    setState(() {
-      _status = 'Tooltip updated for tray icon $id: $tooltip';
-    });
+    _addToHistory('Tooltip updated for tray icon $id: $tooltip');
   }
 
   void _toggleTrayIconVisibility(int id) {
@@ -240,10 +254,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     trayIconData.isVisible = !trayIconData.isVisible;
     trayIconData.trayIcon.isVisible = trayIconData.isVisible;
-    setState(() {
-      _status =
-          'Visibility changed for tray icon $id: ${trayIconData.isVisible ? "visible" : "hidden"}';
-    });
+    _addToHistory('Visibility changed for tray icon $id: ${trayIconData.isVisible ? "visible" : "hidden"}');
   }
 
   void _openTrayIconContextMenu(int id) {
@@ -252,9 +263,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       orElse: () => throw Exception('Tray icon not found'),
     );
     trayIconData.trayIcon.openContextMenu();
-    setState(() {
-      _status = 'Context menu opened for tray icon $id';
-    });
+    _addToHistory('Context menu opened for tray icon $id');
   }
 
   void _resetTrayIconCounters(int id) {
@@ -265,9 +274,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     trayIconData.clickCount = 0;
     trayIconData.rightClickCount = 0;
     trayIconData.doubleClickCount = 0;
-    setState(() {
-      _status = 'Counters reset for tray icon $id';
-    });
+    _addToHistory('Counters reset for tray icon $id');
   }
 
   void _resetAllCounters() {
@@ -276,9 +283,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       trayIconData.rightClickCount = 0;
       trayIconData.doubleClickCount = 0;
     }
-    setState(() {
-      _status = 'All counters reset';
-    });
+    _addToHistory('All counters reset');
   }
 
   void _showAboutDialog() {
@@ -310,256 +315,313 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Multiple Tray Icons Example'),
+        title: const Text('Tray Icon Example - Comprehensive Test'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear_all),
+            onPressed: _clearHistory,
+            tooltip: 'Clear Event History',
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Status section
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      body: Row(
+        children: [
+          // Left side - Test controls
+          Expanded(
+            flex: 3,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Tray Icon Overview Section
+                  _buildSectionCard('Tray Icon Overview', [
+                    Row(
                       children: [
-                        Text(
-                          'Status',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(_status),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Total Tray Icons: ${_trayIcons.length}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                        Expanded(child: _buildInfoRow('Total Icons', '${_trayIcons.length}')),
+                        Expanded(child: _buildInfoRow('Total Clicks', '${_trayIcons.fold(0, (sum, data) => sum + data.clickCount)}')),
+                        Expanded(child: _buildInfoRow('Active', '${_trayIcons.where((data) => data.isVisible).length}')),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Global controls section
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ]),
+                  const SizedBox(height: 10),
+                  
+                  // Global Controls Section
+                  _buildSectionCard('Global Controls', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
                       children: [
-                        Text(
-                          'Global Controls',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Action buttons
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                        _buildCompactButton(Icons.add, 'Add Icon', _addTrayIcon),
+                        _buildCompactButton(Icons.clear_all, 'Remove All', _removeAllTrayIcons),
+                        _buildCompactButton(Icons.refresh, 'Reset Counters', _resetAllCounters),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  
+                  // Individual Tray Icons Section
+                  if (_trayIcons.isEmpty)
+                    _buildSectionCard('Tray Icons', [
+                      Center(
+                        child: Column(
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: _addTrayIcon,
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add Tray Icon'),
+                            Icon(Icons.touch_app, size: 48, color: Colors.grey),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'No tray icons created yet',
+                              style: TextStyle(fontSize: 14, color: Colors.grey),
                             ),
-                            ElevatedButton.icon(
-                              onPressed: _trayIcons.isNotEmpty
-                                  ? _removeAllTrayIcons
-                                  : null,
-                              icon: const Icon(Icons.clear_all),
-                              label: const Text('Remove All'),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: _trayIcons.isNotEmpty
-                                  ? _resetAllCounters
-                                  : null,
-                              icon: const Icon(Icons.refresh),
-                              label: const Text('Reset All Counters'),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Click "Add Icon" to create your first tray icon',
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
+                      ),
+                    ])
+                  else
+                    ...(_trayIcons.map((trayIconData) => _buildTrayIconCard(trayIconData))),
+                  
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ),
+
+          // Right side - Event history
+          Expanded(
+            flex: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                border: Border(left: BorderSide(color: Colors.grey.shade300)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.history, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Event History (${_eventHistory.length})',
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                   ),
+                  Expanded(
+                    child: _eventHistory.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No events yet\nInteract with tray icons to see events',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: _eventHistory.length,
+                            padding: const EdgeInsets.all(8),
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.grey.shade200),
+                                ),
+                                child: Text(
+                                  _eventHistory[index],
+                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard(String title, List<Widget> children) {
+    return Card(
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            const Divider(height: 16),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactButton(IconData icon, String label, VoidCallback onPressed) {
+    return SizedBox(
+      height: 36,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 16),
+        label: Text(label, style: const TextStyle(fontSize: 12)),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: const Size(0, 36),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrayIconCard(TrayIconData trayIconData) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Tray Icon ${trayIconData.id}',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: trayIconData.isVisible ? Colors.green.shade50 : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    trayIconData.isVisible ? 'Visible' : 'Hidden',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: trayIconData.isVisible ? Colors.green.shade700 : Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () => _removeTrayIcon(trayIconData.id),
+                  icon: const Icon(Icons.delete, size: 18),
+                  tooltip: 'Remove this tray icon',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // Individual tray icons section
-            Expanded(
-              child: _trayIcons.isEmpty
-                  ? Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.touch_app,
-                                size: 64,
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No tray icons created yet',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Click "Add Tray Icon" to create your first tray icon',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _trayIcons.length,
-                      itemBuilder: (context, index) {
-                        final trayIconData = _trayIcons[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      'Tray Icon ${trayIconData.id}',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                      onPressed: () =>
-                                          _removeTrayIcon(trayIconData.id),
-                                      icon: const Icon(Icons.delete),
-                                      tooltip: 'Remove this tray icon',
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-
-                                // Click counters
-                                Text(
-                                  'Click Counters',
-                                  style: Theme.of(context).textTheme.titleSmall,
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildCounterCard(
-                                        'Left',
-                                        trayIconData.clickCount,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: _buildCounterCard(
-                                        'Right',
-                                        trayIconData.rightClickCount,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: _buildCounterCard(
-                                        'Double',
-                                        trayIconData.doubleClickCount,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-
-                                // Controls for this tray icon
-                                TextField(
-                                  decoration: const InputDecoration(
-                                    labelText: 'Title',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  controller: TextEditingController(
-                                    text: trayIconData.title,
-                                  ),
-                                  onChanged: (value) => _updateTrayIconTitle(
-                                    trayIconData.id,
-                                    value,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-
-                                TextField(
-                                  decoration: const InputDecoration(
-                                    labelText: 'Tooltip',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  controller: TextEditingController(
-                                    text: trayIconData.tooltip,
-                                  ),
-                                  onChanged: (value) => _updateTrayIconTooltip(
-                                    trayIconData.id,
-                                    value,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-
-                                // Action buttons for this tray icon
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: () =>
-                                          _toggleTrayIconVisibility(
-                                            trayIconData.id,
-                                          ),
-                                      icon: Icon(
-                                        trayIconData.isVisible
-                                            ? Icons.visibility_off
-                                            : Icons.visibility,
-                                      ),
-                                      label: Text(
-                                        trayIconData.isVisible
-                                            ? 'Hide'
-                                            : 'Show',
-                                      ),
-                                    ),
-                                    ElevatedButton.icon(
-                                      onPressed: () => _openTrayIconContextMenu(
-                                        trayIconData.id,
-                                      ),
-                                      icon: const Icon(Icons.menu),
-                                      label: const Text('Open Menu'),
-                                    ),
-                                    ElevatedButton.icon(
-                                      onPressed: () => _resetTrayIconCounters(
-                                        trayIconData.id,
-                                      ),
-                                      icon: const Icon(Icons.refresh),
-                                      label: const Text('Reset'),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+            const SizedBox(height: 12),
+            
+            // Click counters
+            Row(
+              children: [
+                Expanded(
+                  child: _buildCounterCard('Left', trayIconData.clickCount),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildCounterCard('Right', trayIconData.rightClickCount),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildCounterCard('Double', trayIconData.doubleClickCount),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            
+            // Controls
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+              controller: TextEditingController(text: trayIconData.title),
+              onChanged: (value) => _updateTrayIconTitle(trayIconData.id, value),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Tooltip',
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+              controller: TextEditingController(text: trayIconData.tooltip),
+              onChanged: (value) => _updateTrayIconTooltip(trayIconData.id, value),
+            ),
+            const SizedBox(height: 12),
+            
+            // Action buttons
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _buildCompactButton(
+                  trayIconData.isVisible ? Icons.visibility_off : Icons.visibility,
+                  trayIconData.isVisible ? 'Hide' : 'Show',
+                  () => _toggleTrayIconVisibility(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.menu,
+                  'Open Menu',
+                  () => _openTrayIconContextMenu(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.refresh,
+                  'Reset',
+                  () => _resetTrayIconCounters(trayIconData.id),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -567,25 +629,31 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
   }
 
   Widget _buildCounterCard(String label, int count) {
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceVariant,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 10, color: Colors.blue),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$count',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
             ),
-            const SizedBox(height: 4),
-            Text(
-              '$count',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
