@@ -433,6 +433,18 @@ class Menu
     bindings.native_menu_insert_separator(_nativeHandle, index);
   }
 
+  bool removeItem(MenuItem item) {
+    return bindings.native_menu_remove_item(_nativeHandle, item.nativeHandle);
+  }
+
+  bool removeItemById(int itemId) {
+    return bindings.native_menu_remove_item_by_id(_nativeHandle, itemId);
+  }
+
+  bool removeItemAt(int index) {
+    return bindings.native_menu_remove_item_at(_nativeHandle, index);
+  }
+
   int get itemCount {
     return bindings.native_menu_get_item_count(_nativeHandle);
   }

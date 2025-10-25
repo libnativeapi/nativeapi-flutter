@@ -1,4 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/rendering.dart';
 import 'package:nativeapi/nativeapi.dart';
 
 void main() {
@@ -31,17 +36,17 @@ class MenuExamplePage extends StatefulWidget {
 class _MenuExamplePageState extends State<MenuExamplePage> {
   late final Menu _contextMenu;
   late final Menu _positioningMenu;
-  late final Menu _placementMenu;
-  
+
   final List<MenuItem> _menuItems = [];
   final List<String> _eventHistory = [];
-  
+
   bool _checkboxState = false;
   String _radioSelection = 'Option 1';
   String _currentLabel = 'Dynamic Label Item';
-  
+  Placement _selectedPlacement = Placement.bottomStart;
+
   int _menuItemCount = 0;
-  
+
   // Store references to menu items for state management
   late final MenuItem _checkboxItem;
   late final MenuItem _radio1;
@@ -50,17 +55,79 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   late final MenuItem _submenuItem;
   late final Menu _submenu;
 
+  // Store icon for demonstration
+  Image? _testIcon;
+  Image? _iconFromWidget;
+
   @override
   void initState() {
     super.initState();
+    _loadTestIcon();
     _setupContextMenu();
     _setupPositioningMenu();
-    _setupPlacementMenu();
+  }
+
+  void _loadTestIcon() {
+    // Try to load a test icon from assets
+    _testIcon = Image.fromAsset('images/flutter_logo.png');
+    if (_testIcon != null) {
+      _addToHistory('Test icon loaded successfully');
+    } else {
+      _addToHistory('Test icon not found, icon features will be limited');
+    }
+  }
+
+  /// Convert a Flutter Icon widget to a base64 image
+  Future<Image?> _iconToImage(
+    IconData iconData, {
+    double size = 24.0,
+    Color color = Colors.black,
+  }) async {
+    try {
+      // Create a picture recorder to draw the icon
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      // Create a text painter to render the icon
+      final textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+      textPainter.text = TextSpan(
+        text: String.fromCharCode(iconData.codePoint),
+        style: TextStyle(
+          fontSize: size,
+          fontFamily: iconData.fontFamily,
+          package: iconData.fontPackage,
+          color: color,
+        ),
+      );
+
+      textPainter.layout();
+      textPainter.paint(canvas, Offset.zero);
+
+      // Convert to image
+      final picture = recorder.endRecording();
+      final img = await picture.toImage(size.toInt(), size.toInt());
+      final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+
+      if (byteData == null) {
+        return null;
+      }
+
+      // Convert to base64
+      final Uint8List pngBytes = byteData.buffer.asUint8List();
+      final base64String = 'data:image/png;base64,${base64Encode(pngBytes)}';
+
+      // Use base64 to create nativeapi Image
+      return Image.fromBase64(base64String);
+    } catch (e) {
+      _addToHistory('Error converting icon to image: $e');
+      return null;
+    }
   }
 
   void _setupContextMenu() {
     _contextMenu = Menu();
-    
+
     // Listen to menu events
     _contextMenu.addCallbackListener<MenuOpenedEvent>((event) {
       _addToHistory('Menu opened (ID: ${event.menuId})');
@@ -86,9 +153,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _checkboxItem.on<MenuItemClickedEvent>((event) {
       setState(() {
         _checkboxState = !_checkboxState;
-        _checkboxItem.state = _checkboxState ? MenuItemState.checked : MenuItemState.unchecked;
+        _checkboxItem.state = _checkboxState
+            ? MenuItemState.checked
+            : MenuItemState.unchecked;
       });
-      _addToHistory('Checkbox clicked - State: $_checkboxState (ID: ${event.menuItemId})');
+      _addToHistory(
+        'Checkbox clicked - State: $_checkboxState (ID: ${event.menuItemId})',
+      );
     });
     _contextMenu.addItem(_checkboxItem);
     _menuItems.add(_checkboxItem);
@@ -165,38 +236,38 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     // 9. Submenu
     _submenu = Menu();
     _submenuItem = MenuItem('Submenu', MenuItemType.submenu);
-    
+
     _submenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
       _addToHistory('Submenu opened (ID: ${event.menuItemId})');
     });
     _submenuItem.on<MenuItemSubmenuClosedEvent>((event) {
       _addToHistory('Submenu closed (ID: ${event.menuItemId})');
     });
-    
+
     // Add items to submenu
     final subItem1 = MenuItem('Submenu Item 1');
     subItem1.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 1 clicked (ID: ${event.menuItemId})');
     });
     _submenu.addItem(subItem1);
-    
+
     final subItem2 = MenuItem('Submenu Item 2');
     subItem2.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 2 clicked (ID: ${event.menuItemId})');
     });
     _submenu.addItem(subItem2);
-    
+
     _submenu.addSeparator();
-    
+
     final subItem3 = MenuItem('Submenu Item 3');
     subItem3.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 3 clicked (ID: ${event.menuItemId})');
     });
     _submenu.addItem(subItem3);
-    
+
     // Associate the submenu with the menu item
     _submenuItem.submenu = _submenu;
-    
+
     _contextMenu.addItem(_submenuItem);
     _menuItems.add(_submenuItem);
 
@@ -216,7 +287,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   void _setupPositioningMenu() {
     _positioningMenu = Menu();
-    
+
     _positioningMenu.addCallbackListener<MenuOpenedEvent>((event) {
       _addToHistory('Positioning menu opened');
     });
@@ -235,29 +306,6 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
       _addToHistory('Another item clicked');
     });
     _positioningMenu.addItem(item2);
-  }
-
-  void _setupPlacementMenu() {
-    _placementMenu = Menu();
-    
-    _placementMenu.addCallbackListener<MenuOpenedEvent>((event) {
-      _addToHistory('Placement menu opened');
-    });
-    _placementMenu.addCallbackListener<MenuClosedEvent>((event) {
-      _addToHistory('Placement menu closed');
-    });
-
-    final item1 = MenuItem('Placement Test Item 1');
-    item1.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Placement test item 1 clicked');
-    });
-    _placementMenu.addItem(item1);
-
-    final item2 = MenuItem('Placement Test Item 2');
-    item2.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Placement test item 2 clicked');
-    });
-    _placementMenu.addItem(item2);
   }
 
   void _addToHistory(String message) {
@@ -285,7 +333,8 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   void _changeDynamicLabel() {
     setState(() {
-      _currentLabel = 'Updated at ${DateTime.now().toString().substring(11, 19)}';
+      _currentLabel =
+          'Updated at ${DateTime.now().toString().substring(11, 19)}';
       if (_menuItems.length > 5) {
         _menuItems[5].label = _currentLabel;
       }
@@ -301,7 +350,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _addSubmenuItem() {
-    final newSubItem = MenuItem('Dynamic Submenu Item ${_submenu.itemCount + 1}');
+    final newSubItem = MenuItem(
+      'Dynamic Submenu Item ${_submenu.itemCount + 1}',
+    );
     newSubItem.on<MenuItemClickedEvent>((event) {
       _addToHistory('Dynamic submenu item clicked (ID: ${event.menuItemId})');
     });
@@ -349,6 +400,107 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _addToHistory('Inserted separator at position 3');
   }
 
+  void _setIconOnFirstItem() {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available to set icon');
+      return;
+    }
+
+    if (_testIcon != null) {
+      _menuItems[0].icon = _testIcon;
+      _addToHistory('Icon set on first menu item');
+    } else {
+      _addToHistory('No icon available to set');
+    }
+  }
+
+  void _removeIconFromFirstItem() {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available to remove icon from');
+      return;
+    }
+
+    _menuItems[0].icon = null;
+    _addToHistory('Icon removed from first menu item');
+  }
+
+  Future<void> _setIconFromWidget() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available to set icon');
+      return;
+    }
+
+    _addToHistory('Converting Flutter Icon to image...');
+
+    // Convert Material Icons.star to image
+    _iconFromWidget = await _iconToImage(
+      Icons.star,
+      size: 16.0,
+      color: Colors.amber,
+    );
+
+    if (_iconFromWidget != null) {
+      _menuItems[0].icon = _iconFromWidget;
+      _addToHistory('Icon from widget set on first menu item');
+    } else {
+      _addToHistory('Failed to convert icon from widget');
+    }
+  }
+
+  void _removeFirstMenuItem() {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items to remove');
+      return;
+    }
+
+    final item = _menuItems[0];
+    final success = _contextMenu.removeItem(item);
+
+    if (success) {
+      _menuItems.removeAt(0);
+      _updateMenuItemCount();
+      _addToHistory('Removed first menu item');
+    } else {
+      _addToHistory('Failed to remove first menu item');
+    }
+  }
+
+  void _removeMenuItemAtPosition() {
+    const position = 2;
+    if (_menuItems.length <= position) {
+      _addToHistory('No menu item at position $position to remove');
+      return;
+    }
+
+    final success = _contextMenu.removeItemAt(position);
+
+    if (success) {
+      _menuItems.removeAt(position);
+      _updateMenuItemCount();
+      _addToHistory('Removed menu item at position $position');
+    } else {
+      _addToHistory('Failed to remove menu item at position $position');
+    }
+  }
+
+  void _removeLastMenuItem() {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items to remove');
+      return;
+    }
+
+    final lastIndex = _menuItems.length - 1;
+    final success = _contextMenu.removeItemAt(lastIndex);
+
+    if (success) {
+      _menuItems.removeLast();
+      _updateMenuItemCount();
+      _addToHistory('Removed last menu item');
+    } else {
+      _addToHistory('Failed to remove last menu item');
+    }
+  }
+
   void _showMenuAtAbsolutePosition(Offset position) {
     _positioningMenu.open(PositioningStrategy.absolute(position));
     _addToHistory('Opened menu at absolute position: $position');
@@ -357,14 +509,6 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   void _showMenuAtCursorPosition() {
     _positioningMenu.open(PositioningStrategy.cursorPosition());
     _addToHistory('Opened menu at cursor position');
-  }
-
-  void _showMenuWithPlacement(Placement placement) {
-    _placementMenu.open(
-      PositioningStrategy.absolute(const Offset(400, 300)),
-      placement,
-    );
-    _addToHistory('Opened menu with placement: ${placement.toString()}');
   }
 
   @override
@@ -385,226 +529,173 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
         children: [
           // Left side - Test controls
           Expanded(
-            flex: 2,
+            flex: 3,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildSectionCard(
-                    'Menu Creation & Display',
-                    [
-                      _buildInfoRow('Menu Item Count', '$_menuItemCount'),
-                      _buildInfoRow('Checkbox State', '$_checkboxState'),
-                      _buildInfoRow('Radio Selection', _radioSelection),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Right-click the area below to show context menu:',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      const SizedBox(height: 8),
-                      ContextMenuRegion(
-                        menu: _contextMenu,
-                        child: Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.blue.shade200),
-                            borderRadius: BorderRadius.circular(8),
+                  _buildSectionCard('Menu Creation & Display', [
+                    Row(
+                      children: [
+                        Expanded(child: _buildInfoRow('Items', '$_menuItemCount')),
+                        Expanded(child: _buildInfoRow('Checkbox', '$_checkboxState')),
+                        Expanded(child: _buildInfoRow('Radio', _radioSelection)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Text('Placement:', style: TextStyle(fontSize: 13)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButton<Placement>(
+                            value: _selectedPlacement,
+                            isExpanded: true,
+                            items: [
+                              DropdownMenuItem(value: Placement.topStart, child: const Text('Top Start')),
+                              DropdownMenuItem(value: Placement.topEnd, child: const Text('Top End')),
+                              DropdownMenuItem(value: Placement.bottomStart, child: const Text('Bottom Start')),
+                              DropdownMenuItem(value: Placement.bottomEnd, child: const Text('Bottom End')),
+                              DropdownMenuItem(value: Placement.leftStart, child: const Text('Left Start')),
+                              DropdownMenuItem(value: Placement.leftEnd, child: const Text('Left End')),
+                              DropdownMenuItem(value: Placement.rightStart, child: const Text('Right Start')),
+                              DropdownMenuItem(value: Placement.rightEnd, child: const Text('Right End')),
+                            ],
+                            onChanged: (Placement? value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedPlacement = value;
+                                });
+                                _addToHistory('Placement changed to: ${value.toString().split('.').last}');
+                              }
+                            },
                           ),
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.touch_app, size: 32, color: Colors.blue),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Right-click here',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ContextMenuRegion(
+                      menu: _contextMenu,
+                      placement: _selectedPlacement,
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          border: Border.all(color: Colors.blue.shade200),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.touch_app, size: 32, color: Colors.blue),
+                              SizedBox(height: 8),
+                              Text(
+                                'Right-click here',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSectionCard(
-                    'Menu Item Operations',
-                    [
-                      ElevatedButton.icon(
-                        onPressed: _changeDynamicLabel,
-                        icon: const Icon(Icons.edit, size: 18),
-                        label: const Text('Change Dynamic Label'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _setCheckboxMixed,
-                        icon: const Icon(Icons.indeterminate_check_box, size: 18),
-                        label: const Text('Set Checkbox to Mixed State'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _addSubmenuItem,
-                        icon: const Icon(Icons.add_box, size: 18),
-                        label: const Text('Add Item to Submenu'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _toggleSubmenu,
-                        icon: const Icon(Icons.swap_horiz, size: 18),
-                        label: const Text('Toggle Submenu Attachment'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _addNewMenuItem,
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('Add New Menu Item'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _insertMenuItemAtPosition,
-                        icon: const Icon(Icons.insert_drive_file, size: 18),
-                        label: const Text('Insert Item at Position 2'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _insertSeparatorAtPosition,
-                        icon: const Icon(Icons.horizontal_rule, size: 18),
-                        label: const Text('Insert Separator at Position 3'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSectionCard(
-                    'Positioning Strategy Tests',
-                    [
-                      const Text(
-                        'Test different positioning strategies:',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () => _showMenuAtAbsolutePosition(const Offset(100, 100)),
-                        icon: const Icon(Icons.location_on, size: 18),
-                        label: const Text('Absolute (100, 100)'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () => _showMenuAtAbsolutePosition(const Offset(300, 200)),
-                        icon: const Icon(Icons.location_on, size: 18),
-                        label: const Text('Absolute (300, 200)'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _showMenuAtCursorPosition,
-                        icon: const Icon(Icons.mouse, size: 18),
-                        label: const Text('Cursor Position'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSectionCard(
-                    'Placement Tests',
-                    [
-                      const Text(
-                        'Test different menu placements:',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildPlacementButton(Placement.topStart),
-                          _buildPlacementButton(Placement.topEnd),
-                          _buildPlacementButton(Placement.bottomStart),
-                          _buildPlacementButton(Placement.bottomEnd),
-                          _buildPlacementButton(Placement.leftStart),
-                          _buildPlacementButton(Placement.leftEnd),
-                          _buildPlacementButton(Placement.rightStart),
-                          _buildPlacementButton(Placement.rightEnd),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSectionCard(
-                    'Edge Cases & Stress Tests',
-                    [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          for (int i = 0; i < 10; i++) {
-                            _addNewMenuItem();
-                          }
-                        },
-                        icon: const Icon(Icons.add_circle_outline, size: 18),
-                        label: const Text('Add 10 Items (Stress Test)'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () {
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  _buildSectionCard('Menu Item Operations', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.edit, 'Change Label', _changeDynamicLabel),
+                        _buildCompactButton(Icons.indeterminate_check_box, 'Mixed State', _setCheckboxMixed),
+                        _buildCompactButton(Icons.add_box, 'Add to Submenu', _addSubmenuItem),
+                        _buildCompactButton(Icons.swap_horiz, 'Toggle Submenu', _toggleSubmenu),
+                        _buildCompactButton(Icons.add, 'Add Item', _addNewMenuItem),
+                        _buildCompactButton(Icons.insert_drive_file, 'Insert at 2', _insertMenuItemAtPosition),
+                        _buildCompactButton(Icons.horizontal_rule, 'Insert Sep', _insertSeparatorAtPosition),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  _buildSectionCard('Icon & Removal', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.image, 'Set Icon', _setIconOnFirstItem),
+                        _buildCompactButton(Icons.star, 'Widget Icon', _setIconFromWidget),
+                        _buildCompactButton(Icons.hide_image, 'Remove Icon', _removeIconFromFirstItem),
+                        _buildCompactButton(Icons.remove_circle, 'Remove First', _removeFirstMenuItem),
+                        _buildCompactButton(Icons.delete, 'Remove at 2', _removeMenuItemAtPosition),
+                        _buildCompactButton(Icons.delete_forever, 'Remove Last', _removeLastMenuItem),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  _buildSectionCard('Positioning Strategy', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.location_on, '(100,100)', 
+                          () => _showMenuAtAbsolutePosition(const Offset(100, 100))),
+                        _buildCompactButton(Icons.location_on, '(300,200)', 
+                          () => _showMenuAtAbsolutePosition(const Offset(300, 200))),
+                        _buildCompactButton(Icons.mouse, 'Cursor', _showMenuAtCursorPosition),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  _buildSectionCard('Stress Tests', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.add_circle_outline, 'Add 10 Items', () {
+                          for (int i = 0; i < 10; i++) _addNewMenuItem();
+                        }),
+                        _buildCompactButton(Icons.flash_on, 'Rapid Open/Close', () {
                           for (int i = 0; i < 5; i++) {
                             _showMenuAtAbsolutePosition(Offset(100.0 + i * 50, 100.0 + i * 50));
-                            Future.delayed(const Duration(milliseconds: 100), () {
-                              _contextMenu.close();
-                            });
+                            Future.delayed(const Duration(milliseconds: 100), () => _contextMenu.close());
                           }
-                        },
-                        icon: const Icon(Icons.flash_on, size: 18),
-                        label: const Text('Rapid Open/Close Test'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          // Test menu at screen edges
+                        }),
+                        _buildCompactButton(Icons.border_outer, 'Top-Left Edge', () {
                           _showMenuAtAbsolutePosition(const Offset(10, 10));
                           _addToHistory('Testing menu near screen edge (top-left)');
-                        },
-                        icon: const Icon(Icons.border_outer, size: 18),
-                        label: const Text('Test Screen Edge (Top-Left)'),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          // Test menu at screen edges
+                        }),
+                        _buildCompactButton(Icons.border_outer, 'Bottom-Right', () {
                           _showMenuAtAbsolutePosition(const Offset(1500, 900));
                           _addToHistory('Testing menu near screen edge (bottom-right)');
-                        },
-                        icon: const Icon(Icons.border_outer, size: 18),
-                        label: const Text('Test Screen Edge (Bottom-Right)'),
-                      ),
-                    ],
-                  ),
+                        }),
+                      ],
+                    ),
+                  ]),
                 ],
               ),
             ),
           ),
-          
+
           // Right side - Event history
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
-                border: Border(
-                  left: BorderSide(color: Colors.grey.shade300),
-                ),
+                border: Border(left: BorderSide(color: Colors.grey.shade300)),
               ),
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade300),
-                      ),
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
                     ),
                     child: Row(
                       children: [
@@ -612,10 +703,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                         const SizedBox(width: 8),
                         Text(
                           'Event History (${_eventHistory.length})',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -626,10 +714,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                             child: Text(
                               'No events yet\nInteract with menus to see events',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
+                              style: TextStyle(color: Colors.grey, fontSize: 13),
                             ),
                           )
                         : ListView.builder(
@@ -638,10 +723,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                             itemBuilder: (context, index) {
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 4),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(4),
@@ -649,10 +731,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                                 ),
                                 child: Text(
                                   _eventHistory[index],
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontFamily: 'monospace',
-                                  ),
+                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
                                 ),
                               );
                             },
@@ -669,20 +748,18 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   Widget _buildSectionCard(String title, List<Widget> children) {
     return Card(
-      elevation: 2,
+      elevation: 1,
+      margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
-            const Divider(),
+            const Divider(height: 16),
             ...children,
           ],
         ),
@@ -692,18 +769,18 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$label:',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            label,
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
               color: Colors.blue,
             ),
@@ -713,17 +790,17 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
   }
 
-  Widget _buildPlacementButton(Placement placement) {
-    String placementName = placement.toString().split('.').last;
+  Widget _buildCompactButton(IconData icon, String label, VoidCallback onPressed) {
     return SizedBox(
-      width: 110,
-      child: ElevatedButton(
-        onPressed: () => _showMenuWithPlacement(placement),
+      height: 36,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 16),
+        label: Text(label, style: const TextStyle(fontSize: 12)),
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          textStyle: const TextStyle(fontSize: 11),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: const Size(0, 36),
         ),
-        child: Text(placementName),
       ),
     );
   }
@@ -732,7 +809,6 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   void dispose() {
     _contextMenu.dispose();
     _positioningMenu.dispose();
-    _placementMenu.dispose();
     for (var item in _menuItems) {
       item.dispose();
     }

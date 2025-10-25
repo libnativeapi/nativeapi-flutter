@@ -28,10 +28,13 @@ A comprehensive Flutter application demonstrating all menu functionality provide
 - ✅ Support special characters and symbols (emojis, @#$%)
 
 #### Icons
-- ✅ Set icons on menu items
+- ✅ Set icons on menu items (from assets)
+- ✅ Set icons from Flutter Icon widgets (converted to base64)
 - ✅ Display icons correctly
 - ✅ Dynamically change icons
 - ✅ Remove icons and restore normal display
+- ✅ Load icons from Flutter assets
+- ✅ Convert Material Icons to native menu icons
 
 #### Tooltips
 - ✅ Set tooltips on menu items
@@ -65,6 +68,12 @@ A comprehensive Flutter application demonstrating all menu functionality provide
 - ✅ Add separators
 - ✅ Insert separators at specific positions
 - ✅ Track item count (`itemCount`)
+
+#### Removing Menu Items
+- ✅ Remove items by reference (`removeItem`)
+- ✅ Remove items by ID (`removeItemById`)
+- ✅ Remove items by index (`removeItemAt`)
+- ✅ Update item count after removal
 
 #### Positioning Strategy
 - ✅ **Absolute** - Display at specific coordinates
@@ -110,15 +119,25 @@ Contains multiple test sections organized in cards:
    - Insert items at specific positions
    - Insert separators at specific positions
 
-3. **Positioning Strategy Tests**
+3. **Icon Management**
+   - Set icon from asset file
+   - Set icon from Flutter Icon widget (Material Icons)
+   - Remove icon from menu item
+
+4. **Menu Item Removal**
+   - Remove first menu item
+   - Remove item at specific position
+   - Remove last menu item
+
+5. **Positioning Strategy Tests**
    - Absolute positioning at different coordinates
    - Cursor position testing
 
-4. **Placement Tests**
+6. **Placement Tests**
    - Buttons for all 8 placement options
    - Visual feedback for each placement
 
-5. **Edge Cases & Stress Tests**
+7. **Edge Cases & Stress Tests**
    - Add multiple items at once
    - Rapid open/close testing
    - Screen edge boundary testing
@@ -169,6 +188,23 @@ flutter run -d linux
 3. Click **Insert Item at Position 2** - new item appears at position 2
 4. Click **Insert Separator at Position 3** - separator appears at position 3
 
+### Icon Management Testing
+1. Click **Set Icon from Asset** - first menu item displays icon from asset file
+2. Right-click the context menu region to verify icon appears
+3. Click **Set Icon from Widget** - first menu item displays a star icon (converted from Material Icons)
+4. Right-click to verify the widget-based icon appears
+5. Click **Remove Icon from First Item** - icon should disappear
+6. Right-click again to verify icon is removed
+
+**Note:** The "Set Icon from Widget" feature demonstrates converting Flutter's Material Icons to native menu icons using base64 encoding.
+
+### Menu Item Removal Testing
+1. Click **Remove First Menu Item** - first item should be removed, count decreases
+2. Click **Remove Item at Position 2** - item at position 2 removed
+3. Click **Remove Last Menu Item** - last item removed
+4. Verify item count updates correctly after each removal
+5. Right-click to verify items are actually removed from menu
+
 ### Positioning Testing
 1. Click **Absolute (100, 100)** - menu appears at top-left
 2. Click **Absolute (300, 200)** - menu appears at center-left
@@ -216,22 +252,69 @@ flutter run -d linux
 - Dynamic label changes reflect immediately
 - Item count updates when items are added/removed
 
+## Technical Features
+
+### Icon Conversion from Flutter Widgets
+
+The example demonstrates converting Flutter Icon widgets (like Material Icons) to native menu icons:
+
+```dart
+Future<Image?> _iconToImage(IconData iconData, {
+  double size = 24.0,
+  Color color = Colors.black,
+}) async {
+  // 1. Create a picture recorder to draw the icon
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  
+  // 2. Use TextPainter to render the icon glyph
+  final textPainter = TextPainter(textDirection: TextDirection.ltr);
+  textPainter.text = TextSpan(
+    text: String.fromCharCode(iconData.codePoint),
+    style: TextStyle(
+      fontSize: size,
+      fontFamily: iconData.fontFamily,
+      package: iconData.fontPackage,
+      color: color,
+    ),
+  );
+  
+  textPainter.layout();
+  textPainter.paint(canvas, Offset.zero);
+  
+  // 3. Convert to PNG image
+  final picture = recorder.endRecording();
+  final img = await picture.toImage(size.toInt(), size.toInt());
+  final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+  
+  // 4. Encode to base64 and create nativeapi Image
+  final pngBytes = byteData.buffer.asUint8List();
+  final base64String = 'data:image/png;base64,${base64Encode(pngBytes)}';
+  return Image.fromBase64(base64String);
+}
+```
+
+This allows you to use any Flutter Icon (Material Icons, Cupertino Icons, custom icon fonts) as native menu icons.
+
 ## Platform-Specific Notes
 
 ### macOS
 - Native NSMenu used for rendering
 - Tooltips may not display (macOS limitation)
 - Keyboard shortcuts can be added to menu items
+- Icon rendering supports base64 PNG images
 
 ### Windows
 - Native Win32 menus used
 - Full tooltip support
 - Menu animations follow system settings
+- Icon rendering supports base64 PNG images
 
 ### Linux
 - GTK menus used for rendering
 - Appearance follows GTK theme
 - Tooltip support depends on GTK version
+- Icon rendering supports base64 PNG images
 
 ## Troubleshooting
 
@@ -256,13 +339,25 @@ flutter run -d linux
 main.dart
 ├── MyApp - Root application widget
 └── MenuExamplePage - Main example page
+    ├── _loadTestIcon() - Loads test icon from assets
+    ├── _iconToImage() - Converts Flutter Icon widget to base64 image
     ├── _setupContextMenu() - Creates main context menu
     ├── _setupPositioningMenu() - Creates positioning test menu
     ├── _setupPlacementMenu() - Creates placement test menu
     ├── _addToHistory() - Logs events to history
+    ├── Icon Management Methods
+    │   ├── _setIconOnFirstItem() - Sets icon from asset file
+    │   ├── _setIconFromWidget() - Sets icon from Flutter Icon widget
+    │   └── _removeIconFromFirstItem() - Removes icon from first item
+    ├── Menu Item Removal Methods
+    │   ├── _removeFirstMenuItem() - Removes first item
+    │   ├── _removeMenuItemAtPosition() - Removes item at position 2
+    │   └── _removeLastMenuItem() - Removes last item
     └── UI Sections
         ├── Menu Creation & Display
         ├── Menu Item Operations
+        ├── Icon Management
+        ├── Menu Item Removal
         ├── Positioning Strategy Tests
         ├── Placement Tests
         ├── Edge Cases & Stress Tests
