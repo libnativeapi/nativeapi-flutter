@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:nativeapi/nativeapi.dart';
+import 'animated_icon_generator.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,6 +59,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   // Store icon for demonstration
   Image? _testIcon;
   Image? _iconFromWidget;
+  
+  // Animated icon generator
+  AnimatedIconGenerator? _animatedIconGenerator;
+  MenuItem? _animatedMenuItem;
 
   @override
   void initState() {
@@ -65,6 +70,14 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _loadTestIcon();
     _setupContextMenu();
     _setupPositioningMenu();
+    _setupAnimatedIconGenerator();
+  }
+  
+  void _setupAnimatedIconGenerator() {
+    _animatedIconGenerator = AnimatedIconGenerator(
+      size: 32,  // Higher resolution for better quality
+      foregroundColor: Colors.blue,
+    );
   }
 
   void _loadTestIcon() {
@@ -423,6 +436,102 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _menuItems[0].icon = null;
     _addToHistory('Icon removed from first menu item');
   }
+  
+  // Animated icon methods
+  Future<void> _startSpinnerAnimation() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available for animation');
+      return;
+    }
+    
+    _animatedMenuItem = _menuItems[0];
+    await _animatedIconGenerator?.startSpinner(
+      onFrame: (image) async {
+        _animatedMenuItem?.icon = image;
+      },
+    );
+    _addToHistory('Started spinner animation');
+  }
+  
+  Future<void> _startPulseAnimation() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available for animation');
+      return;
+    }
+    
+    _animatedMenuItem = _menuItems[0];
+    await _animatedIconGenerator?.startPulse(
+      onFrame: (image) async {
+        _animatedMenuItem?.icon = image;
+      },
+    );
+    _addToHistory('Started pulse animation');
+  }
+  
+  Future<void> _startBlinkAnimation() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available for animation');
+      return;
+    }
+    
+    _animatedMenuItem = _menuItems[0];
+    await _animatedIconGenerator?.startBlink(
+      onFrame: (image) async {
+        _animatedMenuItem?.icon = image;
+      },
+    );
+    _addToHistory('Started blink animation');
+  }
+  
+  Future<void> _startProgressAnimation() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available for animation');
+      return;
+    }
+    
+    _animatedMenuItem = _menuItems[0];
+    await _animatedIconGenerator?.startProgress(
+      onFrame: (image) async {
+        _animatedMenuItem?.icon = image;
+      },
+    );
+    _addToHistory('Started progress animation');
+  }
+  
+  Future<void> _startWaveAnimation() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available for animation');
+      return;
+    }
+    
+    _animatedMenuItem = _menuItems[0];
+    await _animatedIconGenerator?.startWave(
+      onFrame: (image) async {
+        _animatedMenuItem?.icon = image;
+      },
+    );
+    _addToHistory('Started wave animation');
+  }
+  
+  Future<void> _startRotatingSquareAnimation() async {
+    if (_menuItems.isEmpty) {
+      _addToHistory('No menu items available for animation');
+      return;
+    }
+    
+    _animatedMenuItem = _menuItems[0];
+    await _animatedIconGenerator?.startRotatingSquare(
+      onFrame: (image) async {
+        _animatedMenuItem?.icon = image;
+      },
+    );
+    _addToHistory('Started rotating square animation');
+  }
+  
+  void _stopAnimation() {
+    _animatedIconGenerator?.stop();
+    _addToHistory('Stopped animation');
+  }
 
   Future<void> _setIconFromWidget() async {
     if (_menuItems.isEmpty) {
@@ -535,7 +644,8 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildSectionCard('Menu Creation & Display', [
+                  // Context Menu Demo Section
+                  _buildSectionCard('Context Menu Demo', [
                     Row(
                       children: [
                         Expanded(child: _buildInfoRow('Items', '$_menuItemCount')),
@@ -606,52 +716,89 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  _buildSectionCard('Menu Item Operations', [
+                  
+                  // Item Management Section
+                  _buildSectionCard('Item Management', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.edit, 'Change Label', _changeDynamicLabel),
-                        _buildCompactButton(Icons.indeterminate_check_box, 'Mixed State', _setCheckboxMixed),
-                        _buildCompactButton(Icons.add_box, 'Add to Submenu', _addSubmenuItem),
-                        _buildCompactButton(Icons.swap_horiz, 'Toggle Submenu', _toggleSubmenu),
                         _buildCompactButton(Icons.add, 'Add Item', _addNewMenuItem),
-                        _buildCompactButton(Icons.insert_drive_file, 'Insert at 2', _insertMenuItemAtPosition),
-                        _buildCompactButton(Icons.horizontal_rule, 'Insert Sep', _insertSeparatorAtPosition),
-                      ],
-                    ),
-                  ]),
-                  const SizedBox(height: 10),
-                  _buildSectionCard('Icon & Removal', [
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        _buildCompactButton(Icons.image, 'Set Icon', _setIconOnFirstItem),
-                        _buildCompactButton(Icons.star, 'Widget Icon', _setIconFromWidget),
-                        _buildCompactButton(Icons.hide_image, 'Remove Icon', _removeIconFromFirstItem),
+                        _buildCompactButton(Icons.insert_drive_file, 'Insert at Pos 2', _insertMenuItemAtPosition),
+                        _buildCompactButton(Icons.horizontal_rule, 'Insert Separator', _insertSeparatorAtPosition),
                         _buildCompactButton(Icons.remove_circle, 'Remove First', _removeFirstMenuItem),
-                        _buildCompactButton(Icons.delete, 'Remove at 2', _removeMenuItemAtPosition),
+                        _buildCompactButton(Icons.delete, 'Remove at Pos 2', _removeMenuItemAtPosition),
                         _buildCompactButton(Icons.delete_forever, 'Remove Last', _removeLastMenuItem),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  _buildSectionCard('Positioning Strategy', [
+                  
+                  // Item Properties Section
+                  _buildSectionCard('Item Properties', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.location_on, '(100,100)', 
-                          () => _showMenuAtAbsolutePosition(const Offset(100, 100))),
-                        _buildCompactButton(Icons.location_on, '(300,200)', 
-                          () => _showMenuAtAbsolutePosition(const Offset(300, 200))),
-                        _buildCompactButton(Icons.mouse, 'Cursor', _showMenuAtCursorPosition),
+                        _buildCompactButton(Icons.edit, 'Update Label', _changeDynamicLabel),
+                        _buildCompactButton(Icons.indeterminate_check_box, 'Checkbox Mixed', _setCheckboxMixed),
+                        _buildCompactButton(Icons.add_box, 'Add Submenu Item', _addSubmenuItem),
+                        _buildCompactButton(Icons.swap_horiz, 'Detach Submenu', _toggleSubmenu),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  _buildSectionCard('Stress Tests', [
+                  
+                  // Icon Management Section
+                  _buildSectionCard('Icon Management', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.image, 'Set Asset Icon', _setIconOnFirstItem),
+                        _buildCompactButton(Icons.star, 'Set Widget Icon', _setIconFromWidget),
+                        _buildCompactButton(Icons.hide_image, 'Remove Icon', _removeIconFromFirstItem),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  
+                  // Animated Icon Section
+                  _buildSectionCard('Animated Icons', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.refresh, 'Spinner', _startSpinnerAnimation),
+                        _buildCompactButton(Icons.circle, 'Pulse', _startPulseAnimation),
+                        _buildCompactButton(Icons.radio_button_unchecked, 'Blink', _startBlinkAnimation),
+                        _buildCompactButton(Icons.trending_up, 'Progress', _startProgressAnimation),
+                        _buildCompactButton(Icons.music_note, 'Wave', _startWaveAnimation),
+                        _buildCompactButton(Icons.crop_square, 'Rotate', _startRotatingSquareAnimation),
+                        _buildCompactButton(Icons.stop, 'Stop', _stopAnimation),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  
+                  // Positioning Section
+                  _buildSectionCard('Positioning', [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildCompactButton(Icons.location_on, 'Pos (100,100)', 
+                          () => _showMenuAtAbsolutePosition(const Offset(100, 100))),
+                        _buildCompactButton(Icons.location_on, 'Pos (300,200)', 
+                          () => _showMenuAtAbsolutePosition(const Offset(300, 200))),
+                        _buildCompactButton(Icons.mouse, 'At Cursor', _showMenuAtCursorPosition),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  
+                  // Test Cases Section
+                  _buildSectionCard('Test Cases', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
@@ -669,7 +816,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                           _showMenuAtAbsolutePosition(const Offset(10, 10));
                           _addToHistory('Testing menu near screen edge (top-left)');
                         }),
-                        _buildCompactButton(Icons.border_outer, 'Bottom-Right', () {
+                        _buildCompactButton(Icons.border_outer, 'Bottom-Right Edge', () {
                           _showMenuAtAbsolutePosition(const Offset(1500, 900));
                           _addToHistory('Testing menu near screen edge (bottom-right)');
                         }),
@@ -807,6 +954,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   @override
   void dispose() {
+    _animatedIconGenerator?.dispose();
     _contextMenu.dispose();
     _positioningMenu.dispose();
     for (var item in _menuItems) {

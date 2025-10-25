@@ -35,6 +35,13 @@ A comprehensive Flutter application demonstrating all menu functionality provide
 - ✅ Remove icons and restore normal display
 - ✅ Load icons from Flutter assets
 - ✅ Convert Material Icons to native menu icons
+- ✅ **Animated Icons** - Create pixel-perfect animated icons using canvas
+  - Spinner animation (rotating loader)
+  - Pulse animation (expanding/contracting circle)
+  - Blink animation (on/off blinking dot)
+  - Progress animation (filling progress bar)
+  - Wave animation (moving wave pattern)
+  - Rotating square animation
 
 #### Tooltips
 - ✅ Set tooltips on menu items
@@ -109,38 +116,36 @@ The application is divided into two main sections:
 ### Left Panel - Test Controls
 Contains multiple test sections organized in cards:
 
-1. **Menu Creation & Display**
+1. **Context Menu Demo**
    - Shows current menu state (item count, checkbox/radio states)
+   - Placement selector for choosing menu placement strategy
    - Context menu region for right-click testing
 
-2. **Menu Item Operations**
-   - Change dynamic label
-   - Add new menu items
-   - Insert items at specific positions
-   - Insert separators at specific positions
+2. **Item Management**
+   - Add Item: adds new menu item at the end
+   - Insert at Pos 2: inserts item at specific position
+   - Insert Separator: adds visual divider
+   - Remove First / Remove at Pos 2 / Remove Last: removes items
 
-3. **Icon Management**
-   - Set icon from asset file
-   - Set icon from Flutter Icon widget (Material Icons)
-   - Remove icon from menu item
+3. **Item Properties**
+   - Update Label: changes menu item label dynamically
+   - Checkbox Mixed: sets checkbox to indeterminate state
+   - Add Submenu Item: adds item to submenu
+   - Detach Submenu: toggles submenu attachment
 
-4. **Menu Item Removal**
-   - Remove first menu item
-   - Remove item at specific position
-   - Remove last menu item
+4. **Icon Management**
+   - Set Asset Icon: loads icon from asset file
+   - Set Widget Icon: converts Flutter Icon to native icon
+   - Remove Icon: removes icon from menu item
 
-5. **Positioning Strategy Tests**
-   - Absolute positioning at different coordinates
-   - Cursor position testing
+5. **Positioning**
+   - Pos (100,100) / Pos (300,200): absolute positioning at specific coordinates
+   - At Cursor: displays menu at current mouse position
 
-6. **Placement Tests**
-   - Buttons for all 8 placement options
-   - Visual feedback for each placement
-
-7. **Edge Cases & Stress Tests**
-   - Add multiple items at once
-   - Rapid open/close testing
-   - Screen edge boundary testing
+6. **Test Cases**
+   - Add 10 Items: adds multiple items at once
+   - Rapid Open/Close: tests stability with fast operations
+   - Top-Left Edge / Bottom-Right Edge: tests boundary handling
 
 ### Right Panel - Event History
 - Real-time event log with timestamps
@@ -182,33 +187,45 @@ flutter run -d linux
 4. Hover over **Submenu** - should expand and log open event
 5. Click items in submenu - should log submenu item clicks
 
-### Dynamic Operations Testing
-1. Click **Change Dynamic Label** - label should update with timestamp
-2. Click **Add New Menu Item** - item count should increase
-3. Click **Insert Item at Position 2** - new item appears at position 2
-4. Click **Insert Separator at Position 3** - separator appears at position 3
+### Item Properties Testing
+1. Click **Update Label** - label should update with timestamp
+2. Click **Checkbox Mixed** - checkbox item shows indeterminate state
+3. Click **Add Submenu Item** - adds a new item to the submenu
+4. Click **Detach Submenu** - toggles submenu attachment on/off
+
+### Item Management Testing
+1. Click **Add Item** - item count should increase
+2. Click **Insert at Pos 2** - new item appears at position 2
+3. Click **Insert Separator** - separator appears at next position
+4. Click **Remove First** / **Remove at Pos 2** / **Remove Last** - removes items
 
 ### Icon Management Testing
-1. Click **Set Icon from Asset** - first menu item displays icon from asset file
+1. Click **Set Asset Icon** - first menu item displays icon from asset file
 2. Right-click the context menu region to verify icon appears
-3. Click **Set Icon from Widget** - first menu item displays a star icon (converted from Material Icons)
+3. Click **Set Widget Icon** - first menu item displays a star icon (converted from Material Icons)
 4. Right-click to verify the widget-based icon appears
-5. Click **Remove Icon from First Item** - icon should disappear
+5. Click **Remove Icon** - icon should disappear
 6. Right-click again to verify icon is removed
 
-**Note:** The "Set Icon from Widget" feature demonstrates converting Flutter's Material Icons to native menu icons using base64 encoding.
+**Note:** The "Set Widget Icon" feature demonstrates converting Flutter's Material Icons to native menu icons using base64 encoding.
 
-### Menu Item Removal Testing
-1. Click **Remove First Menu Item** - first item should be removed, count decreases
-2. Click **Remove Item at Position 2** - item at position 2 removed
-3. Click **Remove Last Menu Item** - last item removed
-4. Verify item count updates correctly after each removal
-5. Right-click to verify items are actually removed from menu
+### Animated Icons Testing
+1. Click **Spinner** - first menu item displays a rotating spinner animation
+2. Right-click to see the animation in action
+3. Click **Pulse** - switches to pulsing circle animation
+4. Click **Blink** - switches to blinking dot animation
+5. Click **Progress** - switches to filling progress bar animation
+6. Click **Wave** - switches to moving wave pattern animation
+7. Click **Rotate** - switches to rotating square animation
+8. Click **Stop** - stops any running animation
+9. Right-click to verify the icon updates in real-time
+
+**Note:** The animated icons are generated pixel-by-pixel using Flutter's Canvas API and converted to native images. Each animation type provides different visual feedback suitable for loading states, notifications, or progress indicators.
 
 ### Positioning Testing
-1. Click **Absolute (100, 100)** - menu appears at top-left
-2. Click **Absolute (300, 200)** - menu appears at center-left
-3. Click **Cursor Position** - menu appears at mouse location
+1. Click **Pos (100,100)** - menu appears at top-left coordinates
+2. Click **Pos (300,200)** - menu appears at center-left coordinates
+3. Click **At Cursor** - menu appears at mouse location
 
 ### Placement Testing
 1. Click each placement button (topStart, bottomEnd, etc.)
@@ -217,8 +234,8 @@ flutter run -d linux
 
 ### Edge Cases Testing
 1. Click **Add 10 Items** - verify menu handles many items
-2. Click **Rapid Open/Close Test** - verify stability
-3. Click **Test Screen Edge** buttons - verify boundary handling
+2. Click **Rapid Open/Close** - verify stability with fast operations
+3. Click **Top-Left Edge** and **Bottom-Right Edge** buttons - verify boundary handling
 4. Open menu, switch window focus, return - verify menu state
 
 ### Event Verification
@@ -296,6 +313,52 @@ Future<Image?> _iconToImage(IconData iconData, {
 
 This allows you to use any Flutter Icon (Material Icons, Cupertino Icons, custom icon fonts) as native menu icons.
 
+### Using Animated Icons
+
+Create pixel-perfect animated icons using the `AnimatedIconGenerator` class:
+
+```dart
+import 'animated_icon_generator.dart';
+
+// Create an animated icon generator with high DPI support
+final generator = AnimatedIconGenerator(
+  size: 32,  // Higher resolution for better quality
+  foregroundColor: Colors.blue,
+);
+
+// Create a menu item
+final menuItem = MenuItem('Loading...');
+
+// Start a spinner animation
+generator.startSpinner(
+  onFrame: (image) async {
+    menuItem.icon = image;
+  },
+);
+
+// Switch to pulse animation
+generator.startPulse(
+  onFrame: (image) async {
+    menuItem.icon = image;
+  },
+);
+
+// Stop animation when done
+generator.stop();
+```
+
+Available animation types:
+- `startSpinner()` - Rotating circular loader
+- `startPulse()` - Expanding/contracting circle
+- `startBlink()` - On/off blinking dot
+- `startProgress()` - Filling progress bar
+- `startWave()` - Moving wave pattern
+- `startRotatingSquare()` - Rotating square icon
+
+The animations are generated using Flutter's Canvas API and converted to native images, providing smooth pixel-perfect animations suitable for menu icons.
+
+**High DPI Support:** The `AnimatedIconGenerator` automatically scales icons for high DPI displays (Retina, HiDPI). Default size is 32x32 logical pixels, which produces crisp icons on all displays including Retina displays (64x64 or 96x96 physical pixels).
+
 ## Platform-Specific Notes
 
 ### macOS
@@ -343,24 +406,33 @@ main.dart
     ├── _iconToImage() - Converts Flutter Icon widget to base64 image
     ├── _setupContextMenu() - Creates main context menu
     ├── _setupPositioningMenu() - Creates positioning test menu
-    ├── _setupPlacementMenu() - Creates placement test menu
     ├── _addToHistory() - Logs events to history
+    ├── Item Management Methods
+    │   ├── _addNewMenuItem() - Adds item to end
+    │   ├── _insertMenuItemAtPosition() - Inserts item at specific position
+    │   ├── _insertSeparatorAtPosition() - Inserts separator at position
+    │   ├── _removeFirstMenuItem() - Removes first item
+    │   ├── _removeMenuItemAtPosition() - Removes item at position
+    │   └── _removeLastMenuItem() - Removes last item
+    ├── Item Properties Methods
+    │   ├── _changeDynamicLabel() - Changes menu item label
+    │   ├── _setCheckboxMixed() - Sets checkbox to mixed state
+    │   ├── _addSubmenuItem() - Adds item to submenu
+    │   └── _toggleSubmenu() - Toggles submenu attachment
     ├── Icon Management Methods
     │   ├── _setIconOnFirstItem() - Sets icon from asset file
     │   ├── _setIconFromWidget() - Sets icon from Flutter Icon widget
     │   └── _removeIconFromFirstItem() - Removes icon from first item
-    ├── Menu Item Removal Methods
-    │   ├── _removeFirstMenuItem() - Removes first item
-    │   ├── _removeMenuItemAtPosition() - Removes item at position 2
-    │   └── _removeLastMenuItem() - Removes last item
+    ├── Positioning Methods
+    │   ├── _showMenuAtAbsolutePosition() - Shows menu at absolute coordinates
+    │   └── _showMenuAtCursorPosition() - Shows menu at cursor position
     └── UI Sections
-        ├── Menu Creation & Display
-        ├── Menu Item Operations
+        ├── Context Menu Demo
+        ├── Item Management
+        ├── Item Properties
         ├── Icon Management
-        ├── Menu Item Removal
-        ├── Positioning Strategy Tests
-        ├── Placement Tests
-        ├── Edge Cases & Stress Tests
+        ├── Positioning
+        ├── Test Cases
         └── Event History Panel
 ```
 
