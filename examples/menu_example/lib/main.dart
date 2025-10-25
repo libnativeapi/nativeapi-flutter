@@ -41,6 +41,14 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   String _currentLabel = 'Dynamic Label Item';
   
   int _menuItemCount = 0;
+  
+  // Store references to menu items for state management
+  late final MenuItem _checkboxItem;
+  late final MenuItem _radio1;
+  late final MenuItem _radio2;
+  late final MenuItem _radio3;
+  late final MenuItem _submenuItem;
+  late final Menu _submenu;
 
   @override
   void initState() {
@@ -73,46 +81,63 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 3. Checkbox menu item
-    final checkboxItem = MenuItem('Checkbox Item', MenuItemType.checkbox);
-    checkboxItem.on<MenuItemClickedEvent>((event) {
+    _checkboxItem = MenuItem('Checkbox Item', MenuItemType.checkbox);
+    _checkboxItem.state = MenuItemState.unchecked;
+    _checkboxItem.on<MenuItemClickedEvent>((event) {
       setState(() {
         _checkboxState = !_checkboxState;
+        _checkboxItem.state = _checkboxState ? MenuItemState.checked : MenuItemState.unchecked;
       });
       _addToHistory('Checkbox clicked - State: $_checkboxState (ID: ${event.menuItemId})');
     });
-    _contextMenu.addItem(checkboxItem);
-    _menuItems.add(checkboxItem);
+    _contextMenu.addItem(_checkboxItem);
+    _menuItems.add(_checkboxItem);
 
-    // 4. Radio menu items
-    final radio1 = MenuItem('Radio Option 1', MenuItemType.radio);
-    radio1.on<MenuItemClickedEvent>((event) {
+    // 4. Radio menu items (grouped together)
+    _radio1 = MenuItem('Radio Option 1', MenuItemType.radio);
+    _radio1.radioGroup = 1; // Set radio group ID
+    _radio1.state = MenuItemState.checked; // Default selection
+    _radio1.on<MenuItemClickedEvent>((event) {
       setState(() {
         _radioSelection = 'Option 1';
+        _radio1.state = MenuItemState.checked;
+        _radio2.state = MenuItemState.unchecked;
+        _radio3.state = MenuItemState.unchecked;
       });
       _addToHistory('Radio Option 1 selected (ID: ${event.menuItemId})');
     });
-    _contextMenu.addItem(radio1);
-    _menuItems.add(radio1);
+    _contextMenu.addItem(_radio1);
+    _menuItems.add(_radio1);
 
-    final radio2 = MenuItem('Radio Option 2', MenuItemType.radio);
-    radio2.on<MenuItemClickedEvent>((event) {
+    _radio2 = MenuItem('Radio Option 2', MenuItemType.radio);
+    _radio2.radioGroup = 1; // Same radio group
+    _radio2.state = MenuItemState.unchecked;
+    _radio2.on<MenuItemClickedEvent>((event) {
       setState(() {
         _radioSelection = 'Option 2';
+        _radio1.state = MenuItemState.unchecked;
+        _radio2.state = MenuItemState.checked;
+        _radio3.state = MenuItemState.unchecked;
       });
       _addToHistory('Radio Option 2 selected (ID: ${event.menuItemId})');
     });
-    _contextMenu.addItem(radio2);
-    _menuItems.add(radio2);
+    _contextMenu.addItem(_radio2);
+    _menuItems.add(_radio2);
 
-    final radio3 = MenuItem('Radio Option 3', MenuItemType.radio);
-    radio3.on<MenuItemClickedEvent>((event) {
+    _radio3 = MenuItem('Radio Option 3', MenuItemType.radio);
+    _radio3.radioGroup = 1; // Same radio group
+    _radio3.state = MenuItemState.unchecked;
+    _radio3.on<MenuItemClickedEvent>((event) {
       setState(() {
         _radioSelection = 'Option 3';
+        _radio1.state = MenuItemState.unchecked;
+        _radio2.state = MenuItemState.unchecked;
+        _radio3.state = MenuItemState.checked;
       });
       _addToHistory('Radio Option 3 selected (ID: ${event.menuItemId})');
     });
-    _contextMenu.addItem(radio3);
-    _menuItems.add(radio3);
+    _contextMenu.addItem(_radio3);
+    _menuItems.add(_radio3);
 
     // 5. Separator
     _contextMenu.addSeparator();
@@ -138,13 +163,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 9. Submenu
-    final submenu = Menu();
-    final submenuItem = MenuItem('Submenu', MenuItemType.submenu);
+    _submenu = Menu();
+    _submenuItem = MenuItem('Submenu', MenuItemType.submenu);
     
-    submenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
+    _submenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
       _addToHistory('Submenu opened (ID: ${event.menuItemId})');
     });
-    submenuItem.on<MenuItemSubmenuClosedEvent>((event) {
+    _submenuItem.on<MenuItemSubmenuClosedEvent>((event) {
       _addToHistory('Submenu closed (ID: ${event.menuItemId})');
     });
     
@@ -153,24 +178,27 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     subItem1.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 1 clicked (ID: ${event.menuItemId})');
     });
-    submenu.addItem(subItem1);
+    _submenu.addItem(subItem1);
     
     final subItem2 = MenuItem('Submenu Item 2');
     subItem2.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 2 clicked (ID: ${event.menuItemId})');
     });
-    submenu.addItem(subItem2);
+    _submenu.addItem(subItem2);
     
-    submenu.addSeparator();
+    _submenu.addSeparator();
     
     final subItem3 = MenuItem('Submenu Item 3');
     subItem3.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 3 clicked (ID: ${event.menuItemId})');
     });
-    submenu.addItem(subItem3);
+    _submenu.addItem(subItem3);
     
-    _contextMenu.addItem(submenuItem);
-    _menuItems.add(submenuItem);
+    // Associate the submenu with the menu item
+    _submenuItem.submenu = _submenu;
+    
+    _contextMenu.addItem(_submenuItem);
+    _menuItems.add(_submenuItem);
 
     // 10. Separator
     _contextMenu.addSeparator();
@@ -263,6 +291,34 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
       }
     });
     _addToHistory('Menu item label changed to: $_currentLabel');
+  }
+
+  void _setCheckboxMixed() {
+    setState(() {
+      _checkboxItem.state = MenuItemState.mixed;
+    });
+    _addToHistory('Checkbox state set to Mixed (indeterminate)');
+  }
+
+  void _addSubmenuItem() {
+    final newSubItem = MenuItem('Dynamic Submenu Item ${_submenu.itemCount + 1}');
+    newSubItem.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Dynamic submenu item clicked (ID: ${event.menuItemId})');
+    });
+    _submenu.addItem(newSubItem);
+    _addToHistory('Added new item to submenu (Total: ${_submenu.itemCount})');
+  }
+
+  void _toggleSubmenu() {
+    setState(() {
+      if (_submenuItem.submenu != null) {
+        _submenuItem.submenu = null;
+        _addToHistory('Submenu detached from menu item');
+      } else {
+        _submenuItem.submenu = _submenu;
+        _addToHistory('Submenu attached to menu item');
+      }
+    });
   }
 
   void _addNewMenuItem() {
@@ -385,6 +441,24 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                         onPressed: _changeDynamicLabel,
                         icon: const Icon(Icons.edit, size: 18),
                         label: const Text('Change Dynamic Label'),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: _setCheckboxMixed,
+                        icon: const Icon(Icons.indeterminate_check_box, size: 18),
+                        label: const Text('Set Checkbox to Mixed State'),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: _addSubmenuItem,
+                        icon: const Icon(Icons.add_box, size: 18),
+                        label: const Text('Add Item to Submenu'),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: _toggleSubmenu,
+                        icon: const Icon(Icons.swap_horiz, size: 18),
+                        label: const Text('Toggle Submenu Attachment'),
                       ),
                       const SizedBox(height: 8),
                       ElevatedButton.icon(

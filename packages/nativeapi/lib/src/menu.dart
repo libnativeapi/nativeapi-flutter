@@ -13,6 +13,64 @@ enum MenuItemType { normal, separator, submenu, checkbox, radio }
 
 enum MenuItemState { unchecked, checked, mixed }
 
+// Extension methods for MenuItemType conversion
+extension MenuItemTypeExtension on MenuItemType {
+  native_menu_item_type_t toNative() {
+    switch (this) {
+      case MenuItemType.normal:
+        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_NORMAL;
+      case MenuItemType.separator:
+        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SEPARATOR;
+      case MenuItemType.submenu:
+        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SUBMENU;
+      case MenuItemType.checkbox:
+        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_CHECKBOX;
+      case MenuItemType.radio:
+        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_RADIO;
+    }
+  }
+
+  static MenuItemType fromNative(native_menu_item_type_t nativeType) {
+    switch (nativeType) {
+      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_NORMAL:
+        return MenuItemType.normal;
+      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SEPARATOR:
+        return MenuItemType.separator;
+      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SUBMENU:
+        return MenuItemType.submenu;
+      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_CHECKBOX:
+        return MenuItemType.checkbox;
+      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_RADIO:
+        return MenuItemType.radio;
+    }
+  }
+}
+
+// Extension methods for MenuItemState conversion
+extension MenuItemStateExtension on MenuItemState {
+  native_menu_item_state_t toNative() {
+    switch (this) {
+      case MenuItemState.unchecked:
+        return native_menu_item_state_t.NATIVE_MENU_ITEM_STATE_UNCHECKED;
+      case MenuItemState.checked:
+        return native_menu_item_state_t.NATIVE_MENU_ITEM_STATE_CHECKED;
+      case MenuItemState.mixed:
+        return native_menu_item_state_t.NATIVE_MENU_ITEM_STATE_MIXED;
+    }
+  }
+
+  static MenuItemState fromNative(native_menu_item_state_t nativeState) {
+    switch (nativeState) {
+      case native_menu_item_state_t.NATIVE_MENU_ITEM_STATE_UNCHECKED:
+        return MenuItemState.unchecked;
+      case native_menu_item_state_t.NATIVE_MENU_ITEM_STATE_CHECKED:
+        return MenuItemState.checked;
+      case native_menu_item_state_t.NATIVE_MENU_ITEM_STATE_MIXED:
+        return MenuItemState.mixed;
+    }
+  }
+}
+
 class MenuItem
     with EventEmitter, CNativeApiBindingsMixin
     implements NativeHandleWrapper<native_menu_item_t> {
@@ -40,7 +98,7 @@ class MenuItem
     final labelPtr = label.toNativeUtf8().cast<Char>();
     _nativeHandle = bindings.native_menu_item_create(
       labelPtr,
-      _convertMenuItemType(type),
+      type.toNative(),
     );
     ffi.calloc.free(labelPtr);
 
@@ -148,40 +206,13 @@ class MenuItem
     }
   }
 
-  // Helper method to convert MenuItemType to native enum
-  static native_menu_item_type_t _convertMenuItemType(MenuItemType type) {
-    switch (type) {
-      case MenuItemType.normal:
-        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_NORMAL;
-      case MenuItemType.separator:
-        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SEPARATOR;
-      case MenuItemType.submenu:
-        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SUBMENU;
-      case MenuItemType.checkbox:
-        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_CHECKBOX;
-      case MenuItemType.radio:
-        return native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_RADIO;
-    }
-  }
-
   int get id {
     return bindings.native_menu_item_get_id(_nativeHandle);
   }
 
   MenuItemType get type {
-    final type = bindings.native_menu_item_get_type(_nativeHandle);
-    switch (type) {
-      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_NORMAL:
-        return MenuItemType.normal;
-      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SEPARATOR:
-        return MenuItemType.separator;
-      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_SUBMENU:
-        return MenuItemType.submenu;
-      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_CHECKBOX:
-        return MenuItemType.checkbox;
-      case native_menu_item_type_t.NATIVE_MENU_ITEM_TYPE_RADIO:
-        return MenuItemType.radio;
-    }
+    final nativeType = bindings.native_menu_item_get_type(_nativeHandle);
+    return MenuItemTypeExtension.fromNative(nativeType);
   }
 
   String get label {
@@ -223,6 +254,48 @@ class MenuItem
     final tooltipPtr = tooltip.toNativeUtf8().cast<Char>();
     bindings.native_menu_item_set_tooltip(_nativeHandle, tooltipPtr);
     ffi.calloc.free(tooltipPtr);
+  }
+
+  MenuItemState get state {
+    final nativeState = bindings.native_menu_item_get_state(_nativeHandle);
+    return MenuItemStateExtension.fromNative(nativeState);
+  }
+
+  set state(MenuItemState state) {
+    bindings.native_menu_item_set_state(_nativeHandle, state.toNative());
+  }
+
+  int get radioGroup {
+    return bindings.native_menu_item_get_radio_group(_nativeHandle);
+  }
+
+  set radioGroup(int groupId) {
+    bindings.native_menu_item_set_radio_group(_nativeHandle, groupId);
+  }
+
+  bool get enabled {
+    return bindings.native_menu_item_is_enabled(_nativeHandle);
+  }
+
+  set enabled(bool enabled) {
+    bindings.native_menu_item_set_enabled(_nativeHandle, enabled);
+  }
+
+  Menu? get submenu {
+    final submenuHandle = bindings.native_menu_item_get_submenu(_nativeHandle);
+    if (submenuHandle == nullptr) {
+      return null;
+    }
+    // Return a Menu wrapper for the existing native handle
+    return Menu(submenuHandle);
+  }
+
+  set submenu(Menu? menu) {
+    if (menu == null) {
+      bindings.native_menu_item_remove_submenu(_nativeHandle);
+    } else {
+      bindings.native_menu_item_set_submenu(_nativeHandle, menu.nativeHandle);
+    }
   }
 
   @override
