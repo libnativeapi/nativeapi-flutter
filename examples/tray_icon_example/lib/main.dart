@@ -26,8 +26,8 @@ class TrayIconData {
     this.rightClickCount = 0,
     this.doubleClickCount = 0,
     this.isVisible = true,
-    this.title = 'Tray Icon',
-    this.tooltip = 'Click me!',
+    this.title = '',
+    this.tooltip = '',
   });
 
   void dispose() {
@@ -71,7 +71,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
   @override
   void initState() {
     super.initState();
-    _addTrayIcon();
+    // _addTrayIcon(); // Don't add tray icon on initialization
   }
 
   @override
@@ -114,8 +114,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         id: _nextIconId++,
         trayIcon: trayIcon,
         contextMenu: contextMenu,
-        title: 'Tray Icon ${_nextIconId - 1}',
-        tooltip: 'Click me! (${_nextIconId - 1})',
+        // title and tooltip are empty by default
       );
 
       // Create animated icon generator
@@ -147,8 +146,8 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       });
 
       // Set initial properties
-      trayIcon.title = trayIconData.title;
-      trayIcon.tooltip = trayIconData.tooltip;
+      // trayIcon.title = trayIconData.title; // Set via UI
+      // trayIcon.tooltip = trayIconData.tooltip; // Set via UI
       trayIcon.isVisible = trayIconData.isVisible;
 
       _trayIcons.add(trayIconData);
