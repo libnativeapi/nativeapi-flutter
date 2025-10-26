@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart' hide Image;
 import 'package:nativeapi/nativeapi.dart';
+import 'animated_icon_generator.dart';
 
 class TrayIconData {
   final int id;
@@ -11,6 +16,7 @@ class TrayIconData {
   bool isVisible;
   String title;
   String tooltip;
+  AnimatedIconGenerator? animatedIconGenerator;
 
   TrayIconData({
     required this.id,
@@ -25,6 +31,7 @@ class TrayIconData {
   });
 
   void dispose() {
+    animatedIconGenerator?.dispose();
     trayIcon.dispose();
   }
 }
@@ -109,6 +116,12 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         contextMenu: contextMenu,
         title: 'Tray Icon ${_nextIconId - 1}',
         tooltip: 'Click me! (${_nextIconId - 1})',
+      );
+
+      // Create animated icon generator
+      trayIconData.animatedIconGenerator = AnimatedIconGenerator(
+        size: 32,
+        foregroundColor: Colors.blue,
       );
 
       // Set up event listeners
@@ -325,6 +338,187 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       trayIconData.doubleClickCount = 0;
     }
     _addToHistory('All counters reset');
+  }
+
+  /// Convert a Flutter Icon widget to a base64 image
+  Future<Image?> _iconToImage(
+    IconData iconData, {
+    double size = 24.0,
+    Color color = Colors.black,
+  }) async {
+    try {
+      // Create a picture recorder to draw the icon
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      // Create a text painter to render the icon
+      final textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+      textPainter.text = TextSpan(
+        text: String.fromCharCode(iconData.codePoint),
+        style: TextStyle(
+          fontSize: size,
+          fontFamily: iconData.fontFamily,
+          package: iconData.fontPackage,
+          color: color,
+        ),
+      );
+
+      textPainter.layout();
+      textPainter.paint(canvas, Offset.zero);
+
+      // Convert to image
+      final picture = recorder.endRecording();
+      final img = await picture.toImage(size.toInt(), size.toInt());
+      final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+
+      if (byteData == null) {
+        return null;
+      }
+
+      // Convert to base64
+      final Uint8List pngBytes = byteData.buffer.asUint8List();
+      final base64String = 'data:image/png;base64,${base64Encode(pngBytes)}';
+
+      // Use base64 to create nativeapi Image
+      return Image.fromBase64(base64String);
+    } catch (e) {
+      _addToHistory('Error converting icon to image: $e');
+      return null;
+    }
+  }
+
+  // Animated icon methods
+  Future<void> _startSpinnerAnimation(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    await trayIconData.animatedIconGenerator?.startSpinner(
+      onFrame: (image) async {
+        trayIconData.trayIcon.icon = image;
+      },
+    );
+    _addToHistory('Started spinner animation for tray icon $id');
+  }
+  
+  Future<void> _startPulseAnimation(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    await trayIconData.animatedIconGenerator?.startPulse(
+      onFrame: (image) async {
+        trayIconData.trayIcon.icon = image;
+      },
+    );
+    _addToHistory('Started pulse animation for tray icon $id');
+  }
+  
+  Future<void> _startBlinkAnimation(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    await trayIconData.animatedIconGenerator?.startBlink(
+      onFrame: (image) async {
+        trayIconData.trayIcon.icon = image;
+      },
+    );
+    _addToHistory('Started blink animation for tray icon $id');
+  }
+  
+  Future<void> _startProgressAnimation(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    await trayIconData.animatedIconGenerator?.startProgress(
+      onFrame: (image) async {
+        trayIconData.trayIcon.icon = image;
+      },
+    );
+    _addToHistory('Started progress animation for tray icon $id');
+  }
+  
+  Future<void> _startWaveAnimation(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    await trayIconData.animatedIconGenerator?.startWave(
+      onFrame: (image) async {
+        trayIconData.trayIcon.icon = image;
+      },
+    );
+    _addToHistory('Started wave animation for tray icon $id');
+  }
+  
+  Future<void> _startRotatingSquareAnimation(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    await trayIconData.animatedIconGenerator?.startRotatingSquare(
+      onFrame: (image) async {
+        trayIconData.trayIcon.icon = image;
+      },
+    );
+    _addToHistory('Started rotating square animation for tray icon $id');
+  }
+  
+  void _stopAnimation(int id) {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    
+    trayIconData.animatedIconGenerator?.stop();
+    _addToHistory('Stopped animation for tray icon $id');
+  }
+
+  Future<void> _setIconFromWidget(int id) async {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+
+    _addToHistory('Converting Flutter Icon to image for tray icon $id...');
+
+    // Convert Material Icons.star to image
+    final iconFromWidget = await _iconToImage(
+      Icons.star,
+      size: 32.0,
+      color: Colors.amber,
+    );
+
+    if (iconFromWidget != null) {
+      trayIconData.trayIcon.icon = iconFromWidget;
+      _addToHistory('Icon from widget set on tray icon $id');
+    } else {
+      _addToHistory('Failed to convert icon from widget');
+    }
+  }
+
+  void _setAssetIcon(int id) {
+    final trayIconData = _trayIcons.firstWhere(
+      (data) => data.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+
+    final icon = Image.fromAsset('images/tray_icon.png');
+    if (icon != null) {
+      trayIconData.trayIcon.icon = icon;
+      _addToHistory('Asset icon set on tray icon $id');
+    } else {
+      _addToHistory('Asset icon not found');
+    }
   }
 
   void _showAboutDialog() {
@@ -638,6 +832,43 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
               ),
               controller: TextEditingController(text: trayIconData.tooltip),
               onChanged: (value) => _updateTrayIconTooltip(trayIconData.id, value),
+            ),
+            const SizedBox(height: 12),
+            
+            // Icon Management Section
+            const Text(
+              'Icon Management',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _buildCompactButton(Icons.image, 'Asset', () => _setAssetIcon(trayIconData.id)),
+                _buildCompactButton(Icons.star, 'Widget', () => _setIconFromWidget(trayIconData.id)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            
+            // Animated Icons Section
+            const Text(
+              'Animated Icons',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _buildCompactButton(Icons.refresh, 'Spinner', () => _startSpinnerAnimation(trayIconData.id)),
+                _buildCompactButton(Icons.circle, 'Pulse', () => _startPulseAnimation(trayIconData.id)),
+                _buildCompactButton(Icons.radio_button_unchecked, 'Blink', () => _startBlinkAnimation(trayIconData.id)),
+                _buildCompactButton(Icons.trending_up, 'Progress', () => _startProgressAnimation(trayIconData.id)),
+                _buildCompactButton(Icons.music_note, 'Wave', () => _startWaveAnimation(trayIconData.id)),
+                _buildCompactButton(Icons.crop_square, 'Rotate', () => _startRotatingSquareAnimation(trayIconData.id)),
+                _buildCompactButton(Icons.stop, 'Stop', () => _stopAnimation(trayIconData.id)),
+              ],
             ),
             const SizedBox(height: 12),
             
