@@ -163,6 +163,45 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     final separatorItem = MenuItem('', MenuItemType.separator);
     final toggleItem = MenuItem('Toggle Visibility');
     final separatorItem2 = MenuItem('', MenuItemType.separator);
+    
+    // Create submenu
+    final submenuMenu = Menu();
+    final submenuItem1 = MenuItem('Submenu Item 1');
+    final submenuItem2 = MenuItem('Submenu Item 2');
+    final submenuItem3 = MenuItem('Submenu Item 3');
+    
+    // Add submenu items
+    submenuMenu.addItem(submenuItem1);
+    submenuMenu.addItem(submenuItem2);
+    submenuMenu.addItem(submenuItem3);
+    
+    // Create submenu menu item
+    final submenuMenuItem = MenuItem('More Options', MenuItemType.submenu);
+    submenuMenuItem.submenu = submenuMenu;
+    
+    // Listen to submenu open/close events
+    submenuMenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
+      _addToHistory('Submenu opened for tray icon ${trayIcon.id}');
+    });
+    
+    submenuMenuItem.on<MenuItemSubmenuClosedEvent>((event) {
+      _addToHistory('Submenu closed for tray icon ${trayIcon.id}');
+    });
+    
+    // Add event listeners for submenu items
+    submenuItem1.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Submenu Item 1 clicked for tray icon ${trayIcon.id}');
+    });
+    
+    submenuItem2.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Submenu Item 2 clicked for tray icon ${trayIcon.id}');
+    });
+    
+    submenuItem3.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Submenu Item 3 clicked for tray icon ${trayIcon.id}');
+    });
+    
+    final separatorItem3 = MenuItem('', MenuItemType.separator);
     final aboutItem = MenuItem('About');
     final quitItem = MenuItem('Quit');
 
@@ -199,6 +238,8 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     contextMenu.addItem(separatorItem);
     contextMenu.addItem(toggleItem);
     contextMenu.addItem(separatorItem2);
+    contextMenu.addItem(submenuMenuItem);
+    contextMenu.addItem(separatorItem3);
     contextMenu.addItem(aboutItem);
     contextMenu.addItem(quitItem);
 
