@@ -254,9 +254,6 @@ class TrayIcon
     // Dispose event emitter (will call stopEventListening if needed)
     disposeEventEmitter();
 
-    if (contextMenu != null) {
-      contextMenu!.dispose();
-    }
     bindings.native_tray_icon_destroy(_nativeHandle);
   }
 }
