@@ -165,11 +165,19 @@ class TrayIcon
   }
 
   set title(String? title) {
-    final titlePtr = title != null
-        ? title.toNativeUtf8().cast<Char>()
-        : nullptr;
-    bindings.native_tray_icon_set_title(_nativeHandle, titlePtr);
-    bindings.free_c_str(titlePtr);
+    if (title != null) {
+      final titleUtf8 = title.toNativeUtf8();
+      try {
+        bindings.native_tray_icon_set_title(
+          _nativeHandle,
+          titleUtf8.cast<Char>(),
+        );
+      } finally {
+        ffi.malloc.free(titleUtf8);
+      }
+    } else {
+      bindings.native_tray_icon_set_title(_nativeHandle, nullptr);
+    }
   }
 
   String? get tooltip {
@@ -180,11 +188,19 @@ class TrayIcon
   }
 
   set tooltip(String? tooltip) {
-    final tooltipPtr = tooltip != null
-        ? tooltip.toNativeUtf8().cast<Char>()
-        : nullptr;
-    bindings.native_tray_icon_set_tooltip(_nativeHandle, tooltipPtr);
-    ffi.calloc.free(tooltipPtr);
+    if (tooltip != null) {
+      final tooltipUtf8 = tooltip.toNativeUtf8();
+      try {
+        bindings.native_tray_icon_set_tooltip(
+          _nativeHandle,
+          tooltipUtf8.cast<Char>(),
+        );
+      } finally {
+        ffi.malloc.free(tooltipUtf8);
+      }
+    } else {
+      bindings.native_tray_icon_set_tooltip(_nativeHandle, nullptr);
+    }
   }
 
   Menu? get contextMenu {
