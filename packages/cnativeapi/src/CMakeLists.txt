@@ -18,9 +18,6 @@ set(LIBNATIVEAPI_INCLUDE_DIR "${LIBNATIVEAPI_ROOT}/include")
 file(GLOB COMMON_SOURCES "${LIBNATIVEAPI_SRC_DIR}/*.cpp" "${LIBNATIVEAPI_SRC_DIR}/foundation/*.cpp")
 list(FILTER COMMON_SOURCES EXCLUDE REGEX "${LIBNATIVEAPI_SRC_DIR}/platform/*")
 
-# Foundation source files
-file(GLOB FOUNDATION_SOURCES "${LIBNATIVEAPI_SRC_DIR}/foundation/*.cpp")
-
 # C API source files
 file(GLOB CAPI_SOURCES
         "${LIBNATIVEAPI_SRC_DIR}/capi/*.cpp"
@@ -28,7 +25,9 @@ file(GLOB CAPI_SOURCES
 )
 
 # Platform-specific source files
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(ANDROID)
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/android/*.cpp")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/linux/*.cpp")
     # Find packages for Linux
     find_package(PkgConfig REQUIRED)
@@ -36,8 +35,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
     pkg_check_modules(XI REQUIRED IMPORTED_TARGET xi)
     pkg_check_modules(AYATANA_APPINDICATOR REQUIRED IMPORTED_TARGET ayatana-appindicator3-0.1)
-elseif (WIN32)
-    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/windows/*.cpp")
 elseif (APPLE)
     file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/macos/*.mm")
     # Find required frameworks for macOS
@@ -45,6 +42,8 @@ elseif (APPLE)
     find_library(CARBON_FRAMEWORK Carbon)
     find_library(COREGRAPHICS_FRAMEWORK CoreGraphics)
     find_library(APPLICATIONSERVICES_FRAMEWORK ApplicationServices)
+elseif (WIN32)
+    file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/windows/*.cpp")
 else ()
     set(PLATFORM_SOURCES "")
 endif ()
@@ -52,7 +51,6 @@ endif ()
 # Add library target
 add_library(cnativeapi SHARED
         ${COMMON_SOURCES}
-        ${FOUNDATION_SOURCES}
         ${PLATFORM_SOURCES}
         ${CAPI_SOURCES}
 )
@@ -73,7 +71,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif ()
 
 # Link required frameworks and libraries
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(ANDROID)
+    target_link_libraries(cnativeapi PUBLIC log android)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(cnativeapi PUBLIC
             PkgConfig::GTK
             PkgConfig::X11
