@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
-        cardTheme: const CardThemeData(elevation: 2, margin: EdgeInsets.all(8)),
+        // cardTheme: const CardThemeData(elevation: 2, margin: EdgeInsets.all(8)),
       ),
       home: const DisplayManagerPage(),
     );

@@ -10,7 +10,7 @@ final DynamicLibrary _dylib = () {
   if (Platform.isMacOS || Platform.isIOS) {
     return DynamicLibrary.open('$_libName.framework/$_libName');
   }
-  if (Platform.isAndroid || Platform.isLinux) {
+  if (Platform.isAndroid || Platform.isLinux || Platform.isOhos) {
     return DynamicLibrary.open('lib$_libName.so');
   }
   if (Platform.isWindows) {
