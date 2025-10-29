@@ -1437,6 +1437,549 @@ class CNativeApiBindings {
             )
           >();
 
+  /// @brief Create a preferences storage with default scope.
+  /// @return Handle to preferences storage, or NULL on failure
+  native_preferences_t native_preferences_create() {
+    return _native_preferences_create();
+  }
+
+  late final _native_preferences_createPtr =
+      _lookup<ffi.NativeFunction<native_preferences_t Function()>>(
+        'native_preferences_create',
+      );
+  late final _native_preferences_create = _native_preferences_createPtr
+      .asFunction<native_preferences_t Function()>();
+
+  /// @brief Create a preferences storage with custom scope.
+  /// @param scope Scope for isolating preferences
+  /// @return Handle to preferences storage, or NULL on failure
+  native_preferences_t native_preferences_create_with_scope(
+    ffi.Pointer<ffi.Char> scope,
+  ) {
+    return _native_preferences_create_with_scope(scope);
+  }
+
+  late final _native_preferences_create_with_scopePtr =
+      _lookup<
+        ffi.NativeFunction<native_preferences_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_preferences_create_with_scope');
+  late final _native_preferences_create_with_scope =
+      _native_preferences_create_with_scopePtr
+          .asFunction<native_preferences_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// @brief Destroy a preferences storage instance.
+  /// @param prefs Handle to preferences storage
+  void native_preferences_destroy(native_preferences_t prefs) {
+    return _native_preferences_destroy(prefs);
+  }
+
+  late final _native_preferences_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_preferences_t)>>(
+        'native_preferences_destroy',
+      );
+  late final _native_preferences_destroy = _native_preferences_destroyPtr
+      .asFunction<void Function(native_preferences_t)>();
+
+  /// @brief Set a key-value pair.
+  /// @param prefs Handle to preferences storage
+  /// @param key The key to set
+  /// @param value The value to store
+  /// @return true if successful, false otherwise
+  bool native_preferences_set(
+    native_preferences_t prefs,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _native_preferences_set(prefs, key, value);
+  }
+
+  late final _native_preferences_setPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_preferences_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_preferences_set');
+  late final _native_preferences_set = _native_preferences_setPtr
+      .asFunction<
+        bool Function(
+          native_preferences_t,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  /// @brief Get the value for a given key.
+  /// @param prefs Handle to preferences storage
+  /// @param key The key to retrieve
+  /// @param default_value Default value if key doesn't exist
+  /// @return The stored value or default_value. Caller must free the returned string.
+  ffi.Pointer<ffi.Char> native_preferences_get(
+    native_preferences_t prefs,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> default_value,
+  ) {
+    return _native_preferences_get(prefs, key, default_value);
+  }
+
+  late final _native_preferences_getPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+            native_preferences_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_preferences_get');
+  late final _native_preferences_get = _native_preferences_getPtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(
+          native_preferences_t,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  /// @brief Remove a key-value pair.
+  /// @param prefs Handle to preferences storage
+  /// @param key The key to remove
+  /// @return true if successful, false if key doesn't exist
+  bool native_preferences_remove(
+    native_preferences_t prefs,
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _native_preferences_remove(prefs, key);
+  }
+
+  late final _native_preferences_removePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_preferences_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_preferences_remove');
+  late final _native_preferences_remove = _native_preferences_removePtr
+      .asFunction<bool Function(native_preferences_t, ffi.Pointer<ffi.Char>)>();
+
+  /// @brief Clear all key-value pairs.
+  /// @param prefs Handle to preferences storage
+  /// @return true if successful, false otherwise
+  bool native_preferences_clear(native_preferences_t prefs) {
+    return _native_preferences_clear(prefs);
+  }
+
+  late final _native_preferences_clearPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_preferences_t)>>(
+        'native_preferences_clear',
+      );
+  late final _native_preferences_clear = _native_preferences_clearPtr
+      .asFunction<bool Function(native_preferences_t)>();
+
+  /// @brief Check if a key exists.
+  /// @param prefs Handle to preferences storage
+  /// @param key The key to check
+  /// @return true if key exists, false otherwise
+  bool native_preferences_contains(
+    native_preferences_t prefs,
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _native_preferences_contains(prefs, key);
+  }
+
+  late final _native_preferences_containsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_preferences_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_preferences_contains');
+  late final _native_preferences_contains = _native_preferences_containsPtr
+      .asFunction<bool Function(native_preferences_t, ffi.Pointer<ffi.Char>)>();
+
+  /// @brief Get all keys.
+  /// @param prefs Handle to preferences storage
+  /// @param out_keys Pointer to array of keys (allocated by function)
+  /// @param out_count Pointer to receive number of keys
+  /// @return true if successful, false otherwise. Caller must free each key and the array.
+  bool native_preferences_get_keys(
+    native_preferences_t prefs,
+    ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_keys,
+    ffi.Pointer<ffi.Size> out_count,
+  ) {
+    return _native_preferences_get_keys(prefs, out_keys, out_count);
+  }
+
+  late final _native_preferences_get_keysPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_preferences_t,
+            ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
+            ffi.Pointer<ffi.Size>,
+          )
+        >
+      >('native_preferences_get_keys');
+  late final _native_preferences_get_keys = _native_preferences_get_keysPtr
+      .asFunction<
+        bool Function(
+          native_preferences_t,
+          ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
+          ffi.Pointer<ffi.Size>,
+        )
+      >();
+
+  /// @brief Get the number of stored items.
+  /// @param prefs Handle to preferences storage
+  /// @return Number of key-value pairs
+  int native_preferences_get_size(native_preferences_t prefs) {
+    return _native_preferences_get_size(prefs);
+  }
+
+  late final _native_preferences_get_sizePtr =
+      _lookup<ffi.NativeFunction<ffi.Size Function(native_preferences_t)>>(
+        'native_preferences_get_size',
+      );
+  late final _native_preferences_get_size = _native_preferences_get_sizePtr
+      .asFunction<int Function(native_preferences_t)>();
+
+  /// @brief Get the scope.
+  /// @param prefs Handle to preferences storage
+  /// @return The scope. Caller must free the returned string.
+  ffi.Pointer<ffi.Char> native_preferences_get_scope(
+    native_preferences_t prefs,
+  ) {
+    return _native_preferences_get_scope(prefs);
+  }
+
+  late final _native_preferences_get_scopePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_preferences_t)>
+      >('native_preferences_get_scope');
+  late final _native_preferences_get_scope = _native_preferences_get_scopePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_preferences_t)>();
+
+  /// @brief Free a string returned by preferences functions.
+  /// @param str String to free
+  void native_preferences_free_string(ffi.Pointer<ffi.Char> str) {
+    return _native_preferences_free_string(str);
+  }
+
+  late final _native_preferences_free_stringPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'native_preferences_free_string',
+      );
+  late final _native_preferences_free_string =
+      _native_preferences_free_stringPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  /// @brief Free a string array returned by preferences functions.
+  /// @param strings Array of strings to free
+  /// @param count Number of strings in the array
+  void native_preferences_free_string_array(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> strings,
+    int count,
+  ) {
+    return _native_preferences_free_string_array(strings, count);
+  }
+
+  late final _native_preferences_free_string_arrayPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Size)
+        >
+      >('native_preferences_free_string_array');
+  late final _native_preferences_free_string_array =
+      _native_preferences_free_string_arrayPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
+
+  /// @brief Create a secure storage with default scope.
+  /// @return Handle to secure storage, or NULL on failure
+  native_secure_storage_t native_secure_storage_create() {
+    return _native_secure_storage_create();
+  }
+
+  late final _native_secure_storage_createPtr =
+      _lookup<ffi.NativeFunction<native_secure_storage_t Function()>>(
+        'native_secure_storage_create',
+      );
+  late final _native_secure_storage_create = _native_secure_storage_createPtr
+      .asFunction<native_secure_storage_t Function()>();
+
+  /// @brief Create a secure storage with custom scope.
+  /// @param scope Scope/application identifier
+  /// @return Handle to secure storage, or NULL on failure
+  native_secure_storage_t native_secure_storage_create_with_scope(
+    ffi.Pointer<ffi.Char> scope,
+  ) {
+    return _native_secure_storage_create_with_scope(scope);
+  }
+
+  late final _native_secure_storage_create_with_scopePtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_secure_storage_t Function(ffi.Pointer<ffi.Char>)
+        >
+      >('native_secure_storage_create_with_scope');
+  late final _native_secure_storage_create_with_scope =
+      _native_secure_storage_create_with_scopePtr
+          .asFunction<
+            native_secure_storage_t Function(ffi.Pointer<ffi.Char>)
+          >();
+
+  /// @brief Destroy a secure storage instance.
+  /// @param storage Handle to secure storage
+  void native_secure_storage_destroy(native_secure_storage_t storage) {
+    return _native_secure_storage_destroy(storage);
+  }
+
+  late final _native_secure_storage_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_secure_storage_t)>>(
+        'native_secure_storage_destroy',
+      );
+  late final _native_secure_storage_destroy = _native_secure_storage_destroyPtr
+      .asFunction<void Function(native_secure_storage_t)>();
+
+  /// @brief Set a key-value pair in secure storage.
+  /// @param storage Handle to secure storage
+  /// @param key The key to set
+  /// @param value The value to store
+  /// @return true if successful, false otherwise
+  bool native_secure_storage_set(
+    native_secure_storage_t storage,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _native_secure_storage_set(storage, key, value);
+  }
+
+  late final _native_secure_storage_setPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_secure_storage_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_secure_storage_set');
+  late final _native_secure_storage_set = _native_secure_storage_setPtr
+      .asFunction<
+        bool Function(
+          native_secure_storage_t,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  /// @brief Get the value for a given key from secure storage.
+  /// @param storage Handle to secure storage
+  /// @param key The key to retrieve
+  /// @param default_value Default value if key doesn't exist
+  /// @return The stored value or default_value. Caller must free the returned string.
+  ffi.Pointer<ffi.Char> native_secure_storage_get(
+    native_secure_storage_t storage,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> default_value,
+  ) {
+    return _native_secure_storage_get(storage, key, default_value);
+  }
+
+  late final _native_secure_storage_getPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+            native_secure_storage_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_secure_storage_get');
+  late final _native_secure_storage_get = _native_secure_storage_getPtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(
+          native_secure_storage_t,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  /// @brief Remove a key-value pair from secure storage.
+  /// @param storage Handle to secure storage
+  /// @param key The key to remove
+  /// @return true if successful, false if key doesn't exist
+  bool native_secure_storage_remove(
+    native_secure_storage_t storage,
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _native_secure_storage_remove(storage, key);
+  }
+
+  late final _native_secure_storage_removePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_secure_storage_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_secure_storage_remove');
+  late final _native_secure_storage_remove = _native_secure_storage_removePtr
+      .asFunction<
+        bool Function(native_secure_storage_t, ffi.Pointer<ffi.Char>)
+      >();
+
+  /// @brief Clear all key-value pairs from secure storage.
+  /// @param storage Handle to secure storage
+  /// @return true if successful, false otherwise
+  bool native_secure_storage_clear(native_secure_storage_t storage) {
+    return _native_secure_storage_clear(storage);
+  }
+
+  late final _native_secure_storage_clearPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_secure_storage_t)>>(
+        'native_secure_storage_clear',
+      );
+  late final _native_secure_storage_clear = _native_secure_storage_clearPtr
+      .asFunction<bool Function(native_secure_storage_t)>();
+
+  /// @brief Check if a key exists in secure storage.
+  /// @param storage Handle to secure storage
+  /// @param key The key to check
+  /// @return true if key exists, false otherwise
+  bool native_secure_storage_contains(
+    native_secure_storage_t storage,
+    ffi.Pointer<ffi.Char> key,
+  ) {
+    return _native_secure_storage_contains(storage, key);
+  }
+
+  late final _native_secure_storage_containsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_secure_storage_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_secure_storage_contains');
+  late final _native_secure_storage_contains =
+      _native_secure_storage_containsPtr
+          .asFunction<
+            bool Function(native_secure_storage_t, ffi.Pointer<ffi.Char>)
+          >();
+
+  /// @brief Get all keys from secure storage.
+  /// @param storage Handle to secure storage
+  /// @param out_keys Pointer to array of keys (allocated by function)
+  /// @param out_count Pointer to receive number of keys
+  /// @return true if successful, false otherwise. Caller must free each key and the array.
+  bool native_secure_storage_get_keys(
+    native_secure_storage_t storage,
+    ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_keys,
+    ffi.Pointer<ffi.Size> out_count,
+  ) {
+    return _native_secure_storage_get_keys(storage, out_keys, out_count);
+  }
+
+  late final _native_secure_storage_get_keysPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_secure_storage_t,
+            ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
+            ffi.Pointer<ffi.Size>,
+          )
+        >
+      >('native_secure_storage_get_keys');
+  late final _native_secure_storage_get_keys =
+      _native_secure_storage_get_keysPtr
+          .asFunction<
+            bool Function(
+              native_secure_storage_t,
+              ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
+
+  /// @brief Get the number of stored items in secure storage.
+  /// @param storage Handle to secure storage
+  /// @return Number of key-value pairs
+  int native_secure_storage_get_size(native_secure_storage_t storage) {
+    return _native_secure_storage_get_size(storage);
+  }
+
+  late final _native_secure_storage_get_sizePtr =
+      _lookup<ffi.NativeFunction<ffi.Size Function(native_secure_storage_t)>>(
+        'native_secure_storage_get_size',
+      );
+  late final _native_secure_storage_get_size =
+      _native_secure_storage_get_sizePtr
+          .asFunction<int Function(native_secure_storage_t)>();
+
+  /// @brief Get the scope.
+  /// @param storage Handle to secure storage
+  /// @return The scope. Caller must free the returned string.
+  ffi.Pointer<ffi.Char> native_secure_storage_get_scope(
+    native_secure_storage_t storage,
+  ) {
+    return _native_secure_storage_get_scope(storage);
+  }
+
+  late final _native_secure_storage_get_scopePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_secure_storage_t)
+        >
+      >('native_secure_storage_get_scope');
+  late final _native_secure_storage_get_scope =
+      _native_secure_storage_get_scopePtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(native_secure_storage_t)
+          >();
+
+  /// @brief Check if secure storage is available on this platform.
+  /// @return true if platform supports secure storage, false otherwise
+  bool native_secure_storage_is_available() {
+    return _native_secure_storage_is_available();
+  }
+
+  late final _native_secure_storage_is_availablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_secure_storage_is_available',
+      );
+  late final _native_secure_storage_is_available =
+      _native_secure_storage_is_availablePtr.asFunction<bool Function()>();
+
+  /// @brief Free a string returned by secure storage functions.
+  /// @param str String to free
+  void native_secure_storage_free_string(ffi.Pointer<ffi.Char> str) {
+    return _native_secure_storage_free_string(str);
+  }
+
+  late final _native_secure_storage_free_stringPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'native_secure_storage_free_string',
+      );
+  late final _native_secure_storage_free_string =
+      _native_secure_storage_free_stringPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  /// @brief Free a string array returned by secure storage functions.
+  /// @param strings Array of strings to free
+  /// @param count Number of strings in the array
+  void native_secure_storage_free_string_array(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> strings,
+    int count,
+  ) {
+    return _native_secure_storage_free_string_array(strings, count);
+  }
+
+  late final _native_secure_storage_free_string_arrayPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Size)
+        >
+      >('native_secure_storage_free_string_array');
+  late final _native_secure_storage_free_string_array =
+      _native_secure_storage_free_string_arrayPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
+
   /// Free a C string allocated by to_c_str
   /// @param str The string to free (can be nullptr)
   void free_c_str(ffi.Pointer<ffi.Char> str) {
@@ -2226,6 +2769,12 @@ typedef native_menu_event_callback_tFunction =
     );
 typedef Dartnative_menu_event_callback_tFunction =
     void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+
+/// Opaque handle type
+typedef native_preferences_t = ffi.Pointer<ffi.Void>;
+
+/// Opaque handle type
+typedef native_secure_storage_t = ffi.Pointer<ffi.Void>;
 
 /// Tray icon clicked event
 final class native_tray_icon_clicked_event_t extends ffi.Struct {
