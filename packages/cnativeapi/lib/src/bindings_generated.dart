@@ -62,6 +62,874 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
+  /// Window creation and destruction
+  ffi.Pointer<native_window_options_t> native_window_options_create() {
+    return _native_window_options_create();
+  }
+
+  late final _native_window_options_createPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<native_window_options_t> Function()>
+      >('native_window_options_create');
+  late final _native_window_options_create = _native_window_options_createPtr
+      .asFunction<ffi.Pointer<native_window_options_t> Function()>();
+
+  void native_window_options_destroy(
+    ffi.Pointer<native_window_options_t> options,
+  ) {
+    return _native_window_options_destroy(options);
+  }
+
+  late final _native_window_options_destroyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_window_options_t>)
+        >
+      >('native_window_options_destroy');
+  late final _native_window_options_destroy = _native_window_options_destroyPtr
+      .asFunction<void Function(ffi.Pointer<native_window_options_t>)>();
+
+  bool native_window_options_set_title(
+    ffi.Pointer<native_window_options_t> options,
+    ffi.Pointer<ffi.Char> title,
+  ) {
+    return _native_window_options_set_title(options, title);
+  }
+
+  late final _native_window_options_set_titlePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            ffi.Pointer<native_window_options_t>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_window_options_set_title');
+  late final _native_window_options_set_title =
+      _native_window_options_set_titlePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<native_window_options_t>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
+
+  void native_window_options_set_size(
+    ffi.Pointer<native_window_options_t> options,
+    double width,
+    double height,
+  ) {
+    return _native_window_options_set_size(options, width, height);
+  }
+
+  late final _native_window_options_set_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<native_window_options_t>,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('native_window_options_set_size');
+  late final _native_window_options_set_size =
+      _native_window_options_set_sizePtr
+          .asFunction<
+            void Function(ffi.Pointer<native_window_options_t>, double, double)
+          >();
+
+  void native_window_options_set_minimum_size(
+    ffi.Pointer<native_window_options_t> options,
+    double width,
+    double height,
+  ) {
+    return _native_window_options_set_minimum_size(options, width, height);
+  }
+
+  late final _native_window_options_set_minimum_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<native_window_options_t>,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('native_window_options_set_minimum_size');
+  late final _native_window_options_set_minimum_size =
+      _native_window_options_set_minimum_sizePtr
+          .asFunction<
+            void Function(ffi.Pointer<native_window_options_t>, double, double)
+          >();
+
+  void native_window_options_set_maximum_size(
+    ffi.Pointer<native_window_options_t> options,
+    double width,
+    double height,
+  ) {
+    return _native_window_options_set_maximum_size(options, width, height);
+  }
+
+  late final _native_window_options_set_maximum_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<native_window_options_t>,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('native_window_options_set_maximum_size');
+  late final _native_window_options_set_maximum_size =
+      _native_window_options_set_maximum_sizePtr
+          .asFunction<
+            void Function(ffi.Pointer<native_window_options_t>, double, double)
+          >();
+
+  void native_window_options_set_centered(
+    ffi.Pointer<native_window_options_t> options,
+    bool centered,
+  ) {
+    return _native_window_options_set_centered(options, centered);
+  }
+
+  late final _native_window_options_set_centeredPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_window_options_t>, ffi.Bool)
+        >
+      >('native_window_options_set_centered');
+  late final _native_window_options_set_centered =
+      _native_window_options_set_centeredPtr
+          .asFunction<
+            void Function(ffi.Pointer<native_window_options_t>, bool)
+          >();
+
+  /// Window basic operations
+  int native_window_get_id(native_window_t window) {
+    return _native_window_get_id(window);
+  }
+
+  late final _native_window_get_idPtr =
+      _lookup<ffi.NativeFunction<native_window_id_t Function(native_window_t)>>(
+        'native_window_get_id',
+      );
+  late final _native_window_get_id = _native_window_get_idPtr
+      .asFunction<int Function(native_window_t)>();
+
+  void native_window_focus(native_window_t window) {
+    return _native_window_focus(window);
+  }
+
+  late final _native_window_focusPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_focus',
+      );
+  late final _native_window_focus = _native_window_focusPtr
+      .asFunction<void Function(native_window_t)>();
+
+  void native_window_blur(native_window_t window) {
+    return _native_window_blur(window);
+  }
+
+  late final _native_window_blurPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_blur',
+      );
+  late final _native_window_blur = _native_window_blurPtr
+      .asFunction<void Function(native_window_t)>();
+
+  bool native_window_is_focused(native_window_t window) {
+    return _native_window_is_focused(window);
+  }
+
+  late final _native_window_is_focusedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_focused',
+      );
+  late final _native_window_is_focused = _native_window_is_focusedPtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_show(native_window_t window) {
+    return _native_window_show(window);
+  }
+
+  late final _native_window_showPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_show',
+      );
+  late final _native_window_show = _native_window_showPtr
+      .asFunction<void Function(native_window_t)>();
+
+  void native_window_show_inactive(native_window_t window) {
+    return _native_window_show_inactive(window);
+  }
+
+  late final _native_window_show_inactivePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_show_inactive',
+      );
+  late final _native_window_show_inactive = _native_window_show_inactivePtr
+      .asFunction<void Function(native_window_t)>();
+
+  void native_window_hide(native_window_t window) {
+    return _native_window_hide(window);
+  }
+
+  late final _native_window_hidePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_hide',
+      );
+  late final _native_window_hide = _native_window_hidePtr
+      .asFunction<void Function(native_window_t)>();
+
+  bool native_window_is_visible(native_window_t window) {
+    return _native_window_is_visible(window);
+  }
+
+  late final _native_window_is_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_visible',
+      );
+  late final _native_window_is_visible = _native_window_is_visiblePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  /// Window state operations
+  void native_window_maximize(native_window_t window) {
+    return _native_window_maximize(window);
+  }
+
+  late final _native_window_maximizePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_maximize',
+      );
+  late final _native_window_maximize = _native_window_maximizePtr
+      .asFunction<void Function(native_window_t)>();
+
+  void native_window_unmaximize(native_window_t window) {
+    return _native_window_unmaximize(window);
+  }
+
+  late final _native_window_unmaximizePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_unmaximize',
+      );
+  late final _native_window_unmaximize = _native_window_unmaximizePtr
+      .asFunction<void Function(native_window_t)>();
+
+  bool native_window_is_maximized(native_window_t window) {
+    return _native_window_is_maximized(window);
+  }
+
+  late final _native_window_is_maximizedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_maximized',
+      );
+  late final _native_window_is_maximized = _native_window_is_maximizedPtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_minimize(native_window_t window) {
+    return _native_window_minimize(window);
+  }
+
+  late final _native_window_minimizePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_minimize',
+      );
+  late final _native_window_minimize = _native_window_minimizePtr
+      .asFunction<void Function(native_window_t)>();
+
+  void native_window_restore(native_window_t window) {
+    return _native_window_restore(window);
+  }
+
+  late final _native_window_restorePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_restore',
+      );
+  late final _native_window_restore = _native_window_restorePtr
+      .asFunction<void Function(native_window_t)>();
+
+  bool native_window_is_minimized(native_window_t window) {
+    return _native_window_is_minimized(window);
+  }
+
+  late final _native_window_is_minimizedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_minimized',
+      );
+  late final _native_window_is_minimized = _native_window_is_minimizedPtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_fullscreen(
+    native_window_t window,
+    bool is_fullscreen,
+  ) {
+    return _native_window_set_fullscreen(window, is_fullscreen);
+  }
+
+  late final _native_window_set_fullscreenPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_fullscreen',
+      );
+  late final _native_window_set_fullscreen = _native_window_set_fullscreenPtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_fullscreen(native_window_t window) {
+    return _native_window_is_fullscreen(window);
+  }
+
+  late final _native_window_is_fullscreenPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_fullscreen',
+      );
+  late final _native_window_is_fullscreen = _native_window_is_fullscreenPtr
+      .asFunction<bool Function(native_window_t)>();
+
+  /// Window geometry operations
+  void native_window_set_bounds(
+    native_window_t window,
+    native_rectangle_t bounds,
+  ) {
+    return _native_window_set_bounds(window, bounds);
+  }
+
+  late final _native_window_set_boundsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, native_rectangle_t)
+        >
+      >('native_window_set_bounds');
+  late final _native_window_set_bounds = _native_window_set_boundsPtr
+      .asFunction<void Function(native_window_t, native_rectangle_t)>();
+
+  native_rectangle_t native_window_get_bounds(native_window_t window) {
+    return _native_window_get_bounds(window);
+  }
+
+  late final _native_window_get_boundsPtr =
+      _lookup<ffi.NativeFunction<native_rectangle_t Function(native_window_t)>>(
+        'native_window_get_bounds',
+      );
+  late final _native_window_get_bounds = _native_window_get_boundsPtr
+      .asFunction<native_rectangle_t Function(native_window_t)>();
+
+  void native_window_set_size(
+    native_window_t window,
+    double width,
+    double height,
+    bool animate,
+  ) {
+    return _native_window_set_size(window, width, height, animate);
+  }
+
+  late final _native_window_set_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, ffi.Double, ffi.Double, ffi.Bool)
+        >
+      >('native_window_set_size');
+  late final _native_window_set_size = _native_window_set_sizePtr
+      .asFunction<void Function(native_window_t, double, double, bool)>();
+
+  native_size_t native_window_get_size(native_window_t window) {
+    return _native_window_get_size(window);
+  }
+
+  late final _native_window_get_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
+        'native_window_get_size',
+      );
+  late final _native_window_get_size = _native_window_get_sizePtr
+      .asFunction<native_size_t Function(native_window_t)>();
+
+  void native_window_set_content_size(
+    native_window_t window,
+    double width,
+    double height,
+  ) {
+    return _native_window_set_content_size(window, width, height);
+  }
+
+  late final _native_window_set_content_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
+        >
+      >('native_window_set_content_size');
+  late final _native_window_set_content_size =
+      _native_window_set_content_sizePtr
+          .asFunction<void Function(native_window_t, double, double)>();
+
+  native_size_t native_window_get_content_size(native_window_t window) {
+    return _native_window_get_content_size(window);
+  }
+
+  late final _native_window_get_content_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
+        'native_window_get_content_size',
+      );
+  late final _native_window_get_content_size =
+      _native_window_get_content_sizePtr
+          .asFunction<native_size_t Function(native_window_t)>();
+
+  void native_window_set_minimum_size(
+    native_window_t window,
+    double width,
+    double height,
+  ) {
+    return _native_window_set_minimum_size(window, width, height);
+  }
+
+  late final _native_window_set_minimum_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
+        >
+      >('native_window_set_minimum_size');
+  late final _native_window_set_minimum_size =
+      _native_window_set_minimum_sizePtr
+          .asFunction<void Function(native_window_t, double, double)>();
+
+  native_size_t native_window_get_minimum_size(native_window_t window) {
+    return _native_window_get_minimum_size(window);
+  }
+
+  late final _native_window_get_minimum_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
+        'native_window_get_minimum_size',
+      );
+  late final _native_window_get_minimum_size =
+      _native_window_get_minimum_sizePtr
+          .asFunction<native_size_t Function(native_window_t)>();
+
+  void native_window_set_maximum_size(
+    native_window_t window,
+    double width,
+    double height,
+  ) {
+    return _native_window_set_maximum_size(window, width, height);
+  }
+
+  late final _native_window_set_maximum_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
+        >
+      >('native_window_set_maximum_size');
+  late final _native_window_set_maximum_size =
+      _native_window_set_maximum_sizePtr
+          .asFunction<void Function(native_window_t, double, double)>();
+
+  native_size_t native_window_get_maximum_size(native_window_t window) {
+    return _native_window_get_maximum_size(window);
+  }
+
+  late final _native_window_get_maximum_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
+        'native_window_get_maximum_size',
+      );
+  late final _native_window_get_maximum_size =
+      _native_window_get_maximum_sizePtr
+          .asFunction<native_size_t Function(native_window_t)>();
+
+  void native_window_set_position(native_window_t window, double x, double y) {
+    return _native_window_set_position(window, x, y);
+  }
+
+  late final _native_window_set_positionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
+        >
+      >('native_window_set_position');
+  late final _native_window_set_position = _native_window_set_positionPtr
+      .asFunction<void Function(native_window_t, double, double)>();
+
+  native_point_t native_window_get_position(native_window_t window) {
+    return _native_window_get_position(window);
+  }
+
+  late final _native_window_get_positionPtr =
+      _lookup<ffi.NativeFunction<native_point_t Function(native_window_t)>>(
+        'native_window_get_position',
+      );
+  late final _native_window_get_position = _native_window_get_positionPtr
+      .asFunction<native_point_t Function(native_window_t)>();
+
+  /// Window properties
+  void native_window_set_resizable(native_window_t window, bool resizable) {
+    return _native_window_set_resizable(window, resizable);
+  }
+
+  late final _native_window_set_resizablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_resizable',
+      );
+  late final _native_window_set_resizable = _native_window_set_resizablePtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_resizable(native_window_t window) {
+    return _native_window_is_resizable(window);
+  }
+
+  late final _native_window_is_resizablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_resizable',
+      );
+  late final _native_window_is_resizable = _native_window_is_resizablePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_movable(native_window_t window, bool movable) {
+    return _native_window_set_movable(window, movable);
+  }
+
+  late final _native_window_set_movablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_movable',
+      );
+  late final _native_window_set_movable = _native_window_set_movablePtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_movable(native_window_t window) {
+    return _native_window_is_movable(window);
+  }
+
+  late final _native_window_is_movablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_movable',
+      );
+  late final _native_window_is_movable = _native_window_is_movablePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_minimizable(native_window_t window, bool minimizable) {
+    return _native_window_set_minimizable(window, minimizable);
+  }
+
+  late final _native_window_set_minimizablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_minimizable',
+      );
+  late final _native_window_set_minimizable = _native_window_set_minimizablePtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_minimizable(native_window_t window) {
+    return _native_window_is_minimizable(window);
+  }
+
+  late final _native_window_is_minimizablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_minimizable',
+      );
+  late final _native_window_is_minimizable = _native_window_is_minimizablePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_maximizable(native_window_t window, bool maximizable) {
+    return _native_window_set_maximizable(window, maximizable);
+  }
+
+  late final _native_window_set_maximizablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_maximizable',
+      );
+  late final _native_window_set_maximizable = _native_window_set_maximizablePtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_maximizable(native_window_t window) {
+    return _native_window_is_maximizable(window);
+  }
+
+  late final _native_window_is_maximizablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_maximizable',
+      );
+  late final _native_window_is_maximizable = _native_window_is_maximizablePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_fullscreenable(
+    native_window_t window,
+    bool fullscreenable,
+  ) {
+    return _native_window_set_fullscreenable(window, fullscreenable);
+  }
+
+  late final _native_window_set_fullscreenablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_fullscreenable',
+      );
+  late final _native_window_set_fullscreenable =
+      _native_window_set_fullscreenablePtr
+          .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_fullscreenable(native_window_t window) {
+    return _native_window_is_fullscreenable(window);
+  }
+
+  late final _native_window_is_fullscreenablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_fullscreenable',
+      );
+  late final _native_window_is_fullscreenable =
+      _native_window_is_fullscreenablePtr
+          .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_closable(native_window_t window, bool closable) {
+    return _native_window_set_closable(window, closable);
+  }
+
+  late final _native_window_set_closablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_closable',
+      );
+  late final _native_window_set_closable = _native_window_set_closablePtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_closable(native_window_t window) {
+    return _native_window_is_closable(window);
+  }
+
+  late final _native_window_is_closablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_closable',
+      );
+  late final _native_window_is_closable = _native_window_is_closablePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_always_on_top(
+    native_window_t window,
+    bool always_on_top,
+  ) {
+    return _native_window_set_always_on_top(window, always_on_top);
+  }
+
+  late final _native_window_set_always_on_topPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_always_on_top',
+      );
+  late final _native_window_set_always_on_top =
+      _native_window_set_always_on_topPtr
+          .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_always_on_top(native_window_t window) {
+    return _native_window_is_always_on_top(window);
+  }
+
+  late final _native_window_is_always_on_topPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_always_on_top',
+      );
+  late final _native_window_is_always_on_top =
+      _native_window_is_always_on_topPtr
+          .asFunction<bool Function(native_window_t)>();
+
+  bool native_window_set_title(
+    native_window_t window,
+    ffi.Pointer<ffi.Char> title,
+  ) {
+    return _native_window_set_title(window, title);
+  }
+
+  late final _native_window_set_titlePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_window_set_title');
+  late final _native_window_set_title = _native_window_set_titlePtr
+      .asFunction<bool Function(native_window_t, ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<ffi.Char> native_window_get_title(native_window_t window) {
+    return _native_window_get_title(window);
+  }
+
+  late final _native_window_get_titlePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_window_t)>
+      >('native_window_get_title');
+  late final _native_window_get_title = _native_window_get_titlePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_window_t)>();
+
+  void native_window_set_has_shadow(native_window_t window, bool has_shadow) {
+    return _native_window_set_has_shadow(window, has_shadow);
+  }
+
+  late final _native_window_set_has_shadowPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_has_shadow',
+      );
+  late final _native_window_set_has_shadow = _native_window_set_has_shadowPtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_has_shadow(native_window_t window) {
+    return _native_window_has_shadow(window);
+  }
+
+  late final _native_window_has_shadowPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_has_shadow',
+      );
+  late final _native_window_has_shadow = _native_window_has_shadowPtr
+      .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_opacity(native_window_t window, double opacity) {
+    return _native_window_set_opacity(window, opacity);
+  }
+
+  late final _native_window_set_opacityPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Float)>
+      >('native_window_set_opacity');
+  late final _native_window_set_opacity = _native_window_set_opacityPtr
+      .asFunction<void Function(native_window_t, double)>();
+
+  double native_window_get_opacity(native_window_t window) {
+    return _native_window_get_opacity(window);
+  }
+
+  late final _native_window_get_opacityPtr =
+      _lookup<ffi.NativeFunction<ffi.Float Function(native_window_t)>>(
+        'native_window_get_opacity',
+      );
+  late final _native_window_get_opacity = _native_window_get_opacityPtr
+      .asFunction<double Function(native_window_t)>();
+
+  void native_window_set_visible_on_all_workspaces(
+    native_window_t window,
+    bool visible,
+  ) {
+    return _native_window_set_visible_on_all_workspaces(window, visible);
+  }
+
+  late final _native_window_set_visible_on_all_workspacesPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_visible_on_all_workspaces',
+      );
+  late final _native_window_set_visible_on_all_workspaces =
+      _native_window_set_visible_on_all_workspacesPtr
+          .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_visible_on_all_workspaces(native_window_t window) {
+    return _native_window_is_visible_on_all_workspaces(window);
+  }
+
+  late final _native_window_is_visible_on_all_workspacesPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_visible_on_all_workspaces',
+      );
+  late final _native_window_is_visible_on_all_workspaces =
+      _native_window_is_visible_on_all_workspacesPtr
+          .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_ignore_mouse_events(
+    native_window_t window,
+    bool ignore,
+  ) {
+    return _native_window_set_ignore_mouse_events(window, ignore);
+  }
+
+  late final _native_window_set_ignore_mouse_eventsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_ignore_mouse_events',
+      );
+  late final _native_window_set_ignore_mouse_events =
+      _native_window_set_ignore_mouse_eventsPtr
+          .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_ignore_mouse_events(native_window_t window) {
+    return _native_window_is_ignore_mouse_events(window);
+  }
+
+  late final _native_window_is_ignore_mouse_eventsPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_ignore_mouse_events',
+      );
+  late final _native_window_is_ignore_mouse_events =
+      _native_window_is_ignore_mouse_eventsPtr
+          .asFunction<bool Function(native_window_t)>();
+
+  void native_window_set_focusable(native_window_t window, bool focusable) {
+    return _native_window_set_focusable(window, focusable);
+  }
+
+  late final _native_window_set_focusablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_focusable',
+      );
+  late final _native_window_set_focusable = _native_window_set_focusablePtr
+      .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_focusable(native_window_t window) {
+    return _native_window_is_focusable(window);
+  }
+
+  late final _native_window_is_focusablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_focusable',
+      );
+  late final _native_window_is_focusable = _native_window_is_focusablePtr
+      .asFunction<bool Function(native_window_t)>();
+
+  /// Window interactions
+  void native_window_start_dragging(native_window_t window) {
+    return _native_window_start_dragging(window);
+  }
+
+  late final _native_window_start_draggingPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_start_dragging',
+      );
+  late final _native_window_start_dragging = _native_window_start_draggingPtr
+      .asFunction<void Function(native_window_t)>();
+
+  void native_window_start_resizing(native_window_t window) {
+    return _native_window_start_resizing(window);
+  }
+
+  late final _native_window_start_resizingPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_start_resizing',
+      );
+  late final _native_window_start_resizing = _native_window_start_resizingPtr
+      .asFunction<void Function(native_window_t)>();
+
+  /// Platform-specific functions
+  ffi.Pointer<ffi.Void> native_window_get_native_object(
+    native_window_t window,
+  ) {
+    return _native_window_get_native_object(window);
+  }
+
+  late final _native_window_get_native_objectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_window_t)>
+      >('native_window_get_native_object');
+  late final _native_window_get_native_object =
+      _native_window_get_native_objectPtr
+          .asFunction<ffi.Pointer<ffi.Void> Function(native_window_t)>();
+
+  /// Memory management
+  void native_window_free_string(ffi.Pointer<ffi.Char> str) {
+    return _native_window_free_string(str);
+  }
+
+  late final _native_window_free_stringPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'native_window_free_string',
+      );
+  late final _native_window_free_string = _native_window_free_stringPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void native_window_list_free(ffi.Pointer<native_window_list_t> list) {
+    return _native_window_list_free(list);
+  }
+
+  late final _native_window_list_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_window_list_t>)>
+      >('native_window_list_free');
+  late final _native_window_list_free = _native_window_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_window_list_t>)>();
+
   /// @brief Get the singleton instance of Application
   ///
   /// @return Handle to the singleton Application instance
@@ -2388,6 +3256,134 @@ class CNativeApiBindings {
       );
   late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
       .asFunction<void Function(native_tray_icon_list_t)>();
+
+  /// Create a new window with the specified options
+  /// @param options Window creation options
+  /// @return Window handle, or NULL if creation failed
+  native_window_t native_window_manager_create(
+    ffi.Pointer<native_window_options_t> options,
+  ) {
+    return _native_window_manager_create(options);
+  }
+
+  late final _native_window_manager_createPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_window_t Function(ffi.Pointer<native_window_options_t>)
+        >
+      >('native_window_manager_create');
+  late final _native_window_manager_create = _native_window_manager_createPtr
+      .asFunction<
+        native_window_t Function(ffi.Pointer<native_window_options_t>)
+      >();
+
+  /// Get a window by its ID
+  /// @param window_id The window ID
+  /// @return Window handle, or NULL if not found
+  native_window_t native_window_manager_get(int window_id) {
+    return _native_window_manager_get(window_id);
+  }
+
+  late final _native_window_manager_getPtr =
+      _lookup<ffi.NativeFunction<native_window_t Function(native_window_id_t)>>(
+        'native_window_manager_get',
+      );
+  late final _native_window_manager_get = _native_window_manager_getPtr
+      .asFunction<native_window_t Function(int)>();
+
+  /// Get all managed windows
+  /// @return List of all windows (caller must free with native_window_list_free)
+  native_window_list_t native_window_manager_get_all() {
+    return _native_window_manager_get_all();
+  }
+
+  late final _native_window_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<native_window_list_t Function()>>(
+        'native_window_manager_get_all',
+      );
+  late final _native_window_manager_get_all = _native_window_manager_get_allPtr
+      .asFunction<native_window_list_t Function()>();
+
+  /// Get the currently active/focused window
+  /// @return Current window handle, or NULL if no window is active
+  native_window_t native_window_manager_get_current() {
+    return _native_window_manager_get_current();
+  }
+
+  late final _native_window_manager_get_currentPtr =
+      _lookup<ffi.NativeFunction<native_window_t Function()>>(
+        'native_window_manager_get_current',
+      );
+  late final _native_window_manager_get_current =
+      _native_window_manager_get_currentPtr
+          .asFunction<native_window_t Function()>();
+
+  /// Destroy a window by its ID
+  /// @param window_id The window ID to destroy
+  /// @return true if window was found and destroyed, false otherwise
+  bool native_window_manager_destroy(int window_id) {
+    return _native_window_manager_destroy(window_id);
+  }
+
+  late final _native_window_manager_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_id_t)>>(
+        'native_window_manager_destroy',
+      );
+  late final _native_window_manager_destroy = _native_window_manager_destroyPtr
+      .asFunction<bool Function(int)>();
+
+  /// Register a callback for window events
+  /// @param callback The callback function to register
+  /// @param user_data User data to pass to the callback
+  /// @return Registration ID, or -1 on failure
+  int native_window_manager_register_event_callback(
+    native_window_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_window_manager_register_event_callback(callback, user_data);
+  }
+
+  late final _native_window_manager_register_event_callbackPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            native_window_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_manager_register_event_callback');
+  late final _native_window_manager_register_event_callback =
+      _native_window_manager_register_event_callbackPtr
+          .asFunction<
+            int Function(native_window_event_callback_t, ffi.Pointer<ffi.Void>)
+          >();
+
+  /// Unregister a window event callback
+  /// @param registration_id The registration ID returned by register_event_callback
+  /// @return true if callback was found and unregistered, false otherwise
+  bool native_window_manager_unregister_event_callback(int registration_id) {
+    return _native_window_manager_unregister_event_callback(registration_id);
+  }
+
+  late final _native_window_manager_unregister_event_callbackPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int)>>(
+        'native_window_manager_unregister_event_callback',
+      );
+  late final _native_window_manager_unregister_event_callback =
+      _native_window_manager_unregister_event_callbackPtr
+          .asFunction<bool Function(int)>();
+
+  /// Shutdown the window manager and cleanup resources
+  void native_window_manager_shutdown() {
+    return _native_window_manager_shutdown();
+  }
+
+  late final _native_window_manager_shutdownPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+        'native_window_manager_shutdown',
+      );
+  late final _native_window_manager_shutdown =
+      _native_window_manager_shutdownPtr.asFunction<void Function()>();
 }
 
 /// Representation of a point
@@ -2481,6 +3477,40 @@ enum native_placement_t {
   };
 }
 
+/// Window options structure for creating windows
+final class native_window_options_t extends ffi.Struct {
+  /// Window title
+  external ffi.Pointer<ffi.Char> title;
+
+  /// Initial window size
+  external native_size_t size;
+
+  /// Minimum window size
+  external native_size_t minimum_size;
+
+  /// Maximum window size
+  external native_size_t maximum_size;
+
+  /// Whether to center the window on screen
+  @ffi.Bool()
+  external bool centered;
+}
+
+/// Window list structure
+final class native_window_list_t extends ffi.Struct {
+  external ffi.Pointer<native_window_t> windows;
+
+  @ffi.Long()
+  external int count;
+}
+
+/// Opaque window handle
+typedef native_window_t = ffi.Pointer<ffi.Void>;
+
+/// Window ID type
+typedef native_window_id_t = ffi.Long;
+typedef Dartnative_window_id_t = int;
+
 /// @brief Application event types
 enum native_application_event_type_t {
   NATIVE_APPLICATION_EVENT_STARTED(0),
@@ -2517,9 +3547,6 @@ final class native_application_event_t extends ffi.Struct {
 
 /// @brief Opaque handle for the Application instance
 typedef native_application_t = ffi.Pointer<ffi.Void>;
-
-/// Opaque window handle
-typedef native_window_t = ffi.Pointer<ffi.Void>;
 
 /// @brief Application event callback function type
 typedef native_application_event_callback_t =
@@ -2838,3 +3865,73 @@ final class native_tray_icon_list_t extends ffi.Struct {
   @ffi.Size()
   external int count;
 }
+
+/// Window event types
+enum native_window_event_type_t {
+  NATIVE_WINDOW_EVENT_CREATED(0),
+  NATIVE_WINDOW_EVENT_CLOSED(1),
+  NATIVE_WINDOW_EVENT_FOCUSED(2),
+  NATIVE_WINDOW_EVENT_BLURRED(3),
+  NATIVE_WINDOW_EVENT_MINIMIZED(4),
+  NATIVE_WINDOW_EVENT_MAXIMIZED(5),
+  NATIVE_WINDOW_EVENT_RESTORED(6),
+  NATIVE_WINDOW_EVENT_MOVED(7),
+  NATIVE_WINDOW_EVENT_RESIZED(8);
+
+  final int value;
+  const native_window_event_type_t(this.value);
+
+  static native_window_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_WINDOW_EVENT_CREATED,
+    1 => NATIVE_WINDOW_EVENT_CLOSED,
+    2 => NATIVE_WINDOW_EVENT_FOCUSED,
+    3 => NATIVE_WINDOW_EVENT_BLURRED,
+    4 => NATIVE_WINDOW_EVENT_MINIMIZED,
+    5 => NATIVE_WINDOW_EVENT_MAXIMIZED,
+    6 => NATIVE_WINDOW_EVENT_RESTORED,
+    7 => NATIVE_WINDOW_EVENT_MOVED,
+    8 => NATIVE_WINDOW_EVENT_RESIZED,
+    _ => throw ArgumentError(
+      "Unknown value for native_window_event_type_t: $value",
+    ),
+  };
+}
+
+/// Window event structure
+final class native_window_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external UnnamedUnion1 data;
+}
+
+final class UnnamedUnion1 extends ffi.Union {
+  external UnnamedStruct1 moved;
+
+  external UnnamedStruct2 resized;
+}
+
+final class UnnamedStruct1 extends ffi.Struct {
+  external native_point_t position;
+}
+
+final class UnnamedStruct2 extends ffi.Struct {
+  external native_size_t size;
+}
+
+/// Window event callback function type
+typedef native_window_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_window_event_callback_tFunction>>;
+typedef native_window_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_window_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_window_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_window_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );

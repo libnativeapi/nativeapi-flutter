@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
@@ -34,11 +35,86 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
   Display? _selectedDisplay;
   bool _isLoading = true;
   String? _errorMessage;
+  Window? _currentWindow;
+  Offset _cursorPosition = Offset.zero;
+  Timer? _updateTimer;
+  List<int> _windowListenerIds = [];
 
   @override
   void initState() {
     super.initState();
     _loadDisplays();
+    _startTracking();
+  }
+
+  @override
+  void dispose() {
+    _updateTimer?.cancel();
+    final windowManager = WindowManager.instance;
+    for (final listenerId in _windowListenerIds) {
+      windowManager.removeListener(listenerId);
+    }
+    _windowListenerIds.clear();
+    super.dispose();
+  }
+
+  void _startTracking() {
+    // Update cursor position and current window periodically
+    _updateTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (mounted) {
+        _updateCursorAndWindow();
+      }
+    });
+
+    // Listen to window events to update current window
+    final windowManager = WindowManager.instance;
+    _windowListenerIds.add(
+      windowManager.addCallbackListener<WindowFocusedEvent>((event) {
+        if (mounted) {
+          _updateCurrentWindow();
+        }
+      }),
+    );
+    _windowListenerIds.add(
+      windowManager.addCallbackListener<WindowMovedEvent>((event) {
+        if (mounted) {
+          _updateCurrentWindow();
+        }
+      }),
+    );
+    _windowListenerIds.add(
+      windowManager.addCallbackListener<WindowResizedEvent>((event) {
+        if (mounted) {
+          _updateCurrentWindow();
+        }
+      }),
+    );
+  }
+
+  void _updateCursorAndWindow() {
+    final displayManager = DisplayManager.instance;
+    final cursorPos = displayManager.getCursorPosition();
+    
+    final windowManager = WindowManager.instance;
+    final currentWindow = windowManager.getCurrent();
+
+    if (mounted) {
+      setState(() {
+        _cursorPosition = cursorPos;
+        _currentWindow = currentWindow;
+      });
+    }
+  }
+
+  void _updateCurrentWindow() {
+    final windowManager = WindowManager.instance;
+    final currentWindow = windowManager.getCurrent();
+
+    if (mounted) {
+      setState(() {
+        _currentWindow = currentWindow;
+      });
+    }
   }
 
   Future<void> _loadDisplays() async {
@@ -196,6 +272,8 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
                   displays: _displays,
                   selectedDisplay: _selectedDisplay,
                   onDisplayTap: _selectDisplay,
+                  currentWindow: _currentWindow,
+                  cursorPosition: _cursorPosition,
                 ),
               ),
               if (_selectedDisplay != null)
@@ -214,6 +292,8 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
                   displays: _displays,
                   selectedDisplay: _selectedDisplay,
                   onDisplayTap: _selectDisplay,
+                  currentWindow: _currentWindow,
+                  cursorPosition: _cursorPosition,
                 ),
               ),
               if (_selectedDisplay != null)
@@ -233,12 +313,16 @@ class DisplayCanvas extends StatelessWidget {
   final List<Display> displays;
   final Display? selectedDisplay;
   final Function(Display) onDisplayTap;
+  final Window? currentWindow;
+  final Offset cursorPosition;
 
   const DisplayCanvas({
     super.key,
     required this.displays,
     required this.selectedDisplay,
     required this.onDisplayTap,
+    this.currentWindow,
+    this.cursorPosition = Offset.zero,
   });
 
   @override
@@ -281,9 +365,14 @@ class DisplayCanvas extends StatelessWidget {
         width: bounds.width * scale,
         height: bounds.height * scale,
         child: Stack(
-          children: displays
-              .map((display) => _buildDisplay(display, bounds, scale))
-              .toList(),
+          children: [
+            ...displays
+                .map((display) => _buildDisplay(display, bounds, scale))
+                .toList(),
+            if (currentWindow != null)
+              _buildWindow(currentWindow!, bounds, scale),
+            _buildCursor(bounds, scale),
+          ],
         ),
       ),
     );
@@ -467,12 +556,6 @@ class DisplayCanvas extends StatelessWidget {
     return Colors.grey[200]!;
   }
 
-  Color _getDisplayBorderColor(bool isSelected, bool isPrimary) {
-    if (isSelected) return Colors.blue[600]!;
-    if (isPrimary) return Colors.green[600]!;
-    return Colors.grey[400]!;
-  }
-
   List<Color> _getWorkAreaGradient(bool isSelected, bool isPrimary) {
     if (isSelected) {
       return [Colors.blue[400]!, Colors.blue[600]!];
@@ -481,6 +564,132 @@ class DisplayCanvas extends StatelessWidget {
       return [Colors.green[300]!, Colors.green[500]!];
     }
     return [Colors.grey[300]!, Colors.grey[400]!];
+  }
+
+  Widget _buildWindow(Window window, Rect bounds, double scale) {
+    try {
+      final windowBounds = window.bounds;
+      final windowLeft = (windowBounds.left - bounds.left) * scale;
+      final windowTop = (windowBounds.top - bounds.top) * scale;
+      final windowWidth = windowBounds.width * scale;
+      final windowHeight = windowBounds.height * scale;
+
+      // Only draw if window is visible within bounds
+      if (windowLeft + windowWidth < 0 ||
+          windowTop + windowHeight < 0 ||
+          windowLeft > bounds.width * scale ||
+          windowTop > bounds.height * scale) {
+        return const SizedBox.shrink();
+      }
+
+      return Positioned(
+        left: windowLeft,
+        top: windowTop,
+        child: Container(
+          width: windowWidth,
+          height: windowHeight,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.orange,
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.orange.withOpacity(0.3),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Window background (semi-transparent)
+              Container(
+                color: Colors.orange.withOpacity(0.1),
+              ),
+              // Window title bar indicator
+              Container(
+                height: (20 * scale).clamp(8.0, 20.0),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.3),
+                  border: const Border(
+                    bottom: BorderSide(color: Colors.orange, width: 1),
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: (8 * scale).clamp(4.0, 8.0),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.window,
+                      size: (12 * scale).clamp(8.0, 12.0),
+                      color: Colors.orange[900],
+                    ),
+                    SizedBox(width: (4 * scale).clamp(2.0, 4.0)),
+                    Expanded(
+                      child: Text(
+                        window.title.isNotEmpty ? window.title : 'Window',
+                        style: TextStyle(
+                          fontSize: (10 * scale).clamp(6.0, 10.0),
+                          color: Colors.orange[900],
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      // Window might have been destroyed, return empty widget
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildCursor(Rect bounds, double scale) {
+    final cursorLeft = (cursorPosition.dx - bounds.left) * scale;
+    final cursorTop = (cursorPosition.dy - bounds.top) * scale;
+
+    // Only draw if cursor is within bounds
+    if (cursorLeft < 0 ||
+        cursorTop < 0 ||
+        cursorLeft > bounds.width * scale ||
+        cursorTop > bounds.height * scale) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      left: cursorLeft - 8,
+      top: cursorTop - 8,
+      child: Container(
+        width: 16,
+        height: 16,
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.8),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.red.withOpacity(0.5),
+              blurRadius: 4,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.mouse,
+            size: 8,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 }
 

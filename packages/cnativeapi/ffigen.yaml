@@ -20,6 +20,8 @@ headers:
     - "src/libnativeapi/src/capi/string_utils_c.h"
     - "src/libnativeapi/src/capi/tray_icon_c.h"
     - "src/libnativeapi/src/capi/tray_manager_c.h"
+    - "src/libnativeapi/src/capi/window_c.h"
+    - "src/libnativeapi/src/capi/window_manager_c.h"
 
   include-directives:
     - "src/libnativeapi/src/capi/accessibility_manager_c.h"
@@ -35,6 +37,8 @@ headers:
     - "src/libnativeapi/src/capi/string_utils_c.h"
     - "src/libnativeapi/src/capi/tray_icon_c.h"
     - "src/libnativeapi/src/capi/tray_manager_c.h"
+    - "src/libnativeapi/src/capi/window_c.h"
+    - "src/libnativeapi/src/capi/window_manager_c.h"
 
 preamble: |
   // ignore_for_file: always_specify_types
