@@ -81,7 +81,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         // Open the menu at the click position using relative positioning
         widget.menu.open(
           PositioningStrategy.relative(
-            _activeWindow!.bounds,
+            _activeWindow!.contentBounds,
             Offset(event.position.dx, event.position.dy),
           ),
           widget.placement,

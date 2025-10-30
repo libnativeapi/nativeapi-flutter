@@ -157,6 +157,28 @@ class Window
     );
   }
 
+  /// Sets the window's content bounds (position and size).
+  set contentBounds(Rect bounds) {
+    final nativeBounds = ffi.calloc<native_rectangle_t>();
+    nativeBounds.ref.x = bounds.left;
+    nativeBounds.ref.y = bounds.top;
+    nativeBounds.ref.width = bounds.width;
+    nativeBounds.ref.height = bounds.height;
+  }
+
+  /// Gets the window's content bounds (position and size).
+  Rect get contentBounds {
+    final nativeBounds = bindings.native_window_get_content_bounds(
+      _nativeHandle,
+    );
+    return Rect.fromLTWH(
+      nativeBounds.x,
+      nativeBounds.y,
+      nativeBounds.width,
+      nativeBounds.height,
+    );
+  }
+
   /// Sets the window's size.
   ///
   /// If [animate] is true, the resize will be animated (platform-dependent).
@@ -290,10 +312,7 @@ class Window
   set title(String value) {
     final titleUtf8 = value.toNativeUtf8();
     try {
-      bindings.native_window_set_title(
-        _nativeHandle,
-        titleUtf8.cast<Char>(),
-      );
+      bindings.native_window_set_title(_nativeHandle, titleUtf8.cast<Char>());
     } finally {
       ffi.malloc.free(titleUtf8);
     }
@@ -332,10 +351,7 @@ class Window
 
   /// Sets whether the window is visible on all workspaces.
   set isVisibleOnAllWorkspaces(bool value) {
-    bindings.native_window_set_visible_on_all_workspaces(
-      _nativeHandle,
-      value,
-    );
+    bindings.native_window_set_visible_on_all_workspaces(_nativeHandle, value);
   }
 
   /// Checks if the window is visible on all workspaces.
@@ -393,4 +409,3 @@ class Window
     // any destroy function here. The manager handles cleanup.
   }
 }
-

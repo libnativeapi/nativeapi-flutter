@@ -473,6 +473,35 @@ class CNativeApiBindings {
       _native_window_get_content_sizePtr
           .asFunction<native_size_t Function(native_window_t)>();
 
+  void native_window_set_content_bounds(
+    native_window_t window,
+    native_rectangle_t bounds,
+  ) {
+    return _native_window_set_content_bounds(window, bounds);
+  }
+
+  late final _native_window_set_content_boundsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, native_rectangle_t)
+        >
+      >('native_window_set_content_bounds');
+  late final _native_window_set_content_bounds =
+      _native_window_set_content_boundsPtr
+          .asFunction<void Function(native_window_t, native_rectangle_t)>();
+
+  native_rectangle_t native_window_get_content_bounds(native_window_t window) {
+    return _native_window_get_content_bounds(window);
+  }
+
+  late final _native_window_get_content_boundsPtr =
+      _lookup<ffi.NativeFunction<native_rectangle_t Function(native_window_t)>>(
+        'native_window_get_content_bounds',
+      );
+  late final _native_window_get_content_bounds =
+      _native_window_get_content_boundsPtr
+          .asFunction<native_rectangle_t Function(native_window_t)>();
+
   void native_window_set_minimum_size(
     native_window_t window,
     double width,
