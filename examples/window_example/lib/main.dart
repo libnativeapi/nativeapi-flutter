@@ -369,7 +369,7 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
   }
 }
 
-class WindowCanvas extends StatelessWidget {
+class WindowCanvas extends StatefulWidget {
   final List<Window> windows;
   final List<Display> displays;
   final Window? selectedWindow;
@@ -384,8 +384,59 @@ class WindowCanvas extends StatelessWidget {
   });
 
   @override
+  State<WindowCanvas> createState() => _WindowCanvasState();
+}
+
+class _WindowCanvasState extends State<WindowCanvas> {
+  final TransformationController _transformationController =
+      TransformationController();
+  double _baseScale = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController.addListener(_onTransformationChanged);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.removeListener(_onTransformationChanged);
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _onTransformationChanged() {
+    final currentScale = _transformationController.value.getMaxScaleOnAxis();
+    if (currentScale != _baseScale) {
+      setState(() {
+        _baseScale = currentScale;
+      });
+    }
+  }
+
+  void _zoomIn() {
+    final currentScale = _transformationController.value.getMaxScaleOnAxis();
+    final newScale = (currentScale * 1.2).clamp(0.5, 5.0);
+    _transformationController.value = Matrix4.identity().scaled(newScale);
+  }
+
+  void _zoomOut() {
+    final currentScale = _transformationController.value.getMaxScaleOnAxis();
+    final newScale = (currentScale / 1.2).clamp(0.5, 5.0);
+    _transformationController.value = Matrix4.identity().scaled(newScale);
+  }
+
+  void _resetZoom() {
+    _transformationController.value = Matrix4.identity();
+  }
+
+  void _fitToScreen() {
+    _resetZoom();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (windows.isEmpty && displays.isEmpty) {
+    if (widget.windows.isEmpty && widget.displays.isEmpty) {
       return const Center(child: Text('No windows or displays available'));
     }
 
@@ -401,9 +452,87 @@ class WindowCanvas extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(20),
-        child: LayoutBuilder(
-          builder: (context, constraints) => _buildWindowLayout(constraints),
+        child: Stack(
+          children: [
+            // Main canvas with zoom support
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LayoutBuilder(
+                builder: (context, constraints) => InteractiveViewer(
+                  transformationController: _transformationController,
+                  minScale: 0.5,
+                  maxScale: 5.0,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  panEnabled: true,
+                  scaleEnabled: true,
+                  child: _buildWindowLayout(constraints),
+                ),
+              ),
+            ),
+            // Zoom controls
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: _zoomIn,
+                      tooltip: 'Zoom In',
+                      iconSize: 20,
+                    ),
+                    const Divider(height: 1),
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: _zoomOut,
+                      tooltip: 'Zoom Out',
+                      iconSize: 20,
+                    ),
+                    const Divider(height: 1),
+                    IconButton(
+                      icon: const Icon(Icons.fit_screen),
+                      onPressed: _fitToScreen,
+                      tooltip: 'Fit to Screen',
+                      iconSize: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Scale indicator
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '${(_baseScale * 100).toStringAsFixed(0)}%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -422,19 +551,21 @@ class WindowCanvas extends StatelessWidget {
     final scaleY = constraints.maxHeight / bounds.height;
     final scale = (scaleX < scaleY ? scaleX : scaleY) * 0.85;
 
-    return Center(
-      child: SizedBox(
-        width: bounds.width * scale,
-        height: bounds.height * scale,
-        child: Stack(
-          children: [
-            // Draw displays first as background
-            if (displays.isNotEmpty)
-              ...displays.map((display) => _buildDisplay(display, bounds, scale)).toList(),
-            // Draw windows on top
-            ...windows.map((window) => _buildWindow(window, bounds, scale)).toList(),
-          ],
-        ),
+    return SizedBox(
+      width: bounds.width * scale,
+      height: bounds.height * scale,
+      child: Stack(
+        children: [
+          // Draw displays first as background
+          if (widget.displays.isNotEmpty)
+            ...widget.displays
+                .map((display) => _buildDisplay(display, bounds, scale))
+                .toList(),
+          // Draw windows on top
+          ...widget.windows
+              .map((window) => _buildWindow(window, bounds, scale))
+              .toList(),
+        ],
       ),
     );
   }
@@ -446,8 +577,8 @@ class WindowCanvas extends StatelessWidget {
     double maxY = double.negativeInfinity;
 
     // First, include all displays if available
-    if (displays.isNotEmpty) {
-      for (final display in displays) {
+    if (widget.displays.isNotEmpty) {
+      for (final display in widget.displays) {
         final position = display.position;
         final size = display.size;
         minX = minX < position.dx ? minX : position.dx;
@@ -462,7 +593,7 @@ class WindowCanvas extends StatelessWidget {
     }
 
     // Then, include all windows
-    for (final window in windows) {
+    for (final window in widget.windows) {
       try {
         final windowBounds = window.bounds;
         minX = minX < windowBounds.left ? minX : windowBounds.left;
@@ -585,7 +716,7 @@ class WindowCanvas extends StatelessWidget {
       final contentWidth = contentBounds.width * scale;
       final contentHeight = contentBounds.height * scale;
 
-      final isSelected = selectedWindow?.id == window.id;
+      final isSelected = widget.selectedWindow?.id == window.id;
 
       // Only draw if window is visible within bounds
       if (windowLeft + windowWidth < 0 ||
@@ -599,7 +730,7 @@ class WindowCanvas extends StatelessWidget {
         left: windowLeft,
         top: windowTop,
         child: GestureDetector(
-          onTap: () => onWindowTap(window),
+          onTap: () => widget.onWindowTap(window),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             width: windowWidth,
