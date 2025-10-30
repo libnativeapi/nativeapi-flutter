@@ -8,6 +8,7 @@ workspace:
   - examples/menu_example
   - examples/storage_example
   - examples/tray_icon_example
+  - examples/window_example
   - packages/cnativeapi
   - packages/cnativeapi/example
   - packages/nativeapi
