@@ -308,15 +308,15 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
       _addToHistory('Positioning menu closed');
     });
 
-    final item1 = MenuItem('Absolute Position Item');
+    final item1 = MenuItem('Positioning Menu Item 1');
     item1.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Absolute position item clicked');
+      _addToHistory('Positioning menu item 1 clicked');
     });
     _positioningMenu.addItem(item1);
 
-    final item2 = MenuItem('Another Item');
+    final item2 = MenuItem('Positioning Menu Item 2');
     item2.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Another item clicked');
+      _addToHistory('Positioning menu item 2 clicked');
     });
     _positioningMenu.addItem(item2);
   }
