@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
+import 'package:nativeapi/src/window.dart';
 
 /// Type of positioning strategy.
 enum PositioningStrategyType {
@@ -22,7 +23,7 @@ enum PositioningStrategyType {
 /// such as menus, tooltips, or popovers. It supports various positioning modes:
 /// - Absolute: Fixed screen coordinates
 /// - CursorPosition: Current mouse cursor position
-/// - Relative: Position relative to a rectangle
+/// - Relative: Position relative to a rectangle or window
 ///
 /// Example:
 /// ```dart
@@ -35,22 +36,29 @@ enum PositioningStrategyType {
 /// // Position menu relative to a rectangle with offset
 /// final buttonRect = Rect.fromLTWH(10, 10, 100, 30);
 /// menu.open(PositioningStrategy.relative(buttonRect, Offset(0, 10)));
+///
+/// // Position menu relative to a window with offset
+/// final window = WindowManager.instance.create(options);
+/// menu.open(PositioningStrategy.relativeToWindow(window, Offset(0, 10)));
 /// ```
 class PositioningStrategy with CNativeApiBindingsMixin {
   final PositioningStrategyType _type;
   final Offset? _absolutePosition;
   final Rect? _relativeRectangle;
   final Offset? _relativeOffset;
+  final Window? _relativeWindow;
 
   PositioningStrategy._({
     required PositioningStrategyType type,
     Offset? absolutePosition,
     Rect? relativeRectangle,
     Offset? relativeOffset,
+    Window? relativeWindow,
   }) : _type = type,
        _absolutePosition = absolutePosition,
        _relativeRectangle = relativeRectangle,
-       _relativeOffset = relativeOffset;
+       _relativeOffset = relativeOffset,
+       _relativeWindow = relativeWindow;
 
   /// Create a strategy for absolute positioning at fixed coordinates.
   ///
@@ -101,6 +109,34 @@ class PositioningStrategy with CNativeApiBindingsMixin {
     );
   }
 
+  /// Create a strategy for positioning relative to a window.
+  ///
+  /// This method stores a reference to the window and will obtain its bounds
+  /// dynamically when [relativeRectangle] is accessed, ensuring the position
+  /// reflects the window's current state.
+  ///
+  /// Example:
+  /// ```dart
+  /// final window = WindowManager.instance.create(options);
+  /// // Position menu at bottom of window (no offset)
+  /// final strategy = PositioningStrategy.relativeToWindow(window);
+  /// menu.open(strategy);
+  ///
+  /// // Position menu at bottom of window with 10px vertical offset
+  /// final strategy2 = PositioningStrategy.relativeToWindow(window, Offset(0, 10));
+  /// menu.open(strategy2);
+  /// ```
+  factory PositioningStrategy.relativeToWindow(
+    Window window, [
+    Offset offset = Offset.zero,
+  ]) {
+    return PositioningStrategy._(
+      type: PositioningStrategyType.relative,
+      relativeWindow: window,
+      relativeOffset: offset,
+    );
+  }
+
   /// Get the type of this positioning strategy.
   PositioningStrategyType get type => _type;
 
@@ -112,12 +148,24 @@ class PositioningStrategy with CNativeApiBindingsMixin {
   /// Get the relative rectangle (for Relative type).
   ///
   /// Only valid when type == PositioningStrategyType.relative
-  Rect? get relativeRectangle => _relativeRectangle;
+  /// If the strategy was created with a Window, this will return the
+  /// window's current bounds (obtained dynamically).
+  Rect? get relativeRectangle {
+    if (_relativeWindow != null) {
+      return _relativeWindow!.bounds;
+    }
+    return _relativeRectangle;
+  }
 
   /// Get the relative offset point (for Relative type).
   ///
   /// Only valid when type == PositioningStrategyType.relative
   Offset? get relativeOffset => _relativeOffset;
+
+  /// Get the relative window (for Relative type created with Window).
+  ///
+  /// Only valid when type == PositioningStrategyType.relative and strategy was created with a Window
+  Window? get relativeWindow => _relativeWindow;
 
   /// Convert this strategy to a native positioning strategy handle.
   ///
@@ -147,7 +195,7 @@ class PositioningStrategy with CNativeApiBindingsMixin {
         return bindings.native_positioning_strategy_cursor_position();
 
       case PositioningStrategyType.relative:
-        final rect = _relativeRectangle;
+        final rect = relativeRectangle; // This will get window bounds if needed
         if (rect == null) {
           throw StateError(
             'Relative rectangle is required for relative strategy',

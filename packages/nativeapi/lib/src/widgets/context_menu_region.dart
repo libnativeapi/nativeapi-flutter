@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/src/foundation/geometry.dart' show Placement;
-import 'package:nativeapi/src/foundation/positioning_strategy.dart';
+import 'package:nativeapi/src/placement.dart';
+import 'package:nativeapi/src/positioning_strategy.dart';
 import 'package:nativeapi/src/menu.dart';
 import 'package:nativeapi/src/window.dart';
 import 'package:nativeapi/src/window_manager.dart';
@@ -80,8 +80,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
         // Open the menu at the click position using relative positioning
         widget.menu.open(
-          PositioningStrategy.relative(
-            _activeWindow!.contentBounds,
+          PositioningStrategy.relativeToWindow(
+            _activeWindow!,
             Offset(event.position.dx, event.position.dy),
           ),
           widget.placement,
