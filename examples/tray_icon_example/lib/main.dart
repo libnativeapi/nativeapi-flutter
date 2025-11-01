@@ -16,6 +16,7 @@ class TrayIconData {
   bool isVisible;
   String title;
   String tooltip;
+  ContextMenuTrigger contextMenuTrigger;
   AnimatedIconGenerator? animatedIconGenerator;
 
   TrayIconData({
@@ -28,6 +29,7 @@ class TrayIconData {
     this.isVisible = true,
     this.title = '',
     this.tooltip = '',
+    this.contextMenuTrigger = ContextMenuTrigger.none,
   });
 
   void dispose() {
@@ -149,6 +151,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       // trayIcon.title = trayIconData.title; // Set via UI
       // trayIcon.tooltip = trayIconData.tooltip; // Set via UI
       trayIcon.isVisible = trayIconData.isVisible;
+      trayIcon.contextMenuTrigger = trayIconData.contextMenuTrigger;
 
       _trayIcons.add(trayIconData);
 
@@ -298,6 +301,30 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     trayIconData.trayIcon.tooltip = tooltip;
     trayIconData.tooltip = tooltip;
     _addToHistory('Tooltip updated for tray icon $id: $tooltip');
+  }
+
+  void _updateTrayIconContextMenuTrigger(int id, ContextMenuTrigger trigger) {
+    final trayIconData = _trayIcons.firstWhere(
+      (trayIconData) => trayIconData.id == id,
+      orElse: () => throw Exception('Tray icon not found'),
+    );
+    trayIconData.trayIcon.contextMenuTrigger = trigger;
+    trayIconData.contextMenuTrigger = trigger;
+    final triggerName = _getTriggerName(trigger);
+    _addToHistory('Context menu trigger updated for tray icon $id: $triggerName');
+  }
+
+  String _getTriggerName(ContextMenuTrigger trigger) {
+    switch (trigger) {
+      case ContextMenuTrigger.none:
+        return 'None (Manual)';
+      case ContextMenuTrigger.clicked:
+        return 'Left Click';
+      case ContextMenuTrigger.rightClicked:
+        return 'Right Click';
+      case ContextMenuTrigger.doubleClicked:
+        return 'Double Click';
+    }
   }
 
   void _toggleTrayIconVisibility(int id) {
@@ -831,6 +858,73 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
               ),
               controller: TextEditingController(text: trayIconData.tooltip),
               onChanged: (value) => _updateTrayIconTooltip(trayIconData.id, value),
+            ),
+            const SizedBox(height: 12),
+            
+            // Context Menu Trigger Section
+            const Text(
+              'Context Menu Trigger',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade400),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: DropdownButton<ContextMenuTrigger>(
+                value: trayIconData.contextMenuTrigger,
+                isExpanded: true,
+                underline: const SizedBox(),
+                items: [
+                  DropdownMenuItem(
+                    value: ContextMenuTrigger.none,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.touch_app, size: 16),
+                        const SizedBox(width: 8),
+                        const Text('None (Manual)'),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: ContextMenuTrigger.clicked,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.mouse, size: 16),
+                        const SizedBox(width: 8),
+                        const Text('Left Click'),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: ContextMenuTrigger.rightClicked,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.mouse_outlined, size: 16),
+                        const SizedBox(width: 8),
+                        const Text('Right Click'),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: ContextMenuTrigger.doubleClicked,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.double_arrow, size: 16),
+                        const SizedBox(width: 8),
+                        const Text('Double Click'),
+                      ],
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    _updateTrayIconContextMenuTrigger(trayIconData.id, value);
+                  }
+                },
+              ),
             ),
             const SizedBox(height: 12),
             

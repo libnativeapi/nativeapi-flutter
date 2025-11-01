@@ -3128,6 +3128,45 @@ class CNativeApiBindings {
       _native_tray_icon_get_context_menuPtr
           .asFunction<native_menu_t Function(native_tray_icon_t)>();
 
+  /// Set the context menu trigger behavior
+  /// @param tray_icon The tray icon
+  /// @param trigger The desired trigger behavior
+  void native_tray_icon_set_context_menu_trigger(
+    native_tray_icon_t tray_icon,
+    native_context_menu_trigger_t trigger,
+  ) {
+    return _native_tray_icon_set_context_menu_trigger(tray_icon, trigger.value);
+  }
+
+  late final _native_tray_icon_set_context_menu_triggerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_tray_icon_t, ffi.UnsignedInt)
+        >
+      >('native_tray_icon_set_context_menu_trigger');
+  late final _native_tray_icon_set_context_menu_trigger =
+      _native_tray_icon_set_context_menu_triggerPtr
+          .asFunction<void Function(native_tray_icon_t, int)>();
+
+  /// Get the current context menu trigger behavior
+  /// @param tray_icon The tray icon
+  /// @return The current trigger behavior
+  native_context_menu_trigger_t native_tray_icon_get_context_menu_trigger(
+    native_tray_icon_t tray_icon,
+  ) {
+    return native_context_menu_trigger_t.fromValue(
+      _native_tray_icon_get_context_menu_trigger(tray_icon),
+    );
+  }
+
+  late final _native_tray_icon_get_context_menu_triggerPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_context_menu_trigger',
+      );
+  late final _native_tray_icon_get_context_menu_trigger =
+      _native_tray_icon_get_context_menu_triggerPtr
+          .asFunction<int Function(native_tray_icon_t)>();
+
   /// Get the screen bounds of the tray icon
   /// @param tray_icon The tray icon
   /// @param bounds Pointer to store the bounds (caller allocated)
@@ -3909,6 +3948,35 @@ enum native_tray_icon_event_type_t {
     2 => NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED,
     _ => throw ArgumentError(
       "Unknown value for native_tray_icon_event_type_t: $value",
+    ),
+  };
+}
+
+/// Context menu trigger modes
+/// Defines how the context menu is triggered for a tray icon
+enum native_context_menu_trigger_t {
+  /// Manual control only
+  NATIVE_CONTEXT_MENU_TRIGGER_NONE(0),
+
+  /// Left click triggers menu
+  NATIVE_CONTEXT_MENU_TRIGGER_CLICKED(1),
+
+  /// Right click triggers menu
+  NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED(2),
+
+  /// Double click triggers menu
+  NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED(3);
+
+  final int value;
+  const native_context_menu_trigger_t(this.value);
+
+  static native_context_menu_trigger_t fromValue(int value) => switch (value) {
+    0 => NATIVE_CONTEXT_MENU_TRIGGER_NONE,
+    1 => NATIVE_CONTEXT_MENU_TRIGGER_CLICKED,
+    2 => NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED,
+    3 => NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED,
+    _ => throw ArgumentError(
+      "Unknown value for native_context_menu_trigger_t: $value",
     ),
   };
 }

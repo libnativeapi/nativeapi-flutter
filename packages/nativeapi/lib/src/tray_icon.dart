@@ -9,6 +9,71 @@ import 'package:nativeapi/src/image.dart';
 import 'package:nativeapi/src/menu.dart';
 import 'package:nativeapi/src/tray_icon_event.dart';
 
+/// Defines how the context menu is triggered for a tray icon.
+///
+/// This enum specifies which mouse interactions should display the tray icon's
+/// context menu. The values align with tray icon event types for consistency.
+enum ContextMenuTrigger {
+  /// Context menu is not automatically triggered by mouse events.
+  ///
+  /// The application must call [TrayIcon.openContextMenu] explicitly to display
+  /// the menu. Use this when you want full control over when the menu appears.
+  none,
+
+  /// Context menu is triggered on [TrayIconClickedEvent].
+  ///
+  /// Automatically opens the context menu when the tray icon is left-clicked.
+  /// This is common on some Linux desktop environments.
+  clicked,
+
+  /// Context menu is triggered on [TrayIconRightClickedEvent].
+  ///
+  /// Automatically opens the context menu when the tray icon is right-clicked.
+  /// This follows the convention on Windows and most desktop environments.
+  rightClicked,
+
+  /// Context menu is triggered on [TrayIconDoubleClickedEvent].
+  ///
+  /// Automatically opens the context menu when the tray icon is double-clicked.
+  /// Less common but useful for applications that use single-click for another action.
+  doubleClicked,
+}
+
+/// Extension methods for ContextMenuTrigger conversion
+extension ContextMenuTriggerExtension on ContextMenuTrigger {
+  /// Convert this ContextMenuTrigger to a native enum value.
+  native_context_menu_trigger_t toNative() {
+    switch (this) {
+      case ContextMenuTrigger.none:
+        return native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_NONE;
+      case ContextMenuTrigger.clicked:
+        return native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_CLICKED;
+      case ContextMenuTrigger.rightClicked:
+        return native_context_menu_trigger_t
+            .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED;
+      case ContextMenuTrigger.doubleClicked:
+        return native_context_menu_trigger_t
+            .NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED;
+    }
+  }
+
+  /// Convert a native enum value to ContextMenuTrigger.
+  static ContextMenuTrigger fromNative(native_context_menu_trigger_t native) {
+    switch (native) {
+      case native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_NONE:
+        return ContextMenuTrigger.none;
+      case native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_CLICKED:
+        return ContextMenuTrigger.clicked;
+      case native_context_menu_trigger_t
+            .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED:
+        return ContextMenuTrigger.rightClicked;
+      case native_context_menu_trigger_t
+            .NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED:
+        return ContextMenuTrigger.doubleClicked;
+    }
+  }
+}
+
 class TrayIcon
     with EventEmitter, CNativeApiBindingsMixin
     implements NativeHandleWrapper<native_tray_icon_t> {
@@ -217,6 +282,48 @@ class TrayIcon
     bindings.native_tray_icon_set_context_menu(
       _nativeHandle,
       menu?.nativeHandle ?? nullptr,
+    );
+  }
+
+  /// Get the current context menu trigger behavior.
+  ///
+  /// Returns the current [ContextMenuTrigger] setting that determines
+  /// which mouse interactions will automatically display the context menu.
+  ContextMenuTrigger get contextMenuTrigger {
+    final native = bindings.native_tray_icon_get_context_menu_trigger(
+      _nativeHandle,
+    );
+    return ContextMenuTriggerExtension.fromNative(native);
+  }
+
+  /// Set the context menu trigger behavior.
+  ///
+  /// Determines which mouse interactions will automatically display the
+  /// context menu. By default, the trigger is set to [ContextMenuTrigger.none],
+  /// requiring explicit control via [openContextMenu] or by setting a trigger mode.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Right click shows menu (common on Windows/Linux)
+  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
+  ///
+  /// // Left click shows menu (common on some Linux environments and macOS)
+  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.clicked;
+  ///
+  /// // Double click shows menu
+  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.doubleClicked;
+  ///
+  /// // Manual control (default) - handle events yourself
+  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.none;
+  /// trayIcon.addListener<TrayIconRightClickedEvent>((event) {
+  ///   // Custom logic before showing menu
+  ///   trayIcon.openContextMenu();
+  /// });
+  /// ```
+  set contextMenuTrigger(ContextMenuTrigger trigger) {
+    bindings.native_tray_icon_set_context_menu_trigger(
+      _nativeHandle,
+      trigger.toNative(),
     );
   }
 
