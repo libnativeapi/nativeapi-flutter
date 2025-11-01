@@ -152,7 +152,7 @@ class PositioningStrategy with CNativeApiBindingsMixin {
   /// window's current bounds (obtained dynamically).
   Rect? get relativeRectangle {
     if (_relativeWindow != null) {
-      return _relativeWindow!.bounds;
+      return _relativeWindow.bounds;
     }
     return _relativeRectangle;
   }
@@ -195,7 +195,30 @@ class PositioningStrategy with CNativeApiBindingsMixin {
         return bindings.native_positioning_strategy_cursor_position();
 
       case PositioningStrategyType.relative:
-        final rect = relativeRectangle; // This will get window bounds if needed
+        // If this strategy was created with a Window, use the window-specific native function
+        if (_relativeWindow != null) {
+          final offset = _relativeOffset;
+          final offsetPtr = offset != null
+              ? (ffi.calloc<native_point_t>()
+                  ..ref.x = offset.dx
+                  ..ref.y = offset.dy)
+              : nullptr;
+
+          final strategy = bindings
+              .native_positioning_strategy_relative_to_window(
+                _relativeWindow.nativeHandle,
+                offsetPtr.cast<native_point_t>(),
+              );
+
+          if (offsetPtr != nullptr) {
+            ffi.calloc.free(offsetPtr);
+          }
+
+          return strategy;
+        }
+
+        // Otherwise, use the rectangle-based positioning
+        final rect = relativeRectangle;
         if (rect == null) {
           throw StateError(
             'Relative rectangle is required for relative strategy',

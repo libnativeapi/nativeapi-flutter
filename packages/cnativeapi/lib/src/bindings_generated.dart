@@ -1540,6 +1540,46 @@ class CNativeApiBindings {
             )
           >();
 
+  /// Create a positioning strategy for positioning relative to a window
+  /// @param window Window to position relative to
+  /// @param offset Offset point to apply to the position, or NULL for no offset
+  /// @return Positioning strategy handle, or NULL if window is invalid
+  ///
+  /// This function obtains the window's bounds using native_window_get_bounds()
+  /// and creates a Relative positioning strategy based on those bounds.
+  ///
+  /// @example
+  /// ```c
+  /// native_window_t window = native_window_manager_create(&options);
+  /// native_point_t offset = {0, 10};
+  /// native_positioning_strategy_t strategy = native_positioning_strategy_relative_to_window(window,
+  /// &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);
+  /// ```
+  native_positioning_strategy_t native_positioning_strategy_relative_to_window(
+    native_window_t window,
+    ffi.Pointer<native_point_t> offset,
+  ) {
+    return _native_positioning_strategy_relative_to_window(window, offset);
+  }
+
+  late final _native_positioning_strategy_relative_to_windowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_positioning_strategy_t Function(
+            native_window_t,
+            ffi.Pointer<native_point_t>,
+          )
+        >
+      >('native_positioning_strategy_relative_to_window');
+  late final _native_positioning_strategy_relative_to_window =
+      _native_positioning_strategy_relative_to_windowPtr
+          .asFunction<
+            native_positioning_strategy_t Function(
+              native_window_t,
+              ffi.Pointer<native_point_t>,
+            )
+          >();
+
   /// Free a positioning strategy handle
   /// @param strategy The positioning strategy to free
   void native_positioning_strategy_free(
