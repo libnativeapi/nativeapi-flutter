@@ -14,7 +14,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  cnativeapi: 77de86834e1965f01d942bd360a8ae89a5b57bf6
+  cnativeapi: c53f1f21415809c8359ca8cbfa12fdf1af56a5f5
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009

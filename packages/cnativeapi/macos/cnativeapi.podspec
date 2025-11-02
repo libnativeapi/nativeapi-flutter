@@ -16,9 +16,9 @@ A new Flutter FFI plugin project.
   # This will ensure the source files in Classes/ are included in the native
   # builds of apps using this FFI plugin. Podspec does not support relative
   # paths, so Classes contains a forwarder C file that relatively imports
-  # `../src/*` so that the C sources can be shared among all target platforms.
+  # `../cxx_impl/*` so that the C sources can be shared among all target platforms.
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*.{cpp,h,mm}', '../src/**/*.{cpp,h,mm}'
+  s.source_files = 'Classes/**/*.{cpp,h,mm}', '../cxx_impl/**/*.{cpp,h,mm}'
 
   # If your plugin requires a privacy manifest, for example if it collects user
   # data, update the PrivacyInfo.xcprivacy file to describe your plugin's
