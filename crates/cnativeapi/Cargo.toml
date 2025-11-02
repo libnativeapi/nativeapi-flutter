@@ -1,0 +1,9 @@
+[package]
+name = "cnativeapi"
+version = "0.0.1"
+edition = "2024"
+authors = ["LiJianying <lijy91@foxmail.com>"]
+description = "Native API C bindings for Rust"
+license = "MIT"
+
+[dependencies]
