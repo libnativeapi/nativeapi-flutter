@@ -1468,6 +1468,141 @@ class CNativeApiBindings {
   late final _native_image_save_to_file = _native_image_save_to_filePtr
       .asFunction<bool Function(native_image_t, ffi.Pointer<ffi.Char>)>();
 
+  /// Create a new keyboard monitor instance
+  /// @return Pointer to keyboard monitor instance, or NULL on failure
+  ffi.Pointer<native_keyboard_monitor_t> native_keyboard_monitor_create() {
+    return _native_keyboard_monitor_create();
+  }
+
+  late final _native_keyboard_monitor_createPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<native_keyboard_monitor_t> Function()>
+      >('native_keyboard_monitor_create');
+  late final _native_keyboard_monitor_create =
+      _native_keyboard_monitor_createPtr
+          .asFunction<ffi.Pointer<native_keyboard_monitor_t> Function()>();
+
+  /// Destroy a keyboard monitor instance
+  /// @param monitor Pointer to keyboard monitor instance to destroy
+  void native_keyboard_monitor_destroy(
+    ffi.Pointer<native_keyboard_monitor_t> monitor,
+  ) {
+    return _native_keyboard_monitor_destroy(monitor);
+  }
+
+  late final _native_keyboard_monitor_destroyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_keyboard_monitor_t>)
+        >
+      >('native_keyboard_monitor_destroy');
+  late final _native_keyboard_monitor_destroy =
+      _native_keyboard_monitor_destroyPtr
+          .asFunction<void Function(ffi.Pointer<native_keyboard_monitor_t>)>();
+
+  /// Set callback functions for keyboard events
+  /// @param monitor Pointer to keyboard monitor instance
+  /// @param on_key_pressed Callback for key pressed events (can be NULL)
+  /// @param on_key_released Callback for key released events (can be NULL)
+  /// @param on_modifier_keys_changed Callback for modifier keys changed events
+  /// (can be NULL)
+  /// @param user_data User data to pass to callbacks
+  /// @return true on success, false on failure
+  bool native_keyboard_monitor_set_callbacks(
+    ffi.Pointer<native_keyboard_monitor_t> monitor,
+    native_key_pressed_callback_t on_key_pressed,
+    native_key_released_callback_t on_key_released,
+    native_modifier_keys_changed_callback_t on_modifier_keys_changed,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_keyboard_monitor_set_callbacks(
+      monitor,
+      on_key_pressed,
+      on_key_released,
+      on_modifier_keys_changed,
+      user_data,
+    );
+  }
+
+  late final _native_keyboard_monitor_set_callbacksPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            ffi.Pointer<native_keyboard_monitor_t>,
+            native_key_pressed_callback_t,
+            native_key_released_callback_t,
+            native_modifier_keys_changed_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_keyboard_monitor_set_callbacks');
+  late final _native_keyboard_monitor_set_callbacks =
+      _native_keyboard_monitor_set_callbacksPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<native_keyboard_monitor_t>,
+              native_key_pressed_callback_t,
+              native_key_released_callback_t,
+              native_modifier_keys_changed_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Start keyboard monitoring
+  /// @param monitor Pointer to keyboard monitor instance
+  /// @return true on success, false on failure
+  bool native_keyboard_monitor_start(
+    ffi.Pointer<native_keyboard_monitor_t> monitor,
+  ) {
+    return _native_keyboard_monitor_start(monitor);
+  }
+
+  late final _native_keyboard_monitor_startPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_keyboard_monitor_t>)
+        >
+      >('native_keyboard_monitor_start');
+  late final _native_keyboard_monitor_start = _native_keyboard_monitor_startPtr
+      .asFunction<bool Function(ffi.Pointer<native_keyboard_monitor_t>)>();
+
+  /// Stop keyboard monitoring
+  /// @param monitor Pointer to keyboard monitor instance
+  /// @return true on success, false on failure
+  bool native_keyboard_monitor_stop(
+    ffi.Pointer<native_keyboard_monitor_t> monitor,
+  ) {
+    return _native_keyboard_monitor_stop(monitor);
+  }
+
+  late final _native_keyboard_monitor_stopPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_keyboard_monitor_t>)
+        >
+      >('native_keyboard_monitor_stop');
+  late final _native_keyboard_monitor_stop = _native_keyboard_monitor_stopPtr
+      .asFunction<bool Function(ffi.Pointer<native_keyboard_monitor_t>)>();
+
+  /// Check if keyboard monitoring is active
+  /// @param monitor Pointer to keyboard monitor instance
+  /// @return true if monitoring is active, false otherwise
+  bool native_keyboard_monitor_is_monitoring(
+    ffi.Pointer<native_keyboard_monitor_t> monitor,
+  ) {
+    return _native_keyboard_monitor_is_monitoring(monitor);
+  }
+
+  late final _native_keyboard_monitor_is_monitoringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<native_keyboard_monitor_t>)
+        >
+      >('native_keyboard_monitor_is_monitoring');
+  late final _native_keyboard_monitor_is_monitoring =
+      _native_keyboard_monitor_is_monitoringPtr
+          .asFunction<bool Function(ffi.Pointer<native_keyboard_monitor_t>)>();
+
   /// Create a positioning strategy for absolute positioning at fixed coordinates
   /// @param point Point in screen coordinates
   /// @return Positioning strategy handle
@@ -2374,6 +2509,200 @@ class CNativeApiBindings {
             )
           >();
 
+  /// Create a new message dialog with title and message
+  /// @param title The dialog title
+  /// @param message The dialog message
+  /// @return Message dialog handle, or NULL if creation failed
+  native_message_dialog_t native_message_dialog_create(
+    ffi.Pointer<ffi.Char> title,
+    ffi.Pointer<ffi.Char> message,
+  ) {
+    return _native_message_dialog_create(title, message);
+  }
+
+  late final _native_message_dialog_createPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_message_dialog_t Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_message_dialog_create');
+  late final _native_message_dialog_create = _native_message_dialog_createPtr
+      .asFunction<
+        native_message_dialog_t Function(
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  /// Destroy a message dialog and release its resources
+  /// @param dialog The message dialog to destroy
+  void native_message_dialog_destroy(native_message_dialog_t dialog) {
+    return _native_message_dialog_destroy(dialog);
+  }
+
+  late final _native_message_dialog_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_message_dialog_t)>>(
+        'native_message_dialog_destroy',
+      );
+  late final _native_message_dialog_destroy = _native_message_dialog_destroyPtr
+      .asFunction<void Function(native_message_dialog_t)>();
+
+  /// Set the dialog title
+  /// @param dialog The message dialog
+  /// @param title The title to set
+  void native_message_dialog_set_title(
+    native_message_dialog_t dialog,
+    ffi.Pointer<ffi.Char> title,
+  ) {
+    return _native_message_dialog_set_title(dialog, title);
+  }
+
+  late final _native_message_dialog_set_titlePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_message_dialog_set_title');
+  late final _native_message_dialog_set_title =
+      _native_message_dialog_set_titlePtr
+          .asFunction<
+            void Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
+          >();
+
+  /// Get the dialog title
+  /// @param dialog The message dialog
+  /// @return The title string (caller must free), or NULL if dialog is invalid
+  ffi.Pointer<ffi.Char> native_message_dialog_get_title(
+    native_message_dialog_t dialog,
+  ) {
+    return _native_message_dialog_get_title(dialog);
+  }
+
+  late final _native_message_dialog_get_titlePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
+        >
+      >('native_message_dialog_get_title');
+  late final _native_message_dialog_get_title =
+      _native_message_dialog_get_titlePtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
+          >();
+
+  /// Set the dialog message
+  /// @param dialog The message dialog
+  /// @param message The message to set
+  void native_message_dialog_set_message(
+    native_message_dialog_t dialog,
+    ffi.Pointer<ffi.Char> message,
+  ) {
+    return _native_message_dialog_set_message(dialog, message);
+  }
+
+  late final _native_message_dialog_set_messagePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_message_dialog_set_message');
+  late final _native_message_dialog_set_message =
+      _native_message_dialog_set_messagePtr
+          .asFunction<
+            void Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
+          >();
+
+  /// Get the dialog message
+  /// @param dialog The message dialog
+  /// @return The message string (caller must free), or NULL if dialog is invalid
+  ffi.Pointer<ffi.Char> native_message_dialog_get_message(
+    native_message_dialog_t dialog,
+  ) {
+    return _native_message_dialog_get_message(dialog);
+  }
+
+  late final _native_message_dialog_get_messagePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
+        >
+      >('native_message_dialog_get_message');
+  late final _native_message_dialog_get_message =
+      _native_message_dialog_get_messagePtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
+          >();
+
+  /// Set the modality of the dialog
+  /// @param dialog The message dialog
+  /// @param modality The modality type to set
+  void native_message_dialog_set_modality(
+    native_message_dialog_t dialog,
+    native_dialog_modality_t modality,
+  ) {
+    return _native_message_dialog_set_modality(dialog, modality.value);
+  }
+
+  late final _native_message_dialog_set_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_message_dialog_t, ffi.UnsignedInt)
+        >
+      >('native_message_dialog_set_modality');
+  late final _native_message_dialog_set_modality =
+      _native_message_dialog_set_modalityPtr
+          .asFunction<void Function(native_message_dialog_t, int)>();
+
+  /// Get the current modality setting of the dialog
+  /// @param dialog The message dialog
+  /// @return The current modality type
+  native_dialog_modality_t native_message_dialog_get_modality(
+    native_message_dialog_t dialog,
+  ) {
+    return native_dialog_modality_t.fromValue(
+      _native_message_dialog_get_modality(dialog),
+    );
+  }
+
+  late final _native_message_dialog_get_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_message_dialog_t)>
+      >('native_message_dialog_get_modality');
+  late final _native_message_dialog_get_modality =
+      _native_message_dialog_get_modalityPtr
+          .asFunction<int Function(native_message_dialog_t)>();
+
+  /// Open the dialog according to its modality setting
+  /// @param dialog The message dialog
+  /// @return true if the dialog was successfully opened, false otherwise
+  bool native_message_dialog_open(native_message_dialog_t dialog) {
+    return _native_message_dialog_open(dialog);
+  }
+
+  late final _native_message_dialog_openPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t)>>(
+        'native_message_dialog_open',
+      );
+  late final _native_message_dialog_open = _native_message_dialog_openPtr
+      .asFunction<bool Function(native_message_dialog_t)>();
+
+  /// Close the dialog programmatically
+  /// @param dialog The message dialog
+  /// @return true if the dialog was successfully closed, false otherwise
+  bool native_message_dialog_close(native_message_dialog_t dialog) {
+    return _native_message_dialog_close(dialog);
+  }
+
+  late final _native_message_dialog_closePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t)>>(
+        'native_message_dialog_close',
+      );
+  late final _native_message_dialog_close = _native_message_dialog_closePtr
+      .asFunction<bool Function(native_message_dialog_t)>();
+
   /// @brief Create a preferences storage with default scope.
   /// @return Handle to preferences storage, or NULL on failure
   native_preferences_t native_preferences_create() {
@@ -2630,6 +2959,20 @@ class CNativeApiBindings {
   late final _native_preferences_free_string_array =
       _native_preferences_free_string_arrayPtr
           .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
+
+  /// Run the application with the default window.
+  /// This function starts the main event loop and blocks until the application
+  /// exits.
+  ///
+  /// @return Exit code of the application (0 for success)
+  int native_run_example_app() {
+    return _native_run_example_app();
+  }
+
+  late final _native_run_example_appPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('native_run_example_app');
+  late final _native_run_example_app = _native_run_example_appPtr
+      .asFunction<int Function()>();
 
   /// @brief Create a secure storage with default scope.
   /// @return Handle to secure storage, or NULL on failure
@@ -3702,6 +4045,74 @@ typedef native_display_t = ffi.Pointer<ffi.Void>;
 /// Opaque handle for image objects
 typedef native_image_t = ffi.Pointer<ffi.Void>;
 
+/// Modifier key enumeration for C API
+enum native_modifier_key_t {
+  NATIVE_MODIFIER_KEY_NONE(0),
+  NATIVE_MODIFIER_KEY_SHIFT(1),
+  NATIVE_MODIFIER_KEY_CTRL(2),
+  NATIVE_MODIFIER_KEY_ALT(4),
+
+  /// Windows key or Cmd key
+  NATIVE_MODIFIER_KEY_META(8),
+  NATIVE_MODIFIER_KEY_FN(16),
+  NATIVE_MODIFIER_KEY_CAPS_LOCK(32),
+  NATIVE_MODIFIER_KEY_NUM_LOCK(64),
+  NATIVE_MODIFIER_KEY_SCROLL_LOCK(128);
+
+  final int value;
+  const native_modifier_key_t(this.value);
+
+  static native_modifier_key_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MODIFIER_KEY_NONE,
+    1 => NATIVE_MODIFIER_KEY_SHIFT,
+    2 => NATIVE_MODIFIER_KEY_CTRL,
+    4 => NATIVE_MODIFIER_KEY_ALT,
+    8 => NATIVE_MODIFIER_KEY_META,
+    16 => NATIVE_MODIFIER_KEY_FN,
+    32 => NATIVE_MODIFIER_KEY_CAPS_LOCK,
+    64 => NATIVE_MODIFIER_KEY_NUM_LOCK,
+    128 => NATIVE_MODIFIER_KEY_SCROLL_LOCK,
+    _ => throw ArgumentError("Unknown value for native_modifier_key_t: $value"),
+  };
+}
+
+final class native_keyboard_monitor_t extends ffi.Opaque {}
+
+/// Callback function type for key pressed events
+/// @param keycode The key code that was pressed
+/// @param user_data User-provided data passed to the callback
+typedef native_key_pressed_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_key_pressed_callback_tFunction>>;
+typedef native_key_pressed_callback_tFunction =
+    ffi.Void Function(ffi.Int keycode, ffi.Pointer<ffi.Void> user_data);
+typedef Dartnative_key_pressed_callback_tFunction =
+    void Function(int keycode, ffi.Pointer<ffi.Void> user_data);
+
+/// Callback function type for key released events
+/// @param keycode The key code that was released
+/// @param user_data User-provided data passed to the callback
+typedef native_key_released_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_key_released_callback_tFunction>>;
+typedef native_key_released_callback_tFunction =
+    ffi.Void Function(ffi.Int keycode, ffi.Pointer<ffi.Void> user_data);
+typedef Dartnative_key_released_callback_tFunction =
+    void Function(int keycode, ffi.Pointer<ffi.Void> user_data);
+
+/// Callback function type for modifier keys changed events
+/// @param modifier_keys Bitwise OR of active modifier keys
+/// @param user_data User-provided data passed to the callback
+typedef native_modifier_keys_changed_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_modifier_keys_changed_callback_tFunction>
+    >;
+typedef native_modifier_keys_changed_callback_tFunction =
+    ffi.Void Function(
+      ffi.Uint32 modifier_keys,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_modifier_keys_changed_callback_tFunction =
+    void Function(int modifier_keys, ffi.Pointer<ffi.Void> user_data);
+
 /// Type of positioning strategy
 enum native_positioning_strategy_type_t {
   NATIVE_POSITIONING_ABSOLUTE(0),
@@ -3904,6 +4315,28 @@ typedef native_menu_event_callback_tFunction =
     );
 typedef Dartnative_menu_event_callback_tFunction =
     void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+
+/// Dialog modality types
+enum native_dialog_modality_t {
+  NATIVE_DIALOG_MODALITY_NONE(0),
+  NATIVE_DIALOG_MODALITY_APPLICATION(1),
+  NATIVE_DIALOG_MODALITY_WINDOW(2);
+
+  final int value;
+  const native_dialog_modality_t(this.value);
+
+  static native_dialog_modality_t fromValue(int value) => switch (value) {
+    0 => NATIVE_DIALOG_MODALITY_NONE,
+    1 => NATIVE_DIALOG_MODALITY_APPLICATION,
+    2 => NATIVE_DIALOG_MODALITY_WINDOW,
+    _ => throw ArgumentError(
+      "Unknown value for native_dialog_modality_t: $value",
+    ),
+  };
+}
+
+/// Opaque handle for message dialog objects
+typedef native_message_dialog_t = ffi.Pointer<ffi.Void>;
 
 /// Opaque handle type
 typedef native_preferences_t = ffi.Pointer<ffi.Void>;

@@ -2,6 +2,7 @@ library;
 
 export 'src/widgets/context_menu_region.dart';
 export 'src/accessibility_manager.dart';
+export 'src/dialog.dart';
 export 'src/display.dart';
 export 'src/display_manager.dart';
 export 'src/foundation/event.dart';
@@ -12,6 +13,7 @@ export 'src/positioning_strategy.dart';
 export 'src/foundation/storage.dart';
 export 'src/image.dart';
 export 'src/menu.dart';
+export 'src/message_dialog.dart';
 export 'src/menu_event.dart';
 export 'src/preferences.dart';
 export 'src/secure_storage.dart';
