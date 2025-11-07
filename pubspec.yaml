@@ -11,6 +11,7 @@ workspace:
   - examples/window_example
   - packages/cnativeapi
   - packages/cnativeapi/example
+  - packages/native_secure_storage
   - packages/nativeapi
   - packages/nativeapi/example
 
