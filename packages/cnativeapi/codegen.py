@@ -2,10 +2,12 @@
 """
 Script to regenerate bindings by:
 1. Pulling latest cxx_impl submodule
-2. Updating macos/Classes/cnativeapi.mm include statements
-3. Updating ios/Classes/cnativeapi.mm include statements
-4. Updating ffigen.yaml with all C API header files
-5. Generating bindings with ffigen
+2. Updating macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm include statements
+3. Updating ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm include statements
+4. Updating macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
+5. Updating ios/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
+6. Updating ffigen.yaml with all C API header files
+7. Generating bindings with ffigen
 """
 
 import os
@@ -67,9 +69,95 @@ def find_capi_headers(cxx_impl_dir):
     return sorted(headers)
 
 
+def find_cpp_headers(cxx_impl_dir):
+    """Find all C++ API header files (*.h) in cxx_impl/src, excluding capi/ and platform/."""
+    src_dir = cxx_impl_dir / "src"
+    if not src_dir.exists():
+        return []
+
+    headers = []
+    # Find all .h files in src/ and subdirectories, excluding capi/ and platform/
+    for header_file in src_dir.rglob("*.h"):
+        file_str = str(header_file)
+        # Skip capi/ and platform/ directories
+        if "/capi/" in file_str or "/platform/" in file_str:
+            continue
+        # Calculate relative path from cnativeapi.h location
+        # cnativeapi.h is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/include/
+        # cxx_impl is at packages/cnativeapi/cxx_impl/
+        # So relative path should be ../../../../../cxx_impl/src/...
+        rel_path = os.path.relpath(header_file, cxx_impl_dir.parent)
+        headers.append((rel_path, header_file))
+
+    # Sort by path for consistent ordering
+    headers.sort(key=lambda x: x[0])
+    return [h[0] for h in headers]
+
+
+def update_cnativeapi_h(header_path, cxx_impl_dir):
+    """Update cnativeapi.h file with C++ and C API header includes."""
+    print(f"Updating {header_path.name}...")
+
+    # Find all C++ API headers (returns paths relative to cxx_impl_dir.parent)
+    cpp_headers = find_cpp_headers(cxx_impl_dir)
+    print(f"  Found {len(cpp_headers)} C++ API headers")
+
+    # Find all C API headers (returns paths relative to cxx_impl_dir.parent)
+    capi_headers = find_capi_headers(cxx_impl_dir)
+    print(f"  Found {len(capi_headers)} C API headers")
+
+    # Calculate relative path from header_path to cxx_impl_dir
+    # header_path is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/include/
+    # cxx_impl_dir is at packages/cnativeapi/cxx_impl/
+    cxx_impl_rel = os.path.relpath(cxx_impl_dir, header_path.parent)
+
+    # Generate C++ includes
+    cpp_includes = []
+    for header in cpp_headers:
+        # header is like "cxx_impl/src/accessibility_manager.h"
+        # Need to convert to relative path from header_path
+        # Join cxx_impl_rel with the part after "cxx_impl/"
+        if header.startswith("cxx_impl/"):
+            rel_path = os.path.join(cxx_impl_rel, header[len("cxx_impl/"):])
+        else:
+            rel_path = os.path.join(cxx_impl_rel, "src", header)
+        # Normalize path separators
+        rel_path = rel_path.replace("\\", "/")
+        cpp_includes.append(f'#include "{rel_path}"')
+
+    # Generate C API includes
+    capi_includes = []
+    for header in capi_headers:
+        # header is like "cxx_impl/src/capi/accessibility_manager_c.h"
+        # Need to convert to relative path from header_path
+        if header.startswith("cxx_impl/"):
+            rel_path = os.path.join(cxx_impl_rel, header[len("cxx_impl/"):])
+        else:
+            rel_path = os.path.join(cxx_impl_rel, "src", "capi", header)
+        # Normalize path separators
+        rel_path = rel_path.replace("\\", "/")
+        capi_includes.append(f'#include "{rel_path}"')
+
+    # Generate header file content
+    content = "#pragma once\n\n"
+    content += "#ifdef __cplusplus\n"
+    content += "// C++ API headers\n"
+    content += "\n".join(cpp_includes) + "\n"
+    content += "#endif\n\n"
+    content += "// C API headers (available for both C and C++)\n"
+    content += "\n".join(capi_includes) + "\n"
+
+    # Write header file
+    with open(header_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    print(f"  Updated {header_path.name} successfully")
+    return True
+
+
 def update_ffigen_yaml(ffigen_path, capi_headers):
     """Update ffigen.yaml with all C API header files."""
-    print("\nStep 4/5: Updating ffigen configuration")
+    print("\nStep 6/7: Updating ffigen configuration")
     print(f"Found {len(capi_headers)} C API header files to process...")
 
     with open(ffigen_path, "r", encoding="utf-8") as f:
@@ -214,9 +302,9 @@ def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
         file_str = str(file_path)
 
         # Calculate relative path from cnativeapi.mm location
-        # cnativeapi.mm is at packages/cnativeapi/{platform}/Classes/
+        # cnativeapi.mm is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/
         # cxx_impl is at packages/cnativeapi/cxx_impl/
-        # So relative path should be ../../cxx_impl/src/...
+        # So relative path should be ../../../../cxx_impl/src/...
         rel_path = os.path.relpath(file_path, nativeapi_path.parent)
 
         if "/capi/" in file_str:
@@ -243,11 +331,15 @@ def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
     print(f"  - Foundation files: {len(foundation_files)}")
     print(f"  - Core files: {len(core_files)}")
 
-    # Build the new include section (no trailing newline, match original format)
+    # Build the new include section
     new_include_section = match.group(1) + "\n".join(new_includes)
 
     # Replace the old include section with the new one
     new_content = content[: match.start()] + new_include_section
+
+    # Ensure file ends with a newline
+    if not new_content.endswith("\n"):
+        new_content += "\n"
 
     # Write back to file
     with open(nativeapi_path, "w", encoding="utf-8") as f:
@@ -257,10 +349,10 @@ def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
 
 
 def update_macos_mm(cnativeapi_dir, cxx_impl_dir):
-    """Update macos/Classes/cnativeapi.mm."""
-    print("\nStep 2/5: Updating macOS platform bindings")
+    """Update macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm."""
+    print("\nStep 2/7: Updating macOS platform bindings")
 
-    macos_mm_path = cnativeapi_dir / "macos/Classes/cnativeapi.mm"
+    macos_mm_path = cnativeapi_dir / "macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm"
 
     if not macos_mm_path.exists():
         print(f"Error: {macos_mm_path} not found")
@@ -275,10 +367,10 @@ def update_macos_mm(cnativeapi_dir, cxx_impl_dir):
 
 
 def update_ios_mm(cnativeapi_dir, cxx_impl_dir):
-    """Update ios/Classes/cnativeapi.mm."""
-    print("\nStep 3/5: Updating iOS platform bindings")
+    """Update ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm."""
+    print("\nStep 3/7: Updating iOS platform bindings")
 
-    ios_mm_path = cnativeapi_dir / "ios/Classes/cnativeapi.mm"
+    ios_mm_path = cnativeapi_dir / "ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm"
 
     if not ios_mm_path.exists():
         print(f"Error: {ios_mm_path} not found")
@@ -289,6 +381,42 @@ def update_ios_mm(cnativeapi_dir, cxx_impl_dir):
         return True
     else:
         print("Failed to update iOS bindings")
+        return False
+
+
+def update_macos_h(cnativeapi_dir, cxx_impl_dir):
+    """Update macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h."""
+    print("\nStep 4/7: Updating macOS header file")
+
+    macos_h_path = cnativeapi_dir / "macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h"
+
+    if not macos_h_path.exists():
+        print(f"Error: {macos_h_path} not found")
+        return False
+
+    if update_cnativeapi_h(macos_h_path, cxx_impl_dir):
+        print("macOS header updated successfully")
+        return True
+    else:
+        print("Failed to update macOS header")
+        return False
+
+
+def update_ios_h(cnativeapi_dir, cxx_impl_dir):
+    """Update ios/cnativeapi/Sources/cnativeapi/include/cnativeapi.h."""
+    print("\nStep 5/7: Updating iOS header file")
+
+    ios_h_path = cnativeapi_dir / "ios/cnativeapi/Sources/cnativeapi/include/cnativeapi.h"
+
+    if not ios_h_path.exists():
+        print(f"Error: {ios_h_path} not found")
+        return False
+
+    if update_cnativeapi_h(ios_h_path, cxx_impl_dir):
+        print("iOS header updated successfully")
+        return True
+    else:
+        print("Failed to update iOS header")
         return False
 
 
@@ -310,17 +438,27 @@ def main():
         print(f"\nError: cxx_impl directory not found: {cxx_impl_dir}")
         return 1
 
-    # Step 2: Update macos/Classes/cnativeapi.mm
+    # Step 2: Update macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm
     if not update_macos_mm(cnativeapi_dir, cxx_impl_dir):
         print("\nError: macOS bindings update failed")
         return 1
 
-    # Step 3: Update ios/Classes/cnativeapi.mm
+    # Step 3: Update ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm
     if not update_ios_mm(cnativeapi_dir, cxx_impl_dir):
         print("\nError: iOS bindings update failed")
         return 1
 
-    # Step 4: Update ffigen.yaml
+    # Step 4: Update macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
+    if not update_macos_h(cnativeapi_dir, cxx_impl_dir):
+        print("\nError: macOS header update failed")
+        return 1
+
+    # Step 5: Update ios/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
+    if not update_ios_h(cnativeapi_dir, cxx_impl_dir):
+        print("\nError: iOS header update failed")
+        return 1
+
+    # Step 6: Update ffigen.yaml
     capi_headers = find_capi_headers(cxx_impl_dir)
     if not capi_headers:
         print("\nWarning: No C API headers found in cxx_impl")
@@ -329,8 +467,8 @@ def main():
             print("\nError: Failed to update ffigen configuration")
             return 1
 
-    # Step 5: Generate bindings using ffigen
-    print("\nStep 5/5: Generating Dart bindings")
+    # Step 7: Generate bindings using ffigen
+    print("\nStep 7/7: Generating Dart bindings")
     print("Running ffigen to generate Dart bindings from C headers...")
 
     ffigen_cmd = ["dart", "run", "ffigen", "--config", "ffigen.yaml"]

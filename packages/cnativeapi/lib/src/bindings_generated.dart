@@ -2960,20 +2960,6 @@ class CNativeApiBindings {
       _native_preferences_free_string_arrayPtr
           .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
 
-  /// Run the application with the default window.
-  /// This function starts the main event loop and blocks until the application
-  /// exits.
-  ///
-  /// @return Exit code of the application (0 for success)
-  int native_run_example_app() {
-    return _native_run_example_app();
-  }
-
-  late final _native_run_example_appPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function()>>('native_run_example_app');
-  late final _native_run_example_app = _native_run_example_appPtr
-      .asFunction<int Function()>();
-
   /// @brief Create a secure storage with default scope.
   /// @return Handle to secure storage, or NULL on failure
   native_secure_storage_t native_secure_storage_create() {
