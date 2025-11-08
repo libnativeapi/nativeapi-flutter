@@ -6,7 +6,7 @@ environment:
 workspace:
   - examples/display_example
   - examples/menu_example
-  - examples/multiple_window_example
+  # - examples/multiple_window_example
   - examples/storage_example
   - examples/tray_icon_example
   - examples/window_example
