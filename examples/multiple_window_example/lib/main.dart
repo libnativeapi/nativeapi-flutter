@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: ViewCollection(views: [PrimaryWindow(), SecondaryWindow()]),
+      home: ViewCollection(views: [SecondaryWindow(), PrimaryWindow()]),
     );
   }
 }

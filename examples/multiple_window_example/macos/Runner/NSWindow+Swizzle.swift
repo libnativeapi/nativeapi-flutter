@@ -19,6 +19,18 @@ extension NSWindow {
             return
         }
         method_exchangeImplementations(originalMethod, swizzledMethod)
+
+        // Swizzle makeKeyAndOrderFront(_:)
+        let originalMakeKey = #selector(NSWindow.makeKeyAndOrderFront(_:))
+        let swizzledMakeKey = #selector(NSWindow.swizzled_makeKeyAndOrderFront(_:))
+        guard
+            let originalMakeKeyMethod = class_getInstanceMethod(NSWindow.self, originalMakeKey),
+            let swizzledMakeKeyMethod = class_getInstanceMethod(NSWindow.self, swizzledMakeKey)
+        else {
+            assertionFailure("[Swizzle] Failed to find methods for makeKeyAndOrderFront swizzling")
+            return
+        }
+        method_exchangeImplementations(originalMakeKeyMethod, swizzledMakeKeyMethod)
     }()
 
     // MARK: - Swizzled implementation
@@ -36,6 +48,15 @@ extension NSWindow {
         return window
     }
 
+    // Intercepts makeKeyAndOrderFront(_:) calls
+    @objc dynamic func swizzled_makeKeyAndOrderFront(_ sender: Any?) {
+        NSLog("[Swizzle] Intercepted makeKeyAndOrderFront for window: \(String(describing: self))")
+
+        self.center()
+        // Because we've swapped implementations, calling swizzled_makeKeyAndOrderFront(_:) actually calls the original
+        self.swizzled_makeKeyAndOrderFront(sender)
+    }
+
     // MARK: - Appearance configuration
     private static func configureDefaultAppearance(for window: NSWindow) {
         window.hasShadow = false
@@ -47,7 +68,7 @@ extension NSWindow {
             window.titlebarAppearsTransparent = true
         }
 
-        window.alphaValue = 0.5
+        // window.alphaValue = 0.5
         NSLog("[Swizzle] Modified NSWindow: \(String(describing: window))")
     }
 }
