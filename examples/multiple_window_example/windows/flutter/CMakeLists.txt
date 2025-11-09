@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ephemeral")
+set(CMAKE_CXX_STANDARD 20)
 
 # Configuration provided via flutter tool.
 include(${EPHEMERAL_DIR}/generated_config.cmake)
@@ -51,7 +52,6 @@ list(APPEND CPP_WRAPPER_SOURCES_PLUGIN
 list(TRANSFORM CPP_WRAPPER_SOURCES_PLUGIN PREPEND "${WRAPPER_ROOT}/")
 list(APPEND CPP_WRAPPER_SOURCES_APP
   "flutter_engine.cc"
-  "flutter_view_controller.cc"
 )
 list(TRANSFORM CPP_WRAPPER_SOURCES_APP PREPEND "${WRAPPER_ROOT}/")
 
