@@ -47,3 +47,4 @@
 #include "../../../../cxx_impl/src/secure_storage.cpp"
 #include "../../../../cxx_impl/src/tray_manager.cpp"
 #include "../../../../cxx_impl/src/window_manager.cpp"
+#include "../../../../cxx_impl/src/window_registry.cpp"

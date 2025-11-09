@@ -586,6 +586,17 @@ class CNativeApiBindings {
   late final _native_window_get_position = _native_window_get_positionPtr
       .asFunction<native_point_t Function(native_window_t)>();
 
+  void native_window_center(native_window_t window) {
+    return _native_window_center(window);
+  }
+
+  late final _native_window_centerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_center',
+      );
+  late final _native_window_center = _native_window_centerPtr
+      .asFunction<void Function(native_window_t)>();
+
   /// Window properties
   void native_window_set_resizable(native_window_t window, bool resizable) {
     return _native_window_set_resizable(window, resizable);
@@ -3823,7 +3834,8 @@ class CNativeApiBindings {
       _native_window_manager_shutdownPtr.asFunction<void Function()>();
 
   /// Set (or clear) the "will show" hook.
-  /// @param callback Function called before window is shown (e.g., makeKeyAndOrderFront: on macOS). NULL to clear.
+  /// @param callback Function called before window is shown (e.g., makeKeyAndOrderFront: on macOS).
+  /// NULL to clear.
   /// @param user_data Opaque pointer passed back to callback.
   void native_window_manager_set_will_show_hook(
     native_window_will_show_callback_t callback,
@@ -3851,7 +3863,8 @@ class CNativeApiBindings {
           >();
 
   /// Set (or clear) the "will hide" hook.
-  /// @param callback Function called before window is hidden (e.g., orderOut: on macOS). NULL to clear.
+  /// @param callback Function called before window is hidden (e.g., orderOut: on macOS). NULL to
+  /// clear.
   /// @param user_data Opaque pointer passed back to callback.
   void native_window_manager_set_will_hide_hook(
     native_window_will_hide_callback_t callback,

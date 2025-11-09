@@ -1,5 +1,6 @@
 import 'dart:ffi' hide Size;
 import 'package:ffi/ffi.dart' as ffi;
+import 'package:nativeapi/src/display_manager.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
@@ -234,6 +235,25 @@ class Window
   Offset get position {
     final nativePoint = bindings.native_window_get_position(_nativeHandle);
     return Offset(nativePoint.x, nativePoint.y);
+  }
+
+  /// Centers the window on the primary screen.
+  ///
+  /// This method calculates the center position based on the primary display's
+  /// size and the window's current size, then sets the window position accordingly.
+  void center() {
+    final primaryDisplay = DisplayManager.instance.getPrimary();
+    if (primaryDisplay == null) {
+      return;
+    }
+
+    final screenSize = primaryDisplay.size;
+    final windowSize = size;
+
+    final centerX = (screenSize.width - windowSize.width) / 2;
+    final centerY = (screenSize.height - windowSize.height) / 2;
+
+    setPosition(centerX, centerY);
   }
 
   // === Window Properties ===

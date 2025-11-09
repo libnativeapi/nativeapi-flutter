@@ -14,6 +14,7 @@
 #include "../../../../../cxx_impl/src/foundation/geometry.h"
 #include "../../../../../cxx_impl/src/foundation/id_allocator.h"
 #include "../../../../../cxx_impl/src/foundation/native_object_provider.h"
+#include "../../../../../cxx_impl/src/foundation/object_registry.h"
 #include "../../../../../cxx_impl/src/image.h"
 #include "../../../../../cxx_impl/src/keyboard_event.h"
 #include "../../../../../cxx_impl/src/keyboard_monitor.h"
@@ -31,6 +32,7 @@
 #include "../../../../../cxx_impl/src/window.h"
 #include "../../../../../cxx_impl/src/window_event.h"
 #include "../../../../../cxx_impl/src/window_manager.h"
+#include "../../../../../cxx_impl/src/window_registry.h"
 #endif
 
 // C API headers (available for both C and C++)
