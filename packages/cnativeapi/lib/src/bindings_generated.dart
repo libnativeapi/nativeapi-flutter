@@ -3821,6 +3821,62 @@ class CNativeApiBindings {
       );
   late final _native_window_manager_shutdown =
       _native_window_manager_shutdownPtr.asFunction<void Function()>();
+
+  /// Set (or clear) the "will show" hook.
+  /// @param callback Function called before window is shown (e.g., makeKeyAndOrderFront: on macOS). NULL to clear.
+  /// @param user_data Opaque pointer passed back to callback.
+  void native_window_manager_set_will_show_hook(
+    native_window_will_show_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_window_manager_set_will_show_hook(callback, user_data);
+  }
+
+  late final _native_window_manager_set_will_show_hookPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            native_window_will_show_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_manager_set_will_show_hook');
+  late final _native_window_manager_set_will_show_hook =
+      _native_window_manager_set_will_show_hookPtr
+          .asFunction<
+            void Function(
+              native_window_will_show_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Set (or clear) the "will hide" hook.
+  /// @param callback Function called before window is hidden (e.g., orderOut: on macOS). NULL to clear.
+  /// @param user_data Opaque pointer passed back to callback.
+  void native_window_manager_set_will_hide_hook(
+    native_window_will_hide_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_window_manager_set_will_hide_hook(callback, user_data);
+  }
+
+  late final _native_window_manager_set_will_hide_hookPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            native_window_will_hide_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_manager_set_will_hide_hook');
+  late final _native_window_manager_set_will_hide_hook =
+      _native_window_manager_set_will_hide_hookPtr
+          .asFunction<
+            void Function(
+              native_window_will_hide_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
 }
 
 /// Representation of a point
@@ -4489,5 +4545,32 @@ typedef native_window_event_callback_tFunction =
 typedef Dartnative_window_event_callback_tFunction =
     void Function(
       ffi.Pointer<native_window_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
+/// Hooks called BEFORE a native window is shown/hidden.
+/// Passing NULL clears the corresponding hook.
+typedef native_window_will_show_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_window_will_show_callback_tFunction>>;
+typedef native_window_will_show_callback_tFunction =
+    ffi.Void Function(
+      native_window_id_t window_id,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_window_will_show_callback_tFunction =
+    void Function(
+      Dartnative_window_id_t window_id,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef native_window_will_hide_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_window_will_hide_callback_tFunction>>;
+typedef native_window_will_hide_callback_tFunction =
+    ffi.Void Function(
+      native_window_id_t window_id,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_window_will_hide_callback_tFunction =
+    void Function(
+      Dartnative_window_id_t window_id,
       ffi.Pointer<ffi.Void> user_data,
     );

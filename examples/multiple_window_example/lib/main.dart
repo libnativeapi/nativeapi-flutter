@@ -5,6 +5,12 @@ import 'package:flutter/src/widgets/_window.dart';
 import 'package:nativeapi/nativeapi.dart';
 
 void main() {
+  WindowManager.instance.setWillShowHook((windowId) {
+    print('Window $windowId will show');
+  });
+  WindowManager.instance.setWillHideHook((windowId) {
+    print('Window $windowId will hide');
+  });
   runApp(const MyApp());
 }
 
@@ -19,7 +25,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: ViewCollection(views: [SecondaryWindow(), PrimaryWindow()]),
+      home: ViewCollection(
+        views: [TertiaryWindow(), SecondaryWindow(), PrimaryWindow()],
+      ),
     );
   }
 }
@@ -91,6 +99,31 @@ class _SecondaryWindowState extends State<SecondaryWindow> {
       child: Scaffold(
         appBar: AppBar(title: const Text('Secondary Window')),
         body: const Center(child: Text('Secondary Window')),
+      ),
+    );
+  }
+}
+
+class TertiaryWindow extends StatefulWidget {
+  const TertiaryWindow({super.key});
+
+  @override
+  State<TertiaryWindow> createState() => _TertiaryWindowState();
+}
+
+class _TertiaryWindowState extends State<TertiaryWindow> {
+  final _windowController = RegularWindowController(
+    preferredSize: const Size(800, 600),
+    title: 'Tertiary Window',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return RegularWindow(
+      controller: _windowController,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Tertiary Window')),
+        body: const Center(child: Text('Tertiary Window')),
       ),
     );
   }

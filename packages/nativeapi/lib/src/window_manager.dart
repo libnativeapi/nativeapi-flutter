@@ -85,6 +85,22 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   static bool _callbackInitialized = false;
   static int? _eventListenerId;
 
+  // Native callables for pre-show/hide hooks
+  static NativeCallable<
+      Void Function(
+        native_window_id_t,
+        Pointer<Void>,
+      )>? _willShowCallback;
+  static NativeCallable<
+      Void Function(
+        native_window_id_t,
+        Pointer<Void>,
+      )>? _willHideCallback;
+
+  // Dart-side hook handlers
+  void Function(int windowId)? _onWillShowHook;
+  void Function(int windowId)? _onWillHideHook;
+
   /// Private constructor for singleton pattern.
   WindowManager._();
 
@@ -320,6 +336,78 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
 
     // Shutdown the native window manager
     bindings.native_window_manager_shutdown();
+  }
+
+  /// Set (or clear) the hook invoked BEFORE a native window is shown.
+  /// Passing null clears the hook.
+  void setWillShowHook(void Function(int windowId)? callback) {
+    _onWillShowHook = callback;
+
+    // Clear current hook if requested
+    if (callback == null) {
+      bindings.native_window_manager_set_will_show_hook(nullptr, nullptr);
+      _willShowCallback?.close();
+      _willShowCallback = null;
+      return;
+    }
+
+    // (Re)create native callable and register
+    _willShowCallback?.close();
+    _willShowCallback = NativeCallable<
+        Void Function(
+          native_window_id_t,
+          Pointer<Void>,
+        )>.listener(_nativeOnWillShow);
+    bindings.native_window_manager_set_will_show_hook(
+      _willShowCallback!.nativeFunction,
+      nullptr,
+    );
+  }
+
+  /// Set (or clear) the hook invoked BEFORE a native window is hidden.
+  /// Passing null clears the hook.
+  void setWillHideHook(void Function(int windowId)? callback) {
+    _onWillHideHook = callback;
+
+    if (callback == null) {
+      bindings.native_window_manager_set_will_hide_hook(nullptr, nullptr);
+      _willHideCallback?.close();
+      _willHideCallback = null;
+      return;
+    }
+
+    _willHideCallback?.close();
+    _willHideCallback = NativeCallable<
+        Void Function(
+          native_window_id_t,
+          Pointer<Void>,
+        )>.listener(_nativeOnWillHide);
+    bindings.native_window_manager_set_will_hide_hook(
+      _willHideCallback!.nativeFunction,
+      nullptr,
+    );
+  }
+
+  // Native -> Dart bridge for pre-show hook
+  static void _nativeOnWillShow(
+    Dartnative_window_id_t windowId,
+    Pointer<Void> userData,
+  ) {
+    final cb = _instance._onWillShowHook;
+    if (cb != null) {
+      cb(windowId);
+    }
+  }
+
+  // Native -> Dart bridge for pre-hide hook
+  static void _nativeOnWillHide(
+    Dartnative_window_id_t windowId,
+    Pointer<Void> userData,
+  ) {
+    final cb = _instance._onWillHideHook;
+    if (cb != null) {
+      cb(windowId);
+    }
   }
 }
 

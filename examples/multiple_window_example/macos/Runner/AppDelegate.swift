@@ -12,10 +12,6 @@ class AppDelegate: FlutterAppDelegate {
   }
 
   var engine: FlutterEngine?
-  
-  override func applicationWillFinishLaunching(_ notification: Notification) {
-    NSWindow.enableSwizzling()
-  }
 
   override func applicationDidFinishLaunching(_ notification: Notification) {
     engine = FlutterEngine(name: "project", project: nil)
