@@ -11,25 +11,11 @@ void main() {
   WindowManager.instance.setWillHideHook((windowId) {
     print('Window $windowId will hide');
   });
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Multiple Window Example',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: ViewCollection(
-        views: [TertiaryWindow(), SecondaryWindow(), PrimaryWindow()],
-      ),
-    );
-  }
+  runWidget(
+    ViewCollection(
+      views: [TertiaryWindow(), SecondaryWindow(), PrimaryWindow()],
+    ),
+  );
 }
 
 class PrimaryWindow extends StatefulWidget {
@@ -49,29 +35,32 @@ class _PrimaryWindowState extends State<PrimaryWindow> {
   Widget build(BuildContext context) {
     return RegularWindow(
       controller: _windowController,
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Primary Window')),
-        body: Center(
-          child: Column(
-            children: [
-              FilledButton(
-                onPressed: () {
-                  Window? primaryWindow;
-                  final windows = WindowManager.instance.getAll();
-                  for (var window in windows) {
-                    if (window.title == 'Primary Window') {
-                      primaryWindow = window;
-                      break;
+      child: MaterialApp(
+        title: 'Primary Window',
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Primary Window')),
+          body: Center(
+            child: Column(
+              children: [
+                FilledButton(
+                  onPressed: () {
+                    Window? primaryWindow;
+                    final windows = WindowManager.instance.getAll();
+                    for (var window in windows) {
+                      if (window.title == 'Primary Window') {
+                        primaryWindow = window;
+                        break;
+                      }
                     }
-                  }
-                  if (primaryWindow != null) {
-                    primaryWindow.setSize(1000, 1000);
-                    primaryWindow.show();
-                  }
-                },
-                child: const Text('A Window'),
-              ),
-            ],
+                    if (primaryWindow != null) {
+                      primaryWindow.setSize(1000, 1000);
+                      primaryWindow.show();
+                    }
+                  },
+                  child: const Text('A Window'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -96,9 +85,12 @@ class _SecondaryWindowState extends State<SecondaryWindow> {
   Widget build(BuildContext context) {
     return RegularWindow(
       controller: _windowController,
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Secondary Window')),
-        body: const Center(child: Text('Secondary Window')),
+      child: MaterialApp(
+        title: 'Secondary Window',
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Secondary Window')),
+          body: const Center(child: Text('Secondary Window')),
+        ),
       ),
     );
   }
@@ -121,9 +113,12 @@ class _TertiaryWindowState extends State<TertiaryWindow> {
   Widget build(BuildContext context) {
     return RegularWindow(
       controller: _windowController,
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Tertiary Window')),
-        body: const Center(child: Text('Tertiary Window')),
+      child: MaterialApp(
+        title: 'Tertiary Window',
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Tertiary Window')),
+          body: const Center(child: Text('Tertiary Window')),
+        ),
       ),
     );
   }
