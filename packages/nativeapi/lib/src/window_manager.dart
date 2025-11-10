@@ -1,5 +1,4 @@
 import 'dart:ffi' hide Size;
-import 'package:ffi/ffi.dart' as ffi;
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
@@ -45,8 +44,8 @@ class WindowOptions {
 /// final windowManager = WindowManager.instance;
 ///
 /// // Listen to window events
-/// windowManager.addListener<WindowCreatedEvent>((event) {
-///   print('Window created: ${event.windowId}');
+/// windowManager.addListener<WindowFocusedEvent>((event) {
+///   print('Window focused: ${event.windowId}');
 /// });
 ///
 /// // Create a window
@@ -146,12 +145,6 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
     final eventType = native_window_event_type_t.fromValue(event.type);
 
     switch (eventType) {
-      case native_window_event_type_t.NATIVE_WINDOW_EVENT_CREATED:
-        _instance.emitSync(WindowCreatedEvent(windowId));
-        break;
-      case native_window_event_type_t.NATIVE_WINDOW_EVENT_CLOSED:
-        _instance.emitSync(WindowClosedEvent(windowId));
-        break;
       case native_window_event_type_t.NATIVE_WINDOW_EVENT_FOCUSED:
         _instance.emitSync(WindowFocusedEvent(windowId));
         break;
@@ -214,68 +207,44 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   ///
   /// Returns the created [Window] instance, or null if creation failed.
   Window? createWithOptions(WindowOptions options) {
-    // Create native window options
-    final nativeOptions = bindings.native_window_options_create();
-    if (nativeOptions == nullptr) {
+    // Create the window with default settings
+    final nativeWindow = bindings.native_window_manager_create();
+    if (nativeWindow == nullptr) {
       return null;
     }
 
-    try {
-      // Set title
-      if (options.title.isNotEmpty) {
-        final titleUtf8 = options.title.toNativeUtf8();
-        try {
-          bindings.native_window_options_set_title(
-            nativeOptions,
-            titleUtf8.cast<Char>(),
-          );
-        } finally {
-          ffi.malloc.free(titleUtf8);
-        }
-      }
+    final window = Window(nativeWindow);
 
-      // Set size
-      bindings.native_window_options_set_size(
-        nativeOptions,
-        options.size.width,
-        options.size.height,
-      );
-
-      // Set minimum size if provided
-      if (options.minimumSize != null) {
-        bindings.native_window_options_set_minimum_size(
-          nativeOptions,
-          options.minimumSize!.width,
-          options.minimumSize!.height,
-        );
-      }
-
-      // Set maximum size if provided
-      if (options.maximumSize != null) {
-        bindings.native_window_options_set_maximum_size(
-          nativeOptions,
-          options.maximumSize!.width,
-          options.maximumSize!.height,
-        );
-      }
-
-      // Set centered flag
-      bindings.native_window_options_set_centered(
-        nativeOptions,
-        options.centered,
-      );
-
-      // Create the window
-      final nativeWindow = bindings.native_window_manager_create(nativeOptions);
-      if (nativeWindow == nullptr) {
-        return null;
-      }
-
-      return Window(nativeWindow);
-    } finally {
-      // Clean up options
-      bindings.native_window_options_destroy(nativeOptions);
+    // Set title
+    if (options.title.isNotEmpty) {
+      window.title = options.title;
     }
+
+    // Set size
+    window.setSize(options.size.width, options.size.height);
+
+    // Set minimum size if provided
+    if (options.minimumSize != null) {
+      window.setMinimumSize(
+        options.minimumSize!.width,
+        options.minimumSize!.height,
+      );
+    }
+
+    // Set maximum size if provided
+    if (options.maximumSize != null) {
+      window.setMaximumSize(
+        options.maximumSize!.width,
+        options.maximumSize!.height,
+      );
+    }
+
+    // Center the window if requested
+    if (options.centered) {
+      window.center();
+    }
+
+    return window;
   }
 
   /// Gets a window by its ID.

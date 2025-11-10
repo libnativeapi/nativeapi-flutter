@@ -62,149 +62,6 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
-  /// Window creation and destruction
-  ffi.Pointer<native_window_options_t> native_window_options_create() {
-    return _native_window_options_create();
-  }
-
-  late final _native_window_options_createPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<native_window_options_t> Function()>
-      >('native_window_options_create');
-  late final _native_window_options_create = _native_window_options_createPtr
-      .asFunction<ffi.Pointer<native_window_options_t> Function()>();
-
-  void native_window_options_destroy(
-    ffi.Pointer<native_window_options_t> options,
-  ) {
-    return _native_window_options_destroy(options);
-  }
-
-  late final _native_window_options_destroyPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<native_window_options_t>)
-        >
-      >('native_window_options_destroy');
-  late final _native_window_options_destroy = _native_window_options_destroyPtr
-      .asFunction<void Function(ffi.Pointer<native_window_options_t>)>();
-
-  bool native_window_options_set_title(
-    ffi.Pointer<native_window_options_t> options,
-    ffi.Pointer<ffi.Char> title,
-  ) {
-    return _native_window_options_set_title(options, title);
-  }
-
-  late final _native_window_options_set_titlePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(
-            ffi.Pointer<native_window_options_t>,
-            ffi.Pointer<ffi.Char>,
-          )
-        >
-      >('native_window_options_set_title');
-  late final _native_window_options_set_title =
-      _native_window_options_set_titlePtr
-          .asFunction<
-            bool Function(
-              ffi.Pointer<native_window_options_t>,
-              ffi.Pointer<ffi.Char>,
-            )
-          >();
-
-  void native_window_options_set_size(
-    ffi.Pointer<native_window_options_t> options,
-    double width,
-    double height,
-  ) {
-    return _native_window_options_set_size(options, width, height);
-  }
-
-  late final _native_window_options_set_sizePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Pointer<native_window_options_t>,
-            ffi.Double,
-            ffi.Double,
-          )
-        >
-      >('native_window_options_set_size');
-  late final _native_window_options_set_size =
-      _native_window_options_set_sizePtr
-          .asFunction<
-            void Function(ffi.Pointer<native_window_options_t>, double, double)
-          >();
-
-  void native_window_options_set_minimum_size(
-    ffi.Pointer<native_window_options_t> options,
-    double width,
-    double height,
-  ) {
-    return _native_window_options_set_minimum_size(options, width, height);
-  }
-
-  late final _native_window_options_set_minimum_sizePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Pointer<native_window_options_t>,
-            ffi.Double,
-            ffi.Double,
-          )
-        >
-      >('native_window_options_set_minimum_size');
-  late final _native_window_options_set_minimum_size =
-      _native_window_options_set_minimum_sizePtr
-          .asFunction<
-            void Function(ffi.Pointer<native_window_options_t>, double, double)
-          >();
-
-  void native_window_options_set_maximum_size(
-    ffi.Pointer<native_window_options_t> options,
-    double width,
-    double height,
-  ) {
-    return _native_window_options_set_maximum_size(options, width, height);
-  }
-
-  late final _native_window_options_set_maximum_sizePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Pointer<native_window_options_t>,
-            ffi.Double,
-            ffi.Double,
-          )
-        >
-      >('native_window_options_set_maximum_size');
-  late final _native_window_options_set_maximum_size =
-      _native_window_options_set_maximum_sizePtr
-          .asFunction<
-            void Function(ffi.Pointer<native_window_options_t>, double, double)
-          >();
-
-  void native_window_options_set_centered(
-    ffi.Pointer<native_window_options_t> options,
-    bool centered,
-  ) {
-    return _native_window_options_set_centered(options, centered);
-  }
-
-  late final _native_window_options_set_centeredPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<native_window_options_t>, ffi.Bool)
-        >
-      >('native_window_options_set_centered');
-  late final _native_window_options_set_centered =
-      _native_window_options_set_centeredPtr
-          .asFunction<
-            void Function(ffi.Pointer<native_window_options_t>, bool)
-          >();
-
   /// Window basic operations
   int native_window_get_id(native_window_t window) {
     return _native_window_get_id(window);
@@ -3705,25 +3562,18 @@ class CNativeApiBindings {
   late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
       .asFunction<void Function(native_tray_icon_list_t)>();
 
-  /// Create a new window with the specified options
-  /// @param options Window creation options
+  /// Create a new window with default settings
   /// @return Window handle, or NULL if creation failed
-  native_window_t native_window_manager_create(
-    ffi.Pointer<native_window_options_t> options,
-  ) {
-    return _native_window_manager_create(options);
+  native_window_t native_window_manager_create() {
+    return _native_window_manager_create();
   }
 
   late final _native_window_manager_createPtr =
-      _lookup<
-        ffi.NativeFunction<
-          native_window_t Function(ffi.Pointer<native_window_options_t>)
-        >
-      >('native_window_manager_create');
+      _lookup<ffi.NativeFunction<native_window_t Function()>>(
+        'native_window_manager_create',
+      );
   late final _native_window_manager_create = _native_window_manager_createPtr
-      .asFunction<
-        native_window_t Function(ffi.Pointer<native_window_options_t>)
-      >();
+      .asFunction<native_window_t Function()>();
 
   /// Get a window by its ID
   /// @param window_id The window ID
@@ -3981,25 +3831,6 @@ enum native_placement_t {
     11 => NATIVE_PLACEMENT_LEFT_END,
     _ => throw ArgumentError("Unknown value for native_placement_t: $value"),
   };
-}
-
-/// Window options structure for creating windows
-final class native_window_options_t extends ffi.Struct {
-  /// Window title
-  external ffi.Pointer<ffi.Char> title;
-
-  /// Initial window size
-  external native_size_t size;
-
-  /// Minimum window size
-  external native_size_t minimum_size;
-
-  /// Maximum window size
-  external native_size_t maximum_size;
-
-  /// Whether to center the window on screen
-  @ffi.Bool()
-  external bool centered;
 }
 
 /// Window list structure
@@ -4493,29 +4324,25 @@ final class native_tray_icon_list_t extends ffi.Struct {
 
 /// Window event types
 enum native_window_event_type_t {
-  NATIVE_WINDOW_EVENT_CREATED(0),
-  NATIVE_WINDOW_EVENT_CLOSED(1),
-  NATIVE_WINDOW_EVENT_FOCUSED(2),
-  NATIVE_WINDOW_EVENT_BLURRED(3),
-  NATIVE_WINDOW_EVENT_MINIMIZED(4),
-  NATIVE_WINDOW_EVENT_MAXIMIZED(5),
-  NATIVE_WINDOW_EVENT_RESTORED(6),
-  NATIVE_WINDOW_EVENT_MOVED(7),
-  NATIVE_WINDOW_EVENT_RESIZED(8);
+  NATIVE_WINDOW_EVENT_FOCUSED(0),
+  NATIVE_WINDOW_EVENT_BLURRED(1),
+  NATIVE_WINDOW_EVENT_MINIMIZED(2),
+  NATIVE_WINDOW_EVENT_MAXIMIZED(3),
+  NATIVE_WINDOW_EVENT_RESTORED(4),
+  NATIVE_WINDOW_EVENT_MOVED(5),
+  NATIVE_WINDOW_EVENT_RESIZED(6);
 
   final int value;
   const native_window_event_type_t(this.value);
 
   static native_window_event_type_t fromValue(int value) => switch (value) {
-    0 => NATIVE_WINDOW_EVENT_CREATED,
-    1 => NATIVE_WINDOW_EVENT_CLOSED,
-    2 => NATIVE_WINDOW_EVENT_FOCUSED,
-    3 => NATIVE_WINDOW_EVENT_BLURRED,
-    4 => NATIVE_WINDOW_EVENT_MINIMIZED,
-    5 => NATIVE_WINDOW_EVENT_MAXIMIZED,
-    6 => NATIVE_WINDOW_EVENT_RESTORED,
-    7 => NATIVE_WINDOW_EVENT_MOVED,
-    8 => NATIVE_WINDOW_EVENT_RESIZED,
+    0 => NATIVE_WINDOW_EVENT_FOCUSED,
+    1 => NATIVE_WINDOW_EVENT_BLURRED,
+    2 => NATIVE_WINDOW_EVENT_MINIMIZED,
+    3 => NATIVE_WINDOW_EVENT_MAXIMIZED,
+    4 => NATIVE_WINDOW_EVENT_RESTORED,
+    5 => NATIVE_WINDOW_EVENT_MOVED,
+    6 => NATIVE_WINDOW_EVENT_RESIZED,
     _ => throw ArgumentError(
       "Unknown value for native_window_event_type_t: $value",
     ),
