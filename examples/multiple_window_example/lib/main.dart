@@ -24,6 +24,11 @@ void main() {
           break;
       }
     }
+    return true;
+  });
+  WindowManager.instance.setWillHideHook((windowId) {
+    print('[Dart] will hide hook $windowId');
+    return true;
   });
   runWidget(
     ViewCollection(

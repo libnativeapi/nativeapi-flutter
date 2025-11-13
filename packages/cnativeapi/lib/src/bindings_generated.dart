@@ -3616,20 +3616,6 @@ class CNativeApiBindings {
       _native_window_manager_get_currentPtr
           .asFunction<native_window_t Function()>();
 
-  /// Destroy a window by its ID
-  /// @param window_id The window ID to destroy
-  /// @return true if window was found and destroyed, false otherwise
-  bool native_window_manager_destroy(int window_id) {
-    return _native_window_manager_destroy(window_id);
-  }
-
-  late final _native_window_manager_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_id_t)>>(
-        'native_window_manager_destroy',
-      );
-  late final _native_window_manager_destroy = _native_window_manager_destroyPtr
-      .asFunction<bool Function(int)>();
-
   /// Register a callback for window events
   /// @param callback The callback function to register
   /// @param user_data User data to pass to the callback
@@ -3740,6 +3726,64 @@ class CNativeApiBindings {
               ffi.Pointer<ffi.Void>,
             )
           >();
+
+  /// Check if the "will show" hook is set.
+  /// @return true if hook is set, false otherwise.
+  bool native_window_manager_has_will_show_hook() {
+    return _native_window_manager_has_will_show_hook();
+  }
+
+  late final _native_window_manager_has_will_show_hookPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_manager_has_will_show_hook',
+      );
+  late final _native_window_manager_has_will_show_hook =
+      _native_window_manager_has_will_show_hookPtr
+          .asFunction<bool Function()>();
+
+  /// Check if the "will hide" hook is set.
+  /// @return true if hook is set, false otherwise.
+  bool native_window_manager_has_will_hide_hook() {
+    return _native_window_manager_has_will_hide_hook();
+  }
+
+  late final _native_window_manager_has_will_hide_hookPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_manager_has_will_hide_hook',
+      );
+  late final _native_window_manager_has_will_hide_hook =
+      _native_window_manager_has_will_hide_hookPtr
+          .asFunction<bool Function()>();
+
+  /// Call the original native show implementation for the specified window.
+  /// This bypasses the swizzled hook path on macOS.
+  /// @return true on success, false if the window wasn't found or unsupported.
+  bool native_window_manager_call_original_show(int window_id) {
+    return _native_window_manager_call_original_show(window_id);
+  }
+
+  late final _native_window_manager_call_original_showPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_id_t)>>(
+        'native_window_manager_call_original_show',
+      );
+  late final _native_window_manager_call_original_show =
+      _native_window_manager_call_original_showPtr
+          .asFunction<bool Function(int)>();
+
+  /// Call the original native hide implementation for the specified window.
+  /// This bypasses the swizzled hook path on macOS.
+  /// @return true on success, false if the window wasn't found or unsupported.
+  bool native_window_manager_call_original_hide(int window_id) {
+    return _native_window_manager_call_original_hide(window_id);
+  }
+
+  late final _native_window_manager_call_original_hidePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_id_t)>>(
+        'native_window_manager_call_original_hide',
+      );
+  late final _native_window_manager_call_original_hide =
+      _native_window_manager_call_original_hidePtr
+          .asFunction<bool Function(int)>();
 }
 
 /// Representation of a point

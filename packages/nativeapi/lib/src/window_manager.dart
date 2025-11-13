@@ -1,4 +1,5 @@
 import 'dart:ffi' hide Size;
+import 'package:flutter/widgets.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
@@ -87,8 +88,8 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   _willHideCallback;
 
   // Dart-side hook handlers
-  void Function(int windowId)? _onWillShowHook;
-  void Function(int windowId)? _onWillHideHook;
+  bool Function(int windowId)? _onWillShowHook;
+  bool Function(int windowId)? _onWillHideHook;
 
   /// Private constructor for singleton pattern.
   WindowManager._();
@@ -291,7 +292,7 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
 
   /// Set (or clear) the hook invoked BEFORE a native window is shown.
   /// Passing null clears the hook.
-  void setWillShowHook(void Function(int windowId)? callback) {
+  void setWillShowHook(bool Function(int windowId)? callback) {
     _onWillShowHook = callback;
 
     // Clear current hook if requested
@@ -317,7 +318,7 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
 
   /// Set (or clear) the hook invoked BEFORE a native window is hidden.
   /// Passing null clears the hook.
-  void setWillHideHook(void Function(int windowId)? callback) {
+  void setWillHideHook(bool Function(int windowId)? callback) {
     _onWillHideHook = callback;
 
     if (callback == null) {
@@ -347,7 +348,10 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   ) {
     final cb = _instance._onWillShowHook;
     if (cb != null) {
-      cb(windowId);
+      bool result = cb(windowId);
+      if (result) {
+        _instance.bindings.native_window_manager_call_original_show(windowId);
+      }
     }
   }
 
@@ -358,7 +362,10 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   ) {
     final cb = _instance._onWillHideHook;
     if (cb != null) {
-      cb(windowId);
+      bool result = cb(windowId);
+      if (result) {
+        _instance.bindings.native_window_manager_call_original_hide(windowId);
+      }
     }
   }
 }
