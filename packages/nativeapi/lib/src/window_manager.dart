@@ -64,9 +64,6 @@ class WindowOptions {
 ///
 /// // Get the currently focused window
 /// final currentWindow = windowManager.getCurrent();
-///
-/// // Destroy a window
-/// windowManager.destroy(windowId);
 /// ```
 class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   static final WindowManager _instance = WindowManager._();
@@ -76,25 +73,18 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
 
   // Native callable for window event callbacks
   static late final NativeCallable<
-      Void Function(
-        Pointer<native_window_event_t>,
-        Pointer<Void>,
-      )> _eventCallback;
+    Void Function(Pointer<native_window_event_t>, Pointer<Void>)
+  >
+  _eventCallback;
 
   static bool _callbackInitialized = false;
   static int? _eventListenerId;
 
   // Native callables for pre-show/hide hooks
-  static NativeCallable<
-      Void Function(
-        native_window_id_t,
-        Pointer<Void>,
-      )>? _willShowCallback;
-  static NativeCallable<
-      Void Function(
-        native_window_id_t,
-        Pointer<Void>,
-      )>? _willHideCallback;
+  static NativeCallable<Void Function(native_window_id_t, Pointer<Void>)>?
+  _willShowCallback;
+  static NativeCallable<Void Function(native_window_id_t, Pointer<Void>)>?
+  _willHideCallback;
 
   // Dart-side hook handlers
   void Function(int windowId)? _onWillShowHook;
@@ -107,13 +97,10 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   void startEventListening() {
     // Initialize callback once
     if (!_callbackInitialized) {
-      _eventCallback = NativeCallable<
-          Void Function(
-            Pointer<native_window_event_t>,
-            Pointer<Void>,
-          )>.listener(
-        _nativeOnWindowEvent,
-      );
+      _eventCallback =
+          NativeCallable<
+            Void Function(Pointer<native_window_event_t>, Pointer<Void>)
+          >.listener(_nativeOnWindowEvent);
       _callbackInitialized = true;
     }
 
@@ -194,10 +181,12 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
       WindowOptions(
         title: title,
         size: Size(width, height),
-        minimumSize:
-            minWidth != null && minHeight != null ? Size(minWidth, minHeight) : null,
-        maximumSize:
-            maxWidth != null && maxHeight != null ? Size(maxWidth, maxHeight) : null,
+        minimumSize: minWidth != null && minHeight != null
+            ? Size(minWidth, minHeight)
+            : null,
+        maximumSize: maxWidth != null && maxHeight != null
+            ? Size(maxWidth, maxHeight)
+            : null,
         centered: centered,
       ),
     );
@@ -289,13 +278,6 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
     return Window(nativeWindow);
   }
 
-  /// Destroys a window by its ID.
-  ///
-  /// Returns true if the window was found and destroyed, false otherwise.
-  bool destroy(int windowId) {
-    return bindings.native_window_manager_destroy(windowId);
-  }
-
   /// Shuts down the window manager and cleans up resources.
   ///
   /// This should typically be called when the application is exiting.
@@ -320,13 +302,13 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
       return;
     }
 
-    // (Re)create native callable and register
+    // Use isolateLocal for synchronous execution on the same thread
+    // This works because Flutter 3.22+ merges Dart isolate with platform thread
     _willShowCallback?.close();
-    _willShowCallback = NativeCallable<
-        Void Function(
-          native_window_id_t,
-          Pointer<Void>,
-        )>.listener(_nativeOnWillShow);
+    _willShowCallback =
+        NativeCallable<
+          Void Function(native_window_id_t, Pointer<Void>)
+        >.listener(_nativeOnWillShow);
     bindings.native_window_manager_set_will_show_hook(
       _willShowCallback!.nativeFunction,
       nullptr,
@@ -345,12 +327,13 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
       return;
     }
 
+    // Use isolateLocal for synchronous execution on the same thread
+    // This works because Flutter 3.22+ merges Dart isolate with platform thread
     _willHideCallback?.close();
-    _willHideCallback = NativeCallable<
-        Void Function(
-          native_window_id_t,
-          Pointer<Void>,
-        )>.listener(_nativeOnWillHide);
+    _willHideCallback =
+        NativeCallable<
+          Void Function(native_window_id_t, Pointer<Void>)
+        >.listener(_nativeOnWillHide);
     bindings.native_window_manager_set_will_hide_hook(
       _willHideCallback!.nativeFunction,
       nullptr,
@@ -379,4 +362,3 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
     }
   }
 }
-
