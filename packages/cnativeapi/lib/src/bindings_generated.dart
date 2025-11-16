@@ -62,6 +62,43 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
+  /// Window creation and destruction
+  native_window_t native_window_create() {
+    return _native_window_create();
+  }
+
+  late final _native_window_createPtr =
+      _lookup<ffi.NativeFunction<native_window_t Function()>>(
+        'native_window_create',
+      );
+  late final _native_window_create = _native_window_createPtr
+      .asFunction<native_window_t Function()>();
+
+  native_window_t native_window_create_from_native(
+    ffi.Pointer<ffi.Void> native_window,
+  ) {
+    return _native_window_create_from_native(native_window);
+  }
+
+  late final _native_window_create_from_nativePtr =
+      _lookup<
+        ffi.NativeFunction<native_window_t Function(ffi.Pointer<ffi.Void>)>
+      >('native_window_create_from_native');
+  late final _native_window_create_from_native =
+      _native_window_create_from_nativePtr
+          .asFunction<native_window_t Function(ffi.Pointer<ffi.Void>)>();
+
+  void native_window_destroy(native_window_t window) {
+    return _native_window_destroy(window);
+  }
+
+  late final _native_window_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_destroy',
+      );
+  late final _native_window_destroy = _native_window_destroyPtr
+      .asFunction<void Function(native_window_t)>();
+
   /// Window basic operations
   int native_window_get_id(native_window_t window) {
     return _native_window_get_id(window);
@@ -592,6 +629,33 @@ class CNativeApiBindings {
   late final _native_window_is_closable = _native_window_is_closablePtr
       .asFunction<bool Function(native_window_t)>();
 
+  void native_window_set_window_control_buttons_visible(
+    native_window_t window,
+    bool visible,
+  ) {
+    return _native_window_set_window_control_buttons_visible(window, visible);
+  }
+
+  late final _native_window_set_window_control_buttons_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_window_control_buttons_visible',
+      );
+  late final _native_window_set_window_control_buttons_visible =
+      _native_window_set_window_control_buttons_visiblePtr
+          .asFunction<void Function(native_window_t, bool)>();
+
+  bool native_window_is_window_control_buttons_visible(native_window_t window) {
+    return _native_window_is_window_control_buttons_visible(window);
+  }
+
+  late final _native_window_is_window_control_buttons_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_window_control_buttons_visible',
+      );
+  late final _native_window_is_window_control_buttons_visible =
+      _native_window_is_window_control_buttons_visiblePtr
+          .asFunction<bool Function(native_window_t)>();
+
   void native_window_set_always_on_top(
     native_window_t window,
     bool always_on_top,
@@ -645,6 +709,37 @@ class CNativeApiBindings {
       >('native_window_get_title');
   late final _native_window_get_title = _native_window_get_titlePtr
       .asFunction<ffi.Pointer<ffi.Char> Function(native_window_t)>();
+
+  void native_window_set_title_bar_style(
+    native_window_t window,
+    native_title_bar_style_t style,
+  ) {
+    return _native_window_set_title_bar_style(window, style.value);
+  }
+
+  late final _native_window_set_title_bar_stylePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.UnsignedInt)>
+      >('native_window_set_title_bar_style');
+  late final _native_window_set_title_bar_style =
+      _native_window_set_title_bar_stylePtr
+          .asFunction<void Function(native_window_t, int)>();
+
+  native_title_bar_style_t native_window_get_title_bar_style(
+    native_window_t window,
+  ) {
+    return native_title_bar_style_t.fromValue(
+      _native_window_get_title_bar_style(window),
+    );
+  }
+
+  late final _native_window_get_title_bar_stylePtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_window_t)>>(
+        'native_window_get_title_bar_style',
+      );
+  late final _native_window_get_title_bar_style =
+      _native_window_get_title_bar_stylePtr
+          .asFunction<int Function(native_window_t)>();
 
   void native_window_set_has_shadow(native_window_t window, bool has_shadow) {
     return _native_window_set_has_shadow(window, has_shadow);
@@ -1553,7 +1648,7 @@ class CNativeApiBindings {
   ///
   /// @example
   /// ```c
-  /// native_window_t window = native_window_manager_create(&options);
+  /// native_window_t window = native_window_create();
   /// native_point_t offset = {0, 10};
   /// native_positioning_strategy_t strategy = native_positioning_strategy_relative_to_window(window,
   /// &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);
@@ -3562,19 +3657,6 @@ class CNativeApiBindings {
   late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
       .asFunction<void Function(native_tray_icon_list_t)>();
 
-  /// Create a new window with default settings
-  /// @return Window handle, or NULL if creation failed
-  native_window_t native_window_manager_create() {
-    return _native_window_manager_create();
-  }
-
-  late final _native_window_manager_createPtr =
-      _lookup<ffi.NativeFunction<native_window_t Function()>>(
-        'native_window_manager_create',
-      );
-  late final _native_window_manager_create = _native_window_manager_createPtr
-      .asFunction<native_window_t Function()>();
-
   /// Get a window by its ID
   /// @param window_id The window ID
   /// @return Window handle, or NULL if not found
@@ -3887,6 +3969,23 @@ final class native_window_list_t extends ffi.Struct {
 
 /// Opaque window handle
 typedef native_window_t = ffi.Pointer<ffi.Void>;
+
+/// Title bar style enumeration
+enum native_title_bar_style_t {
+  NATIVE_TITLE_BAR_STYLE_NORMAL(0),
+  NATIVE_TITLE_BAR_STYLE_HIDDEN(1);
+
+  final int value;
+  const native_title_bar_style_t(this.value);
+
+  static native_title_bar_style_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TITLE_BAR_STYLE_NORMAL,
+    1 => NATIVE_TITLE_BAR_STYLE_HIDDEN,
+    _ => throw ArgumentError(
+      "Unknown value for native_title_bar_style_t: $value",
+    ),
+  };
+}
 
 /// Window ID type
 typedef native_window_id_t = ffi.Long;

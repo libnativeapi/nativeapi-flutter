@@ -1,9 +1,28 @@
 import 'dart:ffi' hide Size;
 import 'package:ffi/ffi.dart' as ffi;
-import 'package:nativeapi/src/display_manager.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
+
+/// Title bar style options for windows.
+///
+/// Defines how a window's title bar should be displayed. This affects the
+/// appearance and visibility of the standard window title bar including the
+/// title text and window control buttons (minimize, maximize, close).
+///
+/// Platform behavior may vary:
+/// - Windows: Hidden style removes the title bar but may retain window borders
+/// - macOS: Hidden style creates a borderless window with transparent title bar
+/// - Linux: Hidden style removes window decorations entirely
+enum TitleBarStyle {
+  /// Standard title bar with default platform appearance.
+  /// Shows title text and standard window control buttons.
+  normal,
+
+  /// Hidden title bar with no visible decorations.
+  /// The window appears without a title bar, useful for custom chrome.
+  hidden,
+}
 
 /// A cross-platform window abstraction.
 ///
@@ -28,10 +47,14 @@ import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
 /// // Maximize the window
 /// window?.maximize();
 ///
+/// // Set title bar style
+/// window?.titleBarStyle = TitleBarStyle.hidden;
+///
 /// // Get window properties
 /// final title = window?.title;
 /// final size = window?.size;
 /// final position = window?.position;
+/// final titleBarStyle = window?.titleBarStyle;
 /// ```
 class Window
     with CNativeApiBindingsMixin
@@ -238,22 +261,8 @@ class Window
   }
 
   /// Centers the window on the primary screen.
-  ///
-  /// This method calculates the center position based on the primary display's
-  /// size and the window's current size, then sets the window position accordingly.
   void center() {
-    final primaryDisplay = DisplayManager.instance.getPrimary();
-    if (primaryDisplay == null) {
-      return;
-    }
-
-    final screenSize = primaryDisplay.size;
-    final windowSize = size;
-
-    final centerX = (screenSize.width - windowSize.width) / 2;
-    final centerY = (screenSize.height - windowSize.height) / 2;
-
-    setPosition(centerX, centerY);
+    bindings.native_window_center(_nativeHandle);
   }
 
   // === Window Properties ===
@@ -318,6 +327,41 @@ class Window
     return bindings.native_window_is_closable(_nativeHandle);
   }
 
+  /// Sets the visibility of window control buttons.
+  ///
+  /// Controls the visibility of window control buttons (minimize, maximize, close)
+  /// in the title bar. When hidden, the buttons are not visible but the window
+  /// can still be controlled programmatically.
+  ///
+  /// Platform availability:
+  /// - macOS: ✅ Fully supported - Hides/shows the traffic light buttons
+  /// - Windows: ❌ Not implemented
+  /// - Linux: ❌ Not implemented
+  /// - Android: ❌ Not applicable - Mobile apps don't have window control buttons
+  /// - iOS: ❌ Not applicable - Mobile apps don't have window control buttons
+  /// - OpenHarmony: ❌ Not applicable - Mobile apps don't have window control buttons
+  set windowControlButtonsVisible(bool value) {
+    bindings.native_window_set_window_control_buttons_visible(
+      _nativeHandle,
+      value,
+    );
+  }
+
+  /// Checks if the window control buttons are visible.
+  ///
+  /// Platform availability:
+  /// - macOS: ✅ Fully supported - Returns actual visibility state
+  /// - Windows: ❌ Not implemented - Always returns true
+  /// - Linux: ❌ Not implemented - Always returns true
+  /// - Android: ❌ Not applicable - Always returns false
+  /// - iOS: ❌ Not applicable - Always returns false
+  /// - OpenHarmony: ❌ Not applicable - Always returns false
+  bool get windowControlButtonsVisible {
+    return bindings.native_window_is_window_control_buttons_visible(
+      _nativeHandle,
+    );
+  }
+
   /// Sets whether the window is always on top.
   set isAlwaysOnTop(bool value) {
     bindings.native_window_set_always_on_top(_nativeHandle, value);
@@ -347,6 +391,33 @@ class Window
     final title = titlePtr.cast<ffi.Utf8>().toDartString();
     bindings.native_window_free_string(titlePtr);
     return title;
+  }
+
+  /// Sets the window's title bar style.
+  ///
+  /// Controls the appearance and visibility of the window's title bar.
+  /// Use [TitleBarStyle.normal] for standard appearance or [TitleBarStyle.hidden]
+  /// to hide the title bar for custom window chrome.
+  ///
+  /// Platform behavior may vary:
+  /// - Windows: Hidden style removes the title bar but may retain window borders
+  /// - macOS: Hidden style creates a borderless window with transparent title bar
+  /// - Linux: Hidden style removes window decorations entirely
+  set titleBarStyle(TitleBarStyle value) {
+    final nativeStyle = value == TitleBarStyle.hidden
+        ? native_title_bar_style_t.NATIVE_TITLE_BAR_STYLE_HIDDEN
+        : native_title_bar_style_t.NATIVE_TITLE_BAR_STYLE_NORMAL;
+    bindings.native_window_set_title_bar_style(_nativeHandle, nativeStyle);
+  }
+
+  /// Gets the window's title bar style.
+  TitleBarStyle get titleBarStyle {
+    final nativeStyle = bindings.native_window_get_title_bar_style(
+      _nativeHandle,
+    );
+    return nativeStyle == native_title_bar_style_t.NATIVE_TITLE_BAR_STYLE_HIDDEN
+        ? TitleBarStyle.hidden
+        : TitleBarStyle.normal;
   }
 
   /// Sets whether the window has a shadow.

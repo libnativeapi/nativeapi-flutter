@@ -11,6 +11,7 @@ let package = Package(
     products: [
         .library(
             name: "cnativeapi",
+            type: .dynamic,
             targets: ["cnativeapi"]
         )
     ],

@@ -6,32 +6,6 @@ import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/window.dart';
 import 'package:nativeapi/src/window_event.dart';
 
-/// Options for creating a window.
-class WindowOptions {
-  /// The window title.
-  final String title;
-
-  /// The initial window size.
-  final Size size;
-
-  /// The minimum window size (optional).
-  final Size? minimumSize;
-
-  /// The maximum window size (optional).
-  final Size? maximumSize;
-
-  /// Whether to center the window on screen.
-  final bool centered;
-
-  const WindowOptions({
-    this.title = '',
-    this.size = const Size(800, 600),
-    this.minimumSize,
-    this.maximumSize,
-    this.centered = false,
-  });
-}
-
 /// WindowManager is a singleton that manages all windows in the application.
 ///
 /// The WindowManager provides a centralized interface for creating, managing, and
@@ -163,78 +137,6 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
         _instance.emitSync(WindowResizedEvent(windowId, size));
         break;
     }
-  }
-
-  /// Creates a new window with the specified title, size, and options.
-  ///
-  /// Returns the created [Window] instance, or null if creation failed.
-  Window? create({
-    String title = '',
-    double width = 800,
-    double height = 600,
-    double? minWidth,
-    double? minHeight,
-    double? maxWidth,
-    double? maxHeight,
-    bool centered = false,
-  }) {
-    return createWithOptions(
-      WindowOptions(
-        title: title,
-        size: Size(width, height),
-        minimumSize: minWidth != null && minHeight != null
-            ? Size(minWidth, minHeight)
-            : null,
-        maximumSize: maxWidth != null && maxHeight != null
-            ? Size(maxWidth, maxHeight)
-            : null,
-        centered: centered,
-      ),
-    );
-  }
-
-  /// Creates a new window with the specified options.
-  ///
-  /// Returns the created [Window] instance, or null if creation failed.
-  Window? createWithOptions(WindowOptions options) {
-    // Create the window with default settings
-    final nativeWindow = bindings.native_window_manager_create();
-    if (nativeWindow == nullptr) {
-      return null;
-    }
-
-    final window = Window(nativeWindow);
-
-    // Set title
-    if (options.title.isNotEmpty) {
-      window.title = options.title;
-    }
-
-    // Set size
-    window.setSize(options.size.width, options.size.height);
-
-    // Set minimum size if provided
-    if (options.minimumSize != null) {
-      window.setMinimumSize(
-        options.minimumSize!.width,
-        options.minimumSize!.height,
-      );
-    }
-
-    // Set maximum size if provided
-    if (options.maximumSize != null) {
-      window.setMaximumSize(
-        options.maximumSize!.width,
-        options.maximumSize!.height,
-      );
-    }
-
-    // Center the window if requested
-    if (options.centered) {
-      window.center();
-    }
-
-    return window;
   }
 
   /// Gets a window by its ID.
