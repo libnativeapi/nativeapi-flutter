@@ -9,6 +9,7 @@ headers:
   entry-points:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
     - "cxx_impl/src/capi/application_c.h"
+    - "cxx_impl/src/capi/autostart_c.h"
     - "cxx_impl/src/capi/display_c.h"
     - "cxx_impl/src/capi/display_manager_c.h"
     - "cxx_impl/src/capi/geometry_c.h"
@@ -19,6 +20,8 @@ headers:
     - "cxx_impl/src/capi/positioning_strategy_c.h"
     - "cxx_impl/src/capi/preferences_c.h"
     - "cxx_impl/src/capi/secure_storage_c.h"
+    - "cxx_impl/src/capi/shortcut_c.h"
+    - "cxx_impl/src/capi/shortcut_manager_c.h"
     - "cxx_impl/src/capi/string_utils_c.h"
     - "cxx_impl/src/capi/tray_icon_c.h"
     - "cxx_impl/src/capi/tray_manager_c.h"
@@ -28,6 +31,7 @@ headers:
   include-directives:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
     - "cxx_impl/src/capi/application_c.h"
+    - "cxx_impl/src/capi/autostart_c.h"
     - "cxx_impl/src/capi/display_c.h"
     - "cxx_impl/src/capi/display_manager_c.h"
     - "cxx_impl/src/capi/geometry_c.h"
@@ -38,6 +42,8 @@ headers:
     - "cxx_impl/src/capi/positioning_strategy_c.h"
     - "cxx_impl/src/capi/preferences_c.h"
     - "cxx_impl/src/capi/secure_storage_c.h"
+    - "cxx_impl/src/capi/shortcut_c.h"
+    - "cxx_impl/src/capi/shortcut_manager_c.h"
     - "cxx_impl/src/capi/string_utils_c.h"
     - "cxx_impl/src/capi/tray_icon_c.h"
     - "cxx_impl/src/capi/tray_manager_c.h"

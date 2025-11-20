@@ -1130,6 +1130,299 @@ class CNativeApiBindings {
   late final _native_run_app = _native_run_appPtr
       .asFunction<int Function(native_window_t)>();
 
+  /// Create an AutoStart manager with defaults derived from the current application.
+  ///
+  /// @return Handle to an AutoStart instance, or NULL on failure.
+  native_autostart_t native_autostart_create() {
+    return _native_autostart_create();
+  }
+
+  late final _native_autostart_createPtr =
+      _lookup<ffi.NativeFunction<native_autostart_t Function()>>(
+        'native_autostart_create',
+      );
+  late final _native_autostart_create = _native_autostart_createPtr
+      .asFunction<native_autostart_t Function()>();
+
+  /// Create an AutoStart manager with a custom identifier.
+  ///
+  /// @param id A stable, unique identifier for your app (e.g., "com.example.myapp").
+  /// @return Handle to an AutoStart instance, or NULL on failure.
+  native_autostart_t native_autostart_create_with_id(ffi.Pointer<ffi.Char> id) {
+    return _native_autostart_create_with_id(id);
+  }
+
+  late final _native_autostart_create_with_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_autostart_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_autostart_create_with_id');
+  late final _native_autostart_create_with_id =
+      _native_autostart_create_with_idPtr
+          .asFunction<native_autostart_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Create an AutoStart manager with a custom identifier and display name.
+  ///
+  /// @param id           Stable, unique identifier (e.g., "com.example.myapp").
+  /// @param display_name Human-readable application name (e.g., "MyApp").
+  /// @return Handle to an AutoStart instance, or NULL on failure.
+  native_autostart_t native_autostart_create_with_id_and_name(
+    ffi.Pointer<ffi.Char> id,
+    ffi.Pointer<ffi.Char> display_name,
+  ) {
+    return _native_autostart_create_with_id_and_name(id, display_name);
+  }
+
+  late final _native_autostart_create_with_id_and_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_autostart_t Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_autostart_create_with_id_and_name');
+  late final _native_autostart_create_with_id_and_name =
+      _native_autostart_create_with_id_and_namePtr
+          .asFunction<
+            native_autostart_t Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
+
+  /// Destroy an AutoStart instance and release resources.
+  ///
+  /// @param autostart Handle returned by a native_autostart_create* function.
+  void native_autostart_destroy(native_autostart_t autostart) {
+    return _native_autostart_destroy(autostart);
+  }
+
+  late final _native_autostart_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_autostart_t)>>(
+        'native_autostart_destroy',
+      );
+  late final _native_autostart_destroy = _native_autostart_destroyPtr
+      .asFunction<void Function(native_autostart_t)>();
+
+  /// Check if auto-start management is supported on the current platform.
+  ///
+  /// This is a static check that does not require an AutoStart instance.
+  ///
+  /// @return true if supported, false if unsupported.
+  bool native_autostart_is_supported() {
+    return _native_autostart_is_supported();
+  }
+
+  late final _native_autostart_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_autostart_is_supported',
+      );
+  late final _native_autostart_is_supported = _native_autostart_is_supportedPtr
+      .asFunction<bool Function()>();
+
+  /// Get the identifier associated with this AutoStart instance.
+  ///
+  /// @param autostart AutoStart handle.
+  /// @return Newly allocated string with the identifier, or NULL on error.
+  /// Caller must free with free_c_str().
+  ffi.Pointer<ffi.Char> native_autostart_get_id(native_autostart_t autostart) {
+    return _native_autostart_get_id(autostart);
+  }
+
+  late final _native_autostart_get_idPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
+      >('native_autostart_get_id');
+  late final _native_autostart_get_id = _native_autostart_get_idPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
+
+  /// Get the human-readable display name associated with this AutoStart instance.
+  ///
+  /// @param autostart AutoStart handle.
+  /// @return Newly allocated string with the display name, or NULL on error.
+  /// Caller must free with free_c_str().
+  ffi.Pointer<ffi.Char> native_autostart_get_display_name(
+    native_autostart_t autostart,
+  ) {
+    return _native_autostart_get_display_name(autostart);
+  }
+
+  late final _native_autostart_get_display_namePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
+      >('native_autostart_get_display_name');
+  late final _native_autostart_get_display_name =
+      _native_autostart_get_display_namePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
+
+  /// Set the human-readable display name used where applicable.
+  ///
+  /// @param autostart    AutoStart handle.
+  /// @param display_name The display name to set.
+  /// @return true if stored successfully; does not change OS registration until Enable().
+  bool native_autostart_set_display_name(
+    native_autostart_t autostart,
+    ffi.Pointer<ffi.Char> display_name,
+  ) {
+    return _native_autostart_set_display_name(autostart, display_name);
+  }
+
+  late final _native_autostart_set_display_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_autostart_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_autostart_set_display_name');
+  late final _native_autostart_set_display_name =
+      _native_autostart_set_display_namePtr
+          .asFunction<
+            bool Function(native_autostart_t, ffi.Pointer<ffi.Char>)
+          >();
+
+  /// Set the program (executable) path and optional arguments to use for auto-start.
+  ///
+  /// If not set, the implementation attempts to use the current process executable.
+  /// Pass NULL for arguments or argument_count == 0 when no arguments are needed.
+  ///
+  /// @param autostart       AutoStart handle.
+  /// @param executable_path Absolute path to the executable to launch on login.
+  /// @param arguments       Array of argument strings (can be NULL if count is 0).
+  /// @param argument_count  Number of strings in the arguments array.
+  /// @return true if stored successfully; does not change OS registration until Enable().
+  bool native_autostart_set_program(
+    native_autostart_t autostart,
+    ffi.Pointer<ffi.Char> executable_path,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> arguments,
+    int argument_count,
+  ) {
+    return _native_autostart_set_program(
+      autostart,
+      executable_path,
+      arguments,
+      argument_count,
+    );
+  }
+
+  late final _native_autostart_set_programPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_autostart_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Pointer<ffi.Char>>,
+            ffi.Size,
+          )
+        >
+      >('native_autostart_set_program');
+  late final _native_autostart_set_program = _native_autostart_set_programPtr
+      .asFunction<
+        bool Function(
+          native_autostart_t,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Pointer<ffi.Char>>,
+          int,
+        )
+      >();
+
+  /// Get the currently configured executable path.
+  ///
+  /// @param autostart AutoStart handle.
+  /// @return Newly allocated string with the executable path, or NULL on error.
+  /// Caller must free with free_c_str().
+  ffi.Pointer<ffi.Char> native_autostart_get_executable_path(
+    native_autostart_t autostart,
+  ) {
+    return _native_autostart_get_executable_path(autostart);
+  }
+
+  late final _native_autostart_get_executable_pathPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
+      >('native_autostart_get_executable_path');
+  late final _native_autostart_get_executable_path =
+      _native_autostart_get_executable_pathPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
+
+  /// Get the currently configured arguments for auto-start.
+  ///
+  /// @param autostart     AutoStart handle.
+  /// @param out_arguments Output pointer to an array of newly allocated strings.
+  /// @param out_count     Output pointer to receive the number of arguments.
+  /// @return true on success; false on error. On success, free each string with
+  /// free_c_str() and the array with delete[].
+  bool native_autostart_get_arguments(
+    native_autostart_t autostart,
+    ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_arguments,
+    ffi.Pointer<ffi.Size> out_count,
+  ) {
+    return _native_autostart_get_arguments(autostart, out_arguments, out_count);
+  }
+
+  late final _native_autostart_get_argumentsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_autostart_t,
+            ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
+            ffi.Pointer<ffi.Size>,
+          )
+        >
+      >('native_autostart_get_arguments');
+  late final _native_autostart_get_arguments =
+      _native_autostart_get_argumentsPtr
+          .asFunction<
+            bool Function(
+              native_autostart_t,
+              ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
+
+  /// Enable auto-start at user login for the configured program and arguments.
+  ///
+  /// @param autostart AutoStart handle.
+  /// @return true on success, false on failure or if unsupported.
+  bool native_autostart_enable(native_autostart_t autostart) {
+    return _native_autostart_enable(autostart);
+  }
+
+  late final _native_autostart_enablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
+        'native_autostart_enable',
+      );
+  late final _native_autostart_enable = _native_autostart_enablePtr
+      .asFunction<bool Function(native_autostart_t)>();
+
+  /// Disable auto-start at user login.
+  ///
+  /// @param autostart AutoStart handle.
+  /// @return true on success, false on failure or if unsupported.
+  bool native_autostart_disable(native_autostart_t autostart) {
+    return _native_autostart_disable(autostart);
+  }
+
+  late final _native_autostart_disablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
+        'native_autostart_disable',
+      );
+  late final _native_autostart_disable = _native_autostart_disablePtr
+      .asFunction<bool Function(native_autostart_t)>();
+
+  /// Check whether auto-start is currently enabled for this identifier.
+  ///
+  /// @param autostart AutoStart handle.
+  /// @return true if enabled, false otherwise or on error.
+  bool native_autostart_is_enabled(native_autostart_t autostart) {
+    return _native_autostart_is_enabled(autostart);
+  }
+
+  late final _native_autostart_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
+        'native_autostart_is_enabled',
+      );
+  late final _native_autostart_is_enabled = _native_autostart_is_enabledPtr
+      .asFunction<bool Function(native_autostart_t)>();
+
   /// Basic identification getters
   ffi.Pointer<ffi.Char> native_display_get_id(native_display_t display) {
     return _native_display_get_id(display);
@@ -3209,6 +3502,444 @@ class CNativeApiBindings {
       _native_secure_storage_free_string_arrayPtr
           .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
 
+  /// Get the unique ID of a shortcut
+  /// @param shortcut The shortcut handle
+  /// @return The shortcut ID
+  int native_shortcut_get_id(native_shortcut_t shortcut) {
+    return _native_shortcut_get_id(shortcut);
+  }
+
+  late final _native_shortcut_get_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_shortcut_id_t Function(native_shortcut_t)>
+      >('native_shortcut_get_id');
+  late final _native_shortcut_get_id = _native_shortcut_get_idPtr
+      .asFunction<int Function(native_shortcut_t)>();
+
+  /// Get the accelerator string of a shortcut
+  /// @param shortcut The shortcut handle
+  /// @return The accelerator string (caller must NOT free)
+  ffi.Pointer<ffi.Char> native_shortcut_get_accelerator(
+    native_shortcut_t shortcut,
+  ) {
+    return _native_shortcut_get_accelerator(shortcut);
+  }
+
+  late final _native_shortcut_get_acceleratorPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_shortcut_t)>
+      >('native_shortcut_get_accelerator');
+  late final _native_shortcut_get_accelerator =
+      _native_shortcut_get_acceleratorPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(native_shortcut_t)>();
+
+  /// Get the description of a shortcut
+  /// @param shortcut The shortcut handle
+  /// @return The description string (caller must NOT free)
+  ffi.Pointer<ffi.Char> native_shortcut_get_description(
+    native_shortcut_t shortcut,
+  ) {
+    return _native_shortcut_get_description(shortcut);
+  }
+
+  late final _native_shortcut_get_descriptionPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_shortcut_t)>
+      >('native_shortcut_get_description');
+  late final _native_shortcut_get_description =
+      _native_shortcut_get_descriptionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(native_shortcut_t)>();
+
+  /// Set the description of a shortcut
+  /// @param shortcut The shortcut handle
+  /// @param description The new description
+  void native_shortcut_set_description(
+    native_shortcut_t shortcut,
+    ffi.Pointer<ffi.Char> description,
+  ) {
+    return _native_shortcut_set_description(shortcut, description);
+  }
+
+  late final _native_shortcut_set_descriptionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_shortcut_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_shortcut_set_description');
+  late final _native_shortcut_set_description =
+      _native_shortcut_set_descriptionPtr
+          .asFunction<
+            void Function(native_shortcut_t, ffi.Pointer<ffi.Char>)
+          >();
+
+  /// Get the scope of a shortcut
+  /// @param shortcut The shortcut handle
+  /// @return The shortcut scope
+  native_shortcut_scope_t native_shortcut_get_scope(
+    native_shortcut_t shortcut,
+  ) {
+    return native_shortcut_scope_t.fromValue(
+      _native_shortcut_get_scope(shortcut),
+    );
+  }
+
+  late final _native_shortcut_get_scopePtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_shortcut_t)>>(
+        'native_shortcut_get_scope',
+      );
+  late final _native_shortcut_get_scope = _native_shortcut_get_scopePtr
+      .asFunction<int Function(native_shortcut_t)>();
+
+  /// Enable or disable a shortcut
+  /// @param shortcut The shortcut handle
+  /// @param enabled true to enable, false to disable
+  void native_shortcut_set_enabled(native_shortcut_t shortcut, bool enabled) {
+    return _native_shortcut_set_enabled(shortcut, enabled);
+  }
+
+  late final _native_shortcut_set_enabledPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_shortcut_t, ffi.Bool)>
+      >('native_shortcut_set_enabled');
+  late final _native_shortcut_set_enabled = _native_shortcut_set_enabledPtr
+      .asFunction<void Function(native_shortcut_t, bool)>();
+
+  /// Check if a shortcut is enabled
+  /// @param shortcut The shortcut handle
+  /// @return true if enabled, false otherwise
+  bool native_shortcut_is_enabled(native_shortcut_t shortcut) {
+    return _native_shortcut_is_enabled(shortcut);
+  }
+
+  late final _native_shortcut_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_shortcut_t)>>(
+        'native_shortcut_is_enabled',
+      );
+  late final _native_shortcut_is_enabled = _native_shortcut_is_enabledPtr
+      .asFunction<bool Function(native_shortcut_t)>();
+
+  /// Manually invoke a shortcut's callback
+  /// @param shortcut The shortcut handle
+  void native_shortcut_invoke(native_shortcut_t shortcut) {
+    return _native_shortcut_invoke(shortcut);
+  }
+
+  late final _native_shortcut_invokePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_shortcut_t)>>(
+        'native_shortcut_invoke',
+      );
+  late final _native_shortcut_invoke = _native_shortcut_invokePtr
+      .asFunction<void Function(native_shortcut_t)>();
+
+  /// Free a shortcut list
+  /// @param list The list to free
+  void native_shortcut_list_free(native_shortcut_list_t list) {
+    return _native_shortcut_list_free(list);
+  }
+
+  late final _native_shortcut_list_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_shortcut_list_t)>>(
+        'native_shortcut_list_free',
+      );
+  late final _native_shortcut_list_free = _native_shortcut_list_freePtr
+      .asFunction<void Function(native_shortcut_list_t)>();
+
+  /// Check if global shortcuts are supported on the current platform
+  /// @return true if supported, false otherwise
+  bool native_shortcut_manager_is_supported() {
+    return _native_shortcut_manager_is_supported();
+  }
+
+  late final _native_shortcut_manager_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_shortcut_manager_is_supported',
+      );
+  late final _native_shortcut_manager_is_supported =
+      _native_shortcut_manager_is_supportedPtr.asFunction<bool Function()>();
+
+  /// Register a new keyboard shortcut with a simple accelerator string
+  /// @param accelerator The keyboard shortcut string (e.g., "Ctrl+Shift+A")
+  /// @param callback The callback function to invoke when the shortcut is activated
+  /// @param user_data User data to pass to the callback
+  /// @return Shortcut handle, or NULL if registration failed
+  native_shortcut_t native_shortcut_manager_register(
+    ffi.Pointer<ffi.Char> accelerator,
+    native_shortcut_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_shortcut_manager_register(accelerator, callback, user_data);
+  }
+
+  late final _native_shortcut_manager_registerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_shortcut_t Function(
+            ffi.Pointer<ffi.Char>,
+            native_shortcut_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_shortcut_manager_register');
+  late final _native_shortcut_manager_register =
+      _native_shortcut_manager_registerPtr
+          .asFunction<
+            native_shortcut_t Function(
+              ffi.Pointer<ffi.Char>,
+              native_shortcut_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Register a new keyboard shortcut with detailed options
+  /// @param options The shortcut options
+  /// @param callback The callback function to invoke when the shortcut is activated
+  /// @param user_data User data to pass to the callback
+  /// @return Shortcut handle, or NULL if registration failed
+  native_shortcut_t native_shortcut_manager_register_with_options(
+    ffi.Pointer<native_shortcut_options_t> options,
+    native_shortcut_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_shortcut_manager_register_with_options(
+      options,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_shortcut_manager_register_with_optionsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_shortcut_t Function(
+            ffi.Pointer<native_shortcut_options_t>,
+            native_shortcut_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_shortcut_manager_register_with_options');
+  late final _native_shortcut_manager_register_with_options =
+      _native_shortcut_manager_register_with_optionsPtr
+          .asFunction<
+            native_shortcut_t Function(
+              ffi.Pointer<native_shortcut_options_t>,
+              native_shortcut_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregister a keyboard shortcut by its ID
+  /// @param shortcut_id The shortcut ID
+  /// @return true if unregistered successfully, false otherwise
+  bool native_shortcut_manager_unregister_by_id(int shortcut_id) {
+    return _native_shortcut_manager_unregister_by_id(shortcut_id);
+  }
+
+  late final _native_shortcut_manager_unregister_by_idPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_shortcut_id_t)>>(
+        'native_shortcut_manager_unregister_by_id',
+      );
+  late final _native_shortcut_manager_unregister_by_id =
+      _native_shortcut_manager_unregister_by_idPtr
+          .asFunction<bool Function(int)>();
+
+  /// Unregister a keyboard shortcut by its accelerator string
+  /// @param accelerator The keyboard shortcut string
+  /// @return true if unregistered successfully, false otherwise
+  bool native_shortcut_manager_unregister_by_accelerator(
+    ffi.Pointer<ffi.Char> accelerator,
+  ) {
+    return _native_shortcut_manager_unregister_by_accelerator(accelerator);
+  }
+
+  late final _native_shortcut_manager_unregister_by_acceleratorPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_shortcut_manager_unregister_by_accelerator',
+      );
+  late final _native_shortcut_manager_unregister_by_accelerator =
+      _native_shortcut_manager_unregister_by_acceleratorPtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Unregister all keyboard shortcuts
+  /// @return Number of shortcuts that were unregistered
+  int native_shortcut_manager_unregister_all() {
+    return _native_shortcut_manager_unregister_all();
+  }
+
+  late final _native_shortcut_manager_unregister_allPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+        'native_shortcut_manager_unregister_all',
+      );
+  late final _native_shortcut_manager_unregister_all =
+      _native_shortcut_manager_unregister_allPtr.asFunction<int Function()>();
+
+  /// Get a shortcut by its ID
+  /// @param shortcut_id The shortcut ID
+  /// @return Shortcut handle, or NULL if not found
+  native_shortcut_t native_shortcut_manager_get_by_id(int shortcut_id) {
+    return _native_shortcut_manager_get_by_id(shortcut_id);
+  }
+
+  late final _native_shortcut_manager_get_by_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_shortcut_t Function(native_shortcut_id_t)>
+      >('native_shortcut_manager_get_by_id');
+  late final _native_shortcut_manager_get_by_id =
+      _native_shortcut_manager_get_by_idPtr
+          .asFunction<native_shortcut_t Function(int)>();
+
+  /// Get a shortcut by its accelerator string
+  /// @param accelerator The keyboard shortcut string
+  /// @return Shortcut handle, or NULL if not found
+  native_shortcut_t native_shortcut_manager_get_by_accelerator(
+    ffi.Pointer<ffi.Char> accelerator,
+  ) {
+    return _native_shortcut_manager_get_by_accelerator(accelerator);
+  }
+
+  late final _native_shortcut_manager_get_by_acceleratorPtr =
+      _lookup<
+        ffi.NativeFunction<native_shortcut_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_shortcut_manager_get_by_accelerator');
+  late final _native_shortcut_manager_get_by_accelerator =
+      _native_shortcut_manager_get_by_acceleratorPtr
+          .asFunction<native_shortcut_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Get all registered shortcuts
+  /// @return List of all shortcuts (caller must free with native_shortcut_list_free)
+  native_shortcut_list_t native_shortcut_manager_get_all() {
+    return _native_shortcut_manager_get_all();
+  }
+
+  late final _native_shortcut_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<native_shortcut_list_t Function()>>(
+        'native_shortcut_manager_get_all',
+      );
+  late final _native_shortcut_manager_get_all =
+      _native_shortcut_manager_get_allPtr
+          .asFunction<native_shortcut_list_t Function()>();
+
+  /// Get shortcuts filtered by scope
+  /// @param scope The shortcut scope to filter by
+  /// @return List of matching shortcuts (caller must free with native_shortcut_list_free)
+  native_shortcut_list_t native_shortcut_manager_get_by_scope(
+    native_shortcut_scope_t scope,
+  ) {
+    return _native_shortcut_manager_get_by_scope(scope.value);
+  }
+
+  late final _native_shortcut_manager_get_by_scopePtr =
+      _lookup<
+        ffi.NativeFunction<native_shortcut_list_t Function(ffi.UnsignedInt)>
+      >('native_shortcut_manager_get_by_scope');
+  late final _native_shortcut_manager_get_by_scope =
+      _native_shortcut_manager_get_by_scopePtr
+          .asFunction<native_shortcut_list_t Function(int)>();
+
+  /// Check if a specific accelerator is available for registration
+  /// @param accelerator The keyboard shortcut string to check
+  /// @return true if available, false if already in use
+  bool native_shortcut_manager_is_available(ffi.Pointer<ffi.Char> accelerator) {
+    return _native_shortcut_manager_is_available(accelerator);
+  }
+
+  late final _native_shortcut_manager_is_availablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_shortcut_manager_is_available',
+      );
+  late final _native_shortcut_manager_is_available =
+      _native_shortcut_manager_is_availablePtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Validate an accelerator string format
+  /// @param accelerator The keyboard shortcut string to validate
+  /// @return true if the format is valid, false otherwise
+  bool native_shortcut_manager_is_valid_accelerator(
+    ffi.Pointer<ffi.Char> accelerator,
+  ) {
+    return _native_shortcut_manager_is_valid_accelerator(accelerator);
+  }
+
+  late final _native_shortcut_manager_is_valid_acceleratorPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_shortcut_manager_is_valid_accelerator',
+      );
+  late final _native_shortcut_manager_is_valid_accelerator =
+      _native_shortcut_manager_is_valid_acceleratorPtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Enable or disable shortcut processing
+  /// @param enabled true to enable, false to disable
+  void native_shortcut_manager_set_enabled(bool enabled) {
+    return _native_shortcut_manager_set_enabled(enabled);
+  }
+
+  late final _native_shortcut_manager_set_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Bool)>>(
+        'native_shortcut_manager_set_enabled',
+      );
+  late final _native_shortcut_manager_set_enabled =
+      _native_shortcut_manager_set_enabledPtr.asFunction<void Function(bool)>();
+
+  /// Check if shortcut processing is enabled
+  /// @return true if enabled, false otherwise
+  bool native_shortcut_manager_is_enabled() {
+    return _native_shortcut_manager_is_enabled();
+  }
+
+  late final _native_shortcut_manager_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_shortcut_manager_is_enabled',
+      );
+  late final _native_shortcut_manager_is_enabled =
+      _native_shortcut_manager_is_enabledPtr.asFunction<bool Function()>();
+
+  /// Register a callback for shortcut events
+  /// @param callback The callback function to register
+  /// @param user_data User data to pass to the callback
+  /// @return Registration ID, or -1 on failure
+  int native_shortcut_manager_register_event_callback(
+    native_shortcut_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_shortcut_manager_register_event_callback(
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_shortcut_manager_register_event_callbackPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            native_shortcut_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_shortcut_manager_register_event_callback');
+  late final _native_shortcut_manager_register_event_callback =
+      _native_shortcut_manager_register_event_callbackPtr
+          .asFunction<
+            int Function(
+              native_shortcut_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregister a shortcut event callback
+  /// @param registration_id The registration ID returned by register_event_callback
+  /// @return true if callback was found and unregistered, false otherwise
+  bool native_shortcut_manager_unregister_event_callback(int registration_id) {
+    return _native_shortcut_manager_unregister_event_callback(registration_id);
+  }
+
+  late final _native_shortcut_manager_unregister_event_callbackPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int)>>(
+        'native_shortcut_manager_unregister_event_callback',
+      );
+  late final _native_shortcut_manager_unregister_event_callback =
+      _native_shortcut_manager_unregister_event_callbackPtr
+          .asFunction<bool Function(int)>();
+
   /// Free a C string allocated by to_c_str
   /// @param str The string to free (can be nullptr)
   void free_c_str(ffi.Pointer<ffi.Char> str) {
@@ -4038,6 +4769,9 @@ typedef native_application_event_callback_tFunction =
 typedef Dartnative_application_event_callback_tFunction =
     void Function(ffi.Pointer<native_application_event_t> event);
 
+/// Opaque handle type for AutoStart instance.
+typedef native_autostart_t = ffi.Pointer<ffi.Void>;
+
 /// Display orientation enumeration
 enum native_display_orientation_t {
   NATIVE_DISPLAY_ORIENTATION_PORTRAIT(0),
@@ -4373,6 +5107,121 @@ typedef native_preferences_t = ffi.Pointer<ffi.Void>;
 /// Opaque handle type
 typedef native_secure_storage_t = ffi.Pointer<ffi.Void>;
 
+/// Shortcut scope enumeration
+enum native_shortcut_scope_t {
+  NATIVE_SHORTCUT_SCOPE_GLOBAL(0),
+  NATIVE_SHORTCUT_SCOPE_APPLICATION(1);
+
+  final int value;
+  const native_shortcut_scope_t(this.value);
+
+  static native_shortcut_scope_t fromValue(int value) => switch (value) {
+    0 => NATIVE_SHORTCUT_SCOPE_GLOBAL,
+    1 => NATIVE_SHORTCUT_SCOPE_APPLICATION,
+    _ => throw ArgumentError(
+      "Unknown value for native_shortcut_scope_t: $value",
+    ),
+  };
+}
+
+/// Shortcut options structure
+final class native_shortcut_options_t extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> accelerator;
+
+  external ffi.Pointer<ffi.Char> description;
+
+  @ffi.UnsignedInt()
+  external int scope;
+
+  @ffi.Bool()
+  external bool enabled;
+}
+
+/// Shortcut ID type
+typedef native_shortcut_id_t = ffi.Uint64;
+typedef Dartnative_shortcut_id_t = int;
+
+/// Opaque handle to a Shortcut instance
+typedef native_shortcut_t = ffi.Pointer<ffi.Void>;
+
+/// Shortcut event types
+enum native_shortcut_event_type_t {
+  NATIVE_SHORTCUT_EVENT_ACTIVATED(0),
+  NATIVE_SHORTCUT_EVENT_REGISTERED(1),
+  NATIVE_SHORTCUT_EVENT_UNREGISTERED(2),
+  NATIVE_SHORTCUT_EVENT_REGISTRATION_FAILED(3);
+
+  final int value;
+  const native_shortcut_event_type_t(this.value);
+
+  static native_shortcut_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_SHORTCUT_EVENT_ACTIVATED,
+    1 => NATIVE_SHORTCUT_EVENT_REGISTERED,
+    2 => NATIVE_SHORTCUT_EVENT_UNREGISTERED,
+    3 => NATIVE_SHORTCUT_EVENT_REGISTRATION_FAILED,
+    _ => throw ArgumentError(
+      "Unknown value for native_shortcut_event_type_t: $value",
+    ),
+  };
+}
+
+/// Shortcut event structure
+final class native_shortcut_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_shortcut_id_t()
+  external int shortcut_id;
+
+  external ffi.Pointer<ffi.Char> accelerator;
+
+  external UnnamedUnion1 data;
+}
+
+final class UnnamedUnion1 extends ffi.Union {
+  external UnnamedStruct1 registration_failed;
+}
+
+final class UnnamedStruct1 extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> error_message;
+}
+
+/// Shortcut list structure
+final class native_shortcut_list_t extends ffi.Struct {
+  external ffi.Pointer<native_shortcut_t> shortcuts;
+
+  @ffi.Size()
+  external int count;
+}
+
+/// Shortcut callback function type
+typedef native_shortcut_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_shortcut_callback_tFunction>>;
+typedef native_shortcut_callback_tFunction =
+    ffi.Void Function(
+      native_shortcut_id_t shortcut_id,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_shortcut_callback_tFunction =
+    void Function(
+      Dartnative_shortcut_id_t shortcut_id,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
+/// Shortcut event callback function type
+typedef native_shortcut_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_shortcut_event_callback_tFunction>>;
+typedef native_shortcut_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_shortcut_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_shortcut_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_shortcut_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
 /// Tray icon clicked event
 final class native_tray_icon_clicked_event_t extends ffi.Struct {
   @native_tray_icon_id_t()
@@ -4500,20 +5349,20 @@ final class native_window_event_t extends ffi.Struct {
   @native_window_id_t()
   external int window_id;
 
-  external UnnamedUnion1 data;
+  external UnnamedUnion2 data;
 }
 
-final class UnnamedUnion1 extends ffi.Union {
-  external UnnamedStruct1 moved;
+final class UnnamedUnion2 extends ffi.Union {
+  external UnnamedStruct2 moved;
 
-  external UnnamedStruct2 resized;
-}
-
-final class UnnamedStruct1 extends ffi.Struct {
-  external native_point_t position;
+  external UnnamedStruct3 resized;
 }
 
 final class UnnamedStruct2 extends ffi.Struct {
+  external native_point_t position;
+}
+
+final class UnnamedStruct3 extends ffi.Struct {
   external native_size_t size;
 }
 
