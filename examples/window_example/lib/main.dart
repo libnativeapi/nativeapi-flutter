@@ -114,8 +114,10 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
           _windows = windows;
           // Update selected window reference if it still exists
           if (_selectedWindow != null) {
-            final updatedWindow =
-                windows.firstWhere((w) => w.id == _selectedWindow!.id, orElse: () => _selectedWindow!);
+            final updatedWindow = windows.firstWhere(
+              (w) => w.id == _selectedWindow!.id,
+              orElse: () => _selectedWindow!,
+            );
             _selectedWindow = updatedWindow;
           }
         });
@@ -177,24 +179,7 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
   }
 
   void _createTestWindow() {
-    try {
-      final windowManager = WindowManager.instance;
-      final window = windowManager.create(
-        title: 'Test Window ${_windows.length + 1}',
-        width: 600 + (_windows.length * 50),
-        height: 400 + (_windows.length * 50),
-        centered: true,
-      );
-
-      if (window != null) {
-        window.show();
-        _updateWindows();
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to create window: $e';
-      });
-    }
+    throw UnimplementedError('Create test window not implemented');
   }
 
   void _selectWindow(Window window) {
@@ -272,7 +257,7 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
               children: [
                 const Icon(Icons.error, color: Colors.red, size: 48),
                 const SizedBox(height: 16),
-            Text(
+                Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.red),
@@ -742,8 +727,9 @@ class _WindowCanvasState extends State<WindowCanvas> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isSelected ? Colors.blue : Colors.orange)
-                      .withOpacity(0.3),
+                  color: (isSelected ? Colors.blue : Colors.orange).withOpacity(
+                    0.3,
+                  ),
                   blurRadius: isSelected ? 8 : 4,
                   offset: const Offset(0, 2),
                 ),
@@ -753,8 +739,9 @@ class _WindowCanvasState extends State<WindowCanvas> {
               children: [
                 // Window background (semi-transparent)
                 Container(
-                  color: (isSelected ? Colors.blue : Colors.orange)
-                      .withOpacity(0.1),
+                  color: (isSelected ? Colors.blue : Colors.orange).withOpacity(
+                    0.1,
+                  ),
                 ),
                 // Window title bar
                 Container(
@@ -777,7 +764,9 @@ class _WindowCanvasState extends State<WindowCanvas> {
                       Icon(
                         Icons.window,
                         size: (12 * scale).clamp(8.0, 12.0),
-                        color: isSelected ? Colors.blue[900] : Colors.orange[900],
+                        color: isSelected
+                            ? Colors.blue[900]
+                            : Colors.orange[900],
                       ),
                       SizedBox(width: (4 * scale).clamp(2.0, 4.0)),
                       Expanded(
@@ -785,7 +774,9 @@ class _WindowCanvasState extends State<WindowCanvas> {
                           window.title.isNotEmpty ? window.title : 'Window',
                           style: TextStyle(
                             fontSize: (10 * scale).clamp(6.0, 10.0),
-                            color: isSelected ? Colors.blue[900] : Colors.orange[900],
+                            color: isSelected
+                                ? Colors.blue[900]
+                                : Colors.orange[900],
                             fontWeight: FontWeight.bold,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -943,11 +934,7 @@ class WindowDetails extends StatelessWidget {
               color: Colors.white.withOpacity(0.9),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              Icons.window,
-              size: 28,
-              color: Colors.blue[700],
-            ),
+            child: Icon(Icons.window, size: 28, color: Colors.blue[700]),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1011,8 +998,16 @@ class WindowDetails extends StatelessWidget {
         ),
       ]),
       _buildSection('Window Properties', [
-        _DetailItem(Icons.visibility, 'Visible', window.isVisible ? 'Yes' : 'No'),
-        _DetailItem(Icons.center_focus_strong, 'Focused', window.isFocused ? 'Yes' : 'No'),
+        _DetailItem(
+          Icons.visibility,
+          'Visible',
+          window.isVisible ? 'Yes' : 'No',
+        ),
+        _DetailItem(
+          Icons.center_focus_strong,
+          'Focused',
+          window.isFocused ? 'Yes' : 'No',
+        ),
         _DetailItem(
           Icons.open_in_full,
           'Maximized',
@@ -1030,8 +1025,16 @@ class WindowDetails extends StatelessWidget {
         ),
       ]),
       _buildSection('Window Capabilities', [
-        _DetailItem(Icons.open_with, 'Resizable', window.isResizable ? 'Yes' : 'No'),
-        _DetailItem(Icons.drag_handle, 'Movable', window.isMovable ? 'Yes' : 'No'),
+        _DetailItem(
+          Icons.open_with,
+          'Resizable',
+          window.isResizable ? 'Yes' : 'No',
+        ),
+        _DetailItem(
+          Icons.drag_handle,
+          'Movable',
+          window.isMovable ? 'Yes' : 'No',
+        ),
         _DetailItem(
           Icons.unfold_less,
           'Minimizable',
