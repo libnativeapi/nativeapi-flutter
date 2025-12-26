@@ -62,6 +62,141 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
+  /// @brief Creates a color from RGBA values.
+  ///
+  /// @param red Red component (0-255)
+  /// @param green Green component (0-255)
+  /// @param blue Blue component (0-255)
+  /// @param alpha Alpha component (0-255)
+  /// @return Color instance with specified values
+  native_color_t native_color_from_rgba(
+    int red,
+    int green,
+    int blue,
+    int alpha,
+  ) {
+    return _native_color_from_rgba(red, green, blue, alpha);
+  }
+
+  late final _native_color_from_rgbaPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_color_t Function(
+            ffi.UnsignedChar,
+            ffi.UnsignedChar,
+            ffi.UnsignedChar,
+            ffi.UnsignedChar,
+          )
+        >
+      >('native_color_from_rgba');
+  late final _native_color_from_rgba = _native_color_from_rgbaPtr
+      .asFunction<native_color_t Function(int, int, int, int)>();
+
+  /// @brief Creates a color from a hexadecimal string.
+  ///
+  /// Supports multiple hex color formats:
+  /// - "#RGB" - 3-digit hex (e.g., "#F00" = red)
+  /// - "#RGBA" - 4-digit hex with alpha
+  /// - "#RRGGBB" - 6-digit hex (e.g., "#FF0000" = red)
+  /// - "#RRGGBBAA" - 8-digit hex with alpha
+  ///
+  /// @param hex Hexadecimal color string (with or without '#' prefix)
+  /// @param out_color Pointer to store the resulting color
+  /// @return true if parsing succeeded, false otherwise
+  bool native_color_from_hex(
+    ffi.Pointer<ffi.Char> hex,
+    ffi.Pointer<native_color_t> out_color,
+  ) {
+    return _native_color_from_hex(hex, out_color);
+  }
+
+  late final _native_color_from_hexPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<native_color_t>)
+        >
+      >('native_color_from_hex');
+  late final _native_color_from_hex = _native_color_from_hexPtr
+      .asFunction<
+        bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<native_color_t>)
+      >();
+
+  /// @brief Converts the color to a 32-bit integer (RGBA format).
+  ///
+  /// @param color The color to convert
+  /// @return 32-bit unsigned integer in RGBA format (0xRRGGBBAA)
+  int native_color_to_rgba(native_color_t color) {
+    return _native_color_to_rgba(color);
+  }
+
+  late final _native_color_to_rgbaPtr =
+      _lookup<ffi.NativeFunction<ffi.Uint32 Function(native_color_t)>>(
+        'native_color_to_rgba',
+      );
+  late final _native_color_to_rgba = _native_color_to_rgbaPtr
+      .asFunction<int Function(native_color_t)>();
+
+  /// @brief Converts the color to a 32-bit integer (ARGB format).
+  ///
+  /// @param color The color to convert
+  /// @return 32-bit unsigned integer in ARGB format (0xAARRGGBB)
+  int native_color_to_argb(native_color_t color) {
+    return _native_color_to_argb(color);
+  }
+
+  late final _native_color_to_argbPtr =
+      _lookup<ffi.NativeFunction<ffi.Uint32 Function(native_color_t)>>(
+        'native_color_to_argb',
+      );
+  late final _native_color_to_argb = _native_color_to_argbPtr
+      .asFunction<int Function(native_color_t)>();
+
+  /// Predefined color constants
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_TRANSPARENT =
+      _lookup<native_color_t>('NATIVE_COLOR_TRANSPARENT');
+
+  native_color_t get NATIVE_COLOR_TRANSPARENT => _NATIVE_COLOR_TRANSPARENT.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_BLACK =
+      _lookup<native_color_t>('NATIVE_COLOR_BLACK');
+
+  native_color_t get NATIVE_COLOR_BLACK => _NATIVE_COLOR_BLACK.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_WHITE =
+      _lookup<native_color_t>('NATIVE_COLOR_WHITE');
+
+  native_color_t get NATIVE_COLOR_WHITE => _NATIVE_COLOR_WHITE.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_RED =
+      _lookup<native_color_t>('NATIVE_COLOR_RED');
+
+  native_color_t get NATIVE_COLOR_RED => _NATIVE_COLOR_RED.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_GREEN =
+      _lookup<native_color_t>('NATIVE_COLOR_GREEN');
+
+  native_color_t get NATIVE_COLOR_GREEN => _NATIVE_COLOR_GREEN.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_BLUE =
+      _lookup<native_color_t>('NATIVE_COLOR_BLUE');
+
+  native_color_t get NATIVE_COLOR_BLUE => _NATIVE_COLOR_BLUE.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_YELLOW =
+      _lookup<native_color_t>('NATIVE_COLOR_YELLOW');
+
+  native_color_t get NATIVE_COLOR_YELLOW => _NATIVE_COLOR_YELLOW.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_CYAN =
+      _lookup<native_color_t>('NATIVE_COLOR_CYAN');
+
+  native_color_t get NATIVE_COLOR_CYAN => _NATIVE_COLOR_CYAN.ref;
+
+  late final ffi.Pointer<native_color_t> _NATIVE_COLOR_MAGENTA =
+      _lookup<native_color_t>('NATIVE_COLOR_MAGENTA');
+
+  native_color_t get NATIVE_COLOR_MAGENTA => _NATIVE_COLOR_MAGENTA.ref;
+
   /// Window creation and destruction
   native_window_t native_window_create() {
     return _native_window_create();
@@ -784,6 +919,64 @@ class CNativeApiBindings {
       );
   late final _native_window_get_opacity = _native_window_get_opacityPtr
       .asFunction<double Function(native_window_t)>();
+
+  void native_window_set_visual_effect(
+    native_window_t window,
+    native_visual_effect_t effect,
+  ) {
+    return _native_window_set_visual_effect(window, effect.value);
+  }
+
+  late final _native_window_set_visual_effectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.UnsignedInt)>
+      >('native_window_set_visual_effect');
+  late final _native_window_set_visual_effect =
+      _native_window_set_visual_effectPtr
+          .asFunction<void Function(native_window_t, int)>();
+
+  native_visual_effect_t native_window_get_visual_effect(
+    native_window_t window,
+  ) {
+    return native_visual_effect_t.fromValue(
+      _native_window_get_visual_effect(window),
+    );
+  }
+
+  late final _native_window_get_visual_effectPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_window_t)>>(
+        'native_window_get_visual_effect',
+      );
+  late final _native_window_get_visual_effect =
+      _native_window_get_visual_effectPtr
+          .asFunction<int Function(native_window_t)>();
+
+  void native_window_set_background_color(
+    native_window_t window,
+    native_color_t color,
+  ) {
+    return _native_window_set_background_color(window, color);
+  }
+
+  late final _native_window_set_background_colorPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, native_color_t)>
+      >('native_window_set_background_color');
+  late final _native_window_set_background_color =
+      _native_window_set_background_colorPtr
+          .asFunction<void Function(native_window_t, native_color_t)>();
+
+  native_color_t native_window_get_background_color(native_window_t window) {
+    return _native_window_get_background_color(window);
+  }
+
+  late final _native_window_get_background_colorPtr =
+      _lookup<ffi.NativeFunction<native_color_t Function(native_window_t)>>(
+        'native_window_get_background_color',
+      );
+  late final _native_window_get_background_color =
+      _native_window_get_background_colorPtr
+          .asFunction<native_color_t Function(native_window_t)>();
 
   void native_window_set_visible_on_all_workspaces(
     native_window_t window,
@@ -4599,6 +4792,28 @@ class CNativeApiBindings {
           .asFunction<bool Function(int)>();
 }
 
+/// @struct native_color_t
+/// @brief Representation of a color with RGBA components
+///
+/// Each component is represented as an unsigned byte (0-255).
+/// Alpha value: 0 = fully transparent, 255 = fully opaque
+final class native_color_t extends ffi.Struct {
+  @ffi.UnsignedChar()
+  external int r;
+
+  /// Red component (0-255)
+  @ffi.UnsignedChar()
+  external int g;
+
+  /// Green component (0-255)
+  @ffi.UnsignedChar()
+  external int b;
+
+  /// Blue component (0-255)
+  @ffi.UnsignedChar()
+  external int a;
+}
+
 /// Representation of a point
 final class native_point_t extends ffi.Struct {
   @ffi.Double()
@@ -4714,6 +4929,27 @@ enum native_title_bar_style_t {
     1 => NATIVE_TITLE_BAR_STYLE_HIDDEN,
     _ => throw ArgumentError(
       "Unknown value for native_title_bar_style_t: $value",
+    ),
+  };
+}
+
+/// Visual effect styles for window background
+enum native_visual_effect_t {
+  NATIVE_VISUAL_EFFECT_NONE(0),
+  NATIVE_VISUAL_EFFECT_BLUR(1),
+  NATIVE_VISUAL_EFFECT_ACRYLIC(2),
+  NATIVE_VISUAL_EFFECT_MICA(3);
+
+  final int value;
+  const native_visual_effect_t(this.value);
+
+  static native_visual_effect_t fromValue(int value) => switch (value) {
+    0 => NATIVE_VISUAL_EFFECT_NONE,
+    1 => NATIVE_VISUAL_EFFECT_BLUR,
+    2 => NATIVE_VISUAL_EFFECT_ACRYLIC,
+    3 => NATIVE_VISUAL_EFFECT_MICA,
+    _ => throw ArgumentError(
+      "Unknown value for native_visual_effect_t: $value",
     ),
   };
 }

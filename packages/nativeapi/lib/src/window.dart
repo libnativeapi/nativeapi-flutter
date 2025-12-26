@@ -1,4 +1,5 @@
 import 'dart:ffi' hide Size;
+import 'dart:ui' show Color;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
@@ -22,6 +23,34 @@ enum TitleBarStyle {
   /// Hidden title bar with no visible decorations.
   /// The window appears without a title bar, useful for custom chrome.
   hidden,
+}
+
+/// Visual effect options for windows.
+///
+/// Defines the visual effect that should be applied to the window background.
+/// These effects provide various levels of transparency and blur effects that
+/// integrate with the desktop environment.
+///
+/// Platform availability varies:
+/// - Windows: Supports Acrylic and Mica effects on Windows 11
+/// - macOS: Supports blur effects with various materials
+/// - Linux: Limited support depending on compositor
+enum VisualEffect {
+  /// No visual effect applied.
+  /// The window background is opaque.
+  none,
+
+  /// Basic blur effect applied to the window background.
+  /// Creates a frosted glass appearance.
+  blur,
+
+  /// Acrylic material effect (Windows 11+).
+  /// Provides a translucent texture with noise and blur.
+  acrylic,
+
+  /// Mica material effect (Windows 11+).
+  /// Provides a subtle background material that adapts to the desktop wallpaper.
+  mica,
 }
 
 /// A cross-platform window abstraction.
@@ -438,6 +467,84 @@ class Window
   /// Gets the window's opacity (0.0 to 1.0).
   double get opacity {
     return bindings.native_window_get_opacity(_nativeHandle);
+  }
+
+  /// Sets the window's visual effect.
+  ///
+  /// Applies a visual effect to the window background, such as blur, acrylic,
+  /// or mica materials. The availability and appearance of effects depends on
+  /// the platform and OS version.
+  ///
+  /// Platform availability:
+  /// - macOS: ✅ Supports blur effects
+  /// - Windows: ✅ Supports acrylic and mica on Windows 11
+  /// - Linux: ⚠️ Limited support depending on compositor
+  ///
+  /// Note: For visual effects to be visible, you may need to adjust the window's
+  /// opacity or make parts of the window transparent.
+  set visualEffect(VisualEffect value) {
+    final nativeEffect = switch (value) {
+      VisualEffect.none => native_visual_effect_t.NATIVE_VISUAL_EFFECT_NONE,
+      VisualEffect.blur => native_visual_effect_t.NATIVE_VISUAL_EFFECT_BLUR,
+      VisualEffect.acrylic =>
+        native_visual_effect_t.NATIVE_VISUAL_EFFECT_ACRYLIC,
+      VisualEffect.mica => native_visual_effect_t.NATIVE_VISUAL_EFFECT_MICA,
+    };
+    bindings.native_window_set_visual_effect(_nativeHandle, nativeEffect);
+  }
+
+  /// Gets the window's visual effect.
+  VisualEffect get visualEffect {
+    final nativeEffect = bindings.native_window_get_visual_effect(
+      _nativeHandle,
+    );
+    return switch (nativeEffect) {
+      native_visual_effect_t.NATIVE_VISUAL_EFFECT_NONE => VisualEffect.none,
+      native_visual_effect_t.NATIVE_VISUAL_EFFECT_BLUR => VisualEffect.blur,
+      native_visual_effect_t.NATIVE_VISUAL_EFFECT_ACRYLIC =>
+        VisualEffect.acrylic,
+      native_visual_effect_t.NATIVE_VISUAL_EFFECT_MICA => VisualEffect.mica,
+      _ => VisualEffect.none,
+    };
+  }
+
+  /// Sets the window's background color.
+  ///
+  /// Changes the background color of the window. This is particularly useful
+  /// when combined with visual effects or transparency.
+  ///
+  /// Platform availability:
+  /// - macOS: ✅ Supported
+  /// - Windows: ✅ Supported
+  /// - Linux: ✅ Supported
+  ///
+  /// Example:
+  /// ```dart
+  /// window.backgroundColor = Colors.white;
+  /// window.backgroundColor = Color(0xFF0000FF); // Blue
+  /// window.backgroundColor = Color.fromARGB(128, 255, 255, 255); // Semi-transparent white
+  /// ```
+  set backgroundColor(Color value) {
+    final nativeColor = bindings.native_color_from_rgba(
+      value.red,
+      value.green,
+      value.blue,
+      value.alpha,
+    );
+    bindings.native_window_set_background_color(_nativeHandle, nativeColor);
+  }
+
+  /// Gets the window's background color.
+  Color get backgroundColor {
+    final nativeColor = bindings.native_window_get_background_color(
+      _nativeHandle,
+    );
+    return Color.fromARGB(
+      nativeColor.a,
+      nativeColor.r,
+      nativeColor.g,
+      nativeColor.b,
+    );
   }
 
   /// Sets whether the window is visible on all workspaces.
