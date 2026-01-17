@@ -84,18 +84,11 @@ jobs:
       - name: Run tests
         run: dart pub global run melos run test
 
-  # Android builds (ARM64, ARMv7, x86_64)
+  # Android build
   build-android:
-    name: Build Android (${{ matrix.abi }})
+    name: Build Android
     runs-on: ubuntu-latest
     needs: [lint]
-    strategy:
-      fail-fast: false
-      matrix:
-        abi:
-          - arm64-v8a
-          - armeabi-v7a
-          - x86_64
     
     steps:
       - name: Checkout repository
@@ -125,31 +118,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           
-      - name: Build cnativeapi example Android (${{ matrix.abi }})
+      - name: Build cnativeapi example Android
         run: |
           cd packages/cnativeapi/example
-          flutter build apk --release --target-platform android-${{ matrix.abi }}
+          flutter build apk --release
           
-      - name: Build nativeapi example Android (${{ matrix.abi }})
+      - name: Build nativeapi example Android
         run: |
           cd packages/nativeapi/example
-          flutter build apk --release --target-platform android-${{ matrix.abi }}
+          flutter build apk --release
 
-  # iOS builds (device and simulator)
+  # iOS build
   build-ios:
-    name: Build iOS (${{ matrix.target }})
+    name: Build iOS
     runs-on: macos-latest
     needs: [lint]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: device
-            sdk: iphoneos
-            platform_name: iOS Device
-          - target: simulator
-            sdk: iphonesimulator
-            platform_name: iOS Simulator
     
     steps:
       - name: Checkout repository
@@ -173,23 +156,15 @@ jobs:
       - name: Bootstrap melos
         run: dart pub global run melos bootstrap
           
-      - name: Build cnativeapi example iOS (${{ matrix.target }})
+      - name: Build cnativeapi example iOS
         run: |
           cd packages/cnativeapi/example
-          if [ "${{ matrix.target }}" == "simulator" ]; then
-            flutter build ios --simulator --release --no-codesign
-          else
-            flutter build ios --release --no-codesign
-          fi
+          flutter build ios --release --no-codesign
           
-      - name: Build nativeapi example iOS (${{ matrix.target }})
+      - name: Build nativeapi example iOS
         run: |
           cd packages/nativeapi/example
-          if [ "${{ matrix.target }}" == "simulator" ]; then
-            flutter build ios --simulator --release --no-codesign
-          else
-            flutter build ios --release --no-codesign
-          fi
+          flutter build ios --release --no-codesign
 
   # Linux build
   build-linux:
