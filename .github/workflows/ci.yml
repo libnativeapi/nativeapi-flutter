@@ -139,7 +139,8 @@ jobs:
             pkg-config \
             cmake \
             ninja-build \
-            clang
+            clang \
+            libayatana-appindicator3-dev
           
       - name: Build cnativeapi example Android
         if: matrix.os == 'ubuntu-latest'
