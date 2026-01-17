@@ -47,7 +47,8 @@ extension ContextMenuTriggerExtension on ContextMenuTrigger {
       case ContextMenuTrigger.none:
         return native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_NONE;
       case ContextMenuTrigger.clicked:
-        return native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_CLICKED;
+        return native_context_menu_trigger_t
+            .NATIVE_CONTEXT_MENU_TRIGGER_CLICKED;
       case ContextMenuTrigger.rightClicked:
         return native_context_menu_trigger_t
             .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED;
@@ -65,10 +66,10 @@ extension ContextMenuTriggerExtension on ContextMenuTrigger {
       case native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_CLICKED:
         return ContextMenuTrigger.clicked;
       case native_context_menu_trigger_t
-            .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED:
+          .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED:
         return ContextMenuTrigger.rightClicked;
       case native_context_menu_trigger_t
-            .NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED:
+          .NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED:
         return ContextMenuTrigger.doubleClicked;
     }
   }

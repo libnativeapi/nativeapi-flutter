@@ -205,10 +205,10 @@ mixin EventEmitter {
   /// Classes using this mixin should call this method when disposing.
   void disposeEventEmitter() {
     final hadListeners = totalListenerCount > 0;
-    
+
     // Clear all listeners
     _listeners.clear();
-    
+
     // Call hook if we had listeners
     if (hadListeners) {
       stopEventListening();

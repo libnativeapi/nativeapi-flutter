@@ -42,7 +42,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
   final TextEditingController _keyController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
   final TextEditingController _scopeController = TextEditingController();
-  
+
   String _selectedStorage = 'preferences';
   Map<String, String> _currentData = {};
   int _currentSize = 0;
@@ -60,7 +60,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
       _scopedPreferences = Preferences.withScope('user_settings');
       _secureStorage = SecureStorage();
       _scopedSecureStorage = SecureStorage.withScope('api_credentials');
-      
+
       _isInitialized = true;
       _addToHistory('Storage instances initialized successfully');
       _refreshCurrentData();
@@ -72,7 +72,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
 
   Storage? _getCurrentStorage() {
     if (!_isInitialized) return null;
-    
+
     switch (_selectedStorage) {
       case 'preferences':
         return _preferences;
@@ -159,7 +159,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
 
     final value = storage.get(key, '(not found)');
-    
+
     _addToHistory('Get [$_selectedStorage]: "$key" = "$value"');
   }
 
@@ -203,7 +203,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
 
     final exists = storage.contains(key);
-    
+
     _addToHistory('Contains [$_selectedStorage]: "$key" = $exists');
   }
 
@@ -232,8 +232,10 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
 
     final keys = storage.keys;
-    
-    _addToHistory('Keys [$_selectedStorage]: ${keys.length} keys - [${keys.join(', ')}]');
+
+    _addToHistory(
+      'Keys [$_selectedStorage]: ${keys.length} keys - [${keys.join(', ')}]',
+    );
   }
 
   void _getSize() {
@@ -244,7 +246,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
 
     final size = storage.size;
-    
+
     _addToHistory('Size [$_selectedStorage]: $size items');
   }
 
@@ -256,7 +258,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
 
     final data = storage.getAll();
-    
+
     _addToHistory('GetAll [$_selectedStorage]: ${data.length} items');
     data.forEach((key, value) {
       _addToHistory('  "$key" = "$value"');
@@ -266,73 +268,73 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
   // Test case methods
   void _testBasicOperations() {
     _addToHistory('--- Starting Basic Operations Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     // Set
     storage.set('test_key', 'test_value');
     _addToHistory('✓ Set test_key = test_value');
-    
+
     // Get
     final value = storage.get('test_key');
     _addToHistory('✓ Get test_key = $value');
-    
+
     // Contains
     final exists = storage.contains('test_key');
     _addToHistory('✓ Contains test_key = $exists');
-    
+
     // Remove
     storage.remove('test_key');
     _addToHistory('✓ Removed test_key');
-    
+
     // Contains after remove
     final stillExists = storage.contains('test_key');
     _addToHistory('✓ Contains after remove = $stillExists');
-    
+
     _addToHistory('--- Basic Operations Test Complete ---');
     _refreshCurrentData();
   }
 
   void _testBulkOperations() {
     _addToHistory('--- Starting Bulk Operations Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     // Add multiple items
     for (int i = 1; i <= 10; i++) {
       storage.set('bulk_key_$i', 'value_$i');
     }
     _addToHistory('✓ Added 10 items');
-    
+
     // List all keys
     final keys = storage.keys;
     _addToHistory('✓ Total keys: ${keys.length}');
-    
+
     // Get all data
     final data = storage.getAll();
     _addToHistory('✓ Retrieved all data: ${data.length} items');
-    
+
     _addToHistory('--- Bulk Operations Test Complete ---');
     _refreshCurrentData();
   }
 
   void _testSpecialCharacters() {
     _addToHistory('--- Starting Special Characters Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     final testCases = [
       ('emoji_key', '😀🎉🚀'),
       ('chinese_key', '你好世界'),
@@ -340,179 +342,184 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
       ('unicode_key', 'Héllo Wörld'),
       ('json_like', '{"name":"value","array":[1,2,3]}'),
     ];
-    
+
     for (var (key, value) in testCases) {
       storage.set(key, value);
       final retrieved = storage.get(key);
       final match = retrieved == value ? '✓' : '✗';
       _addToHistory('$match "$key" = "$value" (retrieved: "$retrieved")');
     }
-    
+
     _addToHistory('--- Special Characters Test Complete ---');
     _refreshCurrentData();
   }
 
   void _testDefaultValues() {
     _addToHistory('--- Starting Default Values Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     // Test non-existent key with default
     final value1 = storage.get('non_existent_key', 'default_value');
     _addToHistory('✓ Get non-existent with default = "$value1"');
-    
+
     // Test non-existent key without default
     final value2 = storage.get('another_non_existent_key');
     _addToHistory('✓ Get non-existent without default = "$value2"');
-    
+
     _addToHistory('--- Default Values Test Complete ---');
   }
 
   void _testOverwriteValues() {
     _addToHistory('--- Starting Overwrite Values Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     storage.set('overwrite_test', 'original_value');
     _addToHistory('✓ Set original value');
-    
+
     final value1 = storage.get('overwrite_test');
     _addToHistory('✓ Retrieved: "$value1"');
-    
+
     storage.set('overwrite_test', 'updated_value');
     _addToHistory('✓ Overwrote with new value');
-    
+
     final value2 = storage.get('overwrite_test');
     _addToHistory('✓ Retrieved after overwrite: "$value2"');
-    
+
     storage.remove('overwrite_test');
     _addToHistory('✓ Cleaned up test key');
-    
+
     _addToHistory('--- Overwrite Values Test Complete ---');
     _refreshCurrentData();
   }
 
   void _testLargeData() {
     _addToHistory('--- Starting Large Data Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     // Test with increasingly larger strings
     final sizes = [100, 1000, 10000];
-    
+
     for (var size in sizes) {
       final largeValue = 'x' * size;
       final key = 'large_data_$size';
-      
+
       final setSuccess = storage.set(key, largeValue);
       final retrieved = storage.get(key);
       final match = retrieved.length == size;
-      
+
       _addToHistory(
-        '${match ? "✓" : "✗"} $size chars: set=$setSuccess, retrieved=${retrieved.length} chars'
+        '${match ? "✓" : "✗"} $size chars: set=$setSuccess, retrieved=${retrieved.length} chars',
       );
-      
+
       storage.remove(key);
     }
-    
+
     _addToHistory('--- Large Data Test Complete ---');
     _refreshCurrentData();
   }
 
   void _testEmptyValues() {
     _addToHistory('--- Starting Empty Values Test ---');
-    
+
     final storage = _getCurrentStorage();
     if (storage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     // Test empty string value
     storage.set('empty_value', '');
     final retrieved = storage.get('empty_value', 'default');
-    _addToHistory('✓ Empty value retrieved: "$retrieved" (length: ${retrieved.length})');
-    
+    _addToHistory(
+      '✓ Empty value retrieved: "$retrieved" (length: ${retrieved.length})',
+    );
+
     // Test if key exists
     final exists = storage.contains('empty_value');
     _addToHistory('✓ Empty value key exists: $exists');
-    
+
     storage.remove('empty_value');
     _addToHistory('✓ Cleaned up empty value test');
-    
+
     _addToHistory('--- Empty Values Test Complete ---');
     _refreshCurrentData();
   }
 
   void _testScopedStorage() {
     _addToHistory('--- Starting Scoped Storage Test ---');
-    
+
     if (!_isInitialized || _preferences == null || _scopedPreferences == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     // Test both regular and scoped preferences
     _preferences!.set('shared_key', 'regular_value');
     _scopedPreferences!.set('shared_key', 'scoped_value');
-    
+
     final regularValue = _preferences!.get('shared_key');
     final scopedValue = _scopedPreferences!.get('shared_key');
-    
+
     _addToHistory('✓ Regular preferences: "$regularValue"');
     _addToHistory('✓ Scoped preferences: "$scopedValue"');
     _addToHistory('✓ Values are isolated: ${regularValue != scopedValue}');
-    
+
     _preferences!.remove('shared_key');
     _scopedPreferences!.remove('shared_key');
-    
+
     _addToHistory('--- Scoped Storage Test Complete ---');
     _refreshCurrentData();
   }
 
   void _compareStorageTypes() {
     _addToHistory('--- Starting Storage Types Comparison ---');
-    
-    if (!_isInitialized || _preferences == null || _scopedPreferences == null ||
-        _secureStorage == null || _scopedSecureStorage == null) {
+
+    if (!_isInitialized ||
+        _preferences == null ||
+        _scopedPreferences == null ||
+        _secureStorage == null ||
+        _scopedSecureStorage == null) {
       _addToHistory('Error: Storage not initialized');
       return;
     }
-    
+
     const testKey = 'comparison_test';
     const testValue = 'test_value_123';
-    
+
     // Test in all storage types
     _preferences!.set(testKey, testValue);
     _scopedPreferences!.set(testKey, testValue);
     _secureStorage!.set(testKey, testValue);
     _scopedSecureStorage!.set(testKey, testValue);
-    
+
     _addToHistory('✓ Set value in all storage types');
-    
+
     _addToHistory('Preferences size: ${_preferences!.size}');
     _addToHistory('Scoped Preferences size: ${_scopedPreferences!.size}');
     _addToHistory('SecureStorage size: ${_secureStorage!.size}');
     _addToHistory('Scoped SecureStorage size: ${_scopedSecureStorage!.size}');
-    
+
     // Clean up
     _preferences!.remove(testKey);
     _scopedPreferences!.remove(testKey);
     _secureStorage!.remove(testKey);
     _scopedSecureStorage!.remove(testKey);
-    
+
     _addToHistory('--- Storage Types Comparison Complete ---');
     _refreshCurrentData();
   }
@@ -545,8 +552,12 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                   _buildSectionCard('Storage Selection', [
                     Row(
                       children: [
-                        Expanded(child: _buildInfoRow('Type', _selectedStorage)),
-                        Expanded(child: _buildInfoRow('Size', '$_currentSize items')),
+                        Expanded(
+                          child: _buildInfoRow('Type', _selectedStorage),
+                        ),
+                        Expanded(
+                          child: _buildInfoRow('Size', '$_currentSize items'),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -568,7 +579,9 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                         ),
                         DropdownMenuItem(
                           value: 'scoped_secure_storage',
-                          child: Text('SecureStorage (Scoped: api_credentials)'),
+                          child: Text(
+                            'SecureStorage (Scoped: api_credentials)',
+                          ),
                         ),
                       ],
                       onChanged: (String? value) {
@@ -612,7 +625,11 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                         _buildCompactButton(Icons.save, 'Set', _setKeyValue),
                         _buildCompactButton(Icons.search, 'Get', _getValue),
                         _buildCompactButton(Icons.delete, 'Remove', _removeKey),
-                        _buildCompactButton(Icons.check, 'Contains', _containsKey),
+                        _buildCompactButton(
+                          Icons.check,
+                          'Contains',
+                          _containsKey,
+                        ),
                       ],
                     ),
                   ]),
@@ -624,11 +641,27 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.list, 'List Keys', _listAllKeys),
+                        _buildCompactButton(
+                          Icons.list,
+                          'List Keys',
+                          _listAllKeys,
+                        ),
                         _buildCompactButton(Icons.info, 'Get Size', _getSize),
-                        _buildCompactButton(Icons.view_list, 'Get All', _getAllData),
-                        _buildCompactButton(Icons.delete_forever, 'Clear All', _clearStorage),
-                        _buildCompactButton(Icons.refresh, 'Refresh View', _refreshCurrentData),
+                        _buildCompactButton(
+                          Icons.view_list,
+                          'Get All',
+                          _getAllData,
+                        ),
+                        _buildCompactButton(
+                          Icons.delete_forever,
+                          'Clear All',
+                          _clearStorage,
+                        ),
+                        _buildCompactButton(
+                          Icons.refresh,
+                          'Refresh View',
+                          _refreshCurrentData,
+                        ),
                       ],
                     ),
                   ]),
@@ -740,7 +773,9 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                                     final storage = _getCurrentStorage();
                                     if (storage != null) {
                                       storage.remove(entry.key);
-                                      _addToHistory('Removed "${entry.key}" from view');
+                                      _addToHistory(
+                                        'Removed "${entry.key}" from view',
+                                      );
                                       _refreshCurrentData();
                                     }
                                   },
@@ -770,7 +805,9 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade300),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -778,7 +815,10 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                         const SizedBox(width: 8),
                         Text(
                           'Event History (${_eventHistory.length})',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -789,7 +829,10 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                             child: Text(
                               'No events yet\nPerform storage operations to see events',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
                             ),
                           )
                         : ListView.builder(
@@ -798,15 +841,23 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
                             itemBuilder: (context, index) {
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 4),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 7,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                 ),
                                 child: Text(
                                   _eventHistory[index],
-                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
                               );
                             },
@@ -848,10 +899,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
-          ),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
           Text(
             value,
             style: const TextStyle(
@@ -865,7 +913,11 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     );
   }
 
-  Widget _buildCompactButton(IconData icon, String label, VoidCallback onPressed) {
+  Widget _buildCompactButton(
+    IconData icon,
+    String label,
+    VoidCallback onPressed,
+  ) {
     return SizedBox(
       height: 36,
       child: ElevatedButton.icon(
@@ -885,12 +937,12 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     _keyController.dispose();
     _valueController.dispose();
     _scopeController.dispose();
-    
+
     _preferences?.dispose();
     _scopedPreferences?.dispose();
     _secureStorage?.dispose();
     _scopedSecureStorage?.dispose();
-    
+
     super.dispose();
   }
 }

@@ -103,7 +103,9 @@ class SecureStorage
     calloc.free(scopePtr);
 
     if (_nativeHandle == nullptr) {
-      throw Exception('Failed to create SecureStorage instance with scope: $scope');
+      throw Exception(
+        'Failed to create SecureStorage instance with scope: $scope',
+      );
     }
   }
 
@@ -115,7 +117,11 @@ class SecureStorage
     final keyPtr = key.toNativeUtf8().cast<Char>();
     final valuePtr = value.toNativeUtf8().cast<Char>();
 
-    final result = bindings.native_secure_storage_set(_nativeHandle, keyPtr, valuePtr);
+    final result = bindings.native_secure_storage_set(
+      _nativeHandle,
+      keyPtr,
+      valuePtr,
+    );
 
     calloc.free(keyPtr);
     calloc.free(valuePtr);
@@ -126,11 +132,15 @@ class SecureStorage
   @override
   String get(String key, [String defaultValue = '']) {
     final keyPtr = key.toNativeUtf8().cast<Char>();
-    final defaultPtr = defaultValue.isNotEmpty 
-        ? defaultValue.toNativeUtf8().cast<Char>() 
+    final defaultPtr = defaultValue.isNotEmpty
+        ? defaultValue.toNativeUtf8().cast<Char>()
         : nullptr.cast<Char>();
 
-    final resultPtr = bindings.native_secure_storage_get(_nativeHandle, keyPtr, defaultPtr);
+    final resultPtr = bindings.native_secure_storage_get(
+      _nativeHandle,
+      keyPtr,
+      defaultPtr,
+    );
 
     calloc.free(keyPtr);
     if (defaultPtr != nullptr) {
@@ -163,7 +173,10 @@ class SecureStorage
   @override
   bool contains(String key) {
     final keyPtr = key.toNativeUtf8().cast<Char>();
-    final result = bindings.native_secure_storage_contains(_nativeHandle, keyPtr);
+    final result = bindings.native_secure_storage_contains(
+      _nativeHandle,
+      keyPtr,
+    );
     calloc.free(keyPtr);
     return result;
   }
@@ -173,8 +186,12 @@ class SecureStorage
     final keysPtr = calloc<Pointer<Pointer<Char>>>();
     final countPtr = calloc<Size>();
 
-    final success = bindings.native_secure_storage_get_keys(_nativeHandle, keysPtr, countPtr);
-    
+    final success = bindings.native_secure_storage_get_keys(
+      _nativeHandle,
+      keysPtr,
+      countPtr,
+    );
+
     if (!success || keysPtr.value == nullptr) {
       calloc.free(keysPtr);
       calloc.free(countPtr);
@@ -183,7 +200,7 @@ class SecureStorage
 
     final count = countPtr.value;
     final List<String> result = [];
-    
+
     for (int i = 0; i < count; i++) {
       final keyPtr = keysPtr.value.elementAt(i).value;
       if (keyPtr != nullptr) {
@@ -194,7 +211,7 @@ class SecureStorage
     bindings.native_secure_storage_free_string_array(keysPtr.value, count);
     calloc.free(keysPtr);
     calloc.free(countPtr);
-    
+
     return result;
   }
 
@@ -208,8 +225,12 @@ class SecureStorage
     final keysPtr = calloc<Pointer<Pointer<Char>>>();
     final countPtr = calloc<Size>();
 
-    final success = bindings.native_secure_storage_get_keys(_nativeHandle, keysPtr, countPtr);
-    
+    final success = bindings.native_secure_storage_get_keys(
+      _nativeHandle,
+      keysPtr,
+      countPtr,
+    );
+
     if (!success || keysPtr.value == nullptr) {
       calloc.free(keysPtr);
       calloc.free(countPtr);
@@ -218,7 +239,7 @@ class SecureStorage
 
     final count = countPtr.value;
     final Map<String, String> result = {};
-    
+
     for (int i = 0; i < count; i++) {
       final keyPtr = keysPtr.value.elementAt(i).value;
       if (keyPtr != nullptr) {
@@ -231,7 +252,7 @@ class SecureStorage
     bindings.native_secure_storage_free_string_array(keysPtr.value, count);
     calloc.free(keysPtr);
     calloc.free(countPtr);
-    
+
     return result;
   }
 
@@ -242,4 +263,3 @@ class SecureStorage
     }
   }
 }
-

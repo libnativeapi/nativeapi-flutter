@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+import argparse
 
 
 def run_command(cmd, cwd=None):
@@ -420,8 +421,21 @@ def update_ios_h(cnativeapi_dir, cxx_impl_dir):
         return False
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Regenerate cnativeapi bindings (optionally without updating submodules)."
+    )
+    parser.add_argument(
+        "--no-submodule-update",
+        action="store_true",
+        help="Skip 'git submodule update --remote ...' (recommended for CI/codegen checks).",
+    )
+    return parser.parse_args()
+
+
 def main():
     """Main function to regenerate bindings."""
+    args = parse_args()
     cnativeapi_dir = Path(__file__).parent
     cxx_impl_dir = cnativeapi_dir / "cxx_impl"
     ffigen_path = cnativeapi_dir / "ffigen.yaml"
@@ -430,8 +444,11 @@ def main():
     print("This script will regenerate all platform bindings\n")
 
     # Step 1: Update cxx_impl submodule
-    if not update_cxx_impl():
-        print("\nWarning: cxx_impl update failed, continuing anyway...")
+    if args.no_submodule_update:
+        print("\nStep 1/7: Skipping cxx_impl submodule update (--no-submodule-update)")
+    else:
+        if not update_cxx_impl():
+            print("\nWarning: cxx_impl update failed, continuing anyway...")
 
     # Verify cxx_impl exists
     if not cxx_impl_dir.exists():

@@ -20,3 +20,37 @@ workspace:
 
 dev_dependencies:
   melos: ^7.1.1
+
+melos:
+  packages:
+    - packages/**
+    - examples/**
+
+  ignore:
+    - "**/build/**"
+    - "**/.dart_tool/**"
+    - "**/.symlinks/**"
+    - "**/Pods/**"
+
+  command:
+    bootstrap:
+      runPubGetInParallel: true
+
+  scripts:
+    format:
+      description: Check Dart formatting for the whole repo.
+      run: dart run melos exec --fail-fast -- dart format --output=none --set-exit-if-changed .
+
+    analyze:
+      description: Run Flutter analyze for every package/example.
+      run: dart run melos exec --concurrency=1 --fail-fast -- flutter analyze --no-fatal-infos --no-fatal-warnings
+
+    test:
+      description: Run Flutter tests for packages/examples that have a test/ directory.
+      run: dart run melos exec --concurrency=1 --fail-fast -- flutter test
+      packageFilters:
+        dirExists: test
+
+    codegen:cnativeapi:
+      description: Regenerate cnativeapi bindings (without updating submodules).
+      run: python3 packages/cnativeapi/codegen.py --no-submodule-update

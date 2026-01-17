@@ -121,4 +121,3 @@ abstract class Dialog {
   /// Returns `true` if the dialog was successfully closed, `false` otherwise.
   bool close();
 }
-

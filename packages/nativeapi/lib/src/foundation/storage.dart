@@ -88,4 +88,3 @@ abstract interface class Storage {
   /// Dispose of resources associated with this storage instance.
   void dispose();
 }
-

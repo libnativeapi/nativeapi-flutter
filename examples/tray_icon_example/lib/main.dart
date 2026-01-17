@@ -130,21 +130,27 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         setState(() {
           trayIconData.clickCount++;
         });
-        _addToHistory('Tray icon ${trayIconData.id} clicked (${trayIconData.clickCount} times)');
+        _addToHistory(
+          'Tray icon ${trayIconData.id} clicked (${trayIconData.clickCount} times)',
+        );
       });
 
       trayIcon.on<TrayIconRightClickedEvent>((event) {
         setState(() {
           trayIconData.rightClickCount++;
         });
-        _addToHistory('Tray icon ${trayIconData.id} right clicked (${trayIconData.rightClickCount} times)');
+        _addToHistory(
+          'Tray icon ${trayIconData.id} right clicked (${trayIconData.rightClickCount} times)',
+        );
       });
 
       trayIcon.on<TrayIconDoubleClickedEvent>((event) {
         setState(() {
           trayIconData.doubleClickCount++;
         });
-        _addToHistory('Tray icon ${trayIconData.id} double clicked (${trayIconData.doubleClickCount} times)');
+        _addToHistory(
+          'Tray icon ${trayIconData.id} double clicked (${trayIconData.doubleClickCount} times)',
+        );
       });
 
       // Set initial properties
@@ -178,44 +184,44 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     final separatorItem = MenuItem('', MenuItemType.separator);
     final toggleItem = MenuItem('Toggle Visibility');
     final separatorItem2 = MenuItem('', MenuItemType.separator);
-    
+
     // Create submenu
     final submenuMenu = Menu();
     final submenuItem1 = MenuItem('Submenu Item 1');
     final submenuItem2 = MenuItem('Submenu Item 2');
     final submenuItem3 = MenuItem('Submenu Item 3');
-    
+
     // Add submenu items
     submenuMenu.addItem(submenuItem1);
     submenuMenu.addItem(submenuItem2);
     submenuMenu.addItem(submenuItem3);
-    
+
     // Create submenu menu item
     final submenuMenuItem = MenuItem('More Options', MenuItemType.submenu);
     submenuMenuItem.submenu = submenuMenu;
-    
+
     // Listen to submenu open/close events
     submenuMenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
       _addToHistory('Submenu opened for tray icon ${trayIcon.id}');
     });
-    
+
     submenuMenuItem.on<MenuItemSubmenuClosedEvent>((event) {
       _addToHistory('Submenu closed for tray icon ${trayIcon.id}');
     });
-    
+
     // Add event listeners for submenu items
     submenuItem1.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 1 clicked for tray icon ${trayIcon.id}');
     });
-    
+
     submenuItem2.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 2 clicked for tray icon ${trayIcon.id}');
     });
-    
+
     submenuItem3.on<MenuItemClickedEvent>((event) {
       _addToHistory('Submenu Item 3 clicked for tray icon ${trayIcon.id}');
     });
-    
+
     final separatorItem3 = MenuItem('', MenuItemType.separator);
     final aboutItem = MenuItem('About');
     final quitItem = MenuItem('Quit');
@@ -311,7 +317,9 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     trayIconData.trayIcon.contextMenuTrigger = trigger;
     trayIconData.contextMenuTrigger = trigger;
     final triggerName = _getTriggerName(trigger);
-    _addToHistory('Context menu trigger updated for tray icon $id: $triggerName');
+    _addToHistory(
+      'Context menu trigger updated for tray icon $id: $triggerName',
+    );
   }
 
   String _getTriggerName(ContextMenuTrigger trigger) {
@@ -334,7 +342,9 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     trayIconData.isVisible = !trayIconData.isVisible;
     trayIconData.trayIcon.isVisible = trayIconData.isVisible;
-    _addToHistory('Visibility changed for tray icon $id: ${trayIconData.isVisible ? "visible" : "hidden"}');
+    _addToHistory(
+      'Visibility changed for tray icon $id: ${trayIconData.isVisible ? "visible" : "hidden"}',
+    );
   }
 
   void _openTrayIconContextMenu(int id) {
@@ -420,7 +430,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     await trayIconData.animatedIconGenerator?.startSpinner(
       onFrame: (image) async {
         trayIconData.trayIcon.icon = image;
@@ -428,13 +438,13 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     _addToHistory('Started spinner animation for tray icon $id');
   }
-  
+
   Future<void> _startPulseAnimation(int id) async {
     final trayIconData = _trayIcons.firstWhere(
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     await trayIconData.animatedIconGenerator?.startPulse(
       onFrame: (image) async {
         trayIconData.trayIcon.icon = image;
@@ -442,13 +452,13 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     _addToHistory('Started pulse animation for tray icon $id');
   }
-  
+
   Future<void> _startBlinkAnimation(int id) async {
     final trayIconData = _trayIcons.firstWhere(
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     await trayIconData.animatedIconGenerator?.startBlink(
       onFrame: (image) async {
         trayIconData.trayIcon.icon = image;
@@ -456,13 +466,13 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     _addToHistory('Started blink animation for tray icon $id');
   }
-  
+
   Future<void> _startProgressAnimation(int id) async {
     final trayIconData = _trayIcons.firstWhere(
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     await trayIconData.animatedIconGenerator?.startProgress(
       onFrame: (image) async {
         trayIconData.trayIcon.icon = image;
@@ -470,13 +480,13 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     _addToHistory('Started progress animation for tray icon $id');
   }
-  
+
   Future<void> _startWaveAnimation(int id) async {
     final trayIconData = _trayIcons.firstWhere(
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     await trayIconData.animatedIconGenerator?.startWave(
       onFrame: (image) async {
         trayIconData.trayIcon.icon = image;
@@ -484,13 +494,13 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     _addToHistory('Started wave animation for tray icon $id');
   }
-  
+
   Future<void> _startRotatingSquareAnimation(int id) async {
     final trayIconData = _trayIcons.firstWhere(
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     await trayIconData.animatedIconGenerator?.startRotatingSquare(
       onFrame: (image) async {
         trayIconData.trayIcon.icon = image;
@@ -498,13 +508,13 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
     _addToHistory('Started rotating square animation for tray icon $id');
   }
-  
+
   void _stopAnimation(int id) {
     final trayIconData = _trayIcons.firstWhere(
       (data) => data.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    
+
     trayIconData.animatedIconGenerator?.stop();
     _addToHistory('Stopped animation for tray icon $id');
   }
@@ -600,28 +610,55 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                   _buildSectionCard('Tray Icon Overview', [
                     Row(
                       children: [
-                        Expanded(child: _buildInfoRow('Total Icons', '${_trayIcons.length}')),
-                        Expanded(child: _buildInfoRow('Total Clicks', '${_trayIcons.fold(0, (sum, data) => sum + data.clickCount)}')),
-                        Expanded(child: _buildInfoRow('Active', '${_trayIcons.where((data) => data.isVisible).length}')),
+                        Expanded(
+                          child: _buildInfoRow(
+                            'Total Icons',
+                            '${_trayIcons.length}',
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoRow(
+                            'Total Clicks',
+                            '${_trayIcons.fold(0, (sum, data) => sum + data.clickCount)}',
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoRow(
+                            'Active',
+                            '${_trayIcons.where((data) => data.isVisible).length}',
+                          ),
+                        ),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Global Controls Section
                   _buildSectionCard('Global Controls', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.add, 'Add Icon', _addTrayIcon),
-                        _buildCompactButton(Icons.clear_all, 'Remove All', _removeAllTrayIcons),
-                        _buildCompactButton(Icons.refresh, 'Reset Counters', _resetAllCounters),
+                        _buildCompactButton(
+                          Icons.add,
+                          'Add Icon',
+                          _addTrayIcon,
+                        ),
+                        _buildCompactButton(
+                          Icons.clear_all,
+                          'Remove All',
+                          _removeAllTrayIcons,
+                        ),
+                        _buildCompactButton(
+                          Icons.refresh,
+                          'Reset Counters',
+                          _resetAllCounters,
+                        ),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Individual Tray Icons Section
                   if (_trayIcons.isEmpty)
                     _buildSectionCard('Tray Icons', [
@@ -632,12 +669,18 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                             const SizedBox(height: 12),
                             const Text(
                               'No tray icons created yet',
-                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             const Text(
                               'Click "Add Icon" to create your first tray icon',
-                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -645,8 +688,10 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                       ),
                     ])
                   else
-                    ...(_trayIcons.map((trayIconData) => _buildTrayIconCard(trayIconData))),
-                  
+                    ...(_trayIcons.map(
+                      (trayIconData) => _buildTrayIconCard(trayIconData),
+                    )),
+
                   const SizedBox(height: 10),
                 ],
               ),
@@ -667,7 +712,9 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade300),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -675,7 +722,10 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                         const SizedBox(width: 8),
                         Text(
                           'Event History (${_eventHistory.length})',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -686,7 +736,10 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                             child: Text(
                               'No events yet\nInteract with tray icons to see events',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
                             ),
                           )
                         : ListView.builder(
@@ -695,15 +748,23 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                             itemBuilder: (context, index) {
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 4),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 7,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                 ),
                                 child: Text(
                                   _eventHistory[index],
-                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
                               );
                             },
@@ -745,10 +806,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
-          ),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
           Text(
             value,
             style: const TextStyle(
@@ -762,7 +820,11 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     );
   }
 
-  Widget _buildCompactButton(IconData icon, String label, VoidCallback onPressed) {
+  Widget _buildCompactButton(
+    IconData icon,
+    String label,
+    VoidCallback onPressed,
+  ) {
     return SizedBox(
       height: 36,
       child: ElevatedButton.icon(
@@ -789,20 +851,30 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
               children: [
                 Text(
                   'Tray Icon ${trayIconData.id}',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: trayIconData.isVisible ? Colors.green.shade50 : Colors.grey.shade200,
+                    color: trayIconData.isVisible
+                        ? Colors.green.shade50
+                        : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     trayIconData.isVisible ? 'Visible' : 'Hidden',
                     style: TextStyle(
                       fontSize: 10,
-                      color: trayIconData.isVisible ? Colors.green.shade700 : Colors.grey.shade700,
+                      color: trayIconData.isVisible
+                          ? Colors.green.shade700
+                          : Colors.grey.shade700,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -818,7 +890,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Click counters
             Row(
               children: [
@@ -827,26 +899,36 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                 ),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: _buildCounterCard('Right', trayIconData.rightClickCount),
+                  child: _buildCounterCard(
+                    'Right',
+                    trayIconData.rightClickCount,
+                  ),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: _buildCounterCard('Double', trayIconData.doubleClickCount),
+                  child: _buildCounterCard(
+                    'Double',
+                    trayIconData.doubleClickCount,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Controls
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Title',
                 border: OutlineInputBorder(),
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
               controller: TextEditingController(text: trayIconData.title),
-              onChanged: (value) => _updateTrayIconTitle(trayIconData.id, value),
+              onChanged: (value) =>
+                  _updateTrayIconTitle(trayIconData.id, value),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -854,17 +936,25 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                 labelText: 'Tooltip',
                 border: OutlineInputBorder(),
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
               controller: TextEditingController(text: trayIconData.tooltip),
-              onChanged: (value) => _updateTrayIconTooltip(trayIconData.id, value),
+              onChanged: (value) =>
+                  _updateTrayIconTooltip(trayIconData.id, value),
             ),
             const SizedBox(height: 12),
-            
+
             // Context Menu Trigger Section
             const Text(
               'Context Menu Trigger',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
             ),
             const SizedBox(height: 8),
             Container(
@@ -927,51 +1017,97 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Icon Management Section
             const Text(
               'Icon Management',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: [
-                _buildCompactButton(Icons.image, 'Asset', () => _setAssetIcon(trayIconData.id)),
-                _buildCompactButton(Icons.star, 'Widget', () => _setIconFromWidget(trayIconData.id)),
+                _buildCompactButton(
+                  Icons.image,
+                  'Asset',
+                  () => _setAssetIcon(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.star,
+                  'Widget',
+                  () => _setIconFromWidget(trayIconData.id),
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Animated Icons Section
             const Text(
               'Animated Icons',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: [
-                _buildCompactButton(Icons.refresh, 'Spinner', () => _startSpinnerAnimation(trayIconData.id)),
-                _buildCompactButton(Icons.circle, 'Pulse', () => _startPulseAnimation(trayIconData.id)),
-                _buildCompactButton(Icons.radio_button_unchecked, 'Blink', () => _startBlinkAnimation(trayIconData.id)),
-                _buildCompactButton(Icons.trending_up, 'Progress', () => _startProgressAnimation(trayIconData.id)),
-                _buildCompactButton(Icons.music_note, 'Wave', () => _startWaveAnimation(trayIconData.id)),
-                _buildCompactButton(Icons.crop_square, 'Rotate', () => _startRotatingSquareAnimation(trayIconData.id)),
-                _buildCompactButton(Icons.stop, 'Stop', () => _stopAnimation(trayIconData.id)),
+                _buildCompactButton(
+                  Icons.refresh,
+                  'Spinner',
+                  () => _startSpinnerAnimation(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.circle,
+                  'Pulse',
+                  () => _startPulseAnimation(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.radio_button_unchecked,
+                  'Blink',
+                  () => _startBlinkAnimation(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.trending_up,
+                  'Progress',
+                  () => _startProgressAnimation(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.music_note,
+                  'Wave',
+                  () => _startWaveAnimation(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.crop_square,
+                  'Rotate',
+                  () => _startRotatingSquareAnimation(trayIconData.id),
+                ),
+                _buildCompactButton(
+                  Icons.stop,
+                  'Stop',
+                  () => _stopAnimation(trayIconData.id),
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Action buttons
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: [
                 _buildCompactButton(
-                  trayIconData.isVisible ? Icons.visibility_off : Icons.visibility,
+                  trayIconData.isVisible
+                      ? Icons.visibility_off
+                      : Icons.visibility,
                   trayIconData.isVisible ? 'Hide' : 'Show',
                   () => _toggleTrayIconVisibility(trayIconData.id),
                 ),

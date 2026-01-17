@@ -86,4 +86,3 @@ class WindowResizedEvent extends WindowEvent {
   @override
   String get typeName => 'WindowResizedEvent';
 }
-

@@ -87,7 +87,9 @@ class Preferences
     calloc.free(scopePtr);
 
     if (_nativeHandle == nullptr) {
-      throw Exception('Failed to create Preferences instance with scope: $scope');
+      throw Exception(
+        'Failed to create Preferences instance with scope: $scope',
+      );
     }
   }
 
@@ -99,7 +101,11 @@ class Preferences
     final keyPtr = key.toNativeUtf8().cast<Char>();
     final valuePtr = value.toNativeUtf8().cast<Char>();
 
-    final result = bindings.native_preferences_set(_nativeHandle, keyPtr, valuePtr);
+    final result = bindings.native_preferences_set(
+      _nativeHandle,
+      keyPtr,
+      valuePtr,
+    );
 
     calloc.free(keyPtr);
     calloc.free(valuePtr);
@@ -110,11 +116,15 @@ class Preferences
   @override
   String get(String key, [String defaultValue = '']) {
     final keyPtr = key.toNativeUtf8().cast<Char>();
-    final defaultPtr = defaultValue.isNotEmpty 
-        ? defaultValue.toNativeUtf8().cast<Char>() 
+    final defaultPtr = defaultValue.isNotEmpty
+        ? defaultValue.toNativeUtf8().cast<Char>()
         : nullptr.cast<Char>();
 
-    final resultPtr = bindings.native_preferences_get(_nativeHandle, keyPtr, defaultPtr);
+    final resultPtr = bindings.native_preferences_get(
+      _nativeHandle,
+      keyPtr,
+      defaultPtr,
+    );
 
     calloc.free(keyPtr);
     if (defaultPtr != nullptr) {
@@ -157,8 +167,12 @@ class Preferences
     final keysPtr = calloc<Pointer<Pointer<Char>>>();
     final countPtr = calloc<Size>();
 
-    final success = bindings.native_preferences_get_keys(_nativeHandle, keysPtr, countPtr);
-    
+    final success = bindings.native_preferences_get_keys(
+      _nativeHandle,
+      keysPtr,
+      countPtr,
+    );
+
     if (!success || keysPtr.value == nullptr) {
       calloc.free(keysPtr);
       calloc.free(countPtr);
@@ -167,7 +181,7 @@ class Preferences
 
     final count = countPtr.value;
     final List<String> result = [];
-    
+
     for (int i = 0; i < count; i++) {
       final keyPtr = keysPtr.value.elementAt(i).value;
       if (keyPtr != nullptr) {
@@ -178,7 +192,7 @@ class Preferences
     bindings.native_preferences_free_string_array(keysPtr.value, count);
     calloc.free(keysPtr);
     calloc.free(countPtr);
-    
+
     return result;
   }
 
@@ -192,8 +206,12 @@ class Preferences
     final keysPtr = calloc<Pointer<Pointer<Char>>>();
     final countPtr = calloc<Size>();
 
-    final success = bindings.native_preferences_get_keys(_nativeHandle, keysPtr, countPtr);
-    
+    final success = bindings.native_preferences_get_keys(
+      _nativeHandle,
+      keysPtr,
+      countPtr,
+    );
+
     if (!success || keysPtr.value == nullptr) {
       calloc.free(keysPtr);
       calloc.free(countPtr);
@@ -202,7 +220,7 @@ class Preferences
 
     final count = countPtr.value;
     final Map<String, String> result = {};
-    
+
     for (int i = 0; i < count; i++) {
       final keyPtr = keysPtr.value.elementAt(i).value;
       if (keyPtr != nullptr) {
@@ -215,7 +233,7 @@ class Preferences
     bindings.native_preferences_free_string_array(keysPtr.value, count);
     calloc.free(keysPtr);
     calloc.free(countPtr);
-    
+
     return result;
   }
 
@@ -226,4 +244,3 @@ class Preferences
     }
   }
 }
-

@@ -28,7 +28,7 @@ class MessageDialog extends Dialog
     with CNativeApiBindingsMixin
     implements NativeHandleWrapper<native_message_dialog_t> {
   final native_message_dialog_t _nativeHandle;
-  
+
   /// Current modality setting.
   DialogModality _modality = DialogModality.none;
 
@@ -47,7 +47,7 @@ class MessageDialog extends Dialog
   /// dialog.open();
   /// ```
   MessageDialog(String title, String message)
-      : _nativeHandle = _createNative(title, message);
+    : _nativeHandle = _createNative(title, message);
 
   static native_message_dialog_t _createNative(String title, String message) {
     final titlePtr = title.toNativeUtf8();
@@ -70,7 +70,10 @@ class MessageDialog extends Dialog
   set title(String value) {
     final titlePtr = value.toNativeUtf8();
     try {
-      bindings.native_message_dialog_set_title(_nativeHandle, titlePtr.cast<Char>());
+      bindings.native_message_dialog_set_title(
+        _nativeHandle,
+        titlePtr.cast<Char>(),
+      );
     } finally {
       ffi.malloc.free(titlePtr);
     }
@@ -91,7 +94,10 @@ class MessageDialog extends Dialog
   set message(String value) {
     final messagePtr = value.toNativeUtf8();
     try {
-      bindings.native_message_dialog_set_message(_nativeHandle, messagePtr.cast<Char>());
+      bindings.native_message_dialog_set_message(
+        _nativeHandle,
+        messagePtr.cast<Char>(),
+      );
     } finally {
       ffi.malloc.free(messagePtr);
     }
@@ -99,7 +105,9 @@ class MessageDialog extends Dialog
 
   /// Gets the dialog message.
   String get message {
-    final messagePtr = bindings.native_message_dialog_get_message(_nativeHandle);
+    final messagePtr = bindings.native_message_dialog_get_message(
+      _nativeHandle,
+    );
     if (messagePtr == nullptr) {
       return '';
     }
@@ -111,7 +119,9 @@ class MessageDialog extends Dialog
   @override
   DialogModality get modality {
     // Update internal state from native dialog
-    final nativeModality = bindings.native_message_dialog_get_modality(_nativeHandle);
+    final nativeModality = bindings.native_message_dialog_get_modality(
+      _nativeHandle,
+    );
     _modality = DialogModality.fromNative(nativeModality);
     return _modality;
   }
@@ -140,4 +150,3 @@ class MessageDialog extends Dialog
     bindings.native_message_dialog_destroy(_nativeHandle);
   }
 }
-

@@ -94,7 +94,7 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
   void _updateCursorAndWindow() {
     final displayManager = DisplayManager.instance;
     final cursorPos = displayManager.getCursorPosition();
-    
+
     final windowManager = WindowManager.instance;
     final currentWindow = windowManager.getCurrent();
 
@@ -589,10 +589,7 @@ class DisplayCanvas extends StatelessWidget {
           width: windowWidth,
           height: windowHeight,
           decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.orange,
-              width: 2,
-            ),
+            border: Border.all(color: Colors.orange, width: 2),
             boxShadow: [
               BoxShadow(
                 color: Colors.orange.withOpacity(0.3),
@@ -604,9 +601,7 @@ class DisplayCanvas extends StatelessWidget {
           child: Stack(
             children: [
               // Window background (semi-transparent)
-              Container(
-                color: Colors.orange.withOpacity(0.1),
-              ),
+              Container(color: Colors.orange.withOpacity(0.1)),
               // Window title bar indicator
               Container(
                 height: (20 * scale).clamp(8.0, 20.0),
@@ -682,11 +677,7 @@ class DisplayCanvas extends StatelessWidget {
           ],
         ),
         child: const Center(
-          child: Icon(
-            Icons.mouse,
-            size: 8,
-            color: Colors.white,
-          ),
+          child: Icon(Icons.mouse, size: 8, color: Colors.white),
         ),
       ),
     );

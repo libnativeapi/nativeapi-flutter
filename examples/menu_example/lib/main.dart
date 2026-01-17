@@ -59,7 +59,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   // Store icon for demonstration
   Image? _testIcon;
   Image? _iconFromWidget;
-  
+
   // Animated icon generator
   AnimatedIconGenerator? _animatedIconGenerator;
   MenuItem? _animatedMenuItem;
@@ -72,10 +72,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _setupPositioningMenu();
     _setupAnimatedIconGenerator();
   }
-  
+
   void _setupAnimatedIconGenerator() {
     _animatedIconGenerator = AnimatedIconGenerator(
-      size: 32,  // Higher resolution for better quality
+      size: 32, // Higher resolution for better quality
       foregroundColor: Colors.blue,
     );
   }
@@ -436,14 +436,14 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _menuItems[0].icon = null;
     _addToHistory('Icon removed from first menu item');
   }
-  
+
   // Animated icon methods
   Future<void> _startSpinnerAnimation() async {
     if (_menuItems.isEmpty) {
       _addToHistory('No menu items available for animation');
       return;
     }
-    
+
     _animatedMenuItem = _menuItems[0];
     await _animatedIconGenerator?.startSpinner(
       onFrame: (image) async {
@@ -452,13 +452,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
     _addToHistory('Started spinner animation');
   }
-  
+
   Future<void> _startPulseAnimation() async {
     if (_menuItems.isEmpty) {
       _addToHistory('No menu items available for animation');
       return;
     }
-    
+
     _animatedMenuItem = _menuItems[0];
     await _animatedIconGenerator?.startPulse(
       onFrame: (image) async {
@@ -467,13 +467,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
     _addToHistory('Started pulse animation');
   }
-  
+
   Future<void> _startBlinkAnimation() async {
     if (_menuItems.isEmpty) {
       _addToHistory('No menu items available for animation');
       return;
     }
-    
+
     _animatedMenuItem = _menuItems[0];
     await _animatedIconGenerator?.startBlink(
       onFrame: (image) async {
@@ -482,13 +482,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
     _addToHistory('Started blink animation');
   }
-  
+
   Future<void> _startProgressAnimation() async {
     if (_menuItems.isEmpty) {
       _addToHistory('No menu items available for animation');
       return;
     }
-    
+
     _animatedMenuItem = _menuItems[0];
     await _animatedIconGenerator?.startProgress(
       onFrame: (image) async {
@@ -497,13 +497,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
     _addToHistory('Started progress animation');
   }
-  
+
   Future<void> _startWaveAnimation() async {
     if (_menuItems.isEmpty) {
       _addToHistory('No menu items available for animation');
       return;
     }
-    
+
     _animatedMenuItem = _menuItems[0];
     await _animatedIconGenerator?.startWave(
       onFrame: (image) async {
@@ -512,13 +512,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
     _addToHistory('Started wave animation');
   }
-  
+
   Future<void> _startRotatingSquareAnimation() async {
     if (_menuItems.isEmpty) {
       _addToHistory('No menu items available for animation');
       return;
     }
-    
+
     _animatedMenuItem = _menuItems[0];
     await _animatedIconGenerator?.startRotatingSquare(
       onFrame: (image) async {
@@ -527,7 +527,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
     _addToHistory('Started rotating square animation');
   }
-  
+
   void _stopAnimation() {
     _animatedIconGenerator?.stop();
     _addToHistory('Stopped animation');
@@ -648,36 +648,71 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                   _buildSectionCard('Context Menu Demo', [
                     Row(
                       children: [
-                        Expanded(child: _buildInfoRow('Items', '$_menuItemCount')),
-                        Expanded(child: _buildInfoRow('Checkbox', '$_checkboxState')),
-                        Expanded(child: _buildInfoRow('Radio', _radioSelection)),
+                        Expanded(
+                          child: _buildInfoRow('Items', '$_menuItemCount'),
+                        ),
+                        Expanded(
+                          child: _buildInfoRow('Checkbox', '$_checkboxState'),
+                        ),
+                        Expanded(
+                          child: _buildInfoRow('Radio', _radioSelection),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Text('Placement:', style: TextStyle(fontSize: 13)),
+                        const Text(
+                          'Placement:',
+                          style: TextStyle(fontSize: 13),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: DropdownButton<Placement>(
                             value: _selectedPlacement,
                             isExpanded: true,
                             items: [
-                              DropdownMenuItem(value: Placement.topStart, child: const Text('Top Start')),
-                              DropdownMenuItem(value: Placement.topEnd, child: const Text('Top End')),
-                              DropdownMenuItem(value: Placement.bottomStart, child: const Text('Bottom Start')),
-                              DropdownMenuItem(value: Placement.bottomEnd, child: const Text('Bottom End')),
-                              DropdownMenuItem(value: Placement.leftStart, child: const Text('Left Start')),
-                              DropdownMenuItem(value: Placement.leftEnd, child: const Text('Left End')),
-                              DropdownMenuItem(value: Placement.rightStart, child: const Text('Right Start')),
-                              DropdownMenuItem(value: Placement.rightEnd, child: const Text('Right End')),
+                              DropdownMenuItem(
+                                value: Placement.topStart,
+                                child: const Text('Top Start'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.topEnd,
+                                child: const Text('Top End'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.bottomStart,
+                                child: const Text('Bottom Start'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.bottomEnd,
+                                child: const Text('Bottom End'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.leftStart,
+                                child: const Text('Left Start'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.leftEnd,
+                                child: const Text('Left End'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.rightStart,
+                                child: const Text('Right Start'),
+                              ),
+                              DropdownMenuItem(
+                                value: Placement.rightEnd,
+                                child: const Text('Right End'),
+                              ),
                             ],
                             onChanged: (Placement? value) {
                               if (value != null) {
                                 setState(() {
                                   _selectedPlacement = value;
                                 });
-                                _addToHistory('Placement changed to: ${value.toString().split('.').last}');
+                                _addToHistory(
+                                  'Placement changed to: ${value.toString().split('.').last}',
+                                );
                               }
                             },
                           ),
@@ -699,7 +734,11 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.touch_app, size: 32, color: Colors.blue),
+                              Icon(
+                                Icons.touch_app,
+                                size: 32,
+                                color: Colors.blue,
+                              ),
                               SizedBox(height: 8),
                               Text(
                                 'Right-click here',
@@ -716,110 +755,227 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Item Management Section
                   _buildSectionCard('Item Management', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.add, 'Add Item', _addNewMenuItem),
-                        _buildCompactButton(Icons.insert_drive_file, 'Insert at Pos 2', _insertMenuItemAtPosition),
-                        _buildCompactButton(Icons.horizontal_rule, 'Insert Separator', _insertSeparatorAtPosition),
-                        _buildCompactButton(Icons.remove_circle, 'Remove First', _removeFirstMenuItem),
-                        _buildCompactButton(Icons.delete, 'Remove at Pos 2', _removeMenuItemAtPosition),
-                        _buildCompactButton(Icons.delete_forever, 'Remove Last', _removeLastMenuItem),
+                        _buildCompactButton(
+                          Icons.add,
+                          'Add Item',
+                          _addNewMenuItem,
+                        ),
+                        _buildCompactButton(
+                          Icons.insert_drive_file,
+                          'Insert at Pos 2',
+                          _insertMenuItemAtPosition,
+                        ),
+                        _buildCompactButton(
+                          Icons.horizontal_rule,
+                          'Insert Separator',
+                          _insertSeparatorAtPosition,
+                        ),
+                        _buildCompactButton(
+                          Icons.remove_circle,
+                          'Remove First',
+                          _removeFirstMenuItem,
+                        ),
+                        _buildCompactButton(
+                          Icons.delete,
+                          'Remove at Pos 2',
+                          _removeMenuItemAtPosition,
+                        ),
+                        _buildCompactButton(
+                          Icons.delete_forever,
+                          'Remove Last',
+                          _removeLastMenuItem,
+                        ),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Item Properties Section
                   _buildSectionCard('Item Properties', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.edit, 'Update Label', _changeDynamicLabel),
-                        _buildCompactButton(Icons.indeterminate_check_box, 'Checkbox Mixed', _setCheckboxMixed),
-                        _buildCompactButton(Icons.add_box, 'Add Submenu Item', _addSubmenuItem),
-                        _buildCompactButton(Icons.swap_horiz, 'Detach Submenu', _toggleSubmenu),
+                        _buildCompactButton(
+                          Icons.edit,
+                          'Update Label',
+                          _changeDynamicLabel,
+                        ),
+                        _buildCompactButton(
+                          Icons.indeterminate_check_box,
+                          'Checkbox Mixed',
+                          _setCheckboxMixed,
+                        ),
+                        _buildCompactButton(
+                          Icons.add_box,
+                          'Add Submenu Item',
+                          _addSubmenuItem,
+                        ),
+                        _buildCompactButton(
+                          Icons.swap_horiz,
+                          'Detach Submenu',
+                          _toggleSubmenu,
+                        ),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Icon Management Section
                   _buildSectionCard('Icon Management', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.image, 'Set Asset Icon', _setIconOnFirstItem),
-                        _buildCompactButton(Icons.star, 'Set Widget Icon', _setIconFromWidget),
-                        _buildCompactButton(Icons.hide_image, 'Remove Icon', _removeIconFromFirstItem),
+                        _buildCompactButton(
+                          Icons.image,
+                          'Set Asset Icon',
+                          _setIconOnFirstItem,
+                        ),
+                        _buildCompactButton(
+                          Icons.star,
+                          'Set Widget Icon',
+                          _setIconFromWidget,
+                        ),
+                        _buildCompactButton(
+                          Icons.hide_image,
+                          'Remove Icon',
+                          _removeIconFromFirstItem,
+                        ),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Animated Icon Section
                   _buildSectionCard('Animated Icons', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.refresh, 'Spinner', _startSpinnerAnimation),
-                        _buildCompactButton(Icons.circle, 'Pulse', _startPulseAnimation),
-                        _buildCompactButton(Icons.radio_button_unchecked, 'Blink', _startBlinkAnimation),
-                        _buildCompactButton(Icons.trending_up, 'Progress', _startProgressAnimation),
-                        _buildCompactButton(Icons.music_note, 'Wave', _startWaveAnimation),
-                        _buildCompactButton(Icons.crop_square, 'Rotate', _startRotatingSquareAnimation),
+                        _buildCompactButton(
+                          Icons.refresh,
+                          'Spinner',
+                          _startSpinnerAnimation,
+                        ),
+                        _buildCompactButton(
+                          Icons.circle,
+                          'Pulse',
+                          _startPulseAnimation,
+                        ),
+                        _buildCompactButton(
+                          Icons.radio_button_unchecked,
+                          'Blink',
+                          _startBlinkAnimation,
+                        ),
+                        _buildCompactButton(
+                          Icons.trending_up,
+                          'Progress',
+                          _startProgressAnimation,
+                        ),
+                        _buildCompactButton(
+                          Icons.music_note,
+                          'Wave',
+                          _startWaveAnimation,
+                        ),
+                        _buildCompactButton(
+                          Icons.crop_square,
+                          'Rotate',
+                          _startRotatingSquareAnimation,
+                        ),
                         _buildCompactButton(Icons.stop, 'Stop', _stopAnimation),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Positioning Section
                   _buildSectionCard('Positioning', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.location_on, 'Pos (100,100)', 
-                          () => _showMenuAtAbsolutePosition(const Offset(100, 100))),
-                        _buildCompactButton(Icons.location_on, 'Pos (300,200)', 
-                          () => _showMenuAtAbsolutePosition(const Offset(300, 200))),
-                        _buildCompactButton(Icons.mouse, 'At Cursor', _showMenuAtCursorPosition),
+                        _buildCompactButton(
+                          Icons.location_on,
+                          'Pos (100,100)',
+                          () => _showMenuAtAbsolutePosition(
+                            const Offset(100, 100),
+                          ),
+                        ),
+                        _buildCompactButton(
+                          Icons.location_on,
+                          'Pos (300,200)',
+                          () => _showMenuAtAbsolutePosition(
+                            const Offset(300, 200),
+                          ),
+                        ),
+                        _buildCompactButton(
+                          Icons.mouse,
+                          'At Cursor',
+                          _showMenuAtCursorPosition,
+                        ),
                       ],
                     ),
                   ]),
                   const SizedBox(height: 10),
-                  
+
                   // Test Cases Section
                   _buildSectionCard('Test Cases', [
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _buildCompactButton(Icons.add_circle_outline, 'Add 10 Items', () {
-                          for (int i = 0; i < 10; i++) _addNewMenuItem();
-                        }),
-                        _buildCompactButton(Icons.flash_on, 'Rapid Open/Close', () {
-                          for (int i = 0; i < 5; i++) {
-                            _showMenuAtAbsolutePosition(Offset(100.0 + i * 50, 100.0 + i * 50));
-                            Future.delayed(const Duration(milliseconds: 100), () => _contextMenu.close());
-                          }
-                        }),
-                        _buildCompactButton(Icons.border_outer, 'Top-Left Edge', () {
-                          _showMenuAtAbsolutePosition(const Offset(10, 10));
-                          _addToHistory('Testing menu near screen edge (top-left)');
-                        }),
-                        _buildCompactButton(Icons.border_outer, 'Bottom-Right Edge', () {
-                          _showMenuAtAbsolutePosition(const Offset(1500, 900));
-                          _addToHistory('Testing menu near screen edge (bottom-right)');
-                        }),
+                        _buildCompactButton(
+                          Icons.add_circle_outline,
+                          'Add 10 Items',
+                          () {
+                            for (int i = 0; i < 10; i++) _addNewMenuItem();
+                          },
+                        ),
+                        _buildCompactButton(
+                          Icons.flash_on,
+                          'Rapid Open/Close',
+                          () {
+                            for (int i = 0; i < 5; i++) {
+                              _showMenuAtAbsolutePosition(
+                                Offset(100.0 + i * 50, 100.0 + i * 50),
+                              );
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () => _contextMenu.close(),
+                              );
+                            }
+                          },
+                        ),
+                        _buildCompactButton(
+                          Icons.border_outer,
+                          'Top-Left Edge',
+                          () {
+                            _showMenuAtAbsolutePosition(const Offset(10, 10));
+                            _addToHistory(
+                              'Testing menu near screen edge (top-left)',
+                            );
+                          },
+                        ),
+                        _buildCompactButton(
+                          Icons.border_outer,
+                          'Bottom-Right Edge',
+                          () {
+                            _showMenuAtAbsolutePosition(
+                              const Offset(1500, 900),
+                            );
+                            _addToHistory(
+                              'Testing menu near screen edge (bottom-right)',
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ]),
@@ -842,7 +998,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade300),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -850,7 +1008,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                         const SizedBox(width: 8),
                         Text(
                           'Event History (${_eventHistory.length})',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -861,7 +1022,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                             child: Text(
                               'No events yet\nInteract with menus to see events',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
                             ),
                           )
                         : ListView.builder(
@@ -870,15 +1034,23 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                             itemBuilder: (context, index) {
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 4),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 7,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                 ),
                                 child: Text(
                                   _eventHistory[index],
-                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
                               );
                             },
@@ -920,10 +1092,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
-          ),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
           Text(
             value,
             style: const TextStyle(
@@ -937,7 +1106,11 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     );
   }
 
-  Widget _buildCompactButton(IconData icon, String label, VoidCallback onPressed) {
+  Widget _buildCompactButton(
+    IconData icon,
+    String label,
+    VoidCallback onPressed,
+  ) {
     return SizedBox(
       height: 36,
       child: ElevatedButton.icon(
