@@ -1,6 +1,6 @@
 name: cnativeapi
 description: "Native API C bindings for Flutter"
-version: 0.1.0-dev.2
+version: 0.1.0
 homepage: https://github.com/libnativeapi/nativeapi-flutter
 # resolution: workspace
 

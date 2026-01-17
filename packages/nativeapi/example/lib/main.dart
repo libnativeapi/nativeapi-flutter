@@ -220,6 +220,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 menu.open(PositioningStrategy.absolute(Offset(100.0, 100.0)));
               },
             ),
+            FilledButton(
+              child: Text('Show Message Dialog'),
+              onPressed: () {
+                final dialog = MessageDialog(
+                  'Update Available',
+                  'A new version is available. Would you like to update?',
+                );
+                dialog.modality = DialogModality.application;
+                dialog.open();
+              },
+            ),
           ],
         ),
       ),

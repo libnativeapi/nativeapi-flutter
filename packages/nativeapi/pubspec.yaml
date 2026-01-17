@@ -1,6 +1,6 @@
 name: nativeapi
 description: "Flutter bindings for nativeapi - providing seamless, unified access to native system APIs."
-version: 0.1.0-dev.2
+version: 0.1.0
 homepage: https://github.com/libnativeapi/nativeapi-flutter
 resolution: workspace
 

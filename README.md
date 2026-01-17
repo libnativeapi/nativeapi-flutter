@@ -10,7 +10,7 @@ Add `nativeapi` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nativeapi: ^0.1.0-dev.1
+  nativeapi: ^0.1.0
 ```
 
 Then run:
@@ -74,7 +74,7 @@ dart run ffigen --config ffigen.yaml
 ```
 
 The ffigen configuration is defined in `packages/cnativeapi/ffigen.yaml`. You typically need to regenerate bindings when:
-- The native C library (libnativeapi) is updated
+- The native C library ([libnativeapi/nativeapi](https://github.com/libnativeapi/nativeapi)) is updated
 - The ffigen configuration is modified
 
 ## License

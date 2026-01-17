@@ -3,9 +3,9 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
-import 'package:nativeapi/src/foundation/geometry.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
-import 'package:nativeapi/src/foundation/positioning_strategy.dart';
+import 'package:nativeapi/src/placement.dart';
+import 'package:nativeapi/src/positioning_strategy.dart';
 import 'package:nativeapi/src/image.dart';
 import 'package:nativeapi/src/menu_event.dart';
 

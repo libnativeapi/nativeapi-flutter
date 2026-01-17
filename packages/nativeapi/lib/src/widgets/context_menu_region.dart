@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/src/foundation/geometry.dart' show Placement;
-import 'package:nativeapi/src/foundation/positioning_strategy.dart';
+import 'package:nativeapi/src/placement.dart';
+import 'package:nativeapi/src/positioning_strategy.dart';
 import 'package:nativeapi/src/menu.dart';
+import 'package:nativeapi/src/window.dart';
+import 'package:nativeapi/src/window_manager.dart';
 
 /// A widget that wraps a child and adds context menu functionality.
 ///
@@ -50,6 +52,11 @@ class ContextMenuRegion extends StatefulWidget {
 }
 
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
+  /// Get the currently active window
+  ///
+  /// Returns the [Window] instance, or null if no window is active.
+  Window? get _activeWindow => WindowManager.instance.getCurrent();
+
   /// Whether the pointer down event should trigger a context menu.
   ///
   /// This is set to true only when the event is from a mouse and
@@ -68,10 +75,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       onPointerUp: (event) {
         // Only open menu if it was triggered by a right-click
         if (!_shouldReact) return;
-        
-        // Open the menu at the click position using absolute positioning
+        // If no active window, don't open the menu
+        if (_activeWindow == null) return;
+
+        // Open the menu at the click position using relative positioning
         widget.menu.open(
-          PositioningStrategy.absolute(
+          PositioningStrategy.relativeToWindow(
+            _activeWindow!,
             Offset(event.position.dx, event.position.dy),
           ),
           widget.placement,
