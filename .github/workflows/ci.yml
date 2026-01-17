@@ -84,21 +84,25 @@ jobs:
       - name: Run tests
         run: dart pub global run melos run test
 
-  build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+  # Android builds (ARM64, ARMv7, x86_64)
+  build-android:
+    name: Build Android (${{ matrix.abi }})
+    runs-on: ubuntu-latest
     needs: [lint]
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        abi:
+          - arm64-v8a
+          - armeabi-v7a
+          - x86_64
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
-        
+          
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -110,26 +114,112 @@ jobs:
         run: dart pub global activate melos
         
       - name: Add melos to PATH
-        shell: bash
-        run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            echo "$USERPROFILE/.pub-cache/bin" >> $GITHUB_PATH
-          else
-            echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-          fi
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
         
       - name: Bootstrap melos
         run: dart pub global run melos bootstrap
         
-      - name: Setup Java for Android
-        if: matrix.os == 'ubuntu-latest'
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
           
+      - name: Build cnativeapi example Android (${{ matrix.abi }})
+        run: |
+          cd packages/cnativeapi/example
+          flutter build apk --release --target-platform android-${{ matrix.abi }}
+          
+      - name: Build nativeapi example Android (${{ matrix.abi }})
+        run: |
+          cd packages/nativeapi/example
+          flutter build apk --release --target-platform android-${{ matrix.abi }}
+
+  # iOS builds (device and simulator)
+  build-ios:
+    name: Build iOS (${{ matrix.target }})
+    runs-on: macos-latest
+    needs: [lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: device
+            sdk: iphoneos
+            platform_name: iOS Device
+          - target: simulator
+            sdk: iphonesimulator
+            platform_name: iOS Simulator
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.7'
+          channel: 'stable'
+          cache: true
+          
+      - name: Install melos
+        run: dart pub global activate melos
+        
+      - name: Add melos to PATH
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+        
+      - name: Bootstrap melos
+        run: dart pub global run melos bootstrap
+          
+      - name: Build cnativeapi example iOS (${{ matrix.target }})
+        run: |
+          cd packages/cnativeapi/example
+          if [ "${{ matrix.target }}" == "simulator" ]; then
+            flutter build ios --simulator --release --no-codesign
+          else
+            flutter build ios --release --no-codesign
+          fi
+          
+      - name: Build nativeapi example iOS (${{ matrix.target }})
+        run: |
+          cd packages/nativeapi/example
+          if [ "${{ matrix.target }}" == "simulator" ]; then
+            flutter build ios --simulator --release --no-codesign
+          else
+            flutter build ios --release --no-codesign
+          fi
+
+  # Linux build
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    needs: [lint]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.7'
+          channel: 'stable'
+          cache: true
+          
+      - name: Install melos
+        run: dart pub global activate melos
+        
+      - name: Add melos to PATH
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+        
+      - name: Bootstrap melos
+        run: dart pub global run melos bootstrap
+        
       - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -142,62 +232,89 @@ jobs:
             clang \
             libayatana-appindicator3-dev
           
-      - name: Build cnativeapi example Android
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd packages/cnativeapi/example
-          flutter build apk --release
-          
-      - name: Build cnativeapi example iOS
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd packages/cnativeapi/example
-          flutter build ios --release --no-codesign
-          
       - name: Build cnativeapi example Linux
-        if: matrix.os == 'ubuntu-latest'
         run: |
           cd packages/cnativeapi/example
           flutter build linux --release
           
+      - name: Build nativeapi example Linux
+        run: |
+          cd packages/nativeapi/example
+          flutter build linux --release
+
+  # macOS build
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    needs: [lint]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.7'
+          channel: 'stable'
+          cache: true
+          
+      - name: Install melos
+        run: dart pub global activate melos
+        
+      - name: Add melos to PATH
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+        
+      - name: Bootstrap melos
+        run: dart pub global run melos bootstrap
+          
       - name: Build cnativeapi example macOS
-        if: matrix.os == 'macos-latest'
         run: |
           cd packages/cnativeapi/example
           flutter build macos --release
           
+      - name: Build nativeapi example macOS
+        run: |
+          cd packages/nativeapi/example
+          flutter build macos --release
+
+  # Windows build
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    needs: [lint]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.7'
+          channel: 'stable'
+          cache: true
+          
+      - name: Install melos
+        run: dart pub global activate melos
+        
+      - name: Add melos to PATH
+        shell: bash
+        run: echo "$USERPROFILE/.pub-cache/bin" >> $GITHUB_PATH
+        
+      - name: Bootstrap melos
+        run: dart pub global run melos bootstrap
+          
       - name: Build cnativeapi example Windows
-        if: matrix.os == 'windows-latest'
         run: |
           cd packages/cnativeapi/example
           flutter build windows --release
           
-      - name: Build nativeapi example Android
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd packages/nativeapi/example
-          flutter build apk --release
-          
-      - name: Build nativeapi example iOS
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd packages/nativeapi/example
-          flutter build ios --release --no-codesign
-          
-      - name: Build nativeapi example Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd packages/nativeapi/example
-          flutter build linux --release
-          
-      - name: Build nativeapi example macOS
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd packages/nativeapi/example
-          flutter build macos --release
-          
       - name: Build nativeapi example Windows
-        if: matrix.os == 'windows-latest'
         run: |
           cd packages/nativeapi/example
           flutter build windows --release
