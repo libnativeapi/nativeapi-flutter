@@ -1,0 +1,38 @@
+{%- macro capi_for_method(cls, method, mapping) -%}
+{%- set overrides = mapping.options.symbol_overrides if mapping.options and mapping.options.symbol_overrides else {} -%}
+{%- set key = ((cls.raw.qualified_name if cls.raw and cls.raw.qualified_name else cls.raw.name) ~ '::' ~ method.raw.name) -%}
+{%- if key and overrides.get(key) -%}
+{{ overrides.get(key) }}
+{%- else -%}
+native_{{ cls.raw.name | snake_case }}_{{ method.raw.name | snake_case }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro render_class(item, mapping) -%}
+class {{ item.name }} {
+  {{ item.name }}(this._bindings, this.handle);
+
+  final {{ mapping.options.bindings_class }} _bindings;
+  final ffi.Pointer<ffi.Void> handle;
+
+{%- for method in item.methods %}
+{%- if not (method.raw and (method.raw.name == item.raw.name or method.raw.name.startswith('~'))) %}
+  {% set ret = method.return_type.mapped if method.return_type else 'void' %}{% if '::' in ret %}{% set ret = 'dynamic' %}{% endif %}{{ ret }} {{ method.name }}(
+  {%- for param in method.params %}
+    {% set ptype = param.type.mapped %}{% if '::' in ptype %}dynamic{% else %}{{ ptype }}{% endif %} {{ param.name }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  ) {
+    {% if method.return_type and method.return_type.kind != 'void' %}return {% endif %}_bindings.{{ capi_for_method(item, method, mapping) }}(
+    {%- if not method.static %}
+      handle{% if method.params|length > 0 %}, {% endif %}
+    {%- endif %}
+    {%- for param in method.params %}
+      {{ param.name }}{% if not loop.last %}, {% endif %}
+    {%- endfor %}
+    );
+  }
+
+{%- endif %}
+{%- endfor %}
+}
+{%- endmacro -%}

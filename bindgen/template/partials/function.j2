@@ -1,0 +1,26 @@
+{%- macro capi_for_function(item, mapping) -%}
+{%- set overrides = mapping.options.symbol_overrides if mapping.options and mapping.options.symbol_overrides else {} -%}
+{%- set key = item.raw.qualified_name if item.raw and item.raw.qualified_name else item.raw.name -%}
+{%- if key and overrides.get(key) -%}
+{{ overrides.get(key) }}
+{%- else -%}
+native_{{ item.raw.name | snake_case }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro render_function(item, mapping) -%}
+{%- set ret = item.return_type.mapped if item.return_type else 'void' -%}
+{%- if '::' in ret -%}{%- set ret = 'dynamic' -%}{%- endif -%}
+{{ ret }} {{ item.name }}(
+  {{ mapping.options.bindings_class }} bindings
+{%- for param in item.params %}
+  , {% set ptype = param.type.mapped %}{% if '::' in ptype %}dynamic{% else %}{{ ptype }}{% endif %} {{ param.name }}
+{%- endfor %}
+) {
+  {% if item.return_type and item.return_type.kind != 'void' %}return {% endif %}bindings.{{ capi_for_function(item, mapping) }}(
+  {%- for param in item.params %}
+    {{ param.name }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  );
+}
+{%- endmacro -%}

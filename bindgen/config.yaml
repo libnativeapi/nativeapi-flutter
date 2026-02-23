@@ -1,0 +1,134 @@
+clang_flags:
+  - -x
+  - c++
+  - -std=c++17
+
+entry_headers:
+  - packages/cnativeapi/cxx_impl/src/accessibility_manager.h
+  - packages/cnativeapi/cxx_impl/src/application.h
+  - packages/cnativeapi/cxx_impl/src/application_event.h
+  - packages/cnativeapi/cxx_impl/src/autostart.h
+  - packages/cnativeapi/cxx_impl/src/dialog.h
+  - packages/cnativeapi/cxx_impl/src/display.h
+  - packages/cnativeapi/cxx_impl/src/display_event.h
+  - packages/cnativeapi/cxx_impl/src/display_manager.h
+  - packages/cnativeapi/cxx_impl/src/foundation/color.h
+  - packages/cnativeapi/cxx_impl/src/foundation/event.h
+  - packages/cnativeapi/cxx_impl/src/foundation/event_emitter.h
+  - packages/cnativeapi/cxx_impl/src/foundation/geometry.h
+  - packages/cnativeapi/cxx_impl/src/foundation/id_allocator.h
+  - packages/cnativeapi/cxx_impl/src/foundation/keyboard.h
+  - packages/cnativeapi/cxx_impl/src/foundation/native_object_provider.h
+  - packages/cnativeapi/cxx_impl/src/foundation/object_registry.h
+  - packages/cnativeapi/cxx_impl/src/image.h
+  - packages/cnativeapi/cxx_impl/src/keyboard_event.h
+  - packages/cnativeapi/cxx_impl/src/keyboard_monitor.h
+  - packages/cnativeapi/cxx_impl/src/menu.h
+  - packages/cnativeapi/cxx_impl/src/menu_event.h
+  - packages/cnativeapi/cxx_impl/src/message_dialog.h
+  - packages/cnativeapi/cxx_impl/src/placement.h
+  - packages/cnativeapi/cxx_impl/src/positioning_strategy.h
+  - packages/cnativeapi/cxx_impl/src/preferences.h
+  - packages/cnativeapi/cxx_impl/src/secure_storage.h
+  - packages/cnativeapi/cxx_impl/src/shortcut.h
+  - packages/cnativeapi/cxx_impl/src/shortcut_event.h
+  - packages/cnativeapi/cxx_impl/src/shortcut_manager.h
+  - packages/cnativeapi/cxx_impl/src/storage.h
+  - packages/cnativeapi/cxx_impl/src/tray_icon.h
+  - packages/cnativeapi/cxx_impl/src/tray_icon_event.h
+  - packages/cnativeapi/cxx_impl/src/tray_manager.h
+  - packages/cnativeapi/cxx_impl/src/url_opener.h
+  - packages/cnativeapi/cxx_impl/src/window.h
+  - packages/cnativeapi/cxx_impl/src/window_event.h
+  - packages/cnativeapi/cxx_impl/src/window_manager.h
+  - packages/cnativeapi/cxx_impl/src/window_registry.h
+
+include_paths:
+  - packages/cnativeapi/cxx_impl/src
+  - packages/cnativeapi/cxx_impl/include
+
+mapping:
+  language: dart
+  output_note: Generated wrapper from C++ API. Calls existing ffigen bindings.
+
+  naming:
+    file_name: snake_case
+    type_name: pascal_case
+    enum_name: pascal_case
+    enum_value_name: camel_case
+    function_name: camel_case
+    method_name: camel_case
+    class_name: pascal_case
+    field_name: camel_case
+    param_name: camel_case
+    constant_name: screaming_snake_case
+    alias_name: pascal_case
+    strip_prefixes:
+      - na_
+      - NA_
+      - nativeapi_
+      - NATIVEAPI_
+    strip_suffixes:
+      - _t
+      - _T
+    add_prefix: ""
+    add_suffix: ""
+
+  types:
+    void: void
+    bool: bool
+    _Bool: bool
+    char: int
+    short: int
+    int: int
+    long: int
+    "long long": int
+    int8_t: int
+    int16_t: int
+    int32_t: int
+    int64_t: int
+    int8: int
+    int16: int
+    int32: int
+    int64: int
+    "unsigned char": int
+    "unsigned short": int
+    "unsigned int": int
+    "unsigned long": int
+    "unsigned long long": int
+    uint8_t: int
+    uint16_t: int
+    uint32_t: int
+    uint64_t: int
+    uint8: int
+    uint16: int
+    uint32: int
+    uint64: int
+    size_t: int
+    float: double
+    double: double
+    float32: double
+    float64: double
+    cstring: "ffi.Pointer<ffi.Char>"
+    "void*": "ffi.Pointer<ffi.Void>"
+    "const void*": "ffi.Pointer<ffi.Void>"
+    "char*": "ffi.Pointer<ffi.Char>"
+    "const char*": "ffi.Pointer<ffi.Char>"
+
+  default_type: dynamic
+  passthrough_unknown: false
+
+  options:
+    bindings_class: CNativeApiBindings
+    bindings_import: package:cnativeapi/src/bindings_generated.dart
+    symbol_overrides:
+      nativeapi::RunApp: native_run_app
+      nativeapi::Application::GetInstance: native_application_get_instance
+      nativeapi::Window::Window: native_window_create
+
+filters:
+  allowlist_regex: []
+  denylist_regex: []
+  exclude_dirs:
+    - capi
+    - platform

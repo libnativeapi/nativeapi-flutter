@@ -1,0 +1,7 @@
+{%- macro render_enum(item, mapping) -%}
+enum {{ item.name }} {
+{%- for value in item.values %}
+  {{ value.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+}
+{%- endmacro -%}

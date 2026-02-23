@@ -1,0 +1,13 @@
+{%- macro render_type(item, mapping) -%}
+class {{ item.name }} {
+  {{ item.name }}({
+{%- for field in item.fields %}
+    required this.{{ field.name }},
+{%- endfor %}
+  });
+
+{%- for field in item.fields %}
+  {% set ftype = field.type.mapped %}final {% if '::' in ftype %}dynamic{% else %}{{ ftype }}{% endif %} {{ field.name }};
+{%- endfor %}
+}
+{%- endmacro -%}
