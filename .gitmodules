@@ -1,0 +1,3 @@
+[submodule "crates/cnativeapi/cxx_impl"]
+	path = crates/cnativeapi/cxx_impl
+	url = git@github.com:libnativeapi/nativeapi.git

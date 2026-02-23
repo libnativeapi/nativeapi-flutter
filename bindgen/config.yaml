@@ -1,0 +1,95 @@
+clang_flags:
+  - -x
+  - c++
+  - -std=c++17
+
+entry_headers:
+  - crates/cnativeapi/cxx_impl/src/accessibility_manager.h
+  - crates/cnativeapi/cxx_impl/src/application.h
+  - crates/cnativeapi/cxx_impl/src/application_event.h
+  - crates/cnativeapi/cxx_impl/src/autostart.h
+  - crates/cnativeapi/cxx_impl/src/dialog.h
+  - crates/cnativeapi/cxx_impl/src/display.h
+  - crates/cnativeapi/cxx_impl/src/display_event.h
+  - crates/cnativeapi/cxx_impl/src/display_manager.h
+  - crates/cnativeapi/cxx_impl/src/foundation/color.h
+  - crates/cnativeapi/cxx_impl/src/foundation/event.h
+  - crates/cnativeapi/cxx_impl/src/foundation/event_emitter.h
+  - crates/cnativeapi/cxx_impl/src/foundation/geometry.h
+  - crates/cnativeapi/cxx_impl/src/foundation/id_allocator.h
+  - crates/cnativeapi/cxx_impl/src/foundation/keyboard.h
+  - crates/cnativeapi/cxx_impl/src/foundation/native_object_provider.h
+  - crates/cnativeapi/cxx_impl/src/foundation/object_registry.h
+  - crates/cnativeapi/cxx_impl/src/image.h
+  - crates/cnativeapi/cxx_impl/src/keyboard_event.h
+  - crates/cnativeapi/cxx_impl/src/keyboard_monitor.h
+  - crates/cnativeapi/cxx_impl/src/menu.h
+  - crates/cnativeapi/cxx_impl/src/menu_event.h
+  - crates/cnativeapi/cxx_impl/src/message_dialog.h
+  - crates/cnativeapi/cxx_impl/src/placement.h
+  - crates/cnativeapi/cxx_impl/src/positioning_strategy.h
+  - crates/cnativeapi/cxx_impl/src/preferences.h
+  - crates/cnativeapi/cxx_impl/src/secure_storage.h
+  - crates/cnativeapi/cxx_impl/src/shortcut.h
+  - crates/cnativeapi/cxx_impl/src/shortcut_event.h
+  - crates/cnativeapi/cxx_impl/src/shortcut_manager.h
+  - crates/cnativeapi/cxx_impl/src/storage.h
+  - crates/cnativeapi/cxx_impl/src/tray_icon.h
+  - crates/cnativeapi/cxx_impl/src/tray_icon_event.h
+  - crates/cnativeapi/cxx_impl/src/tray_manager.h
+  - crates/cnativeapi/cxx_impl/src/window.h
+  - crates/cnativeapi/cxx_impl/src/window_event.h
+  - crates/cnativeapi/cxx_impl/src/window_manager.h
+  - crates/cnativeapi/cxx_impl/src/window_registry.h
+
+include_paths:
+  - crates/cnativeapi/cxx_impl/src
+  - crates/cnativeapi/cxx_impl/include
+
+mapping:
+  language: rust
+  ffi_module: crate::bindings
+  output_note: Generated wrapper from C++ API. Calls existing C API FFI bindings.
+
+  types:
+    void: ()
+    bool: bool
+    _Bool: bool
+    char: ::core::ffi::c_char
+    short: i16
+    int: i32
+    long: i64
+    "long long": i64
+    "unsigned char": u8
+    "unsigned short": u16
+    "unsigned int": u32
+    "unsigned long": u64
+    "unsigned long long": u64
+    float: f32
+    double: f64
+    int8_t: i8
+    int16_t: i16
+    int32_t: i32
+    int64_t: i64
+    uint8_t: u8
+    uint16_t: u16
+    uint32_t: u32
+    uint64_t: u64
+    size_t: usize
+    "void*": "*mut ::core::ffi::c_void"
+    "const void*": "*const ::core::ffi::c_void"
+    "char*": "*mut ::core::ffi::c_char"
+    "const char*": "*const ::core::ffi::c_char"
+
+  options:
+    symbol_overrides:
+      nativeapi::RunApp: native_run_app
+      nativeapi::Application::GetInstance: native_application_get_instance
+      nativeapi::Window::Window: native_window_create
+
+filters:
+  allowlist_regex: []
+  denylist_regex: []
+  exclude_dirs:
+    - capi
+    - platform

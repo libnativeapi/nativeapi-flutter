@@ -1,0 +1,34 @@
+{%- from 'partials/type_map.j2' import map_type -%}
+{%- from 'partials/symbol_map.j2' import capi_for_method -%}
+
+{%- macro render_class(cls, mapping) -%}
+pub struct {{ cls.name }} {
+    pub handle: *mut ::core::ffi::c_void,
+}
+
+impl {{ cls.name }} {
+{%- for method in cls.methods %}
+{%- if method.name != cls.name and not method.name.startswith('~') %}
+    #[inline]
+    pub unsafe fn {{ method.name | snake_case }}(
+    {%- if not method.static %}
+        &self{% if method.params|length > 0 %},{% endif %}
+    {%- endif %}
+    {%- for p in method.params %}
+        {{ p.name | snake_case }}: {{ map_type(p.type, mapping) }}{% if not loop.last %},{% endif %}
+    {%- endfor %}
+    ) -> {{ map_type(method.return_type, mapping) }} {
+        ffi::{{ capi_for_method(cls, method, mapping) }}(
+        {%- if not method.static %}
+            self.handle{% if method.params|length > 0 %},{% endif %}
+        {%- endif %}
+        {%- for p in method.params %}
+            {{ p.name | snake_case }}{% if not loop.last %},{% endif %}
+        {%- endfor %}
+        )
+    }
+
+{%- endif %}
+{%- endfor %}
+}
+{%- endmacro -%}

@@ -1,0 +1,19 @@
+{%- macro capi_for_function(fn, mapping) -%}
+{%- set overrides = mapping.options.symbol_overrides if mapping.options and mapping.options.symbol_overrides else {} -%}
+{%- set key = fn.qualified_name if fn.qualified_name else fn.name -%}
+{%- if overrides.get(key) -%}
+{{ overrides.get(key) }}
+{%- else -%}
+native_{{ fn.name | snake_case }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro capi_for_method(cls, method, mapping) -%}
+{%- set overrides = mapping.options.symbol_overrides if mapping.options and mapping.options.symbol_overrides else {} -%}
+{%- set key = (cls.qualified_name ~ '::' ~ method.name) if cls.qualified_name else (cls.name ~ '::' ~ method.name) -%}
+{%- if overrides.get(key) -%}
+{{ overrides.get(key) }}
+{%- else -%}
+native_{{ cls.name | snake_case }}_{{ method.name | snake_case }}
+{%- endif -%}
+{%- endmacro -%}

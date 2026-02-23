@@ -1,0 +1,17 @@
+{%- from 'partials/type_map.j2' import map_type -%}
+{%- from 'partials/symbol_map.j2' import capi_for_function -%}
+
+{%- macro render_function(fn, mapping) -%}
+#[inline]
+pub unsafe fn {{ fn.name | snake_case }}(
+{%- for p in fn.params %}
+    {{ p.name | snake_case }}: {{ map_type(p.type, mapping) }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+) -> {{ map_type(fn.return_type, mapping) }} {
+    ffi::{{ capi_for_function(fn, mapping) }}(
+{%- for p in fn.params %}
+        {{ p.name | snake_case }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    )
+}
+{%- endmacro -%}
