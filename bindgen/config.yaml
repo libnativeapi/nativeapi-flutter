@@ -8,6 +8,7 @@ entry_headers:
 
 mapping:
   output_note: Generated wrapper from C++ API. Calls existing ffigen bindings.
+  reference_format: "{inner}"
 
   naming:
     enum_value_name: camel_case
@@ -15,19 +16,24 @@ mapping:
     field_name: camel_case
 
   types:
+    void: void
     bool: bool
+    int32: int
+    uint32: int
+    int64: int
+    uint64: int
+    float32: double
+    float64: double
+    size_t: int
+    cstring: String
+    string: String
 
   default_type: dynamic
   passthrough_unknown: false
 
   options:
-    bindings_import: package:cnativeapi/src/bindings_generated.dart
-    api_type_rules:
-      contains:
-        - match: "&"
-          type: dynamic
-    force_instance_methods:
-      - nativeapi::UrlOpener::IsSupported
+    singleton_classes:
+      - UrlOpener
     formatters:
       - name: dart-format-generated
         cmd:

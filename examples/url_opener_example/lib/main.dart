@@ -42,14 +42,13 @@ class _UrlOpenerExamplePageState extends State<UrlOpenerExamplePage> {
   @override
   void initState() {
     super.initState();
-    _urlOpener = UrlOpener();
+    _urlOpener = UrlOpener.instance;
     _refreshSupport();
   }
 
   @override
   void dispose() {
     _urlController.dispose();
-    _urlOpener.dispose();
     super.dispose();
   }
 

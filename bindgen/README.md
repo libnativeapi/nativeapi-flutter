@@ -13,6 +13,7 @@ cd nativeapi-flutter
 PYTHONPATH=packages/cnativeapi/cxx_impl/tools python3 -m bindgen \
   --config bindgen/config.yaml \
   --dump-ir bindgen/out/ir.json \
+  --dump-context bindgen/out/context.json \
   --out bindgen/out
 ```
 
@@ -20,3 +21,4 @@ PYTHONPATH=packages/cnativeapi/cxx_impl/tools python3 -m bindgen \
 
 - This does **not** regenerate `lib/src/bindings_generated.dart`.
 - Add symbol exceptions in `mapping.options.symbol_overrides`.
+- `bindgen/out/context.json` is the mapped template input after IR -> API/config transformation.

@@ -1,69 +1,98 @@
 {%- macro render_method_call(method) -%}
-{%- if method.return_bridge == 'string' %}
-    final cString = bindings.{{ method.call_symbol }}(
+bindings.{{ method.call_symbol }}(
 {%- if method.needs_instance_handle %}
-      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+  _nativeHandle{% if method.call_args|length > 0 %}, {% endif %}
 {%- endif %}
 {%- for arg in method.call_args %}
-      {{ arg }}{% if not loop.last %}, {% endif %}
+  {{ arg }}{% if not loop.last %}, {% endif %}
 {%- endfor %}
-    );
+)
+{%- endmacro -%}
+
+{%- macro render_method_body(method) -%}
+{%- if method.return_bridge == 'string' %}
+    final cString = {{ render_method_call(method) }};
     if (cString == ffi.nullptr) return '';
     final value = cString.cast<pkgffi.Utf8>().toDartString();
     bindings.{{ method.string_free_symbol }}(cString);
     return value;
+{%- elif method.return_bridge == 'enum' %}
+    final nativeValue = {{ render_method_call(method) }};
+    return {{ method.api_return_type }}.fromNativeValue(nativeValue);
+{%- elif method.return_bridge == 'struct' %}
+    final nativeValue = {{ render_method_call(method) }};
+  {%- if method.struct_free_symbol %}
+    try {
+      return {{ method.api_return_type }}.fromNative(nativeValue);
+    } finally {
+      final nativeValuePtr = pkgffi.malloc<{{ method.native_return_type }}>();
+      nativeValuePtr.ref = nativeValue;
+      bindings.{{ method.struct_free_symbol }}(nativeValuePtr);
+      pkgffi.malloc.free(nativeValuePtr);
+    }
+  {%- else %}
+    return {{ method.api_return_type }}.fromNative(nativeValue);
+  {%- endif %}
 {%- elif method.return_bridge == 'offset' %}
-    final nativeValue = bindings.{{ method.call_symbol }}(
-{%- if method.needs_instance_handle %}
-      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
-{%- endif %}
-{%- for arg in method.call_args %}
-      {{ arg }}{% if not loop.last %}, {% endif %}
-{%- endfor %}
-  );
+    final nativeValue = {{ render_method_call(method) }};
     return ui.Offset(nativeValue.x, nativeValue.y);
 {%- elif method.return_bridge == 'size' %}
-    final nativeValue = bindings.{{ method.call_symbol }}(
-{%- if method.needs_instance_handle %}
-      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
-{%- endif %}
-{%- for arg in method.call_args %}
-      {{ arg }}{% if not loop.last %}, {% endif %}
-{%- endfor %}
-    );
+    final nativeValue = {{ render_method_call(method) }};
     return ui.Size(nativeValue.width, nativeValue.height);
 {%- elif method.return_bridge == 'rect' %}
-    final nativeValue = bindings.{{ method.call_symbol }}(
-{%- if method.needs_instance_handle %}
-      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
-{%- endif %}
-{%- for arg in method.call_args %}
-      {{ arg }}{% if not loop.last %}, {% endif %}
-{%- endfor %}
-    );
+    final nativeValue = {{ render_method_call(method) }};
     return ui.Rect.fromLTWH(nativeValue.x, nativeValue.y, nativeValue.width, nativeValue.height);
 {%- elif method.return_bridge == 'void' %}
-    bindings.{{ method.call_symbol }}(
-{%- if method.needs_instance_handle %}
-      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
-{%- endif %}
-{%- for arg in method.call_args %}
-      {{ arg }}{% if not loop.last %}, {% endif %}
-{%- endfor %}
-    );
+    {{ render_method_call(method) }};
 {%- else %}
-    return bindings.{{ method.call_symbol }}(
-{%- if method.needs_instance_handle %}
-      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+    return {{ render_method_call(method) }};
 {%- endif %}
-{%- for arg in method.call_args %}
-      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endmacro -%}
+
+{%- macro render_callable(method) -%}
+{%- for line in method.pre_call_lines %}
+    {{ line }}
 {%- endfor %}
-    );
+{%- if method.post_call_lines %}
+    try {
+{{ render_method_body(method) }}
+    } finally {
+{%- for line in method.post_call_lines %}
+      {{ line }}
+{%- endfor %}
+    }
+{%- else %}
+{{ render_method_body(method) }}
 {%- endif %}
 {%- endmacro -%}
 
 {%- macro render_class(item, mapping) -%}
+{%- if item.is_singleton and not item.singleton_has_handle %}
+class {{ item.name }} with CNativeApiBindingsMixin {
+  static final {{ item.name }} instance = {{ item.name }}._();
+
+  {{ item.name }}._();
+
+{%- for method in item.methods %}
+{%- if not method.skip %}
+  {%- if method.is_property %}
+  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} get {{ method.property_name }} {
+{{ render_callable(method) }}
+  }
+  {%- else %}
+  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} {{ method.api_name }}(
+  {%- for param in method.params %}
+    {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  ) {
+{{ render_callable(method) }}
+  }
+  {%- endif %}
+
+{%- endif %}
+{%- endfor %}
+}
+{%- else %}
 class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrapper<{{ item.handle_alias }}> {
   {%- if item.is_singleton %}
   static final {{ item.name }} instance = {{ item.name }}._();
@@ -74,9 +103,13 @@ class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrappe
     _nativeHandle = bindings.{{ item.singleton_symbol }}();
   }
   {%- else %}
-  final {{ item.handle_alias }} _nativeHandle;
+  late final {{ item.handle_alias }} _nativeHandle;
+  final bool _ownsHandle;
 
-  {{ item.name }}(this._nativeHandle);
+  {{ item.name }}([{{ item.handle_alias }}? nativeHandle])
+      : _ownsHandle = nativeHandle == null {
+    _nativeHandle = nativeHandle ?? bindings.{{ item.create_symbol }}();
+  }
   {%- endif %}
 
   @override
@@ -86,7 +119,7 @@ class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrappe
 {%- if not method.skip %}
   {%- if method.is_property %}
   {{ 'static ' if method.static else '' }}{{ method.api_return_type }} get {{ method.property_name }} {
-{{ render_method_call(method) }}
+{{ render_callable(method) }}
   }
   {%- else %}
   {{ 'static ' if method.static else '' }}{{ method.api_return_type }} {{ method.api_name }}(
@@ -94,7 +127,7 @@ class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrappe
     {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
   {%- endfor %}
   ) {
-{{ render_method_call(method) }}
+{{ render_callable(method) }}
   }
   {%- endif %}
 
@@ -103,7 +136,14 @@ class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrappe
 
   @override
   void dispose() {
-    // Generated wrappers are non-owning by default.
+  {%- if item.is_singleton %}
+    // Singleton handles are managed by native code.
+  {%- else %}
+    if (_ownsHandle) {
+      bindings.{{ item.destroy_symbol }}(_nativeHandle);
+    }
+  {%- endif %}
   }
 }
+{%- endif %}
 {%- endmacro -%}

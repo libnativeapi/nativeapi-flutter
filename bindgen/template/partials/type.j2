@@ -2,12 +2,19 @@
 {%- if not type_info -%}
 dynamic
 {%- else -%}
-{%- set mapped = type_info.mapped -%}
-{%- if '::' in mapped or '&' in mapped -%}
-dynamic
-{%- else -%}
-{{ mapped }}
+{{ type_info.mapped }}
 {%- endif -%}
+{%- endmacro -%}
+
+{%- macro native_to_dart(type_info, expr) -%}
+{%- if type_info.kind in ('cstring', 'string') -%}
+{{ expr }} == ffi.nullptr ? '' : {{ expr }}.cast<pkgffi.Utf8>().toDartString()
+{%- elif type_info.bridge_kind == 'enum' -%}
+{{ type_info.mapped }}.fromNativeValue({{ expr }})
+{%- elif type_info.bridge_kind == 'struct' -%}
+{{ type_info.mapped }}.fromNative({{ expr }})
+{%- else -%}
+{{ expr }}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -26,6 +33,14 @@ class {{ item.name }} {
 {%- for field in item.fields %}
   final {{ dart_type(field.type) }} {{ field.name }};
 {%- endfor %}
+
+  factory {{ item.name }}.fromNative({{ item.native_type }} native) {
+    return {{ item.name }}(
+{%- for field in item.fields %}
+      {{ field.name }}: {{ native_to_dart(field.type, 'native.' ~ (field.raw.name if field.raw else field.name)) }},
+{%- endfor %}
+    );
+  }
 }
 {%- endif -%}
 {%- endmacro -%}

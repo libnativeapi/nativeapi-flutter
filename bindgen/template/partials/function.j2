@@ -1,52 +1,70 @@
+{%- macro render_function_call(item) -%}
+bindings.{{ item.call_symbol }}(
+{%- for arg in item.call_args %}
+  {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+)
+{%- endmacro -%}
+
+{%- macro render_function_body(item) -%}
+{%- if item.return_bridge == 'string' %}
+    final cString = {{ render_function_call(item) }};
+    if (cString == ffi.nullptr) return '';
+    final value = cString.cast<pkgffi.Utf8>().toDartString();
+    bindings.{{ item.string_free_symbol }}(cString);
+    return value;
+{%- elif item.return_bridge == 'enum' %}
+    final nativeValue = {{ render_function_call(item) }};
+    return {{ item.api_return_type }}.fromNativeValue(nativeValue);
+{%- elif item.return_bridge == 'struct' %}
+    final nativeValue = {{ render_function_call(item) }};
+  {%- if item.struct_free_symbol %}
+    try {
+      return {{ item.api_return_type }}.fromNative(nativeValue);
+    } finally {
+      final nativeValuePtr = pkgffi.malloc<{{ item.native_return_type }}>();
+      nativeValuePtr.ref = nativeValue;
+      bindings.{{ item.struct_free_symbol }}(nativeValuePtr);
+      pkgffi.malloc.free(nativeValuePtr);
+    }
+  {%- else %}
+    return {{ item.api_return_type }}.fromNative(nativeValue);
+  {%- endif %}
+{%- elif item.return_bridge == 'offset' %}
+    final nativeValue = {{ render_function_call(item) }};
+    return ui.Offset(nativeValue.x, nativeValue.y);
+{%- elif item.return_bridge == 'size' %}
+    final nativeValue = {{ render_function_call(item) }};
+    return ui.Size(nativeValue.width, nativeValue.height);
+{%- elif item.return_bridge == 'rect' %}
+    final nativeValue = {{ render_function_call(item) }};
+    return ui.Rect.fromLTWH(nativeValue.x, nativeValue.y, nativeValue.width, nativeValue.height);
+{%- elif item.return_bridge == 'void' %}
+    {{ render_function_call(item) }};
+{%- else %}
+    return {{ render_function_call(item) }};
+{%- endif %}
+{%- endmacro -%}
+
 {%- macro render_function(item, mapping) -%}
 {{ item.api_return_type }} {{ item.api_name }}(
 {%- for param in item.params %}
   {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
 {%- endfor %}
 ) {
-  {%- if item.return_bridge == 'string' %}
-  final cString = cnativeApiBindings.{{ item.call_symbol }}(
-  {%- for arg in item.call_args %}
-    {{ arg }}{% if not loop.last %}, {% endif %}
-  {%- endfor %}
-  );
-  if (cString == ffi.nullptr) return '';
-  final value = cString.cast<pkgffi.Utf8>().toDartString();
-  cnativeApiBindings.{{ item.string_free_symbol }}(cString);
-  return value;
-  {%- elif item.return_bridge == 'offset' %}
-  final nativeValue = cnativeApiBindings.{{ item.call_symbol }}(
-  {%- for arg in item.call_args %}
-    {{ arg }}{% if not loop.last %}, {% endif %}
-  {%- endfor %}
-  );
-  return ui.Offset(nativeValue.x, nativeValue.y);
-  {%- elif item.return_bridge == 'size' %}
-  final nativeValue = cnativeApiBindings.{{ item.call_symbol }}(
-  {%- for arg in item.call_args %}
-    {{ arg }}{% if not loop.last %}, {% endif %}
-  {%- endfor %}
-  );
-  return ui.Size(nativeValue.width, nativeValue.height);
-  {%- elif item.return_bridge == 'rect' %}
-  final nativeValue = cnativeApiBindings.{{ item.call_symbol }}(
-  {%- for arg in item.call_args %}
-    {{ arg }}{% if not loop.last %}, {% endif %}
-  {%- endfor %}
-  );
-  return ui.Rect.fromLTWH(nativeValue.x, nativeValue.y, nativeValue.width, nativeValue.height);
-  {%- elif item.return_bridge == 'void' %}
-  cnativeApiBindings.{{ item.call_symbol }}(
-  {%- for arg in item.call_args %}
-    {{ arg }}{% if not loop.last %}, {% endif %}
-  {%- endfor %}
-  );
-  {%- else %}
-  return cnativeApiBindings.{{ item.call_symbol }}(
-  {%- for arg in item.call_args %}
-    {{ arg }}{% if not loop.last %}, {% endif %}
-  {%- endfor %}
-  );
-  {%- endif %}
+{%- for line in item.pre_call_lines %}
+  {{ line }}
+{%- endfor %}
+{%- if item.post_call_lines %}
+  try {
+{{ render_function_body(item) }}
+  } finally {
+{%- for line in item.post_call_lines %}
+    {{ line }}
+{%- endfor %}
+  }
+{%- else %}
+{{ render_function_body(item) }}
+{%- endif %}
 }
 {%- endmacro -%}
