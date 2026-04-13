@@ -1,13 +1,31 @@
+{%- macro dart_type(type_info) -%}
+{%- if not type_info -%}
+dynamic
+{%- else -%}
+{%- set mapped = type_info.mapped -%}
+{%- if '::' in mapped or '&' in mapped -%}
+dynamic
+{%- else -%}
+{{ mapped }}
+{%- endif -%}
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro render_type(item, mapping) -%}
+{%- set mapped_name = mapping.types.get(item.raw.qualified_name) or mapping.types.get(item.raw.name) -%}
+{%- if mapped_name and mapped_name != item.name -%}
+{# Skip generating a local value type when it is bridged to an existing Dart type. #}
+{%- else -%}
 class {{ item.name }} {
-  {{ item.name }}({
+  const {{ item.name }}({
 {%- for field in item.fields %}
     required this.{{ field.name }},
 {%- endfor %}
   });
 
 {%- for field in item.fields %}
-  {% set ftype = field.type.mapped %}final {% if '::' in ftype %}dynamic{% else %}{{ ftype }}{% endif %} {{ field.name }};
+  final {{ dart_type(field.type) }} {{ field.name }};
 {%- endfor %}
 }
+{%- endif -%}
 {%- endmacro -%}

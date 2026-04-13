@@ -1,38 +1,109 @@
-{%- macro capi_for_method(cls, method, mapping) -%}
-{%- set overrides = mapping.options.symbol_overrides if mapping.options and mapping.options.symbol_overrides else {} -%}
-{%- set key = ((cls.raw.qualified_name if cls.raw and cls.raw.qualified_name else cls.raw.name) ~ '::' ~ method.raw.name) -%}
-{%- if key and overrides.get(key) -%}
-{{ overrides.get(key) }}
-{%- else -%}
-native_{{ cls.raw.name | snake_case }}_{{ method.raw.name | snake_case }}
-{%- endif -%}
+{%- macro render_method_call(method) -%}
+{%- if method.return_bridge == 'string' %}
+    final cString = bindings.{{ method.call_symbol }}(
+{%- if method.needs_instance_handle %}
+      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+{%- endif %}
+{%- for arg in method.call_args %}
+      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+    );
+    if (cString == ffi.nullptr) return '';
+    final value = cString.cast<pkgffi.Utf8>().toDartString();
+    bindings.{{ method.string_free_symbol }}(cString);
+    return value;
+{%- elif method.return_bridge == 'offset' %}
+    final nativeValue = bindings.{{ method.call_symbol }}(
+{%- if method.needs_instance_handle %}
+      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+{%- endif %}
+{%- for arg in method.call_args %}
+      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+  );
+    return ui.Offset(nativeValue.x, nativeValue.y);
+{%- elif method.return_bridge == 'size' %}
+    final nativeValue = bindings.{{ method.call_symbol }}(
+{%- if method.needs_instance_handle %}
+      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+{%- endif %}
+{%- for arg in method.call_args %}
+      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+    );
+    return ui.Size(nativeValue.width, nativeValue.height);
+{%- elif method.return_bridge == 'rect' %}
+    final nativeValue = bindings.{{ method.call_symbol }}(
+{%- if method.needs_instance_handle %}
+      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+{%- endif %}
+{%- for arg in method.call_args %}
+      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+    );
+    return ui.Rect.fromLTWH(nativeValue.x, nativeValue.y, nativeValue.width, nativeValue.height);
+{%- elif method.return_bridge == 'void' %}
+    bindings.{{ method.call_symbol }}(
+{%- if method.needs_instance_handle %}
+      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+{%- endif %}
+{%- for arg in method.call_args %}
+      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+    );
+{%- else %}
+    return bindings.{{ method.call_symbol }}(
+{%- if method.needs_instance_handle %}
+      _nativeHandle{% if method.call_args|length > 0 %},{% endif %}
+{%- endif %}
+{%- for arg in method.call_args %}
+      {{ arg }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+    );
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro render_class(item, mapping) -%}
-class {{ item.name }} {
-  {{ item.name }}(this._bindings, this.handle);
+class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrapper<{{ item.handle_alias }}> {
+  {%- if item.is_singleton %}
+  static final {{ item.name }} instance = {{ item.name }}._();
 
-  final {{ mapping.options.bindings_class }} _bindings;
-  final ffi.Pointer<ffi.Void> handle;
+  late final {{ item.handle_alias }} _nativeHandle;
+
+  {{ item.name }}._() {
+    _nativeHandle = bindings.{{ item.singleton_symbol }}();
+  }
+  {%- else %}
+  final {{ item.handle_alias }} _nativeHandle;
+
+  {{ item.name }}(this._nativeHandle);
+  {%- endif %}
+
+  @override
+  {{ item.handle_alias }} get nativeHandle => _nativeHandle;
 
 {%- for method in item.methods %}
-{%- if not (method.raw and (method.raw.name == item.raw.name or method.raw.name.startswith('~'))) %}
-  {% set ret = method.return_type.mapped if method.return_type else 'void' %}{% if '::' in ret %}{% set ret = 'dynamic' %}{% endif %}{{ ret }} {{ method.name }}(
+{%- if not method.skip %}
+  {%- if method.is_property %}
+  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} get {{ method.property_name }} {
+{{ render_method_call(method) }}
+  }
+  {%- else %}
+  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} {{ method.api_name }}(
   {%- for param in method.params %}
-    {% set ptype = param.type.mapped %}{% if '::' in ptype %}dynamic{% else %}{{ ptype }}{% endif %} {{ param.name }}{% if not loop.last %}, {% endif %}
+    {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
   {%- endfor %}
   ) {
-    {% if method.return_type and method.return_type.kind != 'void' %}return {% endif %}_bindings.{{ capi_for_method(item, method, mapping) }}(
-    {%- if not method.static %}
-      handle{% if method.params|length > 0 %}, {% endif %}
-    {%- endif %}
-    {%- for param in method.params %}
-      {{ param.name }}{% if not loop.last %}, {% endif %}
-    {%- endfor %}
-    );
+{{ render_method_call(method) }}
   }
+  {%- endif %}
 
 {%- endif %}
 {%- endfor %}
+
+  @override
+  void dispose() {
+    // Generated wrappers are non-owning by default.
+  }
 }
 {%- endmacro -%}

@@ -35,6 +35,7 @@ let package = Package(
                 ]),
             ],
             linkerSettings: [
+                .linkedFramework("Carbon"),
                 .linkedFramework("Cocoa"),
                 .linkedFramework("Foundation"),
             ]

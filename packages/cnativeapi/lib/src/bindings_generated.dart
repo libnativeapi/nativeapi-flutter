@@ -4581,6 +4581,86 @@ class CNativeApiBindings {
   late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
       .asFunction<void Function(native_tray_icon_list_t)>();
 
+  /// @brief Create a URL opener instance.
+  native_url_opener_t native_url_opener_create() {
+    return _native_url_opener_create();
+  }
+
+  late final _native_url_opener_createPtr =
+      _lookup<ffi.NativeFunction<native_url_opener_t Function()>>(
+        'native_url_opener_create',
+      );
+  late final _native_url_opener_create = _native_url_opener_createPtr
+      .asFunction<native_url_opener_t Function()>();
+
+  /// @brief Destroy a URL opener instance.
+  void native_url_opener_destroy(native_url_opener_t opener) {
+    return _native_url_opener_destroy(opener);
+  }
+
+  late final _native_url_opener_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_url_opener_t)>>(
+        'native_url_opener_destroy',
+      );
+  late final _native_url_opener_destroy = _native_url_opener_destroyPtr
+      .asFunction<void Function(native_url_opener_t)>();
+
+  /// @brief Check whether URL opening is supported on this platform.
+  bool native_url_opener_is_supported(native_url_opener_t opener) {
+    return _native_url_opener_is_supported(opener);
+  }
+
+  late final _native_url_opener_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_url_opener_t)>>(
+        'native_url_opener_is_supported',
+      );
+  late final _native_url_opener_is_supported =
+      _native_url_opener_is_supportedPtr
+          .asFunction<bool Function(native_url_opener_t)>();
+
+  /// @brief Attempt to open URL with the system default browser.
+  ///
+  /// Caller must release result.error_message via native_url_open_result_free().
+  native_url_open_result_t native_url_opener_open(
+    native_url_opener_t opener,
+    ffi.Pointer<ffi.Char> url,
+  ) {
+    return _native_url_opener_open(opener, url);
+  }
+
+  late final _native_url_opener_openPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_url_open_result_t Function(
+            native_url_opener_t,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_url_opener_open');
+  late final _native_url_opener_open = _native_url_opener_openPtr
+      .asFunction<
+        native_url_open_result_t Function(
+          native_url_opener_t,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  /// @brief Free owned memory inside a native_url_open_result_t.
+  void native_url_open_result_free(
+    ffi.Pointer<native_url_open_result_t> result,
+  ) {
+    return _native_url_open_result_free(result);
+  }
+
+  late final _native_url_open_result_freePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_url_open_result_t>)
+        >
+      >('native_url_open_result_free');
+  late final _native_url_open_result_free = _native_url_open_result_freePtr
+      .asFunction<void Function(ffi.Pointer<native_url_open_result_t>)>();
+
   /// Get a window by its ID
   /// @param window_id The window ID
   /// @return Window handle, or NULL if not found
@@ -5549,6 +5629,45 @@ final class native_tray_icon_list_t extends ffi.Struct {
   @ffi.Size()
   external int count;
 }
+
+/// @brief Error codes returned by URL opening APIs.
+enum native_url_open_error_code_t {
+  NATIVE_URL_OPEN_ERROR_NONE(0),
+  NATIVE_URL_OPEN_ERROR_INVALID_URL_EMPTY(1),
+  NATIVE_URL_OPEN_ERROR_INVALID_URL_MISSING_SCHEME(2),
+  NATIVE_URL_OPEN_ERROR_INVALID_URL_UNSUPPORTED_SCHEME(3),
+  NATIVE_URL_OPEN_ERROR_UNSUPPORTED_PLATFORM(4),
+  NATIVE_URL_OPEN_ERROR_INVOCATION_FAILED(5);
+
+  final int value;
+  const native_url_open_error_code_t(this.value);
+
+  static native_url_open_error_code_t fromValue(int value) => switch (value) {
+    0 => NATIVE_URL_OPEN_ERROR_NONE,
+    1 => NATIVE_URL_OPEN_ERROR_INVALID_URL_EMPTY,
+    2 => NATIVE_URL_OPEN_ERROR_INVALID_URL_MISSING_SCHEME,
+    3 => NATIVE_URL_OPEN_ERROR_INVALID_URL_UNSUPPORTED_SCHEME,
+    4 => NATIVE_URL_OPEN_ERROR_UNSUPPORTED_PLATFORM,
+    5 => NATIVE_URL_OPEN_ERROR_INVOCATION_FAILED,
+    _ => throw ArgumentError(
+      "Unknown value for native_url_open_error_code_t: $value",
+    ),
+  };
+}
+
+/// @brief Result payload for URL open attempts.
+final class native_url_open_result_t extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.UnsignedInt()
+  external int error_code;
+
+  external ffi.Pointer<ffi.Char> error_message;
+}
+
+/// @brief Opaque handle for a URL opener instance.
+typedef native_url_opener_t = ffi.Pointer<ffi.Void>;
 
 /// Window event types
 enum native_window_event_type_t {

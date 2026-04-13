@@ -23,6 +23,7 @@ A new Flutter plugin project.
   # s.resource_bundles = {'cnativeapi_privacy' => ['cnativeapi/Sources/cnativeapi/PrivacyInfo.xcprivacy']}
 
   s.dependency 'FlutterMacOS'
+  s.frameworks = 'Carbon'
 
   s.platform = :osx, '10.15'
   s.pod_target_xcconfig = {

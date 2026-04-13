@@ -1,26 +1,52 @@
-{%- macro capi_for_function(item, mapping) -%}
-{%- set overrides = mapping.options.symbol_overrides if mapping.options and mapping.options.symbol_overrides else {} -%}
-{%- set key = item.raw.qualified_name if item.raw and item.raw.qualified_name else item.raw.name -%}
-{%- if key and overrides.get(key) -%}
-{{ overrides.get(key) }}
-{%- else -%}
-native_{{ item.raw.name | snake_case }}
-{%- endif -%}
-{%- endmacro -%}
-
 {%- macro render_function(item, mapping) -%}
-{%- set ret = item.return_type.mapped if item.return_type else 'void' -%}
-{%- if '::' in ret -%}{%- set ret = 'dynamic' -%}{%- endif -%}
-{{ ret }} {{ item.name }}(
-  {{ mapping.options.bindings_class }} bindings
+{{ item.api_return_type }} {{ item.api_name }}(
 {%- for param in item.params %}
-  , {% set ptype = param.type.mapped %}{% if '::' in ptype %}dynamic{% else %}{{ ptype }}{% endif %} {{ param.name }}
+  {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
 {%- endfor %}
 ) {
-  {% if item.return_type and item.return_type.kind != 'void' %}return {% endif %}bindings.{{ capi_for_function(item, mapping) }}(
-  {%- for param in item.params %}
-    {{ param.name }}{% if not loop.last %}, {% endif %}
+  {%- if item.return_bridge == 'string' %}
+  final cString = cnativeApiBindings.{{ item.call_symbol }}(
+  {%- for arg in item.call_args %}
+    {{ arg }}{% if not loop.last %}, {% endif %}
   {%- endfor %}
   );
+  if (cString == ffi.nullptr) return '';
+  final value = cString.cast<pkgffi.Utf8>().toDartString();
+  cnativeApiBindings.{{ item.string_free_symbol }}(cString);
+  return value;
+  {%- elif item.return_bridge == 'offset' %}
+  final nativeValue = cnativeApiBindings.{{ item.call_symbol }}(
+  {%- for arg in item.call_args %}
+    {{ arg }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  );
+  return ui.Offset(nativeValue.x, nativeValue.y);
+  {%- elif item.return_bridge == 'size' %}
+  final nativeValue = cnativeApiBindings.{{ item.call_symbol }}(
+  {%- for arg in item.call_args %}
+    {{ arg }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  );
+  return ui.Size(nativeValue.width, nativeValue.height);
+  {%- elif item.return_bridge == 'rect' %}
+  final nativeValue = cnativeApiBindings.{{ item.call_symbol }}(
+  {%- for arg in item.call_args %}
+    {{ arg }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  );
+  return ui.Rect.fromLTWH(nativeValue.x, nativeValue.y, nativeValue.width, nativeValue.height);
+  {%- elif item.return_bridge == 'void' %}
+  cnativeApiBindings.{{ item.call_symbol }}(
+  {%- for arg in item.call_args %}
+    {{ arg }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  );
+  {%- else %}
+  return cnativeApiBindings.{{ item.call_symbol }}(
+  {%- for arg in item.call_args %}
+    {{ arg }}{% if not loop.last %}, {% endif %}
+  {%- endfor %}
+  );
+  {%- endif %}
 }
 {%- endmacro -%}

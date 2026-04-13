@@ -1,7 +1,15 @@
+{%- macro enum_case_name(name) -%}
+{%- if name.startswith('k') and name|length > 1 and name[1].isupper() -%}
+{{ name[1:2]|lower }}{{ name[2:] }}
+{%- else -%}
+{{ name | camel_case }}
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro render_enum(item, mapping) -%}
 enum {{ item.name }} {
 {%- for value in item.values %}
-  {{ value.name }}{% if not loop.last %},{% endif %}
+  {{ enum_case_name(value.name) }}{% if not loop.last %},{% endif %}
 {%- endfor %}
 }
 {%- endmacro -%}

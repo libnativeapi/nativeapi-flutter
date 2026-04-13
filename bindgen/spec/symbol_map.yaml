@@ -1,0 +1,11 @@
+version: 1
+language: dart
+explicit:
+  nativeapi::RunApp: native_run_app
+  nativeapi::Application::GetInstance: native_application_get_instance
+  nativeapi::DisplayManager::GetInstance: native_display_manager_get_instance
+  nativeapi::WindowManager::GetInstance: native_window_manager_get_instance
+  nativeapi::TrayManager::GetInstance: native_tray_manager_get_instance
+defaults:
+  function: native_{snake(name)}
+  method: native_{snake(class)}_{snake(method)}

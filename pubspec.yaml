@@ -9,6 +9,7 @@ workspace:
   # - examples/multiple_window_example
   - examples/storage_example
   - examples/tray_icon_example
+  - examples/url_opener_example
   - examples/window_example
   - packages/cnativeapi
   - packages/cnativeapi/example

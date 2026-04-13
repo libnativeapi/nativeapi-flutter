@@ -11,7 +11,12 @@
 // =============================================================================
 
 import 'dart:ffi' as ffi;
+import 'dart:ui' as ui;
+import 'package:ffi/ffi.dart' as pkgffi;
+import 'package:cnativeapi/cnativeapi.dart';
 import '{{ mapping.options.bindings_import }}';
+import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
+import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
 
 {%- if has_types %}
 {% for item in types %}

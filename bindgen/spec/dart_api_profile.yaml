@@ -1,0 +1,26 @@
+version: 1
+language: dart
+module_profiles:
+  singleton_manager:
+    classes:
+      - AccessibilityManager
+      - Application
+      - DisplayManager
+      - TrayManager
+      - WindowManager
+  native_handle_wrapper:
+    mixin: CNativeApiBindingsMixin
+    interface: NativeHandleWrapper
+  value_bridges:
+    point: Offset
+    size: Size
+    rect: Rect
+  event_model:
+    mixin: EventEmitter
+conventions:
+  getter_to_property: true
+  bool_getter_to_property: true
+  skip_ctor_dtor_methods: true
+  string_free_default: free_c_str
+  string_free_overrides:
+    native_window_get_title: native_window_free_string

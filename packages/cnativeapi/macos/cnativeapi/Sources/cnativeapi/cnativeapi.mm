@@ -4,6 +4,11 @@
 // Import Cocoa framework
 #import <Cocoa/Cocoa.h>
 
+// Include Carbon-based shortcut implementation before any C API translation units
+// that introduce `using namespace nativeapi;`, otherwise Carbon's global `Point`
+// collides with nativeapi::Point in this unified Objective-C++ translation unit.
+#include "../../../../cxx_impl/src/platform/macos/shortcut_manager_macos.mm"
+
 // Include source files
 #include "../../../../cxx_impl/src/capi/accessibility_manager_c.cpp"
 #include "../../../../cxx_impl/src/capi/application_c.cpp"
@@ -23,6 +28,7 @@
 #include "../../../../cxx_impl/src/capi/string_utils_c.cpp"
 #include "../../../../cxx_impl/src/capi/tray_icon_c.cpp"
 #include "../../../../cxx_impl/src/capi/tray_manager_c.cpp"
+#include "../../../../cxx_impl/src/capi/url_opener_c.cpp"
 #include "../../../../cxx_impl/src/capi/window_c.cpp"
 #include "../../../../cxx_impl/src/capi/window_manager_c.cpp"
 #include "../../../../cxx_impl/src/platform/macos/accessibility_manager_macos.mm"
@@ -38,6 +44,7 @@
 #include "../../../../cxx_impl/src/platform/macos/secure_storage_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/tray_icon_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/tray_manager_macos.mm"
+#include "../../../../cxx_impl/src/platform/macos/url_opener_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/window_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/window_manager_macos.mm"
 #include "../../../../cxx_impl/src/foundation/color.cpp"
@@ -54,5 +61,6 @@
 #include "../../../../cxx_impl/src/shortcut.cpp"
 #include "../../../../cxx_impl/src/shortcut_manager.cpp"
 #include "../../../../cxx_impl/src/tray_manager.cpp"
+#include "../../../../cxx_impl/src/url_opener_internal.cpp"
 #include "../../../../cxx_impl/src/window_manager.cpp"
 #include "../../../../cxx_impl/src/window_registry.cpp"

@@ -20,6 +20,7 @@ export 'src/secure_storage.dart';
 export 'src/tray_icon.dart';
 export 'src/tray_icon_event.dart';
 export 'src/tray_manager.dart';
+export 'src/url_opener.dart';
 export 'src/window.dart';
 export 'src/window_event.dart';
 export 'src/window_manager.dart';
