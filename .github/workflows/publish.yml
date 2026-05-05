@@ -6,17 +6,45 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  publish-cnativeapi:
+  publish:
+    name: Publish to pub.dev
     permissions:
-      id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: packages/cnativeapi
+      id-token: write # Required for requesting the JWT
+    runs-on: ubuntu-latest
 
-  publish-nativeapi:
-    needs: publish-cnativeapi
-    permissions:
-      id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: packages/nativeapi
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Set up the Dart SDK and provision the OIDC token used for publishing.
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260
+
+      # Download Flutter SDK - needed for publishing Flutter packages.
+      - uses: flutter-actions/setup-flutter@18c66a64fb6f6d3338c63cabbc5cd6da395e7f1d
+
+      # Publish cnativeapi
+      - name: Install dependencies (cnativeapi)
+        run: dart pub get
+        working-directory: packages/cnativeapi
+
+      - name: Publish - dry run (cnativeapi)
+        run: dart pub publish --dry-run
+        working-directory: packages/cnativeapi
+
+      - name: Publish cnativeapi
+        run: dart pub publish -f
+        working-directory: packages/cnativeapi
+
+      # Publish nativeapi
+      - name: Install dependencies (nativeapi)
+        run: dart pub get
+        working-directory: packages/nativeapi
+
+      - name: Publish - dry run (nativeapi)
+        run: dart pub publish --dry-run
+        working-directory: packages/nativeapi
+
+      - name: Publish nativeapi
+        run: dart pub publish -f
+        working-directory: packages/nativeapi
