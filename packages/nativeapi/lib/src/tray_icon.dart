@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart' as ffi;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/geometry.dart';
@@ -179,7 +180,9 @@ class TrayIcon
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Tray icon clicked');
+      if (kDebugMode) {
+        print('Tray icon clicked');
+      }
       instance.emitSync(TrayIconClickedEvent());
     }
   }
@@ -190,7 +193,9 @@ class TrayIcon
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Tray icon double clicked');
+      if (kDebugMode) {
+        print('Tray icon double clicked');
+      }
       instance.emitSync(TrayIconDoubleClickedEvent());
     }
   }
@@ -201,7 +206,9 @@ class TrayIcon
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Tray icon right clicked');
+      if (kDebugMode) {
+        print('Tray icon right clicked');
+      }
       instance.emitSync(TrayIconRightClickedEvent());
     }
   }

@@ -202,7 +202,7 @@ class SecureStorage
     final List<String> result = [];
 
     for (int i = 0; i < count; i++) {
-      final keyPtr = keysPtr.value.elementAt(i).value;
+      final keyPtr = (keysPtr.value + i).value;
       if (keyPtr != nullptr) {
         result.add(keyPtr.cast<Utf8>().toDartString());
       }
@@ -241,7 +241,7 @@ class SecureStorage
     final Map<String, String> result = {};
 
     for (int i = 0; i < count; i++) {
-      final keyPtr = keysPtr.value.elementAt(i).value;
+      final keyPtr = (keysPtr.value + i).value;
       if (keyPtr != nullptr) {
         final key = keyPtr.cast<Utf8>().toDartString();
         final value = get(key);

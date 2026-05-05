@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart' as ffi;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
 import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
@@ -176,7 +177,9 @@ class MenuItem
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Menu item clicked: ${instance.id}');
+      if (kDebugMode) {
+        print('Menu item clicked: ${instance.id}');
+      }
       instance.emitSync(MenuItemClickedEvent(instance.id));
     }
   }
@@ -187,7 +190,9 @@ class MenuItem
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Menu item submenu opened: ${instance.id}');
+      if (kDebugMode) {
+        print('Menu item submenu opened: ${instance.id}');
+      }
       instance.emitSync(MenuItemSubmenuOpenedEvent(instance.id));
     }
   }
@@ -198,7 +203,9 @@ class MenuItem
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Menu item submenu closed: ${instance.id}');
+      if (kDebugMode) {
+        print('Menu item submenu closed: ${instance.id}');
+      }
       instance.emitSync(MenuItemSubmenuClosedEvent(instance.id));
     }
   }
@@ -388,7 +395,9 @@ class Menu
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Menu opened: ${instance.id}');
+      if (kDebugMode) {
+        print('Menu opened: ${instance.id}');
+      }
       instance.emitSync(MenuOpenedEvent(instance.id));
     }
   }
@@ -399,7 +408,9 @@ class Menu
   ) {
     final instance = _instances[userData.address];
     if (instance != null) {
-      print('Menu closed: ${instance.id}');
+      if (kDebugMode) {
+        print('Menu closed: ${instance.id}');
+      }
       instance.emitSync(MenuClosedEvent(instance.id));
     }
   }

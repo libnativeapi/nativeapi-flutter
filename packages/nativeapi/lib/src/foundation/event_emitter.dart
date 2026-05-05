@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:meta/meta.dart';
 
 import 'event.dart';
@@ -172,7 +173,9 @@ mixin EventEmitter {
           listener.onEvent(event);
         } catch (e) {
           // Log error but continue with other listeners
-          print('Error in event listener: $e');
+          if (kDebugMode) {
+            print('Error in event listener: $e');
+          }
         }
       }
     }

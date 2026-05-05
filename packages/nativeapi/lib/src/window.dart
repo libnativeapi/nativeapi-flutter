@@ -504,7 +504,6 @@ class Window
       native_visual_effect_t.NATIVE_VISUAL_EFFECT_ACRYLIC =>
         VisualEffect.acrylic,
       native_visual_effect_t.NATIVE_VISUAL_EFFECT_MICA => VisualEffect.mica,
-      _ => VisualEffect.none,
     };
   }
 
@@ -526,10 +525,10 @@ class Window
   /// ```
   set backgroundColor(Color value) {
     final nativeColor = bindings.native_color_from_rgba(
-      value.red,
-      value.green,
-      value.blue,
-      value.alpha,
+      (value.r * 255.0).round().clamp(0, 255),
+      (value.g * 255.0).round().clamp(0, 255),
+      (value.b * 255.0).round().clamp(0, 255),
+      (value.a * 255.0).round().clamp(0, 255),
     );
     bindings.native_window_set_background_color(_nativeHandle, nativeColor);
   }
