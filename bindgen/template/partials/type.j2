@@ -1,0 +1,8 @@
+{%- macro render_type(item, mapping) -%}
+#[repr(C)]
+pub struct {{ item.name }} {
+{%- for field in item.fields %}
+    pub {{ field.name }}: {{ field.type.mapped }},
+{%- endfor %}
+}
+{%- endmacro -%}

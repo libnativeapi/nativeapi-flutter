@@ -3,21 +3,13 @@
 //! This crate provides safe, high-level Rust bindings for the nativeapi library,
 //! offering seamless access to native system APIs across different platforms.
 
-pub use cnativeapi::{
-    native_application_event_callback_t, native_application_event_t,
-    native_application_event_type_t, native_application_t, native_point_t, native_rectangle_t,
-    native_size_t, native_window_id_t, native_window_list_t, native_window_options_t,
-    native_window_t,
-};
+pub use cnativeapi::{native_point_t, native_rectangle_t, native_size_t};
 
 // Re-export convenience functions
 pub use cnativeapi::{from_cstring, to_cstring};
 
-pub mod application;
-pub mod window;
-
-pub use application::{run_app, Application};
-pub use window::{Window, WindowOptions};
+pub mod url_opener;
+pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
 
 /// Result type for nativeapi operations
 pub type Result<T> = std::result::Result<T, Error>;

@@ -1,3 +1,17 @@
+{%- macro is_string_type(type_info) -%}
+{%- if type_info.kind in ('cstring', 'string') -%}
+true
+{%- elif type_info.name and 'string' in type_info.name|lower -%}
+true
+{%- elif type_info.kind == 'pointer' and type_info.to and type_info.to.kind in ('cstring', 'string') -%}
+true
+{%- elif type_info.kind == 'reference' and type_info.to and is_string_type(type_info.to) -%}
+true
+{%- else -%}
+false
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro map_type(type_info, mapping) -%}
 {%- if not type_info -%}
 ()
@@ -12,19 +26,23 @@ bool
 f32
 {%- elif type_info.kind == 'double' -%}
 f64
-{%- elif type_info.kind == 'cstring' -%}
-*const ::core::ffi::c_char
+{%- elif type_info.kind in ('cstring', 'string') -%}
+&str
 {%- elif type_info.kind == 'pointer' -%}
 {%- if type_info.to and type_info.to.kind == 'void' -%}
 *mut ::core::ffi::c_void
-{%- elif type_info.to and type_info.to.kind == 'cstring' -%}
-*const ::core::ffi::c_char
+{%- elif is_string_type(type_info.to) -%}
+&str
 {%- else -%}
 *mut ::core::ffi::c_void
 {%- endif -%}
+{%- elif type_info.kind == 'reference' and is_string_type(type_info.to) -%}
+&str
 {%- elif type_info.kind in ['struct','class','named','enum','typedef','elaborated'] -%}
 {%- set n = type_info.name if type_info.name else '::core::ffi::c_void' -%}
 {{ mapping.types.get(n, '*mut ::core::ffi::c_void') }}
+{%- elif type_info.kind == 'reference' -%}
+*mut ::core::ffi::c_void
 {%- else -%}
 *mut ::core::ffi::c_void
 {%- endif -%}

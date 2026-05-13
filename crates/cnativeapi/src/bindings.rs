@@ -1895,4 +1895,26 @@ unsafe extern "C" {
     #[doc = " Shutdown the window manager and cleanup resources"]
     pub fn native_window_manager_shutdown();
 }
+pub type native_url_open_error_code_t = ::std::os::raw::c_uint;
+pub const NATIVE_URL_OPEN_ERROR_NONE: native_url_open_error_code_t = 0;
+pub const NATIVE_URL_OPEN_ERROR_INVALID_URL_EMPTY: native_url_open_error_code_t = 1;
+pub const NATIVE_URL_OPEN_ERROR_INVALID_URL_MISSING_SCHEME: native_url_open_error_code_t = 2;
+pub const NATIVE_URL_OPEN_ERROR_INVALID_URL_UNSUPPORTED_SCHEME: native_url_open_error_code_t = 3;
+pub const NATIVE_URL_OPEN_ERROR_UNSUPPORTED_PLATFORM: native_url_open_error_code_t = 4;
+pub const NATIVE_URL_OPEN_ERROR_INVOCATION_FAILED: native_url_open_error_code_t = 5;
+#[repr(C)]
+pub struct native_url_open_result_t {
+    pub success: bool,
+    pub error_code: native_url_open_error_code_t,
+    pub error_message: *mut ::std::os::raw::c_char,
+}
+unsafe extern "C" {
+    pub fn native_url_opener_is_supported() -> bool;
+}
+unsafe extern "C" {
+    pub fn native_url_opener_open(url: *const ::std::os::raw::c_char) -> native_url_open_result_t;
+}
+unsafe extern "C" {
+    pub fn native_url_open_result_free(result: *mut native_url_open_result_t);
+}
 pub type __builtin_va_list = *mut ::std::os::raw::c_char;

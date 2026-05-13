@@ -1,17 +1,45 @@
-{%- from 'partials/type_map.j2' import map_type -%}
+{%- from 'partials/type_map.j2' import map_type, is_string_type -%}
 {%- from 'partials/symbol_map.j2' import capi_for_function -%}
+
+{%- macro string_param_name(name) -%}
+{{ name }}_native
+{%- endmacro -%}
 
 {%- macro render_function(fn, mapping) -%}
 #[inline]
-pub unsafe fn {{ fn.name | snake_case }}(
+pub fn {{ fn.name | snake_case }}(
 {%- for p in fn.params %}
     {{ p.name | snake_case }}: {{ map_type(p.type, mapping) }}{% if not loop.last %},{% endif %}
 {%- endfor %}
-) -> {{ map_type(fn.return_type, mapping) }} {
-    ffi::{{ capi_for_function(fn, mapping) }}(
+) -> {{ fn.return_type }} {
 {%- for p in fn.params %}
-        {{ p.name | snake_case }}{% if not loop.last %},{% endif %}
+{%- if is_string_type(p.type) %}
+    let {{ string_param_name(p.name) }} = std::ffi::CString::new({{ p.name | snake_case }}).unwrap();
+{%- endif %}
 {%- endfor %}
-    )
+    unsafe {
+{%- if fn.return_bridge == 'struct' %}
+        let result = ffi::{{ capi_for_function(fn, mapping) }}(
+{%- for p in fn.params %}
+{%- if is_string_type(p.type) %}
+            {{ string_param_name(p.name) }}.as_ptr(){% if not loop.last %},{% endif %}
+{%- else %}
+            {{ p.name | snake_case }}{% if not loop.last %},{% endif %}
+{%- endif %}
+{%- endfor %}
+        );
+        std::mem::transmute::<ffi::{{ fn.native_return_type }}, {{ fn.return_type }}>(result)
+{%- else %}
+        ffi::{{ capi_for_function(fn, mapping) }}(
+{%- for p in fn.params %}
+{%- if is_string_type(p.type) %}
+            {{ string_param_name(p.name) }}.as_ptr(){% if not loop.last %},{% endif %}
+{%- else %}
+            {{ p.name | snake_case }}{% if not loop.last %},{% endif %}
+{%- endif %}
+{%- endfor %}
+        )
+{%- endif %}
+    }
 }
 {%- endmacro -%}

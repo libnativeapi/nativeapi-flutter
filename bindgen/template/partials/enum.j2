@@ -1,0 +1,8 @@
+{%- macro render_enum(item, mapping) -%}
+#[repr(i32)]
+pub enum {{ item.name }} {
+{%- for value in item.values %}
+    {{ value.name }} = {{ value.value }},
+{%- endfor %}
+}
+{%- endmacro -%}
