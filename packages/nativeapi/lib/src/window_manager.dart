@@ -1,4 +1,6 @@
 import 'dart:ffi' hide Size;
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 import 'package:nativeapi/src/foundation/event_emitter.dart';
@@ -174,11 +176,26 @@ class WindowManager with EventEmitter, CNativeApiBindingsMixin {
   ///
   /// Returns the [Window] instance, or null if no window is active.
   Window? getCurrent() {
+    if (_isWaylandSession) {
+      final windows = getAll();
+      return windows.isEmpty ? null : windows.first;
+    }
+
     final nativeWindow = bindings.native_window_manager_get_current();
     if (nativeWindow == nullptr) {
       return null;
     }
     return Window(nativeWindow);
+  }
+
+  bool get _isWaylandSession {
+    if (!Platform.isLinux) {
+      return false;
+    }
+
+    final env = Platform.environment;
+    return env.containsKey('WAYLAND_DISPLAY') ||
+        env['XDG_SESSION_TYPE'] == 'wayland';
   }
 
   /// Shuts down the window manager and cleans up resources.
