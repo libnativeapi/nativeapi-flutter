@@ -111,8 +111,7 @@ class _LaunchAtLoginExamplePageState extends State<LaunchAtLoginExamplePage> {
       return;
     }
     final args = _argumentsController.text.trim();
-    final argsList =
-        args.isNotEmpty ? args.split(RegExp(r'\s+')) : <String>[];
+    final argsList = args.isNotEmpty ? args.split(RegExp(r'\s+')) : <String>[];
     setState(() => _isBusy = true);
     final success = _launchAtLogin.setProgram(path, argsList);
     setState(() => _isBusy = false);
@@ -154,10 +153,7 @@ class _LaunchAtLoginExamplePageState extends State<LaunchAtLoginExamplePage> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            'Manage launch-at-login',
-            style: theme.textTheme.headlineSmall,
-          ),
+          Text('Manage launch-at-login', style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             'Use the LaunchAtLogin API to register your app to launch automatically at user login.',
@@ -255,10 +251,7 @@ class _LaunchAtLoginExamplePageState extends State<LaunchAtLoginExamplePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Display Name',
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text('Display Name', style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _displayNameController,

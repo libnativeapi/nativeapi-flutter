@@ -1,3 +1,7 @@
+## 0.1.2
+
+* Add LaunchAtLogin C bindings
+
 ## 0.1.1
 
 * Add multi-platform FFI C bindings (Android, iOS, Linux, macOS, Windows)

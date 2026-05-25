@@ -1,3 +1,9 @@
+## 0.1.2
+
+* Add `LaunchAtLogin` API for managing app startup at user login
+* Fix bindgen Dart template generation for `LaunchAtLogin` string-array arguments
+* Fix bindgen Dart template generation for static native API calls
+
 ## 0.1.1
 
 * Add `WindowManager` API with full lifecycle support (show, hide, center, pre-show/pre-hide hooks, visual effects, title bar style, control buttons)
