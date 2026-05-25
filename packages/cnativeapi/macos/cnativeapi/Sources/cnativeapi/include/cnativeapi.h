@@ -5,7 +5,7 @@
 #include "../../../../../cxx_impl/src/accessibility_manager.h"
 #include "../../../../../cxx_impl/src/application.h"
 #include "../../../../../cxx_impl/src/application_event.h"
-#include "../../../../../cxx_impl/src/autostart.h"
+#include "../../../../../cxx_impl/src/launch_at_login.h"
 #include "../../../../../cxx_impl/src/dialog.h"
 #include "../../../../../cxx_impl/src/display.h"
 #include "../../../../../cxx_impl/src/display_event.h"
@@ -46,7 +46,7 @@
 // C API headers (available for both C and C++)
 #include "../../../../../cxx_impl/src/capi/accessibility_manager_c.h"
 #include "../../../../../cxx_impl/src/capi/application_c.h"
-#include "../../../../../cxx_impl/src/capi/autostart_c.h"
+#include "../../../../../cxx_impl/src/capi/launch_at_login_c.h"
 #include "../../../../../cxx_impl/src/capi/color_c.h"
 #include "../../../../../cxx_impl/src/capi/display_c.h"
 #include "../../../../../cxx_impl/src/capi/display_manager_c.h"

@@ -1,9 +1,12 @@
+output_dir: packages/nativeapi/lib/src
+
 clang_flags:
   - -x
   - c++
   - -std=c++17
 
 entry_headers:
+  - packages/cnativeapi/cxx_impl/src/launch_at_login.h
   - packages/cnativeapi/cxx_impl/src/url_opener.h
 
 mapping:
@@ -14,6 +17,7 @@ mapping:
     enum_value_name: camel_case
     method_name: camel_case
     field_name: camel_case
+    param_name: camel_case
 
   types:
     void: void
@@ -34,10 +38,12 @@ mapping:
   options:
     singleton_classes:
       - UrlOpener
+    string_param_setup: "final {native_name} = {name}.toNativeUtf8().cast<ffi.Char>();"
+    string_param_cleanup: "pkgffi.malloc.free({native_name});"
     formatters:
       - name: dart-format-generated
         cmd:
           - dart
           - format
-          - "{out_dir}/src"
+          - "{out_dir}"
         continue_on_error: true

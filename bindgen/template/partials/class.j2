@@ -1,5 +1,5 @@
 {%- macro render_method_call(method) -%}
-bindings.{{ method.call_symbol }}(
+{{ 'cnativeApiBindings' if method.static else 'bindings' }}.{{ method.call_symbol }}(
 {%- if method.needs_instance_handle %}
   _nativeHandle{% if method.call_args|length > 0 %}, {% endif %}
 {%- endif %}
@@ -9,8 +9,86 @@ bindings.{{ method.call_symbol }}(
 )
 {%- endmacro -%}
 
+{%- macro render_method_return_type(method) -%}
+{%- if method.call_symbol.endswith('_get_arguments') and method.return_bridge == 'string' -%}
+List<String>
+{%- else -%}
+{{ method.api_return_type }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro render_method_param(method, param) -%}
+{%- if method.call_symbol.endswith('_set_program') and param.name == 'arguments' and param.api_type == 'String' -%}
+List<String> {{ param.name }}
+{%- else -%}
+{{ param.api_type }} {{ param.name }}
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro render_method_body(method) -%}
-{%- if method.return_bridge == 'string' %}
+{%- if method.call_symbol.endswith('_get_arguments') and method.return_bridge == 'string' %}
+    final outArguments = pkgffi.malloc<ffi.Pointer<ffi.Pointer<ffi.Char>>>();
+    final outCount = pkgffi.malloc<ffi.Size>();
+    try {
+      final success = bindings.{{ method.call_symbol }}(
+        _nativeHandle,
+        outArguments,
+        outCount,
+      );
+      if (!success || outArguments.value == ffi.nullptr) {
+        return <String>[];
+      }
+
+      final count = outCount.value;
+      final nativeArguments = outArguments.value;
+      final result = <String>[];
+      for (var i = 0; i < count; i++) {
+        final nativeArgument = nativeArguments[i];
+        result.add(
+          nativeArgument == ffi.nullptr
+              ? ''
+              : nativeArgument.cast<pkgffi.Utf8>().toDartString(),
+        );
+      }
+
+      for (var i = 0; i < count; i++) {
+        final nativeArgument = nativeArguments[i];
+        if (nativeArgument != ffi.nullptr) {
+          bindings.free_c_str(nativeArgument);
+        }
+      }
+      pkgffi.malloc.free(nativeArguments);
+      return result;
+    } finally {
+      pkgffi.malloc.free(outCount);
+      pkgffi.malloc.free(outArguments);
+    }
+{%- elif method.call_symbol.endswith('_set_program') and method.params|length == 2 %}
+    final executablePathNative =
+        executablePath.toNativeUtf8().cast<ffi.Char>();
+    final argumentsNative = arguments.isEmpty
+        ? ffi.nullptr.cast<ffi.Pointer<ffi.Char>>()
+        : pkgffi.malloc<ffi.Pointer<ffi.Char>>(arguments.length);
+    try {
+      for (var i = 0; i < arguments.length; i++) {
+        argumentsNative[i] = arguments[i].toNativeUtf8().cast<ffi.Char>();
+      }
+      return bindings.{{ method.call_symbol }}(
+        _nativeHandle,
+        executablePathNative,
+        argumentsNative,
+        arguments.length,
+      );
+    } finally {
+      for (var i = 0; i < arguments.length; i++) {
+        pkgffi.malloc.free(argumentsNative[i]);
+      }
+      if (arguments.isNotEmpty) {
+        pkgffi.malloc.free(argumentsNative);
+      }
+      pkgffi.malloc.free(executablePathNative);
+    }
+{%- elif method.return_bridge == 'string' %}
     final cString = {{ render_method_call(method) }};
     if (cString == ffi.nullptr) return '';
     final value = cString.cast<pkgffi.Utf8>().toDartString();
@@ -50,6 +128,11 @@ bindings.{{ method.call_symbol }}(
 {%- endmacro -%}
 
 {%- macro render_callable(method) -%}
+{%- if method.call_symbol.endswith('_get_arguments') and method.return_bridge == 'string' %}
+{{ render_method_body(method) }}
+{%- elif method.call_symbol.endswith('_set_program') and method.params|length == 2 %}
+{{ render_method_body(method) }}
+{%- else %}
 {%- for line in method.pre_call_lines %}
     {{ line }}
 {%- endfor %}
@@ -64,6 +147,7 @@ bindings.{{ method.call_symbol }}(
 {%- else %}
 {{ render_method_body(method) }}
 {%- endif %}
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro render_class(item, mapping) -%}
@@ -76,13 +160,13 @@ class {{ item.name }} with CNativeApiBindingsMixin {
 {%- for method in item.methods %}
 {%- if not method.skip %}
   {%- if method.is_property %}
-  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} get {{ method.property_name }} {
+  {{ 'static ' if method.static else '' }}{{ render_method_return_type(method) }} get {{ method.property_name }} {
 {{ render_callable(method) }}
   }
   {%- else %}
-  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} {{ method.api_name }}(
+  {{ 'static ' if method.static else '' }}{{ render_method_return_type(method) }} {{ method.api_name }}(
   {%- for param in method.params %}
-    {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
+    {{ render_method_param(method, param) }}{% if not loop.last %}, {% endif %}
   {%- endfor %}
   ) {
 {{ render_callable(method) }}
@@ -106,10 +190,50 @@ class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrappe
   late final {{ item.handle_alias }} _nativeHandle;
   final bool _ownsHandle;
 
+  {%- if item.name == 'LaunchAtLogin' %}
+  {{ item.name }}({
+    String? id,
+    String? displayName,
+    {{ item.handle_alias }}? nativeHandle,
+  }) : _ownsHandle = nativeHandle == null {
+    if (nativeHandle != null) {
+      _nativeHandle = nativeHandle;
+      return;
+    }
+
+    if (id != null && displayName != null) {
+      final idNative = id.toNativeUtf8().cast<ffi.Char>();
+      final displayNameNative = displayName.toNativeUtf8().cast<ffi.Char>();
+      try {
+        _nativeHandle = bindings.{{ item.create_symbol }}_with_id_and_name(
+          idNative,
+          displayNameNative,
+        );
+      } finally {
+        pkgffi.malloc.free(displayNameNative);
+        pkgffi.malloc.free(idNative);
+      }
+      return;
+    }
+
+    if (id != null) {
+      final idNative = id.toNativeUtf8().cast<ffi.Char>();
+      try {
+        _nativeHandle = bindings.{{ item.create_symbol }}_with_id(idNative);
+      } finally {
+        pkgffi.malloc.free(idNative);
+      }
+      return;
+    }
+
+    _nativeHandle = bindings.{{ item.create_symbol }}();
+  }
+  {%- else %}
   {{ item.name }}([{{ item.handle_alias }}? nativeHandle])
       : _ownsHandle = nativeHandle == null {
     _nativeHandle = nativeHandle ?? bindings.{{ item.create_symbol }}();
   }
+  {%- endif %}
   {%- endif %}
 
   @override
@@ -118,13 +242,13 @@ class {{ item.name }} with CNativeApiBindingsMixin implements NativeHandleWrappe
 {%- for method in item.methods %}
 {%- if not method.skip %}
   {%- if method.is_property %}
-  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} get {{ method.property_name }} {
+  {{ 'static ' if method.static else '' }}{{ render_method_return_type(method) }} get {{ method.property_name }} {
 {{ render_callable(method) }}
   }
   {%- else %}
-  {{ 'static ' if method.static else '' }}{{ method.api_return_type }} {{ method.api_name }}(
+  {{ 'static ' if method.static else '' }}{{ render_method_return_type(method) }} {{ method.api_name }}(
   {%- for param in method.params %}
-    {{ param.api_type }} {{ param.name }}{% if not loop.last %}, {% endif %}
+    {{ render_method_param(method, param) }}{% if not loop.last %}, {% endif %}
   {%- endfor %}
   ) {
 {{ render_callable(method) }}

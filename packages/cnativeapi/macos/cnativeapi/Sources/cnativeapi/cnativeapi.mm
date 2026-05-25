@@ -12,7 +12,7 @@
 // Include source files
 #include "../../../../cxx_impl/src/capi/accessibility_manager_c.cpp"
 #include "../../../../cxx_impl/src/capi/application_c.cpp"
-#include "../../../../cxx_impl/src/capi/autostart_c.cpp"
+#include "../../../../cxx_impl/src/capi/launch_at_login_c.cpp"
 #include "../../../../cxx_impl/src/capi/color_c.cpp"
 #include "../../../../cxx_impl/src/capi/display_c.cpp"
 #include "../../../../cxx_impl/src/capi/display_manager_c.cpp"
@@ -33,7 +33,7 @@
 #include "../../../../cxx_impl/src/capi/window_manager_c.cpp"
 #include "../../../../cxx_impl/src/platform/macos/accessibility_manager_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/application_macos.mm"
-#include "../../../../cxx_impl/src/platform/macos/autostart_macos.mm"
+#include "../../../../cxx_impl/src/platform/macos/launch_at_login_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/display_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/display_manager_macos.mm"
 #include "../../../../cxx_impl/src/platform/macos/image_macos.mm"

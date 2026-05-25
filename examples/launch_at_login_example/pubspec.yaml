@@ -1,0 +1,25 @@
+name: launch_at_login_example
+description: "Flutter example for nativeapi launch-at-login."
+publish_to: 'none'
+
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  nativeapi:
+    path: ../../packages/nativeapi
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

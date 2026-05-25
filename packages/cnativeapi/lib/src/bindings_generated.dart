@@ -1323,298 +1323,333 @@ class CNativeApiBindings {
   late final _native_run_app = _native_run_appPtr
       .asFunction<int Function(native_window_t)>();
 
-  /// Create an AutoStart manager with defaults derived from the current application.
+  /// Create a LaunchAtLogin manager with defaults derived from the current application.
   ///
-  /// @return Handle to an AutoStart instance, or NULL on failure.
-  native_autostart_t native_autostart_create() {
-    return _native_autostart_create();
+  /// @return Handle to a LaunchAtLogin instance, or NULL on failure.
+  native_launch_at_login_t native_launch_at_login_create() {
+    return _native_launch_at_login_create();
   }
 
-  late final _native_autostart_createPtr =
-      _lookup<ffi.NativeFunction<native_autostart_t Function()>>(
-        'native_autostart_create',
+  late final _native_launch_at_login_createPtr =
+      _lookup<ffi.NativeFunction<native_launch_at_login_t Function()>>(
+        'native_launch_at_login_create',
       );
-  late final _native_autostart_create = _native_autostart_createPtr
-      .asFunction<native_autostart_t Function()>();
+  late final _native_launch_at_login_create = _native_launch_at_login_createPtr
+      .asFunction<native_launch_at_login_t Function()>();
 
-  /// Create an AutoStart manager with a custom identifier.
+  /// Create a LaunchAtLogin manager with a custom identifier.
   ///
   /// @param id A stable, unique identifier for your app (e.g., "com.example.myapp").
-  /// @return Handle to an AutoStart instance, or NULL on failure.
-  native_autostart_t native_autostart_create_with_id(ffi.Pointer<ffi.Char> id) {
-    return _native_autostart_create_with_id(id);
+  /// @return Handle to a LaunchAtLogin instance, or NULL on failure.
+  native_launch_at_login_t native_launch_at_login_create_with_id(
+    ffi.Pointer<ffi.Char> id,
+  ) {
+    return _native_launch_at_login_create_with_id(id);
   }
 
-  late final _native_autostart_create_with_idPtr =
+  late final _native_launch_at_login_create_with_idPtr =
       _lookup<
-        ffi.NativeFunction<native_autostart_t Function(ffi.Pointer<ffi.Char>)>
-      >('native_autostart_create_with_id');
-  late final _native_autostart_create_with_id =
-      _native_autostart_create_with_idPtr
-          .asFunction<native_autostart_t Function(ffi.Pointer<ffi.Char>)>();
+        ffi.NativeFunction<
+          native_launch_at_login_t Function(ffi.Pointer<ffi.Char>)
+        >
+      >('native_launch_at_login_create_with_id');
+  late final _native_launch_at_login_create_with_id =
+      _native_launch_at_login_create_with_idPtr
+          .asFunction<
+            native_launch_at_login_t Function(ffi.Pointer<ffi.Char>)
+          >();
 
-  /// Create an AutoStart manager with a custom identifier and display name.
+  /// Create a LaunchAtLogin manager with a custom identifier and display name.
   ///
   /// @param id           Stable, unique identifier (e.g., "com.example.myapp").
   /// @param display_name Human-readable application name (e.g., "MyApp").
-  /// @return Handle to an AutoStart instance, or NULL on failure.
-  native_autostart_t native_autostart_create_with_id_and_name(
+  /// @return Handle to a LaunchAtLogin instance, or NULL on failure.
+  native_launch_at_login_t native_launch_at_login_create_with_id_and_name(
     ffi.Pointer<ffi.Char> id,
     ffi.Pointer<ffi.Char> display_name,
   ) {
-    return _native_autostart_create_with_id_and_name(id, display_name);
+    return _native_launch_at_login_create_with_id_and_name(id, display_name);
   }
 
-  late final _native_autostart_create_with_id_and_namePtr =
+  late final _native_launch_at_login_create_with_id_and_namePtr =
       _lookup<
         ffi.NativeFunction<
-          native_autostart_t Function(
+          native_launch_at_login_t Function(
             ffi.Pointer<ffi.Char>,
             ffi.Pointer<ffi.Char>,
           )
         >
-      >('native_autostart_create_with_id_and_name');
-  late final _native_autostart_create_with_id_and_name =
-      _native_autostart_create_with_id_and_namePtr
+      >('native_launch_at_login_create_with_id_and_name');
+  late final _native_launch_at_login_create_with_id_and_name =
+      _native_launch_at_login_create_with_id_and_namePtr
           .asFunction<
-            native_autostart_t Function(
+            native_launch_at_login_t Function(
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
             )
           >();
 
-  /// Destroy an AutoStart instance and release resources.
+  /// Destroy a LaunchAtLogin instance and release resources.
   ///
-  /// @param autostart Handle returned by a native_autostart_create* function.
-  void native_autostart_destroy(native_autostart_t autostart) {
-    return _native_autostart_destroy(autostart);
+  /// @param launch_at_login Handle returned by a native_launch_at_login_create* function.
+  void native_launch_at_login_destroy(
+    native_launch_at_login_t launch_at_login,
+  ) {
+    return _native_launch_at_login_destroy(launch_at_login);
   }
 
-  late final _native_autostart_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_autostart_t)>>(
-        'native_autostart_destroy',
+  late final _native_launch_at_login_destroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_destroy',
       );
-  late final _native_autostart_destroy = _native_autostart_destroyPtr
-      .asFunction<void Function(native_autostart_t)>();
+  late final _native_launch_at_login_destroy =
+      _native_launch_at_login_destroyPtr
+          .asFunction<void Function(native_launch_at_login_t)>();
 
-  /// Check if auto-start management is supported on the current platform.
+  /// Check if launch-at-login management is supported on the current platform.
   ///
-  /// This is a static check that does not require an AutoStart instance.
+  /// This is a static check that does not require a LaunchAtLogin instance.
   ///
   /// @return true if supported, false if unsupported.
-  bool native_autostart_is_supported() {
-    return _native_autostart_is_supported();
+  bool native_launch_at_login_is_supported() {
+    return _native_launch_at_login_is_supported();
   }
 
-  late final _native_autostart_is_supportedPtr =
+  late final _native_launch_at_login_is_supportedPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-        'native_autostart_is_supported',
+        'native_launch_at_login_is_supported',
       );
-  late final _native_autostart_is_supported = _native_autostart_is_supportedPtr
-      .asFunction<bool Function()>();
+  late final _native_launch_at_login_is_supported =
+      _native_launch_at_login_is_supportedPtr.asFunction<bool Function()>();
 
-  /// Get the identifier associated with this AutoStart instance.
+  /// Get the identifier associated with this LaunchAtLogin instance.
   ///
-  /// @param autostart AutoStart handle.
+  /// @param launch_at_login LaunchAtLogin handle.
   /// @return Newly allocated string with the identifier, or NULL on error.
   /// Caller must free with free_c_str().
-  ffi.Pointer<ffi.Char> native_autostart_get_id(native_autostart_t autostart) {
-    return _native_autostart_get_id(autostart);
+  ffi.Pointer<ffi.Char> native_launch_at_login_get_id(
+    native_launch_at_login_t launch_at_login,
+  ) {
+    return _native_launch_at_login_get_id(launch_at_login);
   }
 
-  late final _native_autostart_get_idPtr =
+  late final _native_launch_at_login_get_idPtr =
       _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
-      >('native_autostart_get_id');
-  late final _native_autostart_get_id = _native_autostart_get_idPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_id');
+  late final _native_launch_at_login_get_id = _native_launch_at_login_get_idPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)>();
 
-  /// Get the human-readable display name associated with this AutoStart instance.
+  /// Get the human-readable display name associated with this LaunchAtLogin instance.
   ///
-  /// @param autostart AutoStart handle.
+  /// @param launch_at_login LaunchAtLogin handle.
   /// @return Newly allocated string with the display name, or NULL on error.
   /// Caller must free with free_c_str().
-  ffi.Pointer<ffi.Char> native_autostart_get_display_name(
-    native_autostart_t autostart,
+  ffi.Pointer<ffi.Char> native_launch_at_login_get_display_name(
+    native_launch_at_login_t launch_at_login,
   ) {
-    return _native_autostart_get_display_name(autostart);
+    return _native_launch_at_login_get_display_name(launch_at_login);
   }
 
-  late final _native_autostart_get_display_namePtr =
+  late final _native_launch_at_login_get_display_namePtr =
       _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
-      >('native_autostart_get_display_name');
-  late final _native_autostart_get_display_name =
-      _native_autostart_get_display_namePtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_display_name');
+  late final _native_launch_at_login_get_display_name =
+      _native_launch_at_login_get_display_namePtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+          >();
 
   /// Set the human-readable display name used where applicable.
   ///
-  /// @param autostart    AutoStart handle.
+  /// @param launch_at_login    LaunchAtLogin handle.
   /// @param display_name The display name to set.
   /// @return true if stored successfully; does not change OS registration until Enable().
-  bool native_autostart_set_display_name(
-    native_autostart_t autostart,
+  bool native_launch_at_login_set_display_name(
+    native_launch_at_login_t launch_at_login,
     ffi.Pointer<ffi.Char> display_name,
   ) {
-    return _native_autostart_set_display_name(autostart, display_name);
+    return _native_launch_at_login_set_display_name(
+      launch_at_login,
+      display_name,
+    );
   }
 
-  late final _native_autostart_set_display_namePtr =
+  late final _native_launch_at_login_set_display_namePtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Bool Function(native_autostart_t, ffi.Pointer<ffi.Char>)
+          ffi.Bool Function(native_launch_at_login_t, ffi.Pointer<ffi.Char>)
         >
-      >('native_autostart_set_display_name');
-  late final _native_autostart_set_display_name =
-      _native_autostart_set_display_namePtr
+      >('native_launch_at_login_set_display_name');
+  late final _native_launch_at_login_set_display_name =
+      _native_launch_at_login_set_display_namePtr
           .asFunction<
-            bool Function(native_autostart_t, ffi.Pointer<ffi.Char>)
+            bool Function(native_launch_at_login_t, ffi.Pointer<ffi.Char>)
           >();
 
-  /// Set the program (executable) path and optional arguments to use for auto-start.
+  /// Set the program (executable) path and optional arguments to use when launching at login.
   ///
   /// If not set, the implementation attempts to use the current process executable.
   /// Pass NULL for arguments or argument_count == 0 when no arguments are needed.
   ///
-  /// @param autostart       AutoStart handle.
+  /// @param launch_at_login       LaunchAtLogin handle.
   /// @param executable_path Absolute path to the executable to launch on login.
   /// @param arguments       Array of argument strings (can be NULL if count is 0).
   /// @param argument_count  Number of strings in the arguments array.
   /// @return true if stored successfully; does not change OS registration until Enable().
-  bool native_autostart_set_program(
-    native_autostart_t autostart,
+  bool native_launch_at_login_set_program(
+    native_launch_at_login_t launch_at_login,
     ffi.Pointer<ffi.Char> executable_path,
     ffi.Pointer<ffi.Pointer<ffi.Char>> arguments,
     int argument_count,
   ) {
-    return _native_autostart_set_program(
-      autostart,
+    return _native_launch_at_login_set_program(
+      launch_at_login,
       executable_path,
       arguments,
       argument_count,
     );
   }
 
-  late final _native_autostart_set_programPtr =
+  late final _native_launch_at_login_set_programPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Bool Function(
-            native_autostart_t,
+            native_launch_at_login_t,
             ffi.Pointer<ffi.Char>,
             ffi.Pointer<ffi.Pointer<ffi.Char>>,
             ffi.Size,
           )
         >
-      >('native_autostart_set_program');
-  late final _native_autostart_set_program = _native_autostart_set_programPtr
-      .asFunction<
-        bool Function(
-          native_autostart_t,
-          ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Pointer<ffi.Char>>,
-          int,
-        )
-      >();
+      >('native_launch_at_login_set_program');
+  late final _native_launch_at_login_set_program =
+      _native_launch_at_login_set_programPtr
+          .asFunction<
+            bool Function(
+              native_launch_at_login_t,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+              int,
+            )
+          >();
 
   /// Get the currently configured executable path.
   ///
-  /// @param autostart AutoStart handle.
+  /// @param launch_at_login LaunchAtLogin handle.
   /// @return Newly allocated string with the executable path, or NULL on error.
   /// Caller must free with free_c_str().
-  ffi.Pointer<ffi.Char> native_autostart_get_executable_path(
-    native_autostart_t autostart,
+  ffi.Pointer<ffi.Char> native_launch_at_login_get_executable_path(
+    native_launch_at_login_t launch_at_login,
   ) {
-    return _native_autostart_get_executable_path(autostart);
+    return _native_launch_at_login_get_executable_path(launch_at_login);
   }
 
-  late final _native_autostart_get_executable_pathPtr =
+  late final _native_launch_at_login_get_executable_pathPtr =
       _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
-      >('native_autostart_get_executable_path');
-  late final _native_autostart_get_executable_path =
-      _native_autostart_get_executable_pathPtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_executable_path');
+  late final _native_launch_at_login_get_executable_path =
+      _native_launch_at_login_get_executable_pathPtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+          >();
 
-  /// Get the currently configured arguments for auto-start.
+  /// Get the currently configured arguments for launch-at-login.
   ///
-  /// @param autostart     AutoStart handle.
+  /// @param launch_at_login     LaunchAtLogin handle.
   /// @param out_arguments Output pointer to an array of newly allocated strings.
   /// @param out_count     Output pointer to receive the number of arguments.
   /// @return true on success; false on error. On success, free each string with
   /// free_c_str() and the array with delete[].
-  bool native_autostart_get_arguments(
-    native_autostart_t autostart,
+  bool native_launch_at_login_get_arguments(
+    native_launch_at_login_t launch_at_login,
     ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_arguments,
     ffi.Pointer<ffi.Size> out_count,
   ) {
-    return _native_autostart_get_arguments(autostart, out_arguments, out_count);
+    return _native_launch_at_login_get_arguments(
+      launch_at_login,
+      out_arguments,
+      out_count,
+    );
   }
 
-  late final _native_autostart_get_argumentsPtr =
+  late final _native_launch_at_login_get_argumentsPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Bool Function(
-            native_autostart_t,
+            native_launch_at_login_t,
             ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
             ffi.Pointer<ffi.Size>,
           )
         >
-      >('native_autostart_get_arguments');
-  late final _native_autostart_get_arguments =
-      _native_autostart_get_argumentsPtr
+      >('native_launch_at_login_get_arguments');
+  late final _native_launch_at_login_get_arguments =
+      _native_launch_at_login_get_argumentsPtr
           .asFunction<
             bool Function(
-              native_autostart_t,
+              native_launch_at_login_t,
               ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
               ffi.Pointer<ffi.Size>,
             )
           >();
 
-  /// Enable auto-start at user login for the configured program and arguments.
+  /// Enable launch-at-login for the configured program and arguments.
   ///
-  /// @param autostart AutoStart handle.
+  /// @param launch_at_login LaunchAtLogin handle.
   /// @return true on success, false on failure or if unsupported.
-  bool native_autostart_enable(native_autostart_t autostart) {
-    return _native_autostart_enable(autostart);
+  bool native_launch_at_login_enable(native_launch_at_login_t launch_at_login) {
+    return _native_launch_at_login_enable(launch_at_login);
   }
 
-  late final _native_autostart_enablePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
-        'native_autostart_enable',
+  late final _native_launch_at_login_enablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_enable',
       );
-  late final _native_autostart_enable = _native_autostart_enablePtr
-      .asFunction<bool Function(native_autostart_t)>();
+  late final _native_launch_at_login_enable = _native_launch_at_login_enablePtr
+      .asFunction<bool Function(native_launch_at_login_t)>();
 
-  /// Disable auto-start at user login.
+  /// Disable launch-at-login.
   ///
-  /// @param autostart AutoStart handle.
+  /// @param launch_at_login LaunchAtLogin handle.
   /// @return true on success, false on failure or if unsupported.
-  bool native_autostart_disable(native_autostart_t autostart) {
-    return _native_autostart_disable(autostart);
+  bool native_launch_at_login_disable(
+    native_launch_at_login_t launch_at_login,
+  ) {
+    return _native_launch_at_login_disable(launch_at_login);
   }
 
-  late final _native_autostart_disablePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
-        'native_autostart_disable',
+  late final _native_launch_at_login_disablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_disable',
       );
-  late final _native_autostart_disable = _native_autostart_disablePtr
-      .asFunction<bool Function(native_autostart_t)>();
+  late final _native_launch_at_login_disable =
+      _native_launch_at_login_disablePtr
+          .asFunction<bool Function(native_launch_at_login_t)>();
 
-  /// Check whether auto-start is currently enabled for this identifier.
+  /// Check whether launch-at-login is currently enabled for this identifier.
   ///
-  /// @param autostart AutoStart handle.
+  /// @param launch_at_login LaunchAtLogin handle.
   /// @return true if enabled, false otherwise or on error.
-  bool native_autostart_is_enabled(native_autostart_t autostart) {
-    return _native_autostart_is_enabled(autostart);
+  bool native_launch_at_login_is_enabled(
+    native_launch_at_login_t launch_at_login,
+  ) {
+    return _native_launch_at_login_is_enabled(launch_at_login);
   }
 
-  late final _native_autostart_is_enabledPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
-        'native_autostart_is_enabled',
+  late final _native_launch_at_login_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_is_enabled',
       );
-  late final _native_autostart_is_enabled = _native_autostart_is_enabledPtr
-      .asFunction<bool Function(native_autostart_t)>();
+  late final _native_launch_at_login_is_enabled =
+      _native_launch_at_login_is_enabledPtr
+          .asFunction<bool Function(native_launch_at_login_t)>();
 
   /// Basic identification getters
   ffi.Pointer<ffi.Char> native_display_get_id(native_display_t display) {
@@ -5049,8 +5084,8 @@ typedef native_application_event_callback_tFunction =
 typedef Dartnative_application_event_callback_tFunction =
     void Function(ffi.Pointer<native_application_event_t> event);
 
-/// Opaque handle type for AutoStart instance.
-typedef native_autostart_t = ffi.Pointer<ffi.Void>;
+/// Opaque handle type for LaunchAtLogin instance.
+typedef native_launch_at_login_t = ffi.Pointer<ffi.Void>;
 
 /// Display orientation enumeration
 enum native_display_orientation_t {

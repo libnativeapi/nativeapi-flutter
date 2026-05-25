@@ -42,6 +42,7 @@ elseif (APPLE)
     find_library(CARBON_FRAMEWORK Carbon)
     find_library(COREGRAPHICS_FRAMEWORK CoreGraphics)
     find_library(APPLICATIONSERVICES_FRAMEWORK ApplicationServices)
+    find_library(SERVICEMANAGEMENT_FRAMEWORK ServiceManagement)
 elseif (WIN32)
     file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/windows/*.cpp")
 else ()
@@ -80,6 +81,14 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
             PkgConfig::XI
             PkgConfig::AYATANA_APPINDICATOR
             pthread
+    )
+elseif (APPLE)
+    target_link_libraries(cnativeapi PUBLIC
+            "${COCOA_FRAMEWORK}"
+            "${CARBON_FRAMEWORK}"
+            "${COREGRAPHICS_FRAMEWORK}"
+            "${APPLICATIONSERVICES_FRAMEWORK}"
+            "${SERVICEMANAGEMENT_FRAMEWORK}"
     )
 elseif (WIN32)
     target_link_libraries(cnativeapi PUBLIC user32 shell32 dwmapi gdiplus crypt32)

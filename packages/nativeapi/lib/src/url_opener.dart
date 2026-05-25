@@ -1,5 +1,5 @@
 // =============================================================================
-// Auto-generated Dart wrapper for: src/url_opener.h
+// Auto-generated Dart wrapper for: url_opener.h
 // Generated wrapper from C++ API. Calls existing ffigen bindings.
 // =============================================================================
 import 'dart:ffi' as ffi;
@@ -71,7 +71,7 @@ class UrlOpener with CNativeApiBindingsMixin {
         pkgffi.malloc.free(nativeValuePtr);
       }
     } finally {
-      pkgffi.malloc.free(urlNative.cast());
+      pkgffi.malloc.free(urlNative);
     }
   }
 }

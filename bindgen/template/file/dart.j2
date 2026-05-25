@@ -4,6 +4,14 @@
 {%- from 'partials/class.j2' import render_class -%}
 {%- from 'partials/constant.j2' import render_constant -%}
 {%- from 'partials/alias.j2' import render_alias -%}
+{%- set import_state = namespace(needs_global_bindings=has_functions) -%}
+{%- for item in classes -%}
+{%- for method in item.methods -%}
+{%- if method.static and not method.skip -%}
+{%- set import_state.needs_global_bindings = true -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endfor -%}
 
 // =============================================================================
 // Auto-generated Dart wrapper for: {{ file_path }}
@@ -18,6 +26,9 @@ import 'dart:ui' as ui;
 {%- endif %}
 {%- if uses_pkgffi %}
 import 'package:ffi/ffi.dart' as pkgffi;
+{%- endif %}
+{%- if import_state.needs_global_bindings %}
+import 'package:cnativeapi/cnativeapi.dart' show cnativeApiBindings;
 {%- endif %}
 import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
 {%- if has_handle_classes %}

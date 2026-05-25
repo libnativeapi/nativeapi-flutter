@@ -8,7 +8,7 @@
 // Include source files
 #include "../../../../cxx_impl/src/capi/accessibility_manager_c.cpp"
 #include "../../../../cxx_impl/src/capi/application_c.cpp"
-#include "../../../../cxx_impl/src/capi/autostart_c.cpp"
+#include "../../../../cxx_impl/src/capi/launch_at_login_c.cpp"
 #include "../../../../cxx_impl/src/capi/color_c.cpp"
 #include "../../../../cxx_impl/src/capi/display_c.cpp"
 #include "../../../../cxx_impl/src/capi/display_manager_c.cpp"
@@ -29,7 +29,7 @@
 #include "../../../../cxx_impl/src/capi/window_manager_c.cpp"
 #include "../../../../cxx_impl/src/platform/ios/accessibility_manager_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/application_ios.mm"
-#include "../../../../cxx_impl/src/platform/ios/autostart_ios.mm"
+#include "../../../../cxx_impl/src/platform/ios/launch_at_login_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/display_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/display_manager_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/image_ios.mm"

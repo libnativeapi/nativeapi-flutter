@@ -13,8 +13,7 @@ cd nativeapi-flutter
 PYTHONPATH=packages/cnativeapi/cxx_impl/tools python3 -m bindgen \
   --config bindgen/config.yaml \
   --dump-ir bindgen/out/ir.json \
-  --dump-context bindgen/out/context.json \
-  --out bindgen/out
+  --dump-context bindgen/out/context.json
 ```
 
 ## Notes

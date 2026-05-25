@@ -1,5 +1,5 @@
 {%- macro render_function_call(item) -%}
-bindings.{{ item.call_symbol }}(
+cnativeApiBindings.{{ item.call_symbol }}(
 {%- for arg in item.call_args %}
   {{ arg }}{% if not loop.last %}, {% endif %}
 {%- endfor %}
