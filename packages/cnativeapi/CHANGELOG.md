@@ -1,3 +1,8 @@
+## 0.1.3
+
+* Remove duplicate macOS deployment target build setting from the podspec
+* Update storage example Darwin integration to use Swift Package Manager
+
 ## 0.1.2
 
 * Add LaunchAtLogin C bindings

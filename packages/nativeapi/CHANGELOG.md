@@ -1,3 +1,8 @@
+## 0.1.3
+
+* Remove CocoaPods integration from the storage example
+* Update Darwin example integration to use Swift Package Manager
+
 ## 0.1.2
 
 * Add `LaunchAtLogin` API for managing app startup at user login
