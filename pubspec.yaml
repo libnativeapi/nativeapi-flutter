@@ -4,6 +4,7 @@ environment:
   sdk: ^3.9.0
 
 workspace:
+  - examples/cocoapods_example
   - examples/launch_at_login_example
   - examples/display_example
   - examples/menu_example
