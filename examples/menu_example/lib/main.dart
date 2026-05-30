@@ -53,6 +53,8 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   late final MenuItem _radio1;
   late final MenuItem _radio2;
   late final MenuItem _radio3;
+  late final MenuItem _disabledItem;
+  late final MenuItem _disabledCheckbox;
   late final MenuItem _submenuItem;
   late final Menu _submenu;
 
@@ -223,10 +225,28 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(_radio3);
     _menuItems.add(_radio3);
 
-    // 5. Separator
+    // 5. Disabled menu items
+    _disabledItem = MenuItem('Disabled Item');
+    _disabledItem.enabled = false;
+    _disabledItem.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Disabled item clicked (should not fire!)');
+    });
+    _contextMenu.addItem(_disabledItem);
+    _menuItems.add(_disabledItem);
+
+    _disabledCheckbox = MenuItem('Disabled Checkbox', MenuItemType.checkbox);
+    _disabledCheckbox.state = MenuItemState.checked;
+    _disabledCheckbox.enabled = false;
+    _disabledCheckbox.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Disabled checkbox clicked (should not fire!)');
+    });
+    _contextMenu.addItem(_disabledCheckbox);
+    _menuItems.add(_disabledCheckbox);
+
+    // 7. Separator
     _contextMenu.addSeparator();
 
-    // 6. Menu item with dynamic label
+    // 8. Menu item with dynamic label
     final dynamicLabelItem = MenuItem(_currentLabel);
     dynamicLabelItem.on<MenuItemClickedEvent>((event) {
       _addToHistory('Dynamic label item clicked (ID: ${event.menuItemId})');
@@ -234,7 +254,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(dynamicLabelItem);
     _menuItems.add(dynamicLabelItem);
 
-    // 7. Menu item with tooltip
+    // 9. Menu item with tooltip
     final tooltipItem = MenuItem('Item with Tooltip');
     tooltipItem.tooltip = 'This is a helpful tooltip message';
     tooltipItem.on<MenuItemClickedEvent>((event) {
@@ -243,10 +263,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(tooltipItem);
     _menuItems.add(tooltipItem);
 
-    // 8. Separator
+    // 10. Separator
     _contextMenu.addSeparator();
 
-    // 9. Submenu
+    // 11. Submenu
     _submenu = Menu();
     _submenuItem = MenuItem('Submenu', MenuItemType.submenu);
 
@@ -284,10 +304,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(_submenuItem);
     _menuItems.add(_submenuItem);
 
-    // 10. Separator
+    // 12. Separator
     _contextMenu.addSeparator();
 
-    // 11. Menu items with special characters
+    // 13. Menu items with special characters
     final specialCharsItem = MenuItem('Special: 中文 日本語 🎉 @#\$%');
     specialCharsItem.on<MenuItemClickedEvent>((event) {
       _addToHistory('Special chars item clicked (ID: ${event.menuItemId})');
@@ -348,8 +368,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     setState(() {
       _currentLabel =
           'Updated at ${DateTime.now().toString().substring(11, 19)}';
-      if (_menuItems.length > 5) {
-        _menuItems[5].label = _currentLabel;
+      // Dynamic label item is now at index 7 due to added disabled items
+      if (_menuItems.length > 7) {
+        _menuItems[7].label = _currentLabel;
       }
     });
     _addToHistory('Menu item label changed to: $_currentLabel');
@@ -618,6 +639,51 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   void _showMenuAtCursorPosition() {
     _positioningMenu.open(PositioningStrategy.cursorPosition());
     _addToHistory('Opened menu at cursor position');
+  }
+
+  /// Reproduce issue #4: checked/disabled menu item states not working on Windows
+  void _openBugReproMenu(Offset position) {
+    // This directly reproduces the code from the issue:
+    // https://github.com/libnativeapi/nativeapi-flutter/issues/4
+    final menu = Menu();
+
+    // Checkable item with Checked state
+    final checkableItem = MenuItem('Checkable', MenuItemType.checkbox);
+    checkableItem.state = MenuItemState.checked;
+    checkableItem.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Checkable item clicked (ID: ${event.menuItemId})');
+    });
+    menu.addItem(checkableItem);
+
+    // Disabled item
+    final disabledItem = MenuItem('Disabled');
+    disabledItem.enabled = false;
+    disabledItem.on<MenuItemClickedEvent>((event) {
+      _addToHistory('Disabled item clicked (should not fire!)');
+    });
+    menu.addItem(disabledItem);
+
+    // Add a few more items for context
+    menu.addSeparator();
+    final exitItem = MenuItem('Close Menu');
+    exitItem.on<MenuItemClickedEvent>((event) {
+      menu.close();
+    });
+    menu.addItem(exitItem);
+
+    menu.open(PositioningStrategy.absolute(position));
+
+    _addToHistory('');
+    _addToHistory('=== BUG REPRODUCTION (Issue #4) ===');
+    _addToHistory('Menu opened at ${position}');
+    _addToHistory('Checkable item initial state: ${checkableItem.state}');
+    _addToHistory('Disabled item enabled: ${disabledItem.enabled}');
+    _addToHistory('');
+    _addToHistory('EXPECTED: Checkbox shows checkmark; Disabled item grayed');
+    _addToHistory(
+      'BUG (Windows only): Checkmark missing; Disabled item active',
+    );
+    _addToHistory('');
   }
 
   @override
@@ -975,6 +1041,11 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                               'Testing menu near screen edge (bottom-right)',
                             );
                           },
+                        ),
+                        _buildCompactButton(
+                          Icons.bug_report,
+                          'Bug #4 (Win)',
+                          () => _openBugReproMenu(const Offset(200, 200)),
                         ),
                       ],
                     ),

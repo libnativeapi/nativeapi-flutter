@@ -1,0 +1,30 @@
+# Auto-detect text files and normalize to LF in the repository
+* text=auto
+
+# Explicitly declare source file types as text (LF normalized)
+*.cc      text
+*.cmake   text
+*.cpp     text
+*.c       text
+*.h       text
+*.dart    text
+*.swift   text
+*.yaml    text
+*.yml     text
+*.json    text
+*.md      text
+*.sh      text
+*.bat     text
+*.ps1     text
+*.cmake   text
+
+# Binary files should remain untouched
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.icns    binary
+*.ttf     binary
+*.woff    binary
+*.woff2   binary
