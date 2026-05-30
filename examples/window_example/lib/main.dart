@@ -14,15 +14,37 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Window Example',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
         cardTheme: const CardThemeData(elevation: 2, margin: EdgeInsets.all(8)),
       ),
+      debugShowCheckedModeBanner: false,
       home: const WindowManagerPage(),
     );
   }
 }
 
+// ---------------------------------------------------------------------------
+// Event log entry
+// ---------------------------------------------------------------------------
+class _LogEntry {
+  final DateTime timestamp = DateTime.now();
+  final String message;
+  final Color color;
+
+  _LogEntry(this.message, {this.color = Colors.black87});
+
+  String get formattedTime {
+    final m = timestamp.minute.toString().padLeft(2, '0');
+    final s = timestamp.second.toString().padLeft(2, '0');
+    final ms = timestamp.millisecond.toString().padLeft(3, '0');
+    return '$m:$s.$ms';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
 class WindowManagerPage extends StatefulWidget {
   const WindowManagerPage({super.key});
 
@@ -30,18 +52,32 @@ class WindowManagerPage extends StatefulWidget {
   State<WindowManagerPage> createState() => _WindowManagerPageState();
 }
 
-class _WindowManagerPageState extends State<WindowManagerPage> {
+class _WindowManagerPageState extends State<WindowManagerPage>
+    with SingleTickerProviderStateMixin {
+  // --- data ---
   List<Window> _windows = [];
   List<Display> _displays = [];
   Window? _selectedWindow;
   bool _isLoading = true;
   String? _errorMessage;
   Timer? _updateTimer;
-  List<int> _windowListenerIds = [];
+  final List<int> _windowListenerIds = [];
+
+  // --- event log ---
+  final List<_LogEntry> _eventLog = [];
+  static const int _maxLogEntries = 200;
+
+  // --- tab ---
+  late final TabController _tabController;
+
+  // --- action feedback ---
+  String? _actionFeedback;
+  Timer? _feedbackTimer;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _loadDisplays();
     _loadWindows();
     _startTracking();
@@ -50,110 +86,133 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
   @override
   void dispose() {
     _updateTimer?.cancel();
+    _feedbackTimer?.cancel();
+    _tabController.dispose();
     final windowManager = WindowManager.instance;
-    for (final listenerId in _windowListenerIds) {
-      windowManager.removeListener(listenerId);
+    for (final id in _windowListenerIds) {
+      windowManager.removeListener(id);
     }
     _windowListenerIds.clear();
     super.dispose();
   }
 
-  void _startTracking() {
-    // Update windows periodically
-    _updateTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      if (mounted) {
-        _updateWindows();
+  // -----------------------------------------------------------------------
+  // Feedback
+  // -----------------------------------------------------------------------
+  void _showFeedback(String message, {Color color = Colors.green}) {
+    _feedbackTimer?.cancel();
+    if (mounted) {
+      setState(() {
+        _actionFeedback = message;
+        _feedbackColor = color;
+      });
+    }
+    _feedbackTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _actionFeedback = null);
+    });
+  }
+
+  Color _feedbackColor = Colors.green;
+
+  void _addLog(String message, {Color color = Colors.black87}) {
+    setState(() {
+      _eventLog.insert(0, _LogEntry(message, color: color));
+      if (_eventLog.length > _maxLogEntries) {
+        _eventLog.removeLast();
       }
     });
+  }
 
-    // Listen to window events
-    final windowManager = WindowManager.instance;
-    _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowCreatedEvent>((event) {
-        if (mounted) {
-          _updateWindows();
-        }
+  // -----------------------------------------------------------------------
+  // Tracking
+  // -----------------------------------------------------------------------
+  void _startTracking() {
+    _updateTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+      if (mounted) _updateWindows();
+    });
+
+    final wm = WindowManager.instance;
+    _windowListenerIds.addAll([
+      wm.addCallbackListener<WindowCreatedEvent>((e) {
+        _addLog('Window #${e.windowId} created', color: Colors.green);
+        _updateWindows();
       }),
-    );
-    _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowClosedEvent>((event) {
-        if (mounted) {
-          _updateWindows();
-        }
+      wm.addCallbackListener<WindowClosedEvent>((e) {
+        _addLog('Window #${e.windowId} closed', color: Colors.red);
+        _updateWindows();
       }),
-    );
-    _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowMovedEvent>((event) {
-        if (mounted) {
-          _updateWindows();
-          if (_selectedWindow?.id == event.windowId) {
-            _updateSelectedWindow();
-          }
-        }
+      wm.addCallbackListener<WindowFocusedEvent>((e) {
+        _addLog('Window #${e.windowId} focused', color: Colors.indigo);
+        _updateWindows();
+        _refreshSelected(e.windowId);
       }),
-    );
-    _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowResizedEvent>((event) {
-        if (mounted) {
-          _updateWindows();
-          if (_selectedWindow?.id == event.windowId) {
-            _updateSelectedWindow();
-          }
-        }
+      wm.addCallbackListener<WindowBlurredEvent>((e) {
+        _addLog('Window #${e.windowId} blurred', color: Colors.grey);
+        _refreshSelected(e.windowId);
       }),
-    );
+      wm.addCallbackListener<WindowMinimizedEvent>((e) {
+        _addLog('Window #${e.windowId} minimized', color: Colors.orange);
+        _updateWindows();
+        _refreshSelected(e.windowId);
+      }),
+      wm.addCallbackListener<WindowMaximizedEvent>((e) {
+        _addLog('Window #${e.windowId} maximized', color: Colors.purple);
+        _updateWindows();
+        _refreshSelected(e.windowId);
+      }),
+      wm.addCallbackListener<WindowRestoredEvent>((e) {
+        _addLog('Window #${e.windowId} restored', color: Colors.teal);
+        _updateWindows();
+        _refreshSelected(e.windowId);
+      }),
+      wm.addCallbackListener<WindowMovedEvent>((e) {
+        _addLog(
+          'Window #${e.windowId} moved → (${e.position.dx.toInt()}, ${e.position.dy.toInt()})',
+          color: Colors.blue,
+        );
+        if (_selectedWindow?.id == e.windowId) _refreshSelected(e.windowId);
+      }),
+      wm.addCallbackListener<WindowResizedEvent>((e) {
+        _addLog(
+          'Window #${e.windowId} resized → ${e.size.width.toInt()}×${e.size.height.toInt()}',
+          color: Colors.blue,
+        );
+        if (_selectedWindow?.id == e.windowId) _refreshSelected(e.windowId);
+      }),
+    ]);
   }
 
   void _updateWindows() {
     try {
-      final windowManager = WindowManager.instance;
-      final windows = windowManager.getAll();
-
-      if (mounted) {
-        setState(() {
-          _windows = windows;
-          // Update selected window reference if it still exists
-          if (_selectedWindow != null) {
-            final updatedWindow = windows.firstWhere(
-              (w) => w.id == _selectedWindow!.id,
-              orElse: () => _selectedWindow!,
-            );
-            _selectedWindow = updatedWindow;
-          }
-        });
-      }
-    } catch (e) {
-      // Windows might have been destroyed, ignore errors
-    }
-  }
-
-  void _updateSelectedWindow() {
-    if (_selectedWindow != null) {
-      try {
-        final windowManager = WindowManager.instance;
-        final updatedWindow = windowManager.getById(_selectedWindow!.id);
-        if (mounted && updatedWindow != null) {
-          setState(() {
-            _selectedWindow = updatedWindow;
-          });
+      final windows = WindowManager.instance.getAll();
+      if (!mounted) return;
+      setState(() {
+        _windows = windows;
+        if (_selectedWindow != null) {
+          final updated = windows.where((w) => w.id == _selectedWindow!.id);
+          _selectedWindow = updated.isNotEmpty ? updated.first : null;
         }
-      } catch (e) {
-        // Window might have been destroyed
-      }
+      });
+    } catch (_) {}
+  }
+
+  void _refreshSelected(int windowId) {
+    if (_selectedWindow?.id == windowId) {
+      try {
+        final w = WindowManager.instance.getById(windowId);
+        if (mounted) setState(() => _selectedWindow = w);
+      } catch (_) {}
     }
   }
 
+  // -----------------------------------------------------------------------
+  // Loading
+  // -----------------------------------------------------------------------
   Future<void> _loadDisplays() async {
     try {
-      final displayManager = DisplayManager.instance;
-      final displays = displayManager.getAll();
-
-      setState(() {
-        _displays = displays;
-      });
-    } catch (e) {
-      // Ignore display loading errors
-    }
+      final displays = DisplayManager.instance.getAll();
+      if (mounted) setState(() => _displays = displays);
+    } catch (_) {}
   }
 
   Future<void> _loadWindows() async {
@@ -161,55 +220,59 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
       _isLoading = true;
       _errorMessage = null;
     });
-
     try {
-      final windowManager = WindowManager.instance;
-      final windows = windowManager.getAll();
-
-      setState(() {
-        _windows = windows;
-        _isLoading = false;
-      });
+      final windows = WindowManager.instance.getAll();
+      if (mounted) {
+        setState(() {
+          _windows = windows;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Failed to load windows: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Failed to load windows: $e';
+        });
+      }
     }
   }
 
-  void _createTestWindow() {
-    throw UnimplementedError('Create test window not implemented');
+  // -----------------------------------------------------------------------
+  // Selection
+  // -----------------------------------------------------------------------
+  void _selectWindow(Window w) {
+    setState(() => _selectedWindow = w);
+    _tabController.animateTo(1); // switch to Actions tab
   }
 
-  void _selectWindow(Window window) {
-    setState(() {
-      _selectedWindow = window;
-    });
-  }
-
+  // -----------------------------------------------------------------------
+  // Build
+  // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
             const Icon(Icons.window),
             const SizedBox(width: 8),
-            const Text('Window Example'),
+            const Text('Window Manager'),
             if (_windows.isNotEmpty) ...[
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                  color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${_windows.length} window${_windows.length != 1 ? 's' : ''}',
+                  '${_windows.length}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onPrimaryContainer,
                   ),
                 ),
               ),
@@ -217,10 +280,86 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _createTestWindow,
-            tooltip: 'Create Test Window',
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              switch (value) {
+                case 'minimize_all':
+                  for (final w in _windows) {
+                    try {
+                      w.minimize();
+                    } catch (_) {}
+                  }
+                  _addLog('Action: minimize all windows',
+                      color: Colors.orange);
+                  _showFeedback('Minimized all windows');
+                case 'restore_all':
+                  for (final w in _windows) {
+                    try {
+                      w.restore();
+                    } catch (_) {}
+                  }
+                  _addLog('Action: restore all windows',
+                      color: Colors.teal);
+                  _showFeedback('Restored all windows');
+                case 'show_all':
+                  for (final w in _windows) {
+                    try {
+                      w.show();
+                    } catch (_) {}
+                  }
+                  _addLog('Action: show all windows',
+                      color: Colors.green);
+                  _showFeedback('Showed all windows');
+                case 'hide_all':
+                  for (final w in _windows) {
+                    try {
+                      w.hide();
+                    } catch (_) {}
+                  }
+                  _addLog('Action: hide all windows',
+                      color: Colors.grey);
+                  _showFeedback('Hidden all windows');
+              }
+            },
+            itemBuilder: (_) => [
+              const PopupMenuItem(
+                value: 'minimize_all',
+                child: ListTile(
+                  leading: Icon(Icons.minimize),
+                  title: Text('Minimize All'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'restore_all',
+                child: ListTile(
+                  leading: Icon(Icons.settings_backup_restore),
+                  title: Text('Restore All'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'show_all',
+                child: ListTile(
+                  leading: Icon(Icons.visibility),
+                  title: Text('Show All'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'hide_all',
+                child: ListTile(
+                  leading: Icon(Icons.visibility_off),
+                  title: Text('Hide All'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -228,12 +367,20 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
             tooltip: 'Refresh Windows',
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Canvas', icon: Icon(Icons.grid_on, size: 18)),
+            Tab(text: 'Actions', icon: Icon(Icons.tune, size: 18)),
+            Tab(text: 'Events', icon: Icon(Icons.list_alt, size: 18)),
+          ],
+        ),
       ),
-      body: _buildBody(),
+      body: _buildBody(theme),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(ThemeData theme) {
     if (_isLoading) {
       return const Center(
         child: Column(
@@ -250,22 +397,20 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
     if (_errorMessage != null) {
       return Center(
         child: Card(
+          margin: const EdgeInsets.all(24),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error, color: Colors.red, size: 48),
+                Icon(Icons.error, color: theme.colorScheme.error, size: 48),
                 const SizedBox(height: 16),
-                Text(
-                  _errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                Text(_errorMessage!, textAlign: TextAlign.center),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                FilledButton.icon(
                   onPressed: _loadWindows,
-                  child: const Text('Retry'),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
                 ),
               ],
             ),
@@ -277,27 +422,25 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
     if (_windows.isEmpty) {
       return Center(
         child: Card(
+          margin: const EdgeInsets.all(24),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.window_outlined, size: 48, color: Colors.grey),
+                Icon(Icons.window_outlined, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'No windows found',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Click the + button to create a test window',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _createTestWindow,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Create Test Window'),
+                Text(
+                  'Open or create a window\nto begin exploring the API.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -306,34 +449,66 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
       );
     }
 
+    return Column(
+      children: [
+        // Feedback bar
+        if (_actionFeedback != null)
+          MaterialBanner(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            backgroundColor: _feedbackColor.withValues(alpha: 0.12),
+            content: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  size: 20,
+                  color: _feedbackColor,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _actionFeedback!,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: _feedbackColor.withValues(alpha: 0.9),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => setState(() => _actionFeedback = null),
+                child: const Text('Dismiss'),
+              ),
+            ],
+          ),
+        // Main content
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // --- Tab 0: Canvas ---
+              _buildCanvasTab(theme),
+              // --- Tab 1: Actions ---
+              _buildActionsTab(theme),
+              // --- Tab 2: Events ---
+              _buildEventsTab(theme),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // =====================================================================
+  // TAB 0 – Canvas
+  // =====================================================================
+  Widget _buildCanvasTab(ThemeData theme) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWideScreen = constraints.maxWidth > 800;
-
-        if (isWideScreen) {
-          return Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: WindowCanvas(
-                  windows: _windows,
-                  displays: _displays,
-                  selectedWindow: _selectedWindow,
-                  onWindowTap: _selectWindow,
-                ),
-              ),
-              if (_selectedWindow != null)
-                Expanded(
-                  flex: 1,
-                  child: WindowDetails(window: _selectedWindow!),
-                ),
-            ],
-          );
-        } else {
+        if (constraints.maxWidth < 600) {
           return Column(
             children: [
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: WindowCanvas(
                   windows: _windows,
                   displays: _displays,
@@ -343,17 +518,917 @@ class _WindowManagerPageState extends State<WindowManagerPage> {
               ),
               if (_selectedWindow != null)
                 Expanded(
-                  flex: 1,
-                  child: WindowDetails(window: _selectedWindow!),
+                  flex: 2,
+                  child: _buildQuickInfo(_selectedWindow!, theme),
                 ),
             ],
           );
         }
+        return Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: WindowCanvas(
+                windows: _windows,
+                displays: _displays,
+                selectedWindow: _selectedWindow,
+                onWindowTap: _selectWindow,
+              ),
+            ),
+            if (_selectedWindow != null)
+              Expanded(
+                flex: 2,
+                child: _buildQuickInfo(_selectedWindow!, theme),
+              ),
+          ],
+        );
       },
+    );
+  }
+
+  Widget _buildQuickInfo(Window window, ThemeData theme) {
+    final bounds = window.bounds;
+    final contentBounds = window.contentBounds;
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: [
+        // Window identity card
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.window, color: theme.colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        window.title.isNotEmpty ? window.title : 'Untitled',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _chip('ID: ${window.id}', theme.colorScheme.primary),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Geometry
+        _infoCard('Geometry', [
+          _infoRow(Icons.aspect_ratio, 'Size',
+              '${bounds.width.toInt()} × ${bounds.height.toInt()}'),
+          _infoRow(Icons.place, 'Position',
+              '(${bounds.left.toInt()}, ${bounds.top.toInt()})'),
+          _infoRow(Icons.crop_free, 'Content',
+              '${contentBounds.width.toInt()} × ${contentBounds.height.toInt()}'),
+        ], theme),
+        const SizedBox(height: 8),
+        // State badges
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _stateChip('Visible', window.isVisible, Colors.green),
+                _stateChip('Focused', window.isFocused, Colors.indigo),
+                _stateChip('Maximized', window.isMaximized, Colors.purple),
+                _stateChip('Minimized', window.isMinimized, Colors.orange),
+                _stateChip('Fullscreen', window.isFullscreen, Colors.red),
+                _stateChip('Always on Top', window.isAlwaysOnTop, Colors.teal),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Quick actions
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Quick Actions',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _quickActionBtn(
+                        'Maximize',
+                        Icons.open_in_full,
+                        window.isMaximized,
+                        () {
+                          window.maximize();
+                          _addLog('Action: maximize #${window.id}',
+                              color: Colors.purple);
+                        },
+                        Colors.purple,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: _quickActionBtn(
+                        'Minimize',
+                        Icons.minimize,
+                        window.isMinimized,
+                        () {
+                          window.minimize();
+                          _addLog('Action: minimize #${window.id}',
+                              color: Colors.orange);
+                        },
+                        Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _quickActionBtn(
+                        'Restore',
+                        Icons.settings_backup_restore,
+                        false,
+                        () {
+                          window.restore();
+                          _addLog('Action: restore #${window.id}',
+                              color: Colors.teal);
+                        },
+                        Colors.teal,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: _quickActionBtn(
+                        'Hide',
+                        Icons.hide_source,
+                        !window.isVisible,
+                        () {
+                          window.hide();
+                          _addLog('Action: hide #${window.id}',
+                              color: Colors.orange);
+                        },
+                        Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _tabController.animateTo(1),
+                    icon: const Icon(Icons.tune, size: 16),
+                    label: const Text('More Actions'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoCard(String title, List<Widget> rows, ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const Divider(),
+            ...rows,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.grey[600]),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 72,
+            child: Text(label,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          Expanded(
+            child: SelectableText(value,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
+      ),
+    );
+  }
+
+  Widget _stateChip(String label, bool active, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: active ? color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: active ? color.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: active ? color : Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  Widget _quickActionBtn(
+    String label,
+    IconData icon,
+    bool isActive,
+    VoidCallback onPressed,
+    Color color,
+  ) {
+    return SizedBox(
+      height: 40,
+      child: isActive
+          ? FilledButton.tonalIcon(
+              onPressed: onPressed,
+              icon: Icon(icon, size: 16),
+              label: Text(label, style: const TextStyle(fontSize: 12)),
+              style: FilledButton.styleFrom(
+                backgroundColor: color.withValues(alpha: 0.2),
+                foregroundColor: color,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+            )
+          : OutlinedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon, size: 16),
+              label: Text(label, style: const TextStyle(fontSize: 12)),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: color,
+                side: BorderSide(color: color.withValues(alpha: 0.4)),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+            ),
+    );
+  }
+
+  // =====================================================================
+  // TAB 1 – Actions
+  // =====================================================================
+  Widget _buildActionsTab(ThemeData theme) {
+    final window = _selectedWindow;
+    if (window == null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.touch_app, size: 48, color: Colors.grey[400]),
+            const SizedBox(height: 12),
+            Text(
+              'Select a window on the Canvas tab',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Window header
+          _sectionHeader('Selected: ${window.title}', Icons.window, theme),
+          const SizedBox(height: 4),
+          _chip('ID: ${window.id}', theme.colorScheme.primary),
+          const SizedBox(height: 16),
+
+          // --- Visibility ---
+          _group('Visibility', Icons.visibility, [
+            _actionBtn('Show', Icons.visibility, () {
+              window.show();
+              _showFeedback('Window shown');
+              _addLog('Action: show #${window.id}', color: Colors.green);
+            }),
+            _actionBtn('Show Inactive', Icons.visibility_off, () {
+              window.showInactive();
+              _showFeedback('Window shown (inactive)');
+            }),
+            _actionBtn('Hide', Icons.hide_source, () {
+              window.hide();
+              _showFeedback('Window hidden');
+              _addLog('Action: hide #${window.id}', color: Colors.orange);
+            }),
+          ]),
+
+          // --- State ---
+          _group('Window State', Icons.fullscreen, [
+            _actionBtn('Maximize', Icons.open_in_full, () {
+              window.maximize();
+              _showFeedback('Window maximized');
+            }),
+            _actionBtn('Unmaximize', Icons.close_fullscreen, () {
+              window.unmaximize();
+              _showFeedback('Window unmaximized');
+            }),
+            _actionBtn('Minimize', Icons.minimize, () {
+              window.minimize();
+              _showFeedback('Window minimized');
+            }),
+            _actionBtn('Restore', Icons.settings_backup_restore, () {
+              window.restore();
+              _showFeedback('Window restored');
+            }),
+            _actionBtn(
+              window.isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
+              Icons.fullscreen,
+              () {
+                window.isFullscreen = !window.isFullscreen;
+                _showFeedback(
+                  window.isFullscreen ? 'Fullscreen on' : 'Fullscreen off',
+                );
+              },
+              color: window.isFullscreen ? Colors.red : null,
+            ),
+          ]),
+
+          // --- Focus ---
+          _group('Focus', Icons.center_focus_strong, [
+            _actionBtn('Focus', Icons.center_focus_strong, () {
+              window.focus();
+              _showFeedback('Window focused');
+            }),
+            _actionBtn('Blur', Icons.blur_on, () {
+              window.blur();
+              _showFeedback('Window blurred');
+            }),
+          ]),
+
+          // --- Position & Size ---
+          _group('Position & Size', Icons.place, [
+            _actionBtn('Center', Icons.center_focus_strong, () {
+              window.center();
+              _showFeedback('Window centered');
+            }),
+            _actionBtn('800 × 600', Icons.aspect_ratio, () {
+              window.setSize(800, 600);
+              _showFeedback('Size set to 800 × 600');
+            }),
+            _actionBtn('1024 × 768', Icons.aspect_ratio, () {
+              window.setSize(1024, 768);
+              _showFeedback('Size set to 1024 × 768');
+            }),
+            _actionBtn('Set Content 760×540', Icons.crop_free, () {
+              window.setContentSize(760, 540);
+              _showFeedback('Content size set to 760 × 540');
+            }),
+            _actionBtn('Position (100, 100)', Icons.pin_drop, () {
+              window.setPosition(100, 100);
+              _showFeedback('Position set to (100, 100)');
+            }),
+            _actionBtn('Position (400, 300)', Icons.pin_drop, () {
+              window.setPosition(400, 300);
+              _showFeedback('Position set to (400, 300)');
+            }),
+          ]),
+
+          // --- Size Constraints ---
+          _group('Size Constraints', Icons.straighten, [
+            _actionBtn('Set Min 400×300', Icons.arrow_circle_down, () {
+              window.setMinimumSize(400, 300);
+              _showFeedback('Minimum size set to 400 × 300');
+            }),
+            _actionBtn('Set Max 1200×900', Icons.arrow_circle_up, () {
+              window.setMaximumSize(1200, 900);
+              _showFeedback('Maximum size set to 1200 × 900');
+            }),
+            _actionBtn('Reset Constraints', Icons.remove_circle_outline, () {
+              window.setMinimumSize(0, 0);
+              window.setMaximumSize(0, 0);
+              _showFeedback('Size constraints reset');
+            }),
+          ]),
+
+          // --- Appearance ---
+          _group('Appearance', Icons.palette, [
+            _actionBtn(
+              window.titleBarStyle == TitleBarStyle.hidden
+                  ? 'Show Title Bar'
+                  : 'Hide Title Bar',
+              Icons.title,
+              () {
+                window.titleBarStyle = window.titleBarStyle == TitleBarStyle.hidden
+                    ? TitleBarStyle.normal
+                    : TitleBarStyle.hidden;
+                _showFeedback(
+                  'Title bar ${window.titleBarStyle == TitleBarStyle.hidden ? 'hidden' : 'shown'}',
+                );
+              },
+            ),
+            _actionBtn(
+              window.hasShadow ? 'Remove Shadow' : 'Add Shadow',
+              Icons.blur_on,
+              () {
+                window.hasShadow = !window.hasShadow;
+                _showFeedback(
+                  'Shadow ${window.hasShadow ? 'enabled' : 'disabled'}',
+                );
+              },
+            ),
+            _toggleBtn(
+              'Always on Top',
+              window.isAlwaysOnTop,
+              (v) {
+                window.isAlwaysOnTop = v;
+                _showFeedback('Always on top: ${v ? 'ON' : 'OFF'}');
+              },
+            ),
+            // Opacity slider
+            _labeledSlider(
+              'Opacity',
+              window.opacity,
+              0.1,
+              1.0,
+              (v) {
+                window.opacity = v;
+                _showFeedback('Opacity: ${v.toStringAsFixed(2)}');
+              },
+            ),
+          ]),
+
+          // --- Visual Effects ---
+          _group('Visual Effects', Icons.blur_on, [
+            ...VisualEffect.values.map((effect) {
+              final label = effect.name[0].toUpperCase() + effect.name.substring(1);
+              return _actionBtn(
+                label,
+                effect == VisualEffect.none
+                    ? Icons.block
+                    : effect == VisualEffect.blur
+                    ? Icons.blur_on
+                    : effect == VisualEffect.acrylic
+                    ? Icons.water_drop
+                    : Icons.dark_mode,
+                () {
+                  window.visualEffect = effect;
+                  _showFeedback('Visual effect: $label');
+                },
+                color: window.visualEffect == effect
+                    ? theme.colorScheme.primary
+                    : null,
+                isActive: window.visualEffect == effect,
+              );
+            }),
+          ]),
+
+          // --- Background Color ---
+          _group('Background Color', Icons.color_lens, [
+            _colorBtn('White', Colors.white, window, () {
+              window.backgroundColor = Colors.white;
+              _showFeedback('Background: White');
+            }),
+            _colorBtn('Light Grey', Colors.grey[200]!, window, () {
+              window.backgroundColor = Colors.grey[200]!;
+              _showFeedback('Background: Light Grey');
+            }),
+            _colorBtn('Dark', Colors.grey[900]!, window, () {
+              window.backgroundColor = Colors.grey[900]!;
+              _showFeedback('Background: Dark');
+            }),
+            _colorBtn('Blue', Colors.blue[200]!, window, () {
+              window.backgroundColor = Colors.blue[200]!;
+              _showFeedback('Background: Blue');
+            }),
+            _colorBtn('Transparent', Colors.transparent, window, () {
+              window.backgroundColor = const Color(0x00000000);
+              _showFeedback('Background: Transparent');
+            }),
+          ]),
+
+          // --- Advanced ---
+          _group('Advanced', Icons.settings, [
+            _toggleBtn(
+              'Resizable',
+              window.isResizable,
+              (v) => window.isResizable = v,
+            ),
+            _toggleBtn(
+              'Movable',
+              window.isMovable,
+              (v) => window.isMovable = v,
+            ),
+            _toggleBtn(
+              'Minimizable',
+              window.isMinimizable,
+              (v) => window.isMinimizable = v,
+            ),
+            _toggleBtn(
+              'Maximizable',
+              window.isMaximizable,
+              (v) => window.isMaximizable = v,
+            ),
+            _toggleBtn(
+              'Fullscreenable',
+              window.isFullscreenable,
+              (v) => window.isFullscreenable = v,
+            ),
+            _toggleBtn(
+              'Closable',
+              window.isClosable,
+              (v) => window.isClosable = v,
+            ),
+          ]),
+
+          // --- Platform Specific ---
+          _group('Platform Specific', Icons.desktop_windows, [
+            _toggleBtn(
+              'Control Buttons Visible',
+              window.windowControlButtonsVisible,
+              (v) => window.windowControlButtonsVisible = v,
+            ),
+            _toggleBtn(
+              'Visible on All Workspaces',
+              window.isVisibleOnAllWorkspaces,
+              (v) => window.isVisibleOnAllWorkspaces = v,
+            ),
+            _toggleBtn(
+              'Ignore Mouse Events',
+              window.ignoreMouseEvents,
+              (v) => window.ignoreMouseEvents = v,
+            ),
+            _toggleBtn(
+              'Focusable',
+              window.isFocusable,
+              (v) => window.isFocusable = v,
+            ),
+          ]),
+
+          // --- Interactions ---
+          _group('Interactions', Icons.gesture, [
+            _actionBtn('Start Dragging', Icons.open_with, () {
+              window.startDragging();
+              _showFeedback('Drag started (move the mouse)');
+            }),
+            _actionBtn('Start Resizing', Icons.zoom_out_map, () {
+              window.startResizing();
+              _showFeedback('Resize started (move the mouse)');
+            }),
+          ]),
+
+          // --- Title ---
+          _group('Title', Icons.text_fields, [
+            _actionBtn('Set "Hello Window"', Icons.edit, () {
+              window.title = 'Hello Window';
+              _showFeedback('Title set to "Hello Window"');
+            }),
+            _actionBtn('Set "My App"', Icons.edit, () {
+              window.title = 'My App';
+              _showFeedback('Title set to "My App"');
+            }),
+            _actionBtn('Set "nativeapi"', Icons.edit, () {
+              window.title = 'nativeapi';
+              _showFeedback('Title set to "nativeapi"');
+            }),
+          ]),
+
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  // =====================================================================
+  // TAB 2 – Events
+  // =====================================================================
+  Widget _buildEventsTab(ThemeData theme) {
+    if (_eventLog.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.hourglass_empty, size: 48, color: Colors.grey[400]),
+            const SizedBox(height: 12),
+            Text(
+              'No events yet.\nInteract with windows to see events appear.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // Clear button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: Row(
+            children: [
+              Icon(Icons.list, size: 18, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                'Event Log (${_eventLog.length})',
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () => setState(() => _eventLog.clear()),
+                icon: const Icon(Icons.delete_sweep, size: 18),
+                label: const Text('Clear'),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            itemCount: _eventLog.length,
+            itemBuilder: (_, i) {
+              final entry = _eventLog[i];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 56,
+                      child: Text(
+                        entry.formattedTime,
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 11,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(top: 4, right: 8),
+                      decoration: BoxDecoration(
+                        color: entry.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        entry.message,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: entry.color,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // =====================================================================
+  // UI helpers
+  // =====================================================================
+  Widget _sectionHeader(String text, IconData icon, ThemeData theme) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: theme.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _group(String title, IconData icon, List<Widget> children) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 18, color: theme.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (children.length <= 4)
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: children,
+                )
+              else
+                ...children,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _actionBtn(
+    String label,
+    IconData icon,
+    VoidCallback onPressed, {
+    Color? color,
+    bool isActive = false,
+  }) {
+    final c = color ?? Theme.of(context).colorScheme.primary;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: SizedBox(
+        width: double.infinity,
+        child: isActive
+            ? FilledButton.tonalIcon(
+                onPressed: onPressed,
+                icon: Icon(icon, size: 16),
+                label: Text(label, style: const TextStyle(fontSize: 13)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: c.withValues(alpha: 0.2),
+                  foregroundColor: c,
+                ),
+              )
+            : OutlinedButton.icon(
+                onPressed: onPressed,
+                icon: Icon(icon, size: 16),
+                label: Text(label, style: const TextStyle(fontSize: 13)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: c,
+                  side: BorderSide(color: c.withValues(alpha: 0.4)),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _toggleBtn(
+    String label,
+    bool value,
+    void Function(bool) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: const TextStyle(fontSize: 13)),
+          ),
+          Switch(
+            value: value,
+            onChanged: (v) {
+              onChanged(v);
+              _showFeedback('$label: ${v ? 'ON' : 'OFF'}');
+            },
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _labeledSlider(
+    String label,
+    double value,
+    double min,
+    double max,
+    void Function(double) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(label, style: const TextStyle(fontSize: 13)),
+          ),
+          Expanded(
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: 18,
+              label: value.toStringAsFixed(2),
+              onChanged: onChanged,
+            ),
+          ),
+          SizedBox(
+            width: 36,
+            child: Text(
+              value.toStringAsFixed(2),
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _colorBtn(
+    String label,
+    Color color,
+    Window window,
+    VoidCallback onPressed,
+  ) {
+    final isSelected = window.backgroundColor.toARGB32() == color.toARGB32();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: SizedBox(
+        width: double.infinity,
+        child: isSelected
+            ? FilledButton.tonalIcon(
+                onPressed: onPressed,
+                icon: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey[400]!),
+                  ),
+                ),
+                label: Text(label, style: const TextStyle(fontSize: 13)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                ),
+              )
+            : OutlinedButton.icon(
+                onPressed: onPressed,
+                icon: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey[400]!),
+                  ),
+                ),
+                label: Text(label, style: const TextStyle(fontSize: 13)),
+              ),
+      ),
     );
   }
 }
 
+// =========================================================================
+// Canvas Widget
+// =========================================================================
 class WindowCanvas extends StatefulWidget {
   final List<Window> windows;
   final List<Display> displays;
@@ -391,32 +1466,24 @@ class _WindowCanvasState extends State<WindowCanvas> {
   }
 
   void _onTransformationChanged() {
-    final currentScale = _transformationController.value.getMaxScaleOnAxis();
-    if (currentScale != _baseScale) {
-      setState(() {
-        _baseScale = currentScale;
-      });
-    }
+    final s = _transformationController.value.getMaxScaleOnAxis();
+    if (s != _baseScale) setState(() => _baseScale = s);
   }
 
   void _zoomIn() {
-    final currentScale = _transformationController.value.getMaxScaleOnAxis();
-    final newScale = (currentScale * 1.2).clamp(0.5, 5.0);
-    _transformationController.value = Matrix4.identity().scaled(newScale);
+    final s = (_transformationController.value.getMaxScaleOnAxis() * 1.3)
+        .clamp(0.5, 5.0);
+    _transformationController.value = Matrix4.diagonal3Values(s, s, 1);
   }
 
   void _zoomOut() {
-    final currentScale = _transformationController.value.getMaxScaleOnAxis();
-    final newScale = (currentScale / 1.2).clamp(0.5, 5.0);
-    _transformationController.value = Matrix4.identity().scaled(newScale);
+    final s = (_transformationController.value.getMaxScaleOnAxis() / 1.3)
+        .clamp(0.5, 5.0);
+    _transformationController.value = Matrix4.diagonal3Values(s, s, 1);
   }
 
   void _resetZoom() {
     _transformationController.value = Matrix4.identity();
-  }
-
-  void _fitToScreen() {
-    _resetZoom();
   }
 
   @override
@@ -425,31 +1492,37 @@ class _WindowCanvasState extends State<WindowCanvas> {
       return const Center(child: Text('No windows or displays available'));
     }
 
+    final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 4,
+      margin: const EdgeInsets.all(12),
+      elevation: 3,
+      clipBehavior: Clip.antiAlias,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.grey[50]!, Colors.grey[100]!],
+            colors: [
+              theme.brightness == Brightness.dark
+                  ? Colors.grey[850]!
+                  : Colors.grey[100]!,
+              theme.brightness == Brightness.dark
+                  ? Colors.grey[900]!
+                  : Colors.grey[200]!,
+            ],
           ),
-          borderRadius: BorderRadius.circular(12),
         ),
         child: Stack(
           children: [
             // Main canvas with zoom support
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               child: LayoutBuilder(
                 builder: (context, constraints) => InteractiveViewer(
                   transformationController: _transformationController,
                   minScale: 0.5,
                   maxScale: 5.0,
                   boundaryMargin: const EdgeInsets.all(20),
-                  panEnabled: true,
-                  scaleEnabled: true,
                   child: _buildWindowLayout(constraints),
                 ),
               ),
@@ -460,13 +1533,15 @@ class _WindowCanvasState extends State<WindowCanvas> {
               right: 8,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: (theme.brightness == Brightness.dark
+                          ? Colors.grey[800]
+                          : Colors.white)
+                      ?.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 4,
-                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -489,7 +1564,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
                     const Divider(height: 1),
                     IconButton(
                       icon: const Icon(Icons.fit_screen),
-                      onPressed: _fitToScreen,
+                      onPressed: _resetZoom,
                       tooltip: 'Fit to Screen',
                       iconSize: 20,
                     ),
@@ -502,9 +1577,10 @@ class _WindowCanvasState extends State<WindowCanvas> {
               bottom: 8,
               left: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -524,32 +1600,25 @@ class _WindowCanvasState extends State<WindowCanvas> {
   }
 
   Widget _buildWindowLayout(BoxConstraints constraints) {
-    // Calculate the bounding box based on displays (if available) or windows
     final bounds = _calculateBounds();
-
     if (bounds.isEmpty) {
       return const Center(child: Text('No displays or windows available'));
     }
 
-    // Calculate scale to fit all content in the canvas
     final scaleX = constraints.maxWidth / bounds.width;
     final scaleY = constraints.maxHeight / bounds.height;
-    final scale = (scaleX < scaleY ? scaleX : scaleY) * 0.85;
+    final scale = (scaleX < scaleY ? scaleX : scaleY) * 0.9;
 
     return SizedBox(
       width: bounds.width * scale,
       height: bounds.height * scale,
       child: Stack(
         children: [
-          // Draw displays first as background
           if (widget.displays.isNotEmpty)
             ...widget.displays
-                .map((display) => _buildDisplay(display, bounds, scale))
-                .toList(),
-          // Draw windows on top
+                .map((d) => _buildDisplay(d, bounds, scale)),
           ...widget.windows
-              .map((window) => _buildWindow(window, bounds, scale))
-              .toList(),
+              .map((w) => _buildWindow(w, bounds, scale)),
         ],
       ),
     );
@@ -561,101 +1630,81 @@ class _WindowCanvasState extends State<WindowCanvas> {
     double maxX = double.negativeInfinity;
     double maxY = double.negativeInfinity;
 
-    // First, include all displays if available
-    if (widget.displays.isNotEmpty) {
-      for (final display in widget.displays) {
-        final position = display.position;
-        final size = display.size;
-        minX = minX < position.dx ? minX : position.dx;
-        minY = minY < position.dy ? minY : position.dy;
-        maxX = maxX > (position.dx + size.width)
-            ? maxX
-            : (position.dx + size.width);
-        maxY = maxY > (position.dy + size.height)
-            ? maxY
-            : (position.dy + size.height);
-      }
+    for (final display in widget.displays) {
+      final pos = display.position;
+      final size = display.size;
+      minX = minX < pos.dx ? minX : pos.dx;
+      minY = minY < pos.dy ? minY : pos.dy;
+      maxX = maxX > pos.dx + size.width ? maxX : pos.dx + size.width;
+      maxY = maxY > pos.dy + size.height ? maxY : pos.dy + size.height;
     }
 
-    // Then, include all windows
     for (final window in widget.windows) {
       try {
-        final windowBounds = window.bounds;
-        minX = minX < windowBounds.left ? minX : windowBounds.left;
-        minY = minY < windowBounds.top ? minY : windowBounds.top;
-        maxX = maxX > windowBounds.right ? maxX : windowBounds.right;
-        maxY = maxY > windowBounds.bottom ? maxY : windowBounds.bottom;
-      } catch (e) {
-        // Window might have been destroyed, skip it
+        final b = window.bounds;
+        minX = minX < b.left ? minX : b.left;
+        minY = minY < b.top ? minY : b.top;
+        maxX = maxX > b.right ? maxX : b.right;
+        maxY = maxY > b.bottom ? maxY : b.bottom;
+      } catch (_) {
         continue;
       }
     }
 
-    if (minX == double.infinity) {
-      return Rect.zero;
-    }
-
-    // Add padding around the bounds
-    const padding = 50.0;
+    if (minX == double.infinity) return Rect.zero;
+    const pad = 50.0;
     return Rect.fromLTWH(
-      minX - padding,
-      minY - padding,
-      maxX - minX + padding * 2,
-      maxY - minY + padding * 2,
-    );
+        minX - pad, minY - pad, maxX - minX + pad * 2, maxY - minY + pad * 2);
   }
 
   Widget _buildDisplay(Display display, Rect bounds, double scale) {
-    final position = display.position;
+    final pos = display.position;
     final size = display.size;
-    final workArea = display.workArea;
+    final work = display.workArea;
 
-    // Calculate display position and size relative to the bounding box
-    final displayLeft = (position.dx - bounds.left) * scale;
-    final displayTop = (position.dy - bounds.top) * scale;
-    final displayWidth = size.width * scale;
-    final displayHeight = size.height * scale;
+    final left = (pos.dx - bounds.left) * scale;
+    final top = (pos.dy - bounds.top) * scale;
+    final w = size.width * scale;
+    final h = size.height * scale;
 
-    // Calculate work area position relative to the display
-    final workAreaLeft = (workArea.left - position.dx) * scale;
-    final workAreaTop = (workArea.top - position.dy) * scale;
-    final workAreaWidth = workArea.width * scale;
-    final workAreaHeight = workArea.height * scale;
+    final waLeft = (work.left - pos.dx) * scale;
+    final waTop = (work.top - pos.dy) * scale;
+    final waW = work.width * scale;
+    final waH = work.height * scale;
 
     return Positioned(
-      left: displayLeft,
-      top: displayTop,
-      child: Container(
-        width: displayWidth,
-        height: displayHeight,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          border: Border.all(color: Colors.grey[400]!, width: 1),
-        ),
+      left: left,
+      top: top,
+      child: SizedBox(
+        width: w,
+        height: h,
         child: Stack(
           children: [
             // Display bezel
             Container(
-              width: displayWidth,
-              height: displayHeight,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.grey[700]!, Colors.grey[800]!],
+                  colors: [Color(0xFF555555), Color(0xFF333333)],
                 ),
+                border: Border.all(color: Colors.grey[600]!, width: 1.5),
               ),
             ),
-            // Screen area (work area)
+            // Work area
             Positioned(
-              left: workAreaLeft,
-              top: workAreaTop,
+              left: waLeft,
+              top: waTop,
               child: Container(
-                width: workAreaWidth,
-                height: workAreaHeight,
+                width: waW,
+                height: waH,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  border: Border.all(color: Colors.grey[300]!, width: 1),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.grey[200]!, Colors.grey[300]!],
+                  ),
+                  border: Border.all(color: Colors.grey[400]!, width: 0.5),
                 ),
               ),
             ),
@@ -664,9 +1713,10 @@ class _WindowCanvasState extends State<WindowCanvas> {
               top: 4,
               left: 4,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -687,125 +1737,114 @@ class _WindowCanvasState extends State<WindowCanvas> {
 
   Widget _buildWindow(Window window, Rect bounds, double scale) {
     try {
-      final windowBounds = window.bounds;
-      final contentBounds = window.contentBounds;
+      final wb = window.bounds;
+      final cb = window.contentBounds;
 
-      final windowLeft = (windowBounds.left - bounds.left) * scale;
-      final windowTop = (windowBounds.top - bounds.top) * scale;
-      final windowWidth = windowBounds.width * scale;
-      final windowHeight = windowBounds.height * scale;
+      final left = (wb.left - bounds.left) * scale;
+      final top = (wb.top - bounds.top) * scale;
+      final w = wb.width * scale;
+      final h = wb.height * scale;
 
-      // Calculate content area position relative to window bounds
-      final contentLeft = (contentBounds.left - windowBounds.left) * scale;
-      final contentTop = (contentBounds.top - windowBounds.top) * scale;
-      final contentWidth = contentBounds.width * scale;
-      final contentHeight = contentBounds.height * scale;
+      final cLeft = (cb.left - wb.left) * scale;
+      final cTop = (cb.top - wb.top) * scale;
+      final cW = cb.width * scale;
+      final cH = cb.height * scale;
 
-      final isSelected = widget.selectedWindow?.id == window.id;
+      final selected = widget.selectedWindow?.id == window.id;
+      final accent = selected ? Colors.indigo : Colors.deepOrange;
 
-      // Only draw if window is visible within bounds
-      if (windowLeft + windowWidth < 0 ||
-          windowTop + windowHeight < 0 ||
-          windowLeft > bounds.width * scale ||
-          windowTop > bounds.height * scale) {
+      if (left + w < 0 || top + h < 0 || left > bounds.width * scale ||
+          top > bounds.height * scale) {
         return const SizedBox.shrink();
       }
 
       return Positioned(
-        left: windowLeft,
-        top: windowTop,
+        left: left,
+        top: top,
         child: GestureDetector(
           onTap: () => widget.onWindowTap(window),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: windowWidth,
-            height: windowHeight,
+            width: w,
+            height: h,
             decoration: BoxDecoration(
               border: Border.all(
-                color: isSelected ? Colors.blue : Colors.orange,
-                width: isSelected ? 3 : 2,
+                color: accent,
+                width: selected ? 3 : 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isSelected ? Colors.blue : Colors.orange).withOpacity(
-                    0.3,
-                  ),
-                  blurRadius: isSelected ? 8 : 4,
+                  color: accent.withValues(alpha: selected ? 0.35 : 0.15),
+                  blurRadius: selected ? 10 : 4,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Stack(
               children: [
-                // Window background (semi-transparent)
+                // Window fill
                 Container(
-                  color: (isSelected ? Colors.blue : Colors.orange).withOpacity(
-                    0.1,
-                  ),
+                  color: accent.withValues(alpha: 0.08),
                 ),
-                // Window title bar
-                Container(
-                  height: (30 * scale).clamp(12.0, 30.0),
-                  decoration: BoxDecoration(
-                    color: (isSelected ? Colors.blue : Colors.orange)
-                        .withOpacity(0.3),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: isSelected ? Colors.blue : Colors.orange,
-                        width: 1,
+                // Title bar
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: (28 * scale).clamp(12.0, 28.0),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.25),
+                      border: Border(
+                        bottom: BorderSide(color: accent, width: 1),
                       ),
                     ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: (8 * scale).clamp(4.0, 8.0),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.window,
-                        size: (12 * scale).clamp(8.0, 12.0),
-                        color: isSelected
-                            ? Colors.blue[900]
-                            : Colors.orange[900],
-                      ),
-                      SizedBox(width: (4 * scale).clamp(2.0, 4.0)),
-                      Expanded(
-                        child: Text(
-                          window.title.isNotEmpty ? window.title : 'Window',
-                          style: TextStyle(
-                            fontSize: (10 * scale).clamp(6.0, 10.0),
-                            color: isSelected
-                                ? Colors.blue[900]
-                                : Colors.orange[900],
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: (6 * scale).clamp(3.0, 6.0),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.window,
+                          size: (10 * scale).clamp(7.0, 10.0),
+                          color: accent,
+                        ),
+                        SizedBox(width: (4 * scale).clamp(2.0, 4.0)),
+                        Expanded(
+                          child: Text(
+                            _windowLabel(window),
+                            style: TextStyle(
+                              fontSize: (9 * scale).clamp(6.0, 9.0),
+                              color: accent,
+                              fontWeight: FontWeight.bold,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                // Content area border
+                // Content bounds
                 Positioned(
-                  left: contentLeft,
-                  top: contentTop,
+                  left: cLeft,
+                  top: cTop,
                   child: Container(
-                    width: contentWidth,
-                    height: contentHeight,
+                    width: cW,
+                    height: cH,
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.green,
-                        width: 2,
-                        style: BorderStyle.solid,
+                        color: Colors.green.withValues(alpha: 0.6),
+                        width: 1.5,
                       ),
                     ),
                     child: Container(
-                      color: Colors.green.withOpacity(0.05),
+                      color: Colors.green.withValues(alpha: 0.04),
                       child: Center(
                         child: Text(
                           'Content',
                           style: TextStyle(
-                            fontSize: (8 * scale).clamp(6.0, 10.0),
+                            fontSize: (7 * scale).clamp(5.0, 9.0),
                             color: Colors.green[700],
                             fontWeight: FontWeight.bold,
                           ),
@@ -814,24 +1853,24 @@ class _WindowCanvasState extends State<WindowCanvas> {
                     ),
                   ),
                 ),
-                // Labels for window bounds
+                // Size label
                 Positioned(
                   left: 4,
-                  top: (30 * scale).clamp(12.0, 30.0) + 4,
+                  top: (28 * scale).clamp(12.0, 28.0) + 4,
                   child: _buildLabel(
-                    'Window: ${windowBounds.width.toInt()}×${windowBounds.height.toInt()}',
-                    'Pos: (${windowBounds.left.toInt()}, ${windowBounds.top.toInt()})',
-                    isSelected ? Colors.blue : Colors.orange,
+                    '${wb.width.toInt()}×${wb.height.toInt()}',
+                    '(${wb.left.toInt()}, ${wb.top.toInt()})',
+                    accent,
                     scale,
                   ),
                 ),
-                // Labels for content bounds
+                // Content size label
                 Positioned(
-                  left: contentLeft + 4,
-                  top: contentTop + 4,
+                  left: cLeft + 4,
+                  top: cTop + 4,
                   child: _buildLabel(
-                    'Content: ${contentBounds.width.toInt()}×${contentBounds.height.toInt()}',
-                    'Pos: (${contentBounds.left.toInt()}, ${contentBounds.top.toInt()})',
+                    '${cb.width.toInt()}×${cb.height.toInt()}',
+                    '',
                     Colors.green,
                     scale,
                   ),
@@ -841,20 +1880,25 @@ class _WindowCanvasState extends State<WindowCanvas> {
           ),
         ),
       );
-    } catch (e) {
-      // Window might have been destroyed, return empty widget
+    } catch (_) {
       return const SizedBox.shrink();
     }
   }
 
+  String _windowLabel(Window w) {
+    final title = w.title;
+    if (title.isNotEmpty) return title;
+    return 'Window #${w.id}';
+  }
+
   Widget _buildLabel(String line1, String line2, Color color, double scale) {
-    final fontSize = (8 * scale).clamp(6.0, 10.0);
+    final fontSize = (7 * scale).clamp(5.0, 10.0);
     return Container(
-      padding: EdgeInsets.all((4 * scale).clamp(2.0, 4.0)),
+      padding: EdgeInsets.all((3 * scale).clamp(1.5, 4.0)),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        border: Border.all(color: color, width: 1),
-        borderRadius: BorderRadius.circular(4),
+        color: Colors.white.withValues(alpha: 0.85),
+        border: Border.all(color: color.withValues(alpha: 0.6), width: 1),
+        borderRadius: BorderRadius.circular(3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -868,298 +1912,16 @@ class _WindowCanvasState extends State<WindowCanvas> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            line2,
-            style: TextStyle(
-              fontSize: fontSize * 0.85,
-              color: color.withOpacity(0.8),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class WindowDetails extends StatelessWidget {
-  final Window window;
-
-  const WindowDetails({super.key, required this.window});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 4,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.white, Colors.grey[50]!],
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 20),
-              ..._buildDetailSections(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.blue[100]!, Colors.blue[200]!],
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.window, size: 28, color: Colors.blue[700]),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  window.title.isNotEmpty ? window.title : 'Window',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'ID: ${window.id}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildDetailSections() {
-    final bounds = window.bounds;
-    final contentBounds = window.contentBounds;
-    final size = window.size;
-    final contentSize = window.contentSize;
-    final position = window.position;
-
-    return [
-      _buildSection('Window Geometry', [
-        _DetailItem(Icons.aspect_ratio, 'Window Size', _formatSize(size)),
-        _DetailItem(Icons.place, 'Window Position', _formatPosition(position)),
-        _DetailItem(Icons.fullscreen, 'Window Bounds', _formatBounds(bounds)),
-      ]),
-      _buildSection('Content Geometry', [
-        _DetailItem(Icons.crop_free, 'Content Size', _formatSize(contentSize)),
-        _DetailItem(Icons.crop, 'Content Bounds', _formatBounds(contentBounds)),
-        _DetailItem(
-          Icons.border_inner,
-          'Content Offset',
-          _formatOffset(bounds, contentBounds),
-        ),
-      ]),
-      _buildSection('Window Properties', [
-        _DetailItem(
-          Icons.visibility,
-          'Visible',
-          window.isVisible ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.center_focus_strong,
-          'Focused',
-          window.isFocused ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.open_in_full,
-          'Maximized',
-          window.isMaximized ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.minimize,
-          'Minimized',
-          window.isMinimized ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.fullscreen,
-          'Fullscreen',
-          window.isFullscreen ? 'Yes' : 'No',
-        ),
-      ]),
-      _buildSection('Window Capabilities', [
-        _DetailItem(
-          Icons.open_with,
-          'Resizable',
-          window.isResizable ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.drag_handle,
-          'Movable',
-          window.isMovable ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.unfold_less,
-          'Minimizable',
-          window.isMinimizable ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.unfold_more,
-          'Maximizable',
-          window.isMaximizable ? 'Yes' : 'No',
-        ),
-        _DetailItem(
-          Icons.crop_free,
-          'Fullscreenable',
-          window.isFullscreenable ? 'Yes' : 'No',
-        ),
-        _DetailItem(Icons.close, 'Closable', window.isClosable ? 'Yes' : 'No'),
-      ]),
-    ];
-  }
-
-  Widget _buildSection(String title, List<_DetailItem> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: Column(
-            children: items.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return Column(
-                children: [
-                  _buildDetailRow(item),
-                  if (index < items.length - 1) const Divider(height: 16),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  Widget _buildDetailRow(_DetailItem item) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(6),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 2,
-                offset: const Offset(0, 1),
+          if (line2.isNotEmpty)
+            Text(
+              line2,
+              style: TextStyle(
+                fontSize: fontSize * 0.85,
+                color: color.withValues(alpha: 0.7),
               ),
-            ],
-          ),
-          child: Icon(item.icon, size: 16, color: Colors.grey[600]),
-        ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 140,
-          child: Text(
-            item.label,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
             ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: SelectableText(
-            item.value,
-            style: TextStyle(color: Colors.grey[700], fontFamily: 'monospace'),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-
-  String _formatPosition(Offset position) {
-    return '(${position.dx.toInt()}, ${position.dy.toInt()})';
-  }
-
-  String _formatSize(Size size) {
-    return '${size.width.toInt()} × ${size.height.toInt()} px';
-  }
-
-  String _formatBounds(Rect bounds) {
-    return '(${bounds.left.toInt()}, ${bounds.top.toInt()}) '
-        '${bounds.width.toInt()}×${bounds.height.toInt()}';
-  }
-
-  String _formatOffset(Rect windowBounds, Rect contentBounds) {
-    final offsetX = contentBounds.left - windowBounds.left;
-    final offsetY = contentBounds.top - windowBounds.top;
-    return '(${offsetX.toInt()}, ${offsetY.toInt()})';
-  }
-}
-
-class _DetailItem {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _DetailItem(this.icon, this.label, this.value);
 }
