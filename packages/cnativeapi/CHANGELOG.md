@@ -1,3 +1,11 @@
+## 0.1.4
+
+* Fix macOS menu item disabled state not being respected
+* Fix Windows window `SetMinimumSize`/`SetMaximumSize` not working
+* Add per-monitor DPI scaling for Windows display and window geometry
+* Track menu item enabled state and update flags on Windows
+* Adjust Linux tray icon menu trigger handling
+
 ## 0.1.3
 
 * Remove duplicate macOS deployment target build setting from the podspec

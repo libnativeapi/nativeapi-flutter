@@ -1,3 +1,14 @@
+## 0.1.4
+
+* Fix macOS menu item disabled state not being respected
+* Fix Windows window `SetMinimumSize`/`SetMaximumSize` not working
+* Add per-monitor DPI scaling for Windows display and window geometry
+* Track menu item enabled state and update flags on Windows
+* Adjust Linux tray icon menu trigger handling
+* Enhance window example UI with event logging and three-tab interface
+* Add menu example enhancements (disabled menu items, bug repro)
+* Remove CocoaPods artifacts from macOS Xcode project
+
 ## 0.1.3
 
 * Remove CocoaPods integration from the storage example
