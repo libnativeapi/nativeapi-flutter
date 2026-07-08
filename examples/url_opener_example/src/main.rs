@@ -22,15 +22,16 @@ fn main() {
         .nth(1)
         .unwrap_or_else(|| "https://www.rust-lang.org".to_string());
 
-    println!("Opening: {url}");
+    // --- 3. Check if the URL can be opened ---
+    if UrlOpener::can_open(&url) {
+        println!("Opening: {url}");
 
-    // --- 3. Open it ---
-    let opener = UrlOpener {
-        handle: std::ptr::null_mut(),
-    };
-
-    // 模版会自动将 &str 转为 CString 再传给 C API
-    let _result = opener.open(&url);
+        // --- 4. Open it ---
+        let result = UrlOpener::open(&url);
+        println!("Success: {}, error_code: {:?}", result.success, result.error_code);
+    } else {
+        eprintln!("Cannot open URL: {url}");
+    }
 
     println!("Done (see system browser).");
 }
