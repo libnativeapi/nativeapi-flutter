@@ -162,21 +162,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Running Examples
 
-The project includes several comprehensive examples:
+Each example is its own crate under `examples/`, covering one module of the
+API. They print what they do, so running one is the quickest way to see the
+shape of a binding.
 
 ```bash
-# Basic window creation and manipulation
-cargo run --example basic_window
-
-# Advanced window management demo
-cargo run --example window_manager_demo
-
-# Application lifecycle demonstration
-cargo run --example application_lifecycle
-
-# Low-level FFI bindings usage
-cargo run --example low_level_ffi
+cargo run -p display_example          # displays, work areas, display events
+cargo run -p storage_example          # Preferences and SecureStorage
+cargo run -p url_opener_example       # open a URL with the system handler
+cargo run -p window_example           # window geometry, style, state, events
+cargo run -p menu_example             # menu items, accelerators, submenus
+cargo run -p tray_icon_example        # tray icon, context menu, click events
+cargo run -p shortcut_example         # global shortcuts and shortcut events
+cargo run -p keyboard_example         # keyboard monitor and modifier events
+cargo run -p application_example      # menu bar, primary window, event loop
+cargo run -p launch_at_login_example  # launch-at-login registration
+cargo run -p message_dialog_example   # message dialogs and modality
+cargo run -p accessibility_example    # accessibility permission
 ```
+
+Two of them take arguments:
+
+```bash
+cargo run -p application_example -- --dry-run   # skip the blocking event loop
+cargo run -p message_dialog_example -- --open   # actually show the modal dialog
+cargo run -p url_opener_example -- "https://example.com"
+```
+
+Notes:
+
+- `application_example` opens a window and blocks until you close it; the other
+  examples finish on their own.
+- `shortcut_example` and `keyboard_example` need accessibility permission on
+  macOS. Without it they report that registration or monitoring failed rather
+  than crashing — run `accessibility_example` first.
+- `launch_at_login_example` writes a real login-item registration and then puts
+  it back the way it found it.
 
 ## API Reference
 

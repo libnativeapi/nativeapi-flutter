@@ -1,3 +1,18 @@
 [workspace]
 resolver = "2"
-members = [ "crates/cnativeapi","crates/nativeapi","examples/url_opener_example"]
+members = [
+    "crates/cnativeapi",
+    "crates/nativeapi",
+    "examples/accessibility_example",
+    "examples/application_example",
+    "examples/display_example",
+    "examples/keyboard_example",
+    "examples/launch_at_login_example",
+    "examples/menu_example",
+    "examples/message_dialog_example",
+    "examples/shortcut_example",
+    "examples/storage_example",
+    "examples/tray_icon_example",
+    "examples/url_opener_example",
+    "examples/window_example",
+]
