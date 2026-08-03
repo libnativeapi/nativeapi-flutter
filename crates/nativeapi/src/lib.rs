@@ -8,8 +8,9 @@ pub use cnativeapi::{native_point_t, native_rectangle_t, native_size_t};
 // Re-export convenience functions
 pub use cnativeapi::{from_cstring, to_cstring};
 
-pub mod url_opener;
-pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
+// Every generated module, listed by codegen so adding a header does not need a
+// manual edit here.
+include!("modules.rs");
 
 /// Result type for nativeapi operations
 pub type Result<T> = std::result::Result<T, Error>;

@@ -4,47 +4,13 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+#[doc = " Identifies one registered event listener."]
+pub type native_listener_id_t = u64;
 unsafe extern "C" {
     pub fn native_accessibility_manager_enable();
 }
 unsafe extern "C" {
     pub fn native_accessibility_manager_is_enabled() -> bool;
-}
-#[doc = " @struct native_color_t\n @brief Representation of a color with RGBA components\n\n Each component is represented as an unsigned byte (0-255).\n Alpha value: 0 = fully transparent, 255 = fully opaque"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_color_t {
-    pub r: ::std::os::raw::c_uchar,
-    #[doc = " Red component (0-255)"]
-    pub g: ::std::os::raw::c_uchar,
-    #[doc = " Green component (0-255)"]
-    pub b: ::std::os::raw::c_uchar,
-    #[doc = " Blue component (0-255)"]
-    pub a: ::std::os::raw::c_uchar,
-}
-unsafe extern "C" {
-    #[doc = " @brief Creates a color from RGBA values.\n\n @param red Red component (0-255)\n @param green Green component (0-255)\n @param blue Blue component (0-255)\n @param alpha Alpha component (0-255)\n @return Color instance with specified values"]
-    pub fn native_color_from_rgba(
-        red: ::std::os::raw::c_uchar,
-        green: ::std::os::raw::c_uchar,
-        blue: ::std::os::raw::c_uchar,
-        alpha: ::std::os::raw::c_uchar,
-    ) -> native_color_t;
-}
-unsafe extern "C" {
-    #[doc = " @brief Creates a color from a hexadecimal string.\n\n Supports multiple hex color formats:\n - \"#RGB\" - 3-digit hex (e.g., \"#F00\" = red)\n - \"#RGBA\" - 4-digit hex with alpha\n - \"#RRGGBB\" - 6-digit hex (e.g., \"#FF0000\" = red)\n - \"#RRGGBBAA\" - 8-digit hex with alpha\n\n @param hex Hexadecimal color string (with or without '#' prefix)\n @param out_color Pointer to store the resulting color\n @return true if parsing succeeded, false otherwise"]
-    pub fn native_color_from_hex(
-        hex: *const ::std::os::raw::c_char,
-        out_color: *mut native_color_t,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " @brief Converts the color to a 32-bit integer (RGBA format).\n\n @param color The color to convert\n @return 32-bit unsigned integer in RGBA format (0xRRGGBBAA)"]
-    pub fn native_color_to_rgba(color: native_color_t) -> u32;
-}
-unsafe extern "C" {
-    #[doc = " @brief Converts the color to a 32-bit integer (ARGB format).\n\n @param color The color to convert\n @return 32-bit unsigned integer in ARGB format (0xAARRGGBB)"]
-    pub fn native_color_to_argb(color: native_color_t) -> u32;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -66,11 +32,205 @@ pub struct native_rectangle_t {
     pub width: f64,
     pub height: f64,
 }
-#[doc = " Window ID type"]
-pub type native_window_id_t = ::std::os::raw::c_long;
-#[doc = " Opaque window handle"]
-pub type native_window_t = *mut ::std::os::raw::c_void;
-#[doc = " Window list structure"]
+#[doc = " Opaque Image handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_IMAGE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_image_t = u64;
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_image_free()."]
+    pub fn native_image_from_file(file_path: *const ::std::os::raw::c_char) -> native_image_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_image_free()."]
+    pub fn native_image_from_base64(base64_data: *const ::std::os::raw::c_char) -> native_image_t;
+}
+unsafe extern "C" {
+    pub fn native_image_get_size(image: native_image_t) -> native_size_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_image_get_format(image: native_image_t) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_image_to_base64(image: native_image_t) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_image_save_to_file(
+        image: native_image_t,
+        file_path: *const ::std::os::raw::c_char,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
+    pub fn native_image_get_native_object(image: native_image_t) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_image_free(image: native_image_t);
+}
+pub const NATIVE_MODIFIER_KEY_NONE: native_modifier_key_t = 0;
+pub const NATIVE_MODIFIER_KEY_SHIFT: native_modifier_key_t = 1;
+pub const NATIVE_MODIFIER_KEY_CTRL: native_modifier_key_t = 2;
+pub const NATIVE_MODIFIER_KEY_ALT: native_modifier_key_t = 4;
+pub const NATIVE_MODIFIER_KEY_META: native_modifier_key_t = 8;
+pub const NATIVE_MODIFIER_KEY_FN: native_modifier_key_t = 16;
+pub const NATIVE_MODIFIER_KEY_CAPS_LOCK: native_modifier_key_t = 32;
+pub const NATIVE_MODIFIER_KEY_NUM_LOCK: native_modifier_key_t = 64;
+pub const NATIVE_MODIFIER_KEY_SCROLL_LOCK: native_modifier_key_t = 128;
+pub type native_modifier_key_t = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct native_keyboard_accelerator_t {
+    pub modifiers: native_modifier_key_t,
+    pub key: *mut ::std::os::raw::c_char,
+}
+impl Default for native_keyboard_accelerator_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub const NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED: native_keyboard_event_type_t = 0;
+pub const NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED: native_keyboard_event_type_t = 1;
+pub const NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED: native_keyboard_event_type_t = 2;
+#[doc = " Which concrete KeyboardEvent arrived."]
+pub type native_keyboard_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One KeyboardEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct native_keyboard_event_t {
+    pub type_: native_keyboard_event_type_t,
+    pub keycode: ::std::os::raw::c_int,
+    pub data: native_keyboard_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_keyboard_event_t__bindgen_ty_1 {
+    pub modifier_keys_changed: native_keyboard_event_t__bindgen_ty_1__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_keyboard_event_t__bindgen_ty_1__bindgen_ty_1 {
+    pub modifier_keys: ::std::os::raw::c_uint,
+}
+impl Default for native_keyboard_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_keyboard_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type native_keyboard_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        event: *const native_keyboard_event_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ),
+>;
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_keyboard_accelerator_to_string(
+        keyboard_accelerator: native_keyboard_accelerator_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_keyboard_accelerator_is_empty(
+        keyboard_accelerator: native_keyboard_accelerator_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Frees everything the struct owns."]
+    pub fn native_keyboard_accelerator_free(value: *mut native_keyboard_accelerator_t);
+}
+pub const NATIVE_PLACEMENT_TOP: native_placement_t = 0;
+pub const NATIVE_PLACEMENT_TOP_START: native_placement_t = 1;
+pub const NATIVE_PLACEMENT_TOP_END: native_placement_t = 2;
+pub const NATIVE_PLACEMENT_RIGHT: native_placement_t = 3;
+pub const NATIVE_PLACEMENT_RIGHT_START: native_placement_t = 4;
+pub const NATIVE_PLACEMENT_RIGHT_END: native_placement_t = 5;
+pub const NATIVE_PLACEMENT_BOTTOM: native_placement_t = 6;
+pub const NATIVE_PLACEMENT_BOTTOM_START: native_placement_t = 7;
+pub const NATIVE_PLACEMENT_BOTTOM_END: native_placement_t = 8;
+pub const NATIVE_PLACEMENT_LEFT: native_placement_t = 9;
+pub const NATIVE_PLACEMENT_LEFT_START: native_placement_t = 10;
+pub const NATIVE_PLACEMENT_LEFT_END: native_placement_t = 11;
+pub type native_placement_t = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_color_t {
+    pub r: ::std::os::raw::c_uchar,
+    pub g: ::std::os::raw::c_uchar,
+    pub b: ::std::os::raw::c_uchar,
+    pub a: ::std::os::raw::c_uchar,
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_TRANSPARENT: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_BLACK: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_WHITE: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_RED: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_GREEN: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_BLUE: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_YELLOW: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_CYAN: native_color_t;
+}
+unsafe extern "C" {
+    pub static NATIVE_COLOR_MAGENTA: native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_color_from_rgba(
+        red: ::std::os::raw::c_uchar,
+        green: ::std::os::raw::c_uchar,
+        blue: ::std::os::raw::c_uchar,
+        alpha: ::std::os::raw::c_uchar,
+    ) -> native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_color_from_hex(hex: *const ::std::os::raw::c_char) -> native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_color_to_rgba(color: native_color_t) -> ::std::os::raw::c_uint;
+}
+unsafe extern "C" {
+    pub fn native_color_to_argb(color: native_color_t) -> ::std::os::raw::c_uint;
+}
+pub type native_window_id_t = ::std::os::raw::c_uint;
+pub const NATIVE_TITLE_BAR_STYLE_NORMAL: native_title_bar_style_t = 0;
+pub const NATIVE_TITLE_BAR_STYLE_HIDDEN: native_title_bar_style_t = 1;
+pub type native_title_bar_style_t = ::std::os::raw::c_uint;
+pub const NATIVE_VISUAL_EFFECT_NONE: native_visual_effect_t = 0;
+pub const NATIVE_VISUAL_EFFECT_BLUR: native_visual_effect_t = 1;
+pub const NATIVE_VISUAL_EFFECT_ACRYLIC: native_visual_effect_t = 2;
+pub const NATIVE_VISUAL_EFFECT_MICA: native_visual_effect_t = 3;
+pub type native_visual_effect_t = ::std::os::raw::c_uint;
+#[doc = " Opaque Window handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_window_t = u64;
+#[doc = " Owning list of Window handles."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct native_window_list_t {
@@ -86,26 +246,72 @@ impl Default for native_window_list_t {
         }
     }
 }
-pub const NATIVE_TITLE_BAR_STYLE_NORMAL: native_title_bar_style_t = 0;
-pub const NATIVE_TITLE_BAR_STYLE_HIDDEN: native_title_bar_style_t = 1;
-#[doc = " Title bar style enumeration"]
-pub type native_title_bar_style_t = ::std::os::raw::c_uint;
-pub const NATIVE_VISUAL_EFFECT_NONE: native_visual_effect_t = 0;
-pub const NATIVE_VISUAL_EFFECT_BLUR: native_visual_effect_t = 1;
-pub const NATIVE_VISUAL_EFFECT_ACRYLIC: native_visual_effect_t = 2;
-pub const NATIVE_VISUAL_EFFECT_MICA: native_visual_effect_t = 3;
-#[doc = " Visual effect styles for window background"]
-pub type native_visual_effect_t = ::std::os::raw::c_uint;
+pub const NATIVE_WINDOW_EVENT_TYPE_FOCUSED: native_window_event_type_t = 0;
+pub const NATIVE_WINDOW_EVENT_TYPE_BLURRED: native_window_event_type_t = 1;
+pub const NATIVE_WINDOW_EVENT_TYPE_MINIMIZED: native_window_event_type_t = 2;
+pub const NATIVE_WINDOW_EVENT_TYPE_MAXIMIZED: native_window_event_type_t = 3;
+pub const NATIVE_WINDOW_EVENT_TYPE_RESTORED: native_window_event_type_t = 4;
+pub const NATIVE_WINDOW_EVENT_TYPE_MOVED: native_window_event_type_t = 5;
+pub const NATIVE_WINDOW_EVENT_TYPE_RESIZED: native_window_event_type_t = 6;
+#[doc = " Which concrete WindowEvent arrived."]
+pub type native_window_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One WindowEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct native_window_event_t {
+    pub type_: native_window_event_type_t,
+    pub window_id: native_window_id_t,
+    pub data: native_window_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_window_event_t__bindgen_ty_1 {
+    pub moved: native_window_event_t__bindgen_ty_1__bindgen_ty_1,
+    pub resized: native_window_event_t__bindgen_ty_1__bindgen_ty_2,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_window_event_t__bindgen_ty_1__bindgen_ty_1 {
+    pub new_position: native_point_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_window_event_t__bindgen_ty_1__bindgen_ty_2 {
+    pub new_size: native_size_t,
+}
+impl Default for native_window_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_window_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type native_window_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        event: *const native_window_event_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ),
+>;
 unsafe extern "C" {
+    #[doc = " Creates a Window instance; release it with native_window_free()."]
     pub fn native_window_create() -> native_window_t;
 }
 unsafe extern "C" {
-    pub fn native_window_create_from_native(
+    #[doc = " Creates a Window instance; release it with native_window_free()."]
+    pub fn native_window_create_with_native_window(
         native_window: *mut ::std::os::raw::c_void,
     ) -> native_window_t;
-}
-unsafe extern "C" {
-    pub fn native_window_destroy(window: native_window_t);
 }
 unsafe extern "C" {
     pub fn native_window_get_id(window: native_window_t) -> native_window_id_t;
@@ -150,10 +356,10 @@ unsafe extern "C" {
     pub fn native_window_is_minimized(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
-    pub fn native_window_set_fullscreen(window: native_window_t, is_fullscreen: bool);
+    pub fn native_window_set_full_screen(window: native_window_t, is_full_screen: bool);
 }
 unsafe extern "C" {
-    pub fn native_window_is_fullscreen(window: native_window_t) -> bool;
+    pub fn native_window_is_full_screen(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
     pub fn native_window_set_bounds(window: native_window_t, bounds: native_rectangle_t);
@@ -162,37 +368,88 @@ unsafe extern "C" {
     pub fn native_window_get_bounds(window: native_window_t) -> native_rectangle_t;
 }
 unsafe extern "C" {
-    pub fn native_window_set_size(window: native_window_t, width: f64, height: f64, animate: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_get_size(window: native_window_t) -> native_size_t;
-}
-unsafe extern "C" {
-    pub fn native_window_set_content_size(window: native_window_t, width: f64, height: f64);
-}
-unsafe extern "C" {
-    pub fn native_window_get_content_size(window: native_window_t) -> native_size_t;
-}
-unsafe extern "C" {
     pub fn native_window_set_content_bounds(window: native_window_t, bounds: native_rectangle_t);
 }
 unsafe extern "C" {
     pub fn native_window_get_content_bounds(window: native_window_t) -> native_rectangle_t;
 }
 unsafe extern "C" {
-    pub fn native_window_set_minimum_size(window: native_window_t, width: f64, height: f64);
+    pub fn native_window_set_size(window: native_window_t, size: native_size_t, animate: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_get_size(window: native_window_t) -> native_size_t;
+}
+unsafe extern "C" {
+    pub fn native_window_set_content_size(window: native_window_t, size: native_size_t);
+}
+unsafe extern "C" {
+    pub fn native_window_get_content_size(window: native_window_t) -> native_size_t;
+}
+unsafe extern "C" {
+    pub fn native_window_set_minimum_size(window: native_window_t, size: native_size_t);
 }
 unsafe extern "C" {
     pub fn native_window_get_minimum_size(window: native_window_t) -> native_size_t;
 }
 unsafe extern "C" {
-    pub fn native_window_set_maximum_size(window: native_window_t, width: f64, height: f64);
+    pub fn native_window_set_maximum_size(window: native_window_t, size: native_size_t);
 }
 unsafe extern "C" {
     pub fn native_window_get_maximum_size(window: native_window_t) -> native_size_t;
 }
 unsafe extern "C" {
-    pub fn native_window_set_position(window: native_window_t, x: f64, y: f64);
+    pub fn native_window_set_resizable(window: native_window_t, is_resizable: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_resizable(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_movable(window: native_window_t, is_movable: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_movable(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_minimizable(window: native_window_t, is_minimizable: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_minimizable(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_maximizable(window: native_window_t, is_maximizable: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_maximizable(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_full_screenable(window: native_window_t, is_full_screenable: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_full_screenable(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_closable(window: native_window_t, is_closable: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_closable(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_window_control_buttons_visible(
+        window: native_window_t,
+        is_visible: bool,
+    );
+}
+unsafe extern "C" {
+    pub fn native_window_is_window_control_buttons_visible(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_always_on_top(window: native_window_t, is_always_on_top: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_always_on_top(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_position(window: native_window_t, point: native_point_t);
 }
 unsafe extern "C" {
     pub fn native_window_get_position(window: native_window_t) -> native_point_t;
@@ -201,60 +458,10 @@ unsafe extern "C" {
     pub fn native_window_center(window: native_window_t);
 }
 unsafe extern "C" {
-    pub fn native_window_set_resizable(window: native_window_t, resizable: bool);
+    pub fn native_window_set_title(window: native_window_t, title: *const ::std::os::raw::c_char);
 }
 unsafe extern "C" {
-    pub fn native_window_is_resizable(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_movable(window: native_window_t, movable: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_movable(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_minimizable(window: native_window_t, minimizable: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_minimizable(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_maximizable(window: native_window_t, maximizable: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_maximizable(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_fullscreenable(window: native_window_t, fullscreenable: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_fullscreenable(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_closable(window: native_window_t, closable: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_closable(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_window_control_buttons_visible(window: native_window_t, visible: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_window_control_buttons_visible(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_always_on_top(window: native_window_t, always_on_top: bool);
-}
-unsafe extern "C" {
-    pub fn native_window_is_always_on_top(window: native_window_t) -> bool;
-}
-unsafe extern "C" {
-    pub fn native_window_set_title(
-        window: native_window_t,
-        title: *const ::std::os::raw::c_char,
-    ) -> bool;
-}
-unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_window_get_title(window: native_window_t) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
@@ -291,19 +498,25 @@ unsafe extern "C" {
     pub fn native_window_get_background_color(window: native_window_t) -> native_color_t;
 }
 unsafe extern "C" {
-    pub fn native_window_set_visible_on_all_workspaces(window: native_window_t, visible: bool);
+    pub fn native_window_set_visible_on_all_workspaces(
+        window: native_window_t,
+        is_visible_on_all_workspaces: bool,
+    );
 }
 unsafe extern "C" {
     pub fn native_window_is_visible_on_all_workspaces(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
-    pub fn native_window_set_ignore_mouse_events(window: native_window_t, ignore: bool);
+    pub fn native_window_set_ignore_mouse_events(
+        window: native_window_t,
+        is_ignore_mouse_events: bool,
+    );
 }
 unsafe extern "C" {
     pub fn native_window_is_ignore_mouse_events(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
-    pub fn native_window_set_focusable(window: native_window_t, focusable: bool);
+    pub fn native_window_set_focusable(window: native_window_t, is_focusable: bool);
 }
 unsafe extern "C" {
     pub fn native_window_is_focusable(window: native_window_t) -> bool;
@@ -315,29 +528,430 @@ unsafe extern "C" {
     pub fn native_window_start_resizing(window: native_window_t);
 }
 unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
     pub fn native_window_get_native_object(window: native_window_t) -> *mut ::std::os::raw::c_void;
 }
 unsafe extern "C" {
-    pub fn native_window_free_string(str_: *mut ::std::os::raw::c_char);
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_window_free(window: native_window_t);
 }
 unsafe extern "C" {
+    #[doc = " Frees the array and releases every handle it contains."]
     pub fn native_window_list_free(list: *mut native_window_list_t);
 }
-#[doc = " @brief Opaque handle for the Application instance"]
-pub type native_application_t = *mut ::std::os::raw::c_void;
-pub const NATIVE_APPLICATION_EVENT_STARTED: native_application_event_type_t = 0;
-pub const NATIVE_APPLICATION_EVENT_EXITING: native_application_event_type_t = 1;
-pub const NATIVE_APPLICATION_EVENT_ACTIVATED: native_application_event_type_t = 2;
-pub const NATIVE_APPLICATION_EVENT_DEACTIVATED: native_application_event_type_t = 3;
-pub const NATIVE_APPLICATION_EVENT_QUIT_REQUESTED: native_application_event_type_t = 4;
-#[doc = " @brief Application event types"]
-pub type native_application_event_type_t = ::std::os::raw::c_uint;
-#[doc = " @brief Application event structure"]
+unsafe extern "C" {
+    #[doc = " Frees only the array; the caller takes over the handles."]
+    pub fn native_window_list_release(list: *mut native_window_list_t);
+}
+pub const NATIVE_POSITIONING_STRATEGY_TYPE_ABSOLUTE: native_positioning_strategy_type_t = 0;
+pub const NATIVE_POSITIONING_STRATEGY_TYPE_CURSOR_POSITION: native_positioning_strategy_type_t = 1;
+pub const NATIVE_POSITIONING_STRATEGY_TYPE_RELATIVE: native_positioning_strategy_type_t = 2;
+pub type native_positioning_strategy_type_t = ::std::os::raw::c_uint;
+#[doc = " Opaque PositioningStrategy handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_POSITIONING_STRATEGY rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_positioning_strategy_t = u64;
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_positioning_strategy_free()."]
+    pub fn native_positioning_strategy_absolute(
+        point: native_point_t,
+    ) -> native_positioning_strategy_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_positioning_strategy_free()."]
+    pub fn native_positioning_strategy_cursor_position() -> native_positioning_strategy_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_positioning_strategy_free()."]
+    pub fn native_positioning_strategy_relative_with_rect_and_offset(
+        rect: native_rectangle_t,
+        offset: native_point_t,
+    ) -> native_positioning_strategy_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_positioning_strategy_free()."]
+    pub fn native_positioning_strategy_relative_with_window_and_offset(
+        window: native_window_t,
+        offset: native_point_t,
+    ) -> native_positioning_strategy_t;
+}
+unsafe extern "C" {
+    pub fn native_positioning_strategy_get_type(
+        positioning_strategy: native_positioning_strategy_t,
+    ) -> native_positioning_strategy_type_t;
+}
+unsafe extern "C" {
+    pub fn native_positioning_strategy_get_absolute_position(
+        positioning_strategy: native_positioning_strategy_t,
+    ) -> native_point_t;
+}
+unsafe extern "C" {
+    pub fn native_positioning_strategy_get_relative_rectangle(
+        positioning_strategy: native_positioning_strategy_t,
+    ) -> native_rectangle_t;
+}
+unsafe extern "C" {
+    pub fn native_positioning_strategy_get_relative_offset(
+        positioning_strategy: native_positioning_strategy_t,
+    ) -> native_point_t;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_positioning_strategy_free(positioning_strategy: native_positioning_strategy_t);
+}
+pub type native_menu_id_t = ::std::os::raw::c_uint;
+pub type native_menu_item_id_t = ::std::os::raw::c_uint;
+pub const NATIVE_MENU_ITEM_TYPE_NORMAL: native_menu_item_type_t = 0;
+pub const NATIVE_MENU_ITEM_TYPE_CHECKBOX: native_menu_item_type_t = 1;
+pub const NATIVE_MENU_ITEM_TYPE_RADIO: native_menu_item_type_t = 2;
+pub const NATIVE_MENU_ITEM_TYPE_SEPARATOR: native_menu_item_type_t = 3;
+pub const NATIVE_MENU_ITEM_TYPE_SUBMENU: native_menu_item_type_t = 4;
+pub type native_menu_item_type_t = ::std::os::raw::c_uint;
+pub const NATIVE_MENU_ITEM_STATE_UNCHECKED: native_menu_item_state_t = 0;
+pub const NATIVE_MENU_ITEM_STATE_CHECKED: native_menu_item_state_t = 1;
+pub const NATIVE_MENU_ITEM_STATE_MIXED: native_menu_item_state_t = 2;
+pub type native_menu_item_state_t = ::std::os::raw::c_uint;
+#[doc = " Opaque MenuItem handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_MENU_ITEM rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_menu_item_t = u64;
+#[doc = " Owning list of MenuItem handles."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct native_menu_item_list_t {
+    pub menu_items: *mut native_menu_item_t,
+    pub count: ::std::os::raw::c_long,
+}
+impl Default for native_menu_item_list_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[doc = " Opaque Menu handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_MENU rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_menu_t = u64;
+pub const NATIVE_MENU_EVENT_TYPE_OPENED: native_menu_event_type_t = 0;
+pub const NATIVE_MENU_EVENT_TYPE_CLOSED: native_menu_event_type_t = 1;
+pub const NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED: native_menu_event_type_t = 2;
+pub const NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_OPENED: native_menu_event_type_t = 3;
+pub const NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_CLOSED: native_menu_event_type_t = 4;
+#[doc = " Which concrete MenuEvent arrived."]
+pub type native_menu_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One MenuEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct native_menu_event_t {
+    pub type_: native_menu_event_type_t,
+    pub data: native_menu_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_menu_event_t__bindgen_ty_1 {
+    pub opened: native_menu_event_t__bindgen_ty_1__bindgen_ty_1,
+    pub closed: native_menu_event_t__bindgen_ty_1__bindgen_ty_2,
+    pub item_clicked: native_menu_event_t__bindgen_ty_1__bindgen_ty_3,
+    pub item_submenu_opened: native_menu_event_t__bindgen_ty_1__bindgen_ty_4,
+    pub item_submenu_closed: native_menu_event_t__bindgen_ty_1__bindgen_ty_5,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_menu_event_t__bindgen_ty_1__bindgen_ty_1 {
+    pub menu_id: native_menu_id_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_menu_event_t__bindgen_ty_1__bindgen_ty_2 {
+    pub menu_id: native_menu_id_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_menu_event_t__bindgen_ty_1__bindgen_ty_3 {
+    pub item_id: native_menu_item_id_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_menu_event_t__bindgen_ty_1__bindgen_ty_4 {
+    pub item_id: native_menu_item_id_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_menu_event_t__bindgen_ty_1__bindgen_ty_5 {
+    pub item_id: native_menu_item_id_t,
+}
+impl Default for native_menu_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_menu_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type native_menu_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(event: *const native_menu_event_t, user_data: *mut ::std::os::raw::c_void),
+>;
+unsafe extern "C" {
+    #[doc = " Creates a MenuItem instance; release it with native_menu_item_free()."]
+    pub fn native_menu_item_create_with_label_and_type(
+        label: *const ::std::os::raw::c_char,
+        type_: native_menu_item_type_t,
+    ) -> native_menu_item_t;
+}
+unsafe extern "C" {
+    #[doc = " Creates a MenuItem instance; release it with native_menu_item_free()."]
+    pub fn native_menu_item_create_with_native_item(
+        native_item: *mut ::std::os::raw::c_void,
+    ) -> native_menu_item_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_get_id(menu_item: native_menu_item_t) -> native_menu_item_id_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_get_type(menu_item: native_menu_item_t) -> native_menu_item_type_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_label(
+        menu_item: native_menu_item_t,
+        label: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_menu_item_get_label(menu_item: native_menu_item_t)
+        -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_icon(menu_item: native_menu_item_t, image: native_image_t);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_image_free()."]
+    pub fn native_menu_item_get_icon(menu_item: native_menu_item_t) -> native_image_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_tooltip(
+        menu_item: native_menu_item_t,
+        tooltip: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_menu_item_get_tooltip(
+        menu_item: native_menu_item_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_accelerator(
+        menu_item: native_menu_item_t,
+        accelerator: *const native_keyboard_accelerator_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_menu_item_get_accelerator(
+        menu_item: native_menu_item_t,
+    ) -> native_keyboard_accelerator_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_enabled(menu_item: native_menu_item_t, enabled: bool);
+}
+unsafe extern "C" {
+    pub fn native_menu_item_is_enabled(menu_item: native_menu_item_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_state(
+        menu_item: native_menu_item_t,
+        state: native_menu_item_state_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_menu_item_get_state(menu_item: native_menu_item_t) -> native_menu_item_state_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_radio_group(
+        menu_item: native_menu_item_t,
+        group_id: ::std::os::raw::c_int,
+    );
+}
+unsafe extern "C" {
+    pub fn native_menu_item_get_radio_group(menu_item: native_menu_item_t)
+        -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    pub fn native_menu_item_set_submenu(menu_item: native_menu_item_t, submenu: native_menu_t);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_menu_free()."]
+    pub fn native_menu_item_get_submenu(menu_item: native_menu_item_t) -> native_menu_t;
+}
+unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
+    pub fn native_menu_item_get_native_object(
+        menu_item: native_menu_item_t,
+    ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_menu_item_free(menu_item: native_menu_item_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees the array and releases every handle it contains."]
+    pub fn native_menu_item_list_free(list: *mut native_menu_item_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees only the array; the caller takes over the handles."]
+    pub fn native_menu_item_list_release(list: *mut native_menu_item_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Registers @p callback for every MenuEvent this MenuItem emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_menu_item_add_listener(
+        menu_item: native_menu_item_t,
+        callback: native_menu_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_menu_item_remove_listener(
+        menu_item: native_menu_item_t,
+        listener_id: native_listener_id_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Creates a Menu instance; release it with native_menu_free()."]
+    pub fn native_menu_create() -> native_menu_t;
+}
+unsafe extern "C" {
+    #[doc = " Creates a Menu instance; release it with native_menu_free()."]
+    pub fn native_menu_create_with_native_menu(
+        native_menu: *mut ::std::os::raw::c_void,
+    ) -> native_menu_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_get_id(menu: native_menu_t) -> native_menu_id_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_add_item(menu: native_menu_t, item: native_menu_item_t);
+}
+unsafe extern "C" {
+    pub fn native_menu_insert_item(
+        menu: native_menu_t,
+        index: ::std::os::raw::c_ulong,
+        item: native_menu_item_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_menu_remove_item(menu: native_menu_t, item: native_menu_item_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_menu_remove_item_by_id(
+        menu: native_menu_t,
+        item_id: native_menu_item_id_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_menu_remove_item_at(menu: native_menu_t, index: ::std::os::raw::c_ulong) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_menu_clear(menu: native_menu_t);
+}
+unsafe extern "C" {
+    pub fn native_menu_add_separator(menu: native_menu_t);
+}
+unsafe extern "C" {
+    pub fn native_menu_insert_separator(menu: native_menu_t, index: ::std::os::raw::c_ulong);
+}
+unsafe extern "C" {
+    pub fn native_menu_get_item_count(menu: native_menu_t) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_menu_item_free()."]
+    pub fn native_menu_get_item_at(
+        menu: native_menu_t,
+        index: ::std::os::raw::c_ulong,
+    ) -> native_menu_item_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_menu_item_free()."]
+    pub fn native_menu_get_item_by_id(
+        menu: native_menu_t,
+        item_id: native_menu_item_id_t,
+    ) -> native_menu_item_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_get_all_items(menu: native_menu_t) -> native_menu_item_list_t;
+}
+unsafe extern "C" {
+    pub fn native_menu_open(
+        menu: native_menu_t,
+        strategy: native_positioning_strategy_t,
+        placement: native_placement_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_menu_close(menu: native_menu_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
+    pub fn native_menu_get_native_object(menu: native_menu_t) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_menu_free(menu: native_menu_t);
+}
+unsafe extern "C" {
+    #[doc = " Registers @p callback for every MenuEvent this Menu emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_menu_add_listener(
+        menu: native_menu_t,
+        callback: native_menu_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_menu_remove_listener(
+        menu: native_menu_t,
+        listener_id: native_listener_id_t,
+    ) -> bool;
+}
+pub const NATIVE_APPLICATION_EVENT_TYPE_STARTED: native_application_event_type_t = 0;
+pub const NATIVE_APPLICATION_EVENT_TYPE_EXITING: native_application_event_type_t = 1;
+pub const NATIVE_APPLICATION_EVENT_TYPE_ACTIVATED: native_application_event_type_t = 2;
+pub const NATIVE_APPLICATION_EVENT_TYPE_DEACTIVATED: native_application_event_type_t = 3;
+pub const NATIVE_APPLICATION_EVENT_TYPE_QUIT_REQUESTED: native_application_event_type_t = 4;
+#[doc = " Which concrete ApplicationEvent arrived."]
+pub type native_application_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One ApplicationEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub struct native_application_event_t {
     pub type_: native_application_event_type_t,
+    pub data: native_application_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_application_event_t__bindgen_ty_1 {
+    pub exiting: native_application_event_t__bindgen_ty_1__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_application_event_t__bindgen_ty_1__bindgen_ty_1 {
     pub exit_code: ::std::os::raw::c_int,
+}
+impl Default for native_application_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl Default for native_application_event_t {
     fn default() -> Self {
@@ -348,154 +962,69 @@ impl Default for native_application_event_t {
         }
     }
 }
-#[doc = " @brief Application event callback function type"]
-pub type native_application_event_callback_t =
-    ::std::option::Option<unsafe extern "C" fn(event: *const native_application_event_t)>;
+pub type native_application_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        event: *const native_application_event_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ),
+>;
 unsafe extern "C" {
-    #[doc = " @brief Get the singleton instance of Application\n\n @return Handle to the singleton Application instance"]
-    pub fn native_application_get_instance() -> native_application_t;
+    pub fn native_application_run() -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = " @brief Run the application main event loop\n\n @param app Application handle (must not be NULL)\n @return Exit code of the application (0 for success)"]
-    pub fn native_application_run(app: native_application_t) -> ::std::os::raw::c_int;
+    pub fn native_application_run_with_window(window: native_window_t) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = " @brief Run the application with the specified window\n\n @param app Application handle (must not be NULL)\n @param window Window handle (must not be NULL)\n @return Exit code of the application (0 for success)"]
-    pub fn native_application_run_with_window(
-        app: native_application_t,
-        window: native_window_t,
-    ) -> ::std::os::raw::c_int;
+    pub fn native_application_quit(exit_code: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
-    #[doc = " @brief Request the application to quit\n\n @param app Application handle (must not be NULL)\n @param exit_code The exit code to use when quitting (default: 0)"]
-    pub fn native_application_quit(app: native_application_t, exit_code: ::std::os::raw::c_int);
+    pub fn native_application_is_running() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Check if the application is currently running\n\n @param app Application handle (must not be NULL)\n @return true if the application is running, false otherwise"]
-    pub fn native_application_is_running(app: native_application_t) -> bool;
+    pub fn native_application_is_single_instance() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Check if this is a single instance application\n\n @param app Application handle (must not be NULL)\n @return true if only one instance is allowed, false otherwise"]
-    pub fn native_application_is_single_instance(app: native_application_t) -> bool;
+    pub fn native_application_set_icon(icon_path: *const ::std::os::raw::c_char) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Set the application icon\n\n @param app Application handle (must not be NULL)\n @param icon_path Path to the icon file (must not be NULL)\n @return true if the icon was set successfully, false otherwise"]
-    pub fn native_application_set_icon(
-        app: native_application_t,
-        icon_path: *const ::std::os::raw::c_char,
-    ) -> bool;
+    pub fn native_application_set_dock_icon_visible(visible: bool) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Show or hide the dock icon (macOS only)\n\n @param app Application handle (must not be NULL)\n @param visible true to show the dock icon, false to hide it\n @return true if the operation succeeded, false otherwise"]
-    pub fn native_application_set_dock_icon_visible(
-        app: native_application_t,
-        visible: bool,
-    ) -> bool;
+    pub fn native_application_set_menu_bar(menu: native_menu_t) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Add an event listener for application events\n\n @param app Application handle (must not be NULL)\n @param callback Event callback function (must not be NULL)\n @return Listener ID that can be used to remove the listener, or 0 on failure"]
-    pub fn native_application_add_event_listener(
-        app: native_application_t,
+    #[doc = " Caller owns the returned handle; release it with native_window_free()."]
+    pub fn native_application_get_primary_window() -> native_window_t;
+}
+unsafe extern "C" {
+    pub fn native_application_set_primary_window(window: native_window_t);
+}
+unsafe extern "C" {
+    pub fn native_application_get_all_windows() -> native_window_list_t;
+}
+unsafe extern "C" {
+    #[doc = " Registers @p callback for every ApplicationEvent this Application emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_application_add_listener(
         callback: native_application_event_callback_t,
-    ) -> usize;
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Remove an event listener by ID\n\n @param app Application handle (must not be NULL)\n @param listener_id The ID returned by native_application_add_event_listener\n @return true if the listener was found and removed, false otherwise"]
-    pub fn native_application_remove_event_listener(
-        app: native_application_t,
-        listener_id: usize,
-    ) -> bool;
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_application_remove_listener(listener_id: native_listener_id_t) -> bool;
 }
-#[doc = " Opaque handle type for LaunchAtLogin instance."]
-pub type native_launch_at_login_t = *mut ::std::os::raw::c_void;
-unsafe extern "C" {
-    #[doc = " Create a LaunchAtLogin manager with defaults derived from the current application.\n\n @return Handle to a LaunchAtLogin instance, or NULL on failure."]
-    pub fn native_launch_at_login_create() -> native_launch_at_login_t;
-}
-unsafe extern "C" {
-    #[doc = " Create a LaunchAtLogin manager with a custom identifier.\n\n @param id A stable, unique identifier for your app (e.g., \"com.example.myapp\").\n @return Handle to a LaunchAtLogin instance, or NULL on failure."]
-    pub fn native_launch_at_login_create_with_id(
-        id: *const ::std::os::raw::c_char,
-    ) -> native_launch_at_login_t;
-}
-unsafe extern "C" {
-    #[doc = " Create a LaunchAtLogin manager with a custom identifier and display name.\n\n @param id           Stable, unique identifier (e.g., \"com.example.myapp\").\n @param display_name Human-readable application name (e.g., \"MyApp\").\n @return Handle to a LaunchAtLogin instance, or NULL on failure."]
-    pub fn native_launch_at_login_create_with_id_and_name(
-        id: *const ::std::os::raw::c_char,
-        display_name: *const ::std::os::raw::c_char,
-    ) -> native_launch_at_login_t;
-}
-unsafe extern "C" {
-    #[doc = " Destroy a LaunchAtLogin instance and release resources.\n\n @param launch_at_login Handle returned by a native_launch_at_login_create* function."]
-    pub fn native_launch_at_login_destroy(launch_at_login: native_launch_at_login_t);
-}
-unsafe extern "C" {
-    #[doc = " Check if launch-at-login management is supported on the current platform.\n\n This is a static check that does not require a LaunchAtLogin instance.\n\n @return true if supported, false if unsupported."]
-    pub fn native_launch_at_login_is_supported() -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Get the identifier associated with this LaunchAtLogin instance.\n\n @param launch_at_login LaunchAtLogin handle.\n @return Newly allocated string with the identifier, or NULL on error.\n         Caller must free with free_c_str()."]
-    pub fn native_launch_at_login_get_id(
-        launch_at_login: native_launch_at_login_t,
-    ) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Get the human-readable display name associated with this LaunchAtLogin instance.\n\n @param launch_at_login LaunchAtLogin handle.\n @return Newly allocated string with the display name, or NULL on error.\n         Caller must free with free_c_str()."]
-    pub fn native_launch_at_login_get_display_name(
-        launch_at_login: native_launch_at_login_t,
-    ) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Set the human-readable display name used where applicable.\n\n @param launch_at_login    LaunchAtLogin handle.\n @param display_name The display name to set.\n @return true if stored successfully; does not change OS registration until Enable()."]
-    pub fn native_launch_at_login_set_display_name(
-        launch_at_login: native_launch_at_login_t,
-        display_name: *const ::std::os::raw::c_char,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Set the program (executable) path and optional arguments to use when launching at login.\n\n If not set, the implementation attempts to use the current process executable.\n Pass NULL for arguments or argument_count == 0 when no arguments are needed.\n On macOS, SMAppService does not support arbitrary executable paths or arguments for\n main-app login items.\n\n @param launch_at_login       LaunchAtLogin handle.\n @param executable_path Absolute path to the executable to launch on login.\n @param arguments       Array of argument strings (can be NULL if count is 0).\n @param argument_count  Number of strings in the arguments array.\n @return true if stored successfully; does not change OS registration until Enable()."]
-    pub fn native_launch_at_login_set_program(
-        launch_at_login: native_launch_at_login_t,
-        executable_path: *const ::std::os::raw::c_char,
-        arguments: *const *const ::std::os::raw::c_char,
-        argument_count: usize,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Get the currently configured executable path.\n\n @param launch_at_login LaunchAtLogin handle.\n @return Newly allocated string with the executable path, or NULL on error.\n         Caller must free with free_c_str()."]
-    pub fn native_launch_at_login_get_executable_path(
-        launch_at_login: native_launch_at_login_t,
-    ) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Get the currently configured arguments for launch-at-login.\n\n @param launch_at_login     LaunchAtLogin handle.\n @param out_arguments Output pointer to an array of newly allocated strings.\n @param out_count     Output pointer to receive the number of arguments.\n @return true on success; false on error. On success, free each string with\n         free_c_str() and the array with delete[]."]
-    pub fn native_launch_at_login_get_arguments(
-        launch_at_login: native_launch_at_login_t,
-        out_arguments: *mut *mut *mut ::std::os::raw::c_char,
-        out_count: *mut usize,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Enable launch-at-login for the configured program and arguments.\n\n @param launch_at_login LaunchAtLogin handle.\n @return true on success, false on failure or if unsupported."]
-    pub fn native_launch_at_login_enable(launch_at_login: native_launch_at_login_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Disable launch-at-login.\n\n @param launch_at_login LaunchAtLogin handle.\n @return true on success, false on failure or if unsupported."]
-    pub fn native_launch_at_login_disable(launch_at_login: native_launch_at_login_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Check whether launch-at-login is currently enabled for this identifier.\n\n @param launch_at_login LaunchAtLogin handle.\n @return true if enabled, false otherwise or on error."]
-    pub fn native_launch_at_login_is_enabled(launch_at_login: native_launch_at_login_t) -> bool;
-}
+pub const NATIVE_DIALOG_MODALITY_NONE: native_dialog_modality_t = 0;
+pub const NATIVE_DIALOG_MODALITY_APPLICATION: native_dialog_modality_t = 1;
+pub const NATIVE_DIALOG_MODALITY_WINDOW: native_dialog_modality_t = 2;
+pub type native_dialog_modality_t = ::std::os::raw::c_uint;
 pub const NATIVE_DISPLAY_ORIENTATION_PORTRAIT: native_display_orientation_t = 0;
 pub const NATIVE_DISPLAY_ORIENTATION_LANDSCAPE: native_display_orientation_t = 90;
 pub const NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED: native_display_orientation_t = 180;
 pub const NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED: native_display_orientation_t = 270;
-#[doc = " Display orientation enumeration"]
 pub type native_display_orientation_t = ::std::os::raw::c_uint;
-#[doc = " Opaque display handle\n Align with window handle design: use a raw pointer to underlying C++ type"]
-pub type native_display_t = *mut ::std::os::raw::c_void;
-#[doc = " Display list structure"]
+#[doc = " Opaque Display handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_DISPLAY rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_display_t = u64;
+#[doc = " Owning list of Display handles."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct native_display_list_t {
@@ -511,10 +1040,70 @@ impl Default for native_display_list_t {
         }
     }
 }
+pub const NATIVE_DISPLAY_EVENT_TYPE_ADDED: native_display_event_type_t = 0;
+pub const NATIVE_DISPLAY_EVENT_TYPE_REMOVED: native_display_event_type_t = 1;
+pub const NATIVE_DISPLAY_EVENT_TYPE_CHANGED: native_display_event_type_t = 2;
+#[doc = " Which concrete DisplayEvent arrived."]
+pub type native_display_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One DisplayEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct native_display_event_t {
+    pub type_: native_display_event_type_t,
+    pub display: native_display_t,
+    pub data: native_display_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_display_event_t__bindgen_ty_1 {
+    pub changed: native_display_event_t__bindgen_ty_1__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_display_event_t__bindgen_ty_1__bindgen_ty_1 {
+    pub old_display: native_display_t,
+    pub new_display: native_display_t,
+}
+impl Default for native_display_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_display_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type native_display_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        event: *const native_display_event_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ),
+>;
 unsafe extern "C" {
+    #[doc = " Creates a Display instance; release it with native_display_free()."]
+    pub fn native_display_create() -> native_display_t;
+}
+unsafe extern "C" {
+    #[doc = " Creates a Display instance; release it with native_display_free()."]
+    pub fn native_display_create_with_display(
+        display: *mut ::std::os::raw::c_void,
+    ) -> native_display_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_display_get_id(display: native_display_t) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_display_get_name(display: native_display_t) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
@@ -544,198 +1133,88 @@ unsafe extern "C" {
     pub fn native_display_get_bit_depth(display: native_display_t) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
     pub fn native_display_get_native_object(
         display: native_display_t,
     ) -> *mut ::std::os::raw::c_void;
 }
 unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
     pub fn native_display_free(display: native_display_t);
 }
 unsafe extern "C" {
+    #[doc = " Frees the array and releases every handle it contains."]
     pub fn native_display_list_free(list: *mut native_display_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees only the array; the caller takes over the handles."]
+    pub fn native_display_list_release(list: *mut native_display_list_t);
 }
 unsafe extern "C" {
     pub fn native_display_manager_get_all() -> native_display_list_t;
 }
 unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_display_free()."]
     pub fn native_display_manager_get_primary() -> native_display_t;
 }
 unsafe extern "C" {
     pub fn native_display_manager_get_cursor_position() -> native_point_t;
 }
-#[doc = " Opaque handle for image objects"]
-pub type native_image_t = *mut ::std::os::raw::c_void;
 unsafe extern "C" {
-    #[doc = " Create an image from a file path\n @param file_path Path to the image file\n @return Image handle, or NULL if loading failed"]
-    pub fn native_image_from_file(file_path: *const ::std::os::raw::c_char) -> native_image_t;
-}
-unsafe extern "C" {
-    #[doc = " Create an image from base64-encoded data\n @param base64_data Base64-encoded image data, with or without data URI prefix\n @return Image handle, or NULL if decoding failed"]
-    pub fn native_image_from_base64(base64_data: *const ::std::os::raw::c_char) -> native_image_t;
-}
-unsafe extern "C" {
-    #[doc = " Destroy an image and release its resources\n @param image The image to destroy"]
-    pub fn native_image_destroy(image: native_image_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the size of an image in pixels\n @param image The image\n @return Size of the image (width and height will be 0 if invalid)"]
-    pub fn native_image_get_size(image: native_image_t) -> native_size_t;
-}
-unsafe extern "C" {
-    #[doc = " Get the image format string for debugging purposes\n @param image The image\n @return The image format (e.g., \"PNG\", \"JPEG\", \"GIF\"), or NULL if unknown\n (caller must free)"]
-    pub fn native_image_get_format(image: native_image_t) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Convert an image to base64-encoded PNG data\n @param image The image\n @return Base64-encoded PNG data with data URI prefix (caller must free), or\n NULL on error"]
-    pub fn native_image_to_base64(image: native_image_t) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Save an image to a file\n @param image The image\n @param file_path Path where the image should be saved\n @return true if saved successfully, false otherwise"]
-    pub fn native_image_save_to_file(
-        image: native_image_t,
-        file_path: *const ::std::os::raw::c_char,
-    ) -> bool;
-}
-pub const NATIVE_MODIFIER_KEY_NONE: native_modifier_key_t = 0;
-pub const NATIVE_MODIFIER_KEY_SHIFT: native_modifier_key_t = 1;
-pub const NATIVE_MODIFIER_KEY_CTRL: native_modifier_key_t = 2;
-pub const NATIVE_MODIFIER_KEY_ALT: native_modifier_key_t = 4;
-pub const NATIVE_MODIFIER_KEY_META: native_modifier_key_t = 8;
-pub const NATIVE_MODIFIER_KEY_FN: native_modifier_key_t = 16;
-pub const NATIVE_MODIFIER_KEY_CAPS_LOCK: native_modifier_key_t = 32;
-pub const NATIVE_MODIFIER_KEY_NUM_LOCK: native_modifier_key_t = 64;
-pub const NATIVE_MODIFIER_KEY_SCROLL_LOCK: native_modifier_key_t = 128;
-#[doc = " Modifier key enumeration for C API"]
-pub type native_modifier_key_t = ::std::os::raw::c_uint;
-#[doc = " Callback function type for key pressed events\n @param keycode The key code that was pressed\n @param user_data User-provided data passed to the callback"]
-pub type native_key_pressed_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(keycode: ::std::os::raw::c_int, user_data: *mut ::std::os::raw::c_void),
->;
-#[doc = " Callback function type for key released events\n @param keycode The key code that was released\n @param user_data User-provided data passed to the callback"]
-pub type native_key_released_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(keycode: ::std::os::raw::c_int, user_data: *mut ::std::os::raw::c_void),
->;
-#[doc = " Callback function type for modifier keys changed events\n @param modifier_keys Bitwise OR of active modifier keys\n @param user_data User-provided data passed to the callback"]
-pub type native_modifier_keys_changed_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(modifier_keys: u32, user_data: *mut ::std::os::raw::c_void),
->;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct native_keyboard_monitor_t {
-    _unused: [u8; 0],
-}
-unsafe extern "C" {
-    #[doc = " Create a new keyboard monitor instance\n @return Pointer to keyboard monitor instance, or NULL on failure"]
-    pub fn native_keyboard_monitor_create() -> *mut native_keyboard_monitor_t;
-}
-unsafe extern "C" {
-    #[doc = " Destroy a keyboard monitor instance\n @param monitor Pointer to keyboard monitor instance to destroy"]
-    pub fn native_keyboard_monitor_destroy(monitor: *mut native_keyboard_monitor_t);
-}
-unsafe extern "C" {
-    #[doc = " Set callback functions for keyboard events\n @param monitor Pointer to keyboard monitor instance\n @param on_key_pressed Callback for key pressed events (can be NULL)\n @param on_key_released Callback for key released events (can be NULL)\n @param on_modifier_keys_changed Callback for modifier keys changed events\n (can be NULL)\n @param user_data User data to pass to callbacks\n @return true on success, false on failure"]
-    pub fn native_keyboard_monitor_set_callbacks(
-        monitor: *mut native_keyboard_monitor_t,
-        on_key_pressed: native_key_pressed_callback_t,
-        on_key_released: native_key_released_callback_t,
-        on_modifier_keys_changed: native_modifier_keys_changed_callback_t,
+    #[doc = " Registers @p callback for every DisplayEvent this DisplayManager emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_display_manager_add_listener(
+        callback: native_display_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_display_manager_remove_listener(listener_id: native_listener_id_t) -> bool;
+}
+#[doc = " Opaque KeyboardMonitor handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_KEYBOARD_MONITOR rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_keyboard_monitor_t = u64;
+unsafe extern "C" {
+    #[doc = " Creates a KeyboardMonitor instance; release it with native_keyboard_monitor_free()."]
+    pub fn native_keyboard_monitor_create() -> native_keyboard_monitor_t;
+}
+unsafe extern "C" {
+    pub fn native_keyboard_monitor_start(keyboard_monitor: native_keyboard_monitor_t);
+}
+unsafe extern "C" {
+    pub fn native_keyboard_monitor_stop(keyboard_monitor: native_keyboard_monitor_t);
+}
+unsafe extern "C" {
+    pub fn native_keyboard_monitor_is_monitoring(
+        keyboard_monitor: native_keyboard_monitor_t,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Start keyboard monitoring\n @param monitor Pointer to keyboard monitor instance\n @return true on success, false on failure"]
-    pub fn native_keyboard_monitor_start(monitor: *mut native_keyboard_monitor_t) -> bool;
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_keyboard_monitor_free(keyboard_monitor: native_keyboard_monitor_t);
 }
 unsafe extern "C" {
-    #[doc = " Stop keyboard monitoring\n @param monitor Pointer to keyboard monitor instance\n @return true on success, false on failure"]
-    pub fn native_keyboard_monitor_stop(monitor: *mut native_keyboard_monitor_t) -> bool;
+    #[doc = " Registers @p callback for every KeyboardEvent this KeyboardMonitor emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_keyboard_monitor_add_listener(
+        keyboard_monitor: native_keyboard_monitor_t,
+        callback: native_keyboard_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
 }
 unsafe extern "C" {
-    #[doc = " Check if keyboard monitoring is active\n @param monitor Pointer to keyboard monitor instance\n @return true if monitoring is active, false otherwise"]
-    pub fn native_keyboard_monitor_is_monitoring(monitor: *const native_keyboard_monitor_t)
-        -> bool;
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_keyboard_monitor_remove_listener(
+        keyboard_monitor: native_keyboard_monitor_t,
+        listener_id: native_listener_id_t,
+    ) -> bool;
 }
-pub const NATIVE_PLACEMENT_TOP: native_placement_t = 0;
-pub const NATIVE_PLACEMENT_TOP_START: native_placement_t = 1;
-pub const NATIVE_PLACEMENT_TOP_END: native_placement_t = 2;
-pub const NATIVE_PLACEMENT_RIGHT: native_placement_t = 3;
-pub const NATIVE_PLACEMENT_RIGHT_START: native_placement_t = 4;
-pub const NATIVE_PLACEMENT_RIGHT_END: native_placement_t = 5;
-pub const NATIVE_PLACEMENT_BOTTOM: native_placement_t = 6;
-pub const NATIVE_PLACEMENT_BOTTOM_START: native_placement_t = 7;
-pub const NATIVE_PLACEMENT_BOTTOM_END: native_placement_t = 8;
-pub const NATIVE_PLACEMENT_LEFT: native_placement_t = 9;
-pub const NATIVE_PLACEMENT_LEFT_START: native_placement_t = 10;
-pub const NATIVE_PLACEMENT_LEFT_END: native_placement_t = 11;
-pub type native_placement_t = ::std::os::raw::c_uint;
-pub const NATIVE_POSITIONING_ABSOLUTE: native_positioning_strategy_type_t = 0;
-pub const NATIVE_POSITIONING_CURSOR_POSITION: native_positioning_strategy_type_t = 1;
-pub const NATIVE_POSITIONING_RELATIVE: native_positioning_strategy_type_t = 2;
-#[doc = " Type of positioning strategy"]
-pub type native_positioning_strategy_type_t = ::std::os::raw::c_uint;
-#[doc = " Opaque handle for positioning strategy"]
-pub type native_positioning_strategy_t = *mut ::std::os::raw::c_void;
-unsafe extern "C" {
-    #[doc = " Create a positioning strategy for absolute positioning at fixed coordinates\n @param point Point in screen coordinates\n @return Positioning strategy handle"]
-    pub fn native_positioning_strategy_absolute(
-        point: *const native_point_t,
-    ) -> native_positioning_strategy_t;
-}
-unsafe extern "C" {
-    #[doc = " Create a positioning strategy for positioning at current mouse location\n @return Positioning strategy handle"]
-    pub fn native_positioning_strategy_cursor_position() -> native_positioning_strategy_t;
-}
-unsafe extern "C" {
-    #[doc = " Create a positioning strategy for positioning relative to a rectangle\n @param rect Rectangle in screen coordinates to position relative to\n @param offset Offset point to apply to the position, or NULL for no offset\n @return Positioning strategy handle\n\n @example\n ```c\n native_rectangle_t buttonRect = {100, 100, 50, 30};\n native_point_t offset = {0, 10};\n native_positioning_strategy_t strategy = native_positioning_strategy_relative(&buttonRect,\n &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);\n ```"]
-    pub fn native_positioning_strategy_relative(
-        rect: *const native_rectangle_t,
-        offset: *const native_point_t,
-    ) -> native_positioning_strategy_t;
-}
-unsafe extern "C" {
-    #[doc = " Create a positioning strategy for positioning relative to a window\n @param window Window to position relative to\n @param offset Offset point to apply to the position, or NULL for no offset\n @return Positioning strategy handle, or NULL if window is invalid\n\n This function obtains the window's bounds using native_window_get_bounds()\n and creates a Relative positioning strategy based on those bounds.\n\n @example\n ```c\n native_window_t window = native_window_create();\n native_point_t offset = {0, 10};\n native_positioning_strategy_t strategy = native_positioning_strategy_relative_to_window(window,\n &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);\n ```"]
-    pub fn native_positioning_strategy_relative_to_window(
-        window: native_window_t,
-        offset: *const native_point_t,
-    ) -> native_positioning_strategy_t;
-}
-unsafe extern "C" {
-    #[doc = " Free a positioning strategy handle\n @param strategy The positioning strategy to free"]
-    pub fn native_positioning_strategy_free(strategy: native_positioning_strategy_t);
-}
-#[doc = " Opaque handles for menu objects"]
-pub type native_menu_t = *mut ::std::os::raw::c_void;
-pub type native_menu_item_t = *mut ::std::os::raw::c_void;
-#[doc = " Menu and menu item identifiers"]
-pub type native_menu_id_t = ::std::os::raw::c_long;
-pub type native_menu_item_id_t = ::std::os::raw::c_long;
-pub const NATIVE_MENU_ITEM_TYPE_NORMAL: native_menu_item_type_t = 0;
-pub const NATIVE_MENU_ITEM_TYPE_CHECKBOX: native_menu_item_type_t = 1;
-pub const NATIVE_MENU_ITEM_TYPE_RADIO: native_menu_item_type_t = 2;
-pub const NATIVE_MENU_ITEM_TYPE_SEPARATOR: native_menu_item_type_t = 3;
-pub const NATIVE_MENU_ITEM_TYPE_SUBMENU: native_menu_item_type_t = 4;
-#[doc = " Menu item types"]
-pub type native_menu_item_type_t = ::std::os::raw::c_uint;
-pub const NATIVE_MENU_ITEM_STATE_UNCHECKED: native_menu_item_state_t = 0;
-pub const NATIVE_MENU_ITEM_STATE_CHECKED: native_menu_item_state_t = 1;
-pub const NATIVE_MENU_ITEM_STATE_MIXED: native_menu_item_state_t = 2;
-#[doc = " Menu item states"]
-pub type native_menu_item_state_t = ::std::os::raw::c_uint;
-pub const NATIVE_ACCELERATOR_MODIFIER_NONE: native_accelerator_modifier_t = 0;
-pub const NATIVE_ACCELERATOR_MODIFIER_CTRL: native_accelerator_modifier_t = 1;
-pub const NATIVE_ACCELERATOR_MODIFIER_ALT: native_accelerator_modifier_t = 2;
-pub const NATIVE_ACCELERATOR_MODIFIER_SHIFT: native_accelerator_modifier_t = 4;
-pub const NATIVE_ACCELERATOR_MODIFIER_META: native_accelerator_modifier_t = 8;
-#[doc = " Keyboard accelerator modifier flags"]
-pub type native_accelerator_modifier_t = ::std::os::raw::c_uint;
-#[doc = " Keyboard accelerator structure"]
+#[doc = " An owning list of strings.\n\n Free with native_string_list_free(); it releases every item and the array."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct native_keyboard_accelerator_t {
-    pub modifiers: ::std::os::raw::c_int,
-    pub key: [::std::os::raw::c_char; 64usize],
+pub struct native_string_list_t {
+    pub items: *mut *mut ::std::os::raw::c_char,
+    pub count: ::std::os::raw::c_long,
 }
-impl Default for native_keyboard_accelerator_t {
+impl Default for native_string_list_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -744,32 +1223,15 @@ impl Default for native_keyboard_accelerator_t {
         }
     }
 }
-#[doc = " Menu item clicked event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_menu_item_clicked_event_t {
-    pub item_id: native_menu_item_id_t,
-}
-#[doc = " Menu item submenu opened event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_menu_item_submenu_opened_event_t {
-    pub item_id: native_menu_item_id_t,
-}
-#[doc = " Menu item submenu closed event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_menu_item_submenu_closed_event_t {
-    pub item_id: native_menu_item_id_t,
-}
-#[doc = " Menu item list structure"]
+#[doc = " An owning list of string key/value pairs. `keys[i]` corresponds to\n `values[i]`.\n\n Free with native_string_map_free(); it releases every entry and the arrays."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct native_menu_item_list_t {
-    pub items: *mut native_menu_item_t,
-    pub count: usize,
+pub struct native_string_map_t {
+    pub keys: *mut *mut ::std::os::raw::c_char,
+    pub values: *mut *mut ::std::os::raw::c_char,
+    pub count: ::std::os::raw::c_long,
 }
-impl Default for native_menu_item_list_t {
+impl Default for native_string_map_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -778,500 +1240,293 @@ impl Default for native_menu_item_list_t {
         }
     }
 }
-#[doc = " Menu opened event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_menu_opened_event_t {
-    pub menu_id: native_menu_id_t,
-}
-#[doc = " Menu closed event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_menu_closed_event_t {
-    pub menu_id: native_menu_id_t,
-}
-#[doc = " Event listener registration function types"]
-pub type native_menu_item_event_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        event: *const ::std::os::raw::c_void,
-        user_data: *mut ::std::os::raw::c_void,
-    ),
->;
-pub type native_menu_event_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        event: *const ::std::os::raw::c_void,
-        user_data: *mut ::std::os::raw::c_void,
-    ),
->;
-pub const NATIVE_MENU_ITEM_EVENT_CLICKED: native_menu_item_event_type_t = 0;
-pub const NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED: native_menu_item_event_type_t = 1;
-pub const NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED: native_menu_item_event_type_t = 2;
-#[doc = " Event types for menu item events"]
-pub type native_menu_item_event_type_t = ::std::os::raw::c_uint;
-pub const NATIVE_MENU_EVENT_OPENED: native_menu_event_type_t = 0;
-pub const NATIVE_MENU_EVENT_CLOSED: native_menu_event_type_t = 1;
-#[doc = " Event types for menu events"]
-pub type native_menu_event_type_t = ::std::os::raw::c_uint;
 unsafe extern "C" {
-    #[doc = " Create a new menu item\n @param label The display label for the menu item\n @param type The type of menu item to create\n @return Menu item handle, or NULL if creation failed"]
-    pub fn native_menu_item_create(
-        label: *const ::std::os::raw::c_char,
-        type_: native_menu_item_type_t,
-    ) -> native_menu_item_t;
+    #[doc = " Free a C string allocated by to_c_str\n @param str The string to free (can be nullptr)"]
+    pub fn free_c_str(str_: *mut ::std::os::raw::c_char);
 }
 unsafe extern "C" {
-    #[doc = " Create a separator menu item\n @return Menu item handle, or NULL if creation failed"]
-    pub fn native_menu_item_create_separator() -> native_menu_item_t;
+    #[doc = " Free a string list allocated by to_c_string_list\n @param list The list to free (can be nullptr)"]
+    pub fn native_string_list_free(list: *mut native_string_list_t);
 }
 unsafe extern "C" {
-    #[doc = " Destroy a menu item and release its resources\n @param item The menu item to destroy"]
-    pub fn native_menu_item_destroy(item: native_menu_item_t);
+    #[doc = " Free a string map allocated by to_c_string_map\n @param map The map to free (can be nullptr)"]
+    pub fn native_string_map_free(map: *mut native_string_map_t);
+}
+#[doc = " Opaque LaunchAtLogin handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_LAUNCH_AT_LOGIN rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_launch_at_login_t = u64;
+unsafe extern "C" {
+    #[doc = " Creates a LaunchAtLogin instance; release it with native_launch_at_login_free()."]
+    pub fn native_launch_at_login_create() -> native_launch_at_login_t;
 }
 unsafe extern "C" {
-    #[doc = " Get the ID of a menu item\n @param item The menu item\n @return The menu item ID"]
-    pub fn native_menu_item_get_id(item: native_menu_item_t) -> native_menu_item_id_t;
+    #[doc = " Creates a LaunchAtLogin instance; release it with native_launch_at_login_free()."]
+    pub fn native_launch_at_login_create_with_id(
+        id: *const ::std::os::raw::c_char,
+    ) -> native_launch_at_login_t;
 }
 unsafe extern "C" {
-    #[doc = " Get the type of a menu item\n @param item The menu item\n @return The menu item type"]
-    pub fn native_menu_item_get_type(item: native_menu_item_t) -> native_menu_item_type_t;
+    #[doc = " Creates a LaunchAtLogin instance; release it with native_launch_at_login_free()."]
+    pub fn native_launch_at_login_create_with_id_and_display_name(
+        id: *const ::std::os::raw::c_char,
+        display_name: *const ::std::os::raw::c_char,
+    ) -> native_launch_at_login_t;
 }
 unsafe extern "C" {
-    #[doc = " Set the label of a menu item\n @param item The menu item\n @param label The label to set"]
-    pub fn native_menu_item_set_label(
-        item: native_menu_item_t,
-        label: *const ::std::os::raw::c_char,
-    );
+    pub fn native_launch_at_login_is_supported() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Get the label of a menu item\n @param item The menu item\n @return The label string (caller must free), or NULL if item is invalid"]
-    pub fn native_menu_item_get_label(item: native_menu_item_t) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Set the icon of a menu item using an Image object\n @param item The menu item\n @param image The Image object to set as the icon, or NULL to clear the icon"]
-    pub fn native_menu_item_set_icon(item: native_menu_item_t, image: native_image_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the current icon image of the menu item\n @param item The menu item\n @return The Image object, or NULL if no icon is set. Caller must call\n         native_image_destroy() when done."]
-    pub fn native_menu_item_get_icon(item: native_menu_item_t) -> native_image_t;
-}
-unsafe extern "C" {
-    #[doc = " Set the tooltip of a menu item\n @param item The menu item\n @param tooltip The tooltip text to set"]
-    pub fn native_menu_item_set_tooltip(
-        item: native_menu_item_t,
-        tooltip: *const ::std::os::raw::c_char,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the tooltip of a menu item\n @param item The menu item\n @return The tooltip string (caller must free), or NULL if item is invalid or no tooltip set"]
-    pub fn native_menu_item_get_tooltip(item: native_menu_item_t) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Set the keyboard accelerator for a menu item\n @param item The menu item\n @param accelerator The keyboard accelerator to set, or NULL to remove the accelerator"]
-    pub fn native_menu_item_set_accelerator(
-        item: native_menu_item_t,
-        accelerator: *const native_keyboard_accelerator_t,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the keyboard accelerator of a menu item\n @param item The menu item\n @param accelerator Pointer to store the accelerator (caller allocated)\n @return true if accelerator exists, false otherwise"]
-    pub fn native_menu_item_get_accelerator(
-        item: native_menu_item_t,
-        accelerator: *mut native_keyboard_accelerator_t,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Set the enabled state of a menu item\n @param item The menu item\n @param enabled true to enable, false to disable"]
-    pub fn native_menu_item_set_enabled(item: native_menu_item_t, enabled: bool);
-}
-unsafe extern "C" {
-    #[doc = " Check if a menu item is enabled\n @param item The menu item\n @return true if enabled, false otherwise"]
-    pub fn native_menu_item_is_enabled(item: native_menu_item_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Set the state of a checkbox/radio menu item\n @param item The menu item\n @param state The state to set (unchecked, checked, or mixed)"]
-    pub fn native_menu_item_set_state(item: native_menu_item_t, state: native_menu_item_state_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the state of a menu item\n @param item The menu item\n @return The current state of the menu item"]
-    pub fn native_menu_item_get_state(item: native_menu_item_t) -> native_menu_item_state_t;
-}
-unsafe extern "C" {
-    #[doc = " Set the radio group ID for a radio menu item\n @param item The menu item\n @param group_id The radio group identifier"]
-    pub fn native_menu_item_set_radio_group(
-        item: native_menu_item_t,
-        group_id: ::std::os::raw::c_int,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the radio group ID of a menu item\n @param item The menu item\n @return The radio group ID, or -1 if not set"]
-    pub fn native_menu_item_get_radio_group(item: native_menu_item_t) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Set the submenu for a menu item\n @param item The menu item\n @param submenu The submenu to attach, or NULL to remove the submenu"]
-    pub fn native_menu_item_set_submenu(item: native_menu_item_t, submenu: native_menu_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the submenu of a menu item\n @param item The menu item\n @return The submenu handle, or NULL if no submenu"]
-    pub fn native_menu_item_get_submenu(item: native_menu_item_t) -> native_menu_t;
-}
-unsafe extern "C" {
-    #[doc = " Add event listener for a menu item\n @param item The menu item\n @param event_type The type of event to listen for\n @param callback The callback function\n @param user_data User data passed to callback\n @return A listener ID that can be used to remove the listener, or -1 on error"]
-    pub fn native_menu_item_add_listener(
-        item: native_menu_item_t,
-        event_type: native_menu_item_event_type_t,
-        callback: native_menu_item_event_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Remove event listener from a menu item\n @param item The menu item\n @param listener_id The listener ID returned by native_menu_item_add_listener\n @return true if removed successfully, false otherwise"]
-    pub fn native_menu_item_remove_listener(
-        item: native_menu_item_t,
-        listener_id: ::std::os::raw::c_int,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Create a new menu\n @return Menu handle, or NULL if creation failed"]
-    pub fn native_menu_create() -> native_menu_t;
-}
-unsafe extern "C" {
-    #[doc = " Destroy a menu and release its resources\n @param menu The menu to destroy"]
-    pub fn native_menu_destroy(menu: native_menu_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the ID of a menu\n @param menu The menu\n @return The menu ID"]
-    pub fn native_menu_get_id(menu: native_menu_t) -> native_menu_id_t;
-}
-unsafe extern "C" {
-    #[doc = " Add a menu item to the end of the menu\n @param menu The menu\n @param item The menu item to add"]
-    pub fn native_menu_add_item(menu: native_menu_t, item: native_menu_item_t);
-}
-unsafe extern "C" {
-    #[doc = " Insert a menu item at a specific position\n @param menu The menu\n @param item The menu item to insert\n @param index The position to insert at (0-based)"]
-    pub fn native_menu_insert_item(menu: native_menu_t, item: native_menu_item_t, index: usize);
-}
-unsafe extern "C" {
-    #[doc = " Remove a menu item from the menu\n @param menu The menu\n @param item The menu item to remove\n @return true if item was found and removed, false otherwise"]
-    pub fn native_menu_remove_item(menu: native_menu_t, item: native_menu_item_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Remove a menu item by its ID\n @param menu The menu\n @param item_id The ID of the item to remove\n @return true if item was found and removed, false otherwise"]
-    pub fn native_menu_remove_item_by_id(
-        menu: native_menu_t,
-        item_id: native_menu_item_id_t,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Remove a menu item at a specific position\n @param menu The menu\n @param index The position of the item to remove (0-based)\n @return true if item was removed, false if index out of bounds"]
-    pub fn native_menu_remove_item_at(menu: native_menu_t, index: usize) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Remove all items from the menu\n @param menu The menu"]
-    pub fn native_menu_clear(menu: native_menu_t);
-}
-unsafe extern "C" {
-    #[doc = " Add a separator to the end of the menu\n @param menu The menu"]
-    pub fn native_menu_add_separator(menu: native_menu_t);
-}
-unsafe extern "C" {
-    #[doc = " Insert a separator at a specific position\n @param menu The menu\n @param index The position to insert the separator at (0-based)"]
-    pub fn native_menu_insert_separator(menu: native_menu_t, index: usize);
-}
-unsafe extern "C" {
-    #[doc = " Get the number of items in the menu\n @param menu The menu\n @return The number of items"]
-    pub fn native_menu_get_item_count(menu: native_menu_t) -> usize;
-}
-unsafe extern "C" {
-    #[doc = " Get a menu item at a specific position\n @param menu The menu\n @param index The position of the item (0-based)\n @return The menu item handle, or NULL if index out of bounds"]
-    pub fn native_menu_get_item_at(menu: native_menu_t, index: usize) -> native_menu_item_t;
-}
-unsafe extern "C" {
-    #[doc = " Get a menu item by its ID\n @param menu The menu\n @param item_id The ID of the item to find\n @return The menu item handle, or NULL if not found"]
-    pub fn native_menu_get_item_by_id(
-        menu: native_menu_t,
-        item_id: native_menu_item_id_t,
-    ) -> native_menu_item_t;
-}
-unsafe extern "C" {
-    #[doc = " Get all menu items\n @param menu The menu\n @return List of menu items (caller must free with native_menu_item_list_free)"]
-    pub fn native_menu_get_all_items(menu: native_menu_t) -> native_menu_item_list_t;
-}
-unsafe extern "C" {
-    #[doc = " Open the menu as a context menu using the specified positioning strategy\n @param menu The menu\n @param strategy The positioning strategy determining where to display the menu\n @param placement The placement option determining how the menu is positioned\n                  relative to the reference point (default: NATIVE_PLACEMENT_BOTTOM_START)\n @return true if menu was opened successfully, false otherwise"]
-    pub fn native_menu_open(
-        menu: native_menu_t,
-        strategy: native_positioning_strategy_t,
-        placement: native_placement_t,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Close the menu if it's currently showing\n @param menu The menu\n @return true if menu was closed, false otherwise"]
-    pub fn native_menu_close(menu: native_menu_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Add event listener for a menu\n @param menu The menu\n @param event_type The type of event to listen for\n @param callback The callback function\n @param user_data User data passed to callback\n @return A listener ID that can be used to remove the listener, or -1 on error"]
-    pub fn native_menu_add_listener(
-        menu: native_menu_t,
-        event_type: native_menu_event_type_t,
-        callback: native_menu_event_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Remove event listener from a menu\n @param menu The menu\n @param listener_id The listener ID returned by native_menu_add_listener\n @return true if removed successfully, false otherwise"]
-    pub fn native_menu_remove_listener(
-        menu: native_menu_t,
-        listener_id: ::std::os::raw::c_int,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Free a menu item list\n @param list The list to free"]
-    pub fn native_menu_item_list_free(list: native_menu_item_list_t);
-}
-unsafe extern "C" {
-    #[doc = " Convert keyboard accelerator to string representation\n @param accelerator The accelerator\n @return The string representation (caller must free), or NULL if accelerator is invalid"]
-    pub fn native_keyboard_accelerator_to_string(
-        accelerator: *const native_keyboard_accelerator_t,
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_launch_at_login_get_id(
+        launch_at_login: native_launch_at_login_t,
     ) -> *mut ::std::os::raw::c_char;
 }
-pub const NATIVE_DIALOG_MODALITY_NONE: native_dialog_modality_t = 0;
-pub const NATIVE_DIALOG_MODALITY_APPLICATION: native_dialog_modality_t = 1;
-pub const NATIVE_DIALOG_MODALITY_WINDOW: native_dialog_modality_t = 2;
-#[doc = " Dialog modality types"]
-pub type native_dialog_modality_t = ::std::os::raw::c_uint;
-#[doc = " Opaque handle for message dialog objects"]
-pub type native_message_dialog_t = *mut ::std::os::raw::c_void;
 unsafe extern "C" {
-    #[doc = " Create a new message dialog with title and message\n @param title The dialog title\n @param message The dialog message\n @return Message dialog handle, or NULL if creation failed"]
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_launch_at_login_get_display_name(
+        launch_at_login: native_launch_at_login_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_launch_at_login_set_display_name(
+        launch_at_login: native_launch_at_login_t,
+        display_name: *const ::std::os::raw::c_char,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_launch_at_login_set_program(
+        launch_at_login: native_launch_at_login_t,
+        executable_path: *const ::std::os::raw::c_char,
+        arguments: native_string_list_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_launch_at_login_get_executable_path(
+        launch_at_login: native_launch_at_login_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_launch_at_login_get_arguments(
+        launch_at_login: native_launch_at_login_t,
+    ) -> native_string_list_t;
+}
+unsafe extern "C" {
+    pub fn native_launch_at_login_enable(launch_at_login: native_launch_at_login_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_launch_at_login_disable(launch_at_login: native_launch_at_login_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_launch_at_login_is_enabled(launch_at_login: native_launch_at_login_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_launch_at_login_free(launch_at_login: native_launch_at_login_t);
+}
+#[doc = " Opaque MessageDialog handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_MESSAGE_DIALOG rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_message_dialog_t = u64;
+unsafe extern "C" {
+    #[doc = " Creates a MessageDialog instance; release it with native_message_dialog_free()."]
     pub fn native_message_dialog_create(
         title: *const ::std::os::raw::c_char,
         message: *const ::std::os::raw::c_char,
     ) -> native_message_dialog_t;
 }
 unsafe extern "C" {
-    #[doc = " Destroy a message dialog and release its resources\n @param dialog The message dialog to destroy"]
-    pub fn native_message_dialog_destroy(dialog: native_message_dialog_t);
-}
-unsafe extern "C" {
-    #[doc = " Set the dialog title\n @param dialog The message dialog\n @param title The title to set"]
     pub fn native_message_dialog_set_title(
-        dialog: native_message_dialog_t,
+        message_dialog: native_message_dialog_t,
         title: *const ::std::os::raw::c_char,
     );
 }
 unsafe extern "C" {
-    #[doc = " Get the dialog title\n @param dialog The message dialog\n @return The title string (caller must free), or NULL if dialog is invalid"]
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_message_dialog_get_title(
-        dialog: native_message_dialog_t,
+        message_dialog: native_message_dialog_t,
     ) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-    #[doc = " Set the dialog message\n @param dialog The message dialog\n @param message The message to set"]
     pub fn native_message_dialog_set_message(
-        dialog: native_message_dialog_t,
+        message_dialog: native_message_dialog_t,
         message: *const ::std::os::raw::c_char,
     );
 }
 unsafe extern "C" {
-    #[doc = " Get the dialog message\n @param dialog The message dialog\n @return The message string (caller must free), or NULL if dialog is invalid"]
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_message_dialog_get_message(
-        dialog: native_message_dialog_t,
+        message_dialog: native_message_dialog_t,
     ) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-    #[doc = " Set the modality of the dialog\n @param dialog The message dialog\n @param modality The modality type to set"]
+    pub fn native_message_dialog_get_modality(
+        message_dialog: native_message_dialog_t,
+    ) -> native_dialog_modality_t;
+}
+unsafe extern "C" {
     pub fn native_message_dialog_set_modality(
-        dialog: native_message_dialog_t,
+        message_dialog: native_message_dialog_t,
         modality: native_dialog_modality_t,
     );
 }
 unsafe extern "C" {
-    #[doc = " Get the current modality setting of the dialog\n @param dialog The message dialog\n @return The current modality type"]
-    pub fn native_message_dialog_get_modality(
-        dialog: native_message_dialog_t,
-    ) -> native_dialog_modality_t;
+    pub fn native_message_dialog_open(message_dialog: native_message_dialog_t) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Open the dialog according to its modality setting\n @param dialog The message dialog\n @return true if the dialog was successfully opened, false otherwise"]
-    pub fn native_message_dialog_open(dialog: native_message_dialog_t) -> bool;
+    pub fn native_message_dialog_close(message_dialog: native_message_dialog_t) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Close the dialog programmatically\n @param dialog The message dialog\n @return true if the dialog was successfully closed, false otherwise"]
-    pub fn native_message_dialog_close(dialog: native_message_dialog_t) -> bool;
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_message_dialog_free(message_dialog: native_message_dialog_t);
 }
-pub type native_preferences_t = *mut ::std::os::raw::c_void;
+#[doc = " Opaque Preferences handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_PREFERENCES rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_preferences_t = u64;
 unsafe extern "C" {
-    #[doc = " @brief Create a preferences storage with default scope.\n @return Handle to preferences storage, or NULL on failure"]
+    #[doc = " Creates a Preferences instance; release it with native_preferences_free()."]
     pub fn native_preferences_create() -> native_preferences_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Create a preferences storage with custom scope.\n @param scope Scope for isolating preferences\n @return Handle to preferences storage, or NULL on failure"]
+    #[doc = " Creates a Preferences instance; release it with native_preferences_free()."]
     pub fn native_preferences_create_with_scope(
         scope: *const ::std::os::raw::c_char,
     ) -> native_preferences_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Destroy a preferences storage instance.\n @param prefs Handle to preferences storage"]
-    pub fn native_preferences_destroy(prefs: native_preferences_t);
-}
-unsafe extern "C" {
-    #[doc = " @brief Set a key-value pair.\n @param prefs Handle to preferences storage\n @param key The key to set\n @param value The value to store\n @return true if successful, false otherwise"]
     pub fn native_preferences_set(
-        prefs: native_preferences_t,
+        preferences: native_preferences_t,
         key: *const ::std::os::raw::c_char,
         value: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get the value for a given key.\n @param prefs Handle to preferences storage\n @param key The key to retrieve\n @param default_value Default value if key doesn't exist\n @return The stored value or default_value. Caller must free the returned string."]
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_preferences_get(
-        prefs: native_preferences_t,
+        preferences: native_preferences_t,
         key: *const ::std::os::raw::c_char,
         default_value: *const ::std::os::raw::c_char,
     ) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-    #[doc = " @brief Remove a key-value pair.\n @param prefs Handle to preferences storage\n @param key The key to remove\n @return true if successful, false if key doesn't exist"]
     pub fn native_preferences_remove(
-        prefs: native_preferences_t,
+        preferences: native_preferences_t,
         key: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Clear all key-value pairs.\n @param prefs Handle to preferences storage\n @return true if successful, false otherwise"]
-    pub fn native_preferences_clear(prefs: native_preferences_t) -> bool;
+    pub fn native_preferences_clear(preferences: native_preferences_t) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Check if a key exists.\n @param prefs Handle to preferences storage\n @param key The key to check\n @return true if key exists, false otherwise"]
     pub fn native_preferences_contains(
-        prefs: native_preferences_t,
+        preferences: native_preferences_t,
         key: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get all keys.\n @param prefs Handle to preferences storage\n @param out_keys Pointer to array of keys (allocated by function)\n @param out_count Pointer to receive number of keys\n @return true if successful, false otherwise. Caller must free each key and the array."]
-    pub fn native_preferences_get_keys(
-        prefs: native_preferences_t,
-        out_keys: *mut *mut *mut ::std::os::raw::c_char,
-        out_count: *mut usize,
-    ) -> bool;
+    pub fn native_preferences_get_keys(preferences: native_preferences_t) -> native_string_list_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get the number of stored items.\n @param prefs Handle to preferences storage\n @return Number of key-value pairs"]
-    pub fn native_preferences_get_size(prefs: native_preferences_t) -> usize;
+    pub fn native_preferences_get_size(
+        preferences: native_preferences_t,
+    ) -> ::std::os::raw::c_ulong;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get the scope.\n @param prefs Handle to preferences storage\n @return The scope. Caller must free the returned string."]
-    pub fn native_preferences_get_scope(prefs: native_preferences_t)
-        -> *mut ::std::os::raw::c_char;
+    pub fn native_preferences_get_all(preferences: native_preferences_t) -> native_string_map_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Free a string returned by preferences functions.\n @param str String to free"]
-    pub fn native_preferences_free_string(str_: *mut ::std::os::raw::c_char);
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_preferences_get_scope(
+        preferences: native_preferences_t,
+    ) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-    #[doc = " @brief Free a string array returned by preferences functions.\n @param strings Array of strings to free\n @param count Number of strings in the array"]
-    pub fn native_preferences_free_string_array(
-        strings: *mut *mut ::std::os::raw::c_char,
-        count: usize,
-    );
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_preferences_free(preferences: native_preferences_t);
 }
-pub type native_secure_storage_t = *mut ::std::os::raw::c_void;
+#[doc = " Opaque SecureStorage handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_SECURE_STORAGE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_secure_storage_t = u64;
 unsafe extern "C" {
-    #[doc = " @brief Create a secure storage with default scope.\n @return Handle to secure storage, or NULL on failure"]
+    #[doc = " Creates a SecureStorage instance; release it with native_secure_storage_free()."]
     pub fn native_secure_storage_create() -> native_secure_storage_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Create a secure storage with custom scope.\n @param scope Scope/application identifier\n @return Handle to secure storage, or NULL on failure"]
+    #[doc = " Creates a SecureStorage instance; release it with native_secure_storage_free()."]
     pub fn native_secure_storage_create_with_scope(
         scope: *const ::std::os::raw::c_char,
     ) -> native_secure_storage_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Destroy a secure storage instance.\n @param storage Handle to secure storage"]
-    pub fn native_secure_storage_destroy(storage: native_secure_storage_t);
-}
-unsafe extern "C" {
-    #[doc = " @brief Set a key-value pair in secure storage.\n @param storage Handle to secure storage\n @param key The key to set\n @param value The value to store\n @return true if successful, false otherwise"]
     pub fn native_secure_storage_set(
-        storage: native_secure_storage_t,
+        secure_storage: native_secure_storage_t,
         key: *const ::std::os::raw::c_char,
         value: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get the value for a given key from secure storage.\n @param storage Handle to secure storage\n @param key The key to retrieve\n @param default_value Default value if key doesn't exist\n @return The stored value or default_value. Caller must free the returned string."]
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_secure_storage_get(
-        storage: native_secure_storage_t,
+        secure_storage: native_secure_storage_t,
         key: *const ::std::os::raw::c_char,
         default_value: *const ::std::os::raw::c_char,
     ) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-    #[doc = " @brief Remove a key-value pair from secure storage.\n @param storage Handle to secure storage\n @param key The key to remove\n @return true if successful, false if key doesn't exist"]
     pub fn native_secure_storage_remove(
-        storage: native_secure_storage_t,
+        secure_storage: native_secure_storage_t,
         key: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Clear all key-value pairs from secure storage.\n @param storage Handle to secure storage\n @return true if successful, false otherwise"]
-    pub fn native_secure_storage_clear(storage: native_secure_storage_t) -> bool;
+    pub fn native_secure_storage_clear(secure_storage: native_secure_storage_t) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Check if a key exists in secure storage.\n @param storage Handle to secure storage\n @param key The key to check\n @return true if key exists, false otherwise"]
     pub fn native_secure_storage_contains(
-        storage: native_secure_storage_t,
+        secure_storage: native_secure_storage_t,
         key: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get all keys from secure storage.\n @param storage Handle to secure storage\n @param out_keys Pointer to array of keys (allocated by function)\n @param out_count Pointer to receive number of keys\n @return true if successful, false otherwise. Caller must free each key and the array."]
     pub fn native_secure_storage_get_keys(
-        storage: native_secure_storage_t,
-        out_keys: *mut *mut *mut ::std::os::raw::c_char,
-        out_count: *mut usize,
-    ) -> bool;
+        secure_storage: native_secure_storage_t,
+    ) -> native_string_list_t;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get the number of stored items in secure storage.\n @param storage Handle to secure storage\n @return Number of key-value pairs"]
-    pub fn native_secure_storage_get_size(storage: native_secure_storage_t) -> usize;
+    pub fn native_secure_storage_get_size(
+        secure_storage: native_secure_storage_t,
+    ) -> ::std::os::raw::c_ulong;
 }
 unsafe extern "C" {
-    #[doc = " @brief Get the scope.\n @param storage Handle to secure storage\n @return The scope. Caller must free the returned string."]
+    pub fn native_secure_storage_get_all(
+        secure_storage: native_secure_storage_t,
+    ) -> native_string_map_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_secure_storage_get_scope(
-        storage: native_secure_storage_t,
+        secure_storage: native_secure_storage_t,
     ) -> *mut ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-    #[doc = " @brief Check if secure storage is available on this platform.\n @return true if platform supports secure storage, false otherwise"]
     pub fn native_secure_storage_is_available() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " @brief Free a string returned by secure storage functions.\n @param str String to free"]
-    pub fn native_secure_storage_free_string(str_: *mut ::std::os::raw::c_char);
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_secure_storage_free(secure_storage: native_secure_storage_t);
 }
-unsafe extern "C" {
-    #[doc = " @brief Free a string array returned by secure storage functions.\n @param strings Array of strings to free\n @param count Number of strings in the array"]
-    pub fn native_secure_storage_free_string_array(
-        strings: *mut *mut ::std::os::raw::c_char,
-        count: usize,
-    );
-}
-#[doc = " Shortcut ID type"]
-pub type native_shortcut_id_t = u64;
-#[doc = " Opaque handle to a Shortcut instance"]
-pub type native_shortcut_t = *mut ::std::os::raw::c_void;
+pub type native_shortcut_id_t = ::std::os::raw::c_uint;
 pub const NATIVE_SHORTCUT_SCOPE_GLOBAL: native_shortcut_scope_t = 0;
 pub const NATIVE_SHORTCUT_SCOPE_APPLICATION: native_shortcut_scope_t = 1;
-#[doc = " Shortcut scope enumeration"]
 pub type native_shortcut_scope_t = ::std::os::raw::c_uint;
-#[doc = " Shortcut options structure"]
+pub type native_shortcut_options_callback_t =
+    ::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void)>;
+pub type native_shortcut_create_with_id_and_accelerator_and_callback_t =
+    ::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void)>;
+pub type native_shortcut_set_callback_t =
+    ::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct native_shortcut_options_t {
-    pub accelerator: *const ::std::os::raw::c_char,
-    pub description: *const ::std::os::raw::c_char,
+    pub accelerator: *mut ::std::os::raw::c_char,
+    pub callback: native_shortcut_options_callback_t,
+    pub callback_user_data: *mut ::std::os::raw::c_void,
+    pub description: *mut ::std::os::raw::c_char,
     pub scope: native_shortcut_scope_t,
     pub enabled: bool,
 }
@@ -1284,62 +1539,37 @@ impl Default for native_shortcut_options_t {
         }
     }
 }
-#[doc = " Shortcut callback function type"]
-pub type native_shortcut_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(shortcut_id: native_shortcut_id_t, user_data: *mut ::std::os::raw::c_void),
->;
-unsafe extern "C" {
-    #[doc = " Get the unique ID of a shortcut\n @param shortcut The shortcut handle\n @return The shortcut ID"]
-    pub fn native_shortcut_get_id(shortcut: native_shortcut_t) -> native_shortcut_id_t;
+#[doc = " Opaque Shortcut handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_SHORTCUT rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_shortcut_t = u64;
+#[doc = " Owning list of Shortcut handles."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct native_shortcut_list_t {
+    pub shortcuts: *mut native_shortcut_t,
+    pub count: ::std::os::raw::c_long,
 }
-unsafe extern "C" {
-    #[doc = " Get the accelerator string of a shortcut\n @param shortcut The shortcut handle\n @return The accelerator string (caller must NOT free)"]
-    pub fn native_shortcut_get_accelerator(
-        shortcut: native_shortcut_t,
-    ) -> *const ::std::os::raw::c_char;
+impl Default for native_shortcut_list_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
-unsafe extern "C" {
-    #[doc = " Get the description of a shortcut\n @param shortcut The shortcut handle\n @return The description string (caller must NOT free)"]
-    pub fn native_shortcut_get_description(
-        shortcut: native_shortcut_t,
-    ) -> *const ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Set the description of a shortcut\n @param shortcut The shortcut handle\n @param description The new description"]
-    pub fn native_shortcut_set_description(
-        shortcut: native_shortcut_t,
-        description: *const ::std::os::raw::c_char,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the scope of a shortcut\n @param shortcut The shortcut handle\n @return The shortcut scope"]
-    pub fn native_shortcut_get_scope(shortcut: native_shortcut_t) -> native_shortcut_scope_t;
-}
-unsafe extern "C" {
-    #[doc = " Enable or disable a shortcut\n @param shortcut The shortcut handle\n @param enabled true to enable, false to disable"]
-    pub fn native_shortcut_set_enabled(shortcut: native_shortcut_t, enabled: bool);
-}
-unsafe extern "C" {
-    #[doc = " Check if a shortcut is enabled\n @param shortcut The shortcut handle\n @return true if enabled, false otherwise"]
-    pub fn native_shortcut_is_enabled(shortcut: native_shortcut_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Manually invoke a shortcut's callback\n @param shortcut The shortcut handle"]
-    pub fn native_shortcut_invoke(shortcut: native_shortcut_t);
-}
-pub const NATIVE_SHORTCUT_EVENT_ACTIVATED: native_shortcut_event_type_t = 0;
-pub const NATIVE_SHORTCUT_EVENT_REGISTERED: native_shortcut_event_type_t = 1;
-pub const NATIVE_SHORTCUT_EVENT_UNREGISTERED: native_shortcut_event_type_t = 2;
-pub const NATIVE_SHORTCUT_EVENT_REGISTRATION_FAILED: native_shortcut_event_type_t = 3;
-#[doc = " Shortcut event types"]
+pub const NATIVE_SHORTCUT_EVENT_TYPE_ACTIVATED: native_shortcut_event_type_t = 0;
+pub const NATIVE_SHORTCUT_EVENT_TYPE_REGISTERED: native_shortcut_event_type_t = 1;
+pub const NATIVE_SHORTCUT_EVENT_TYPE_UNREGISTERED: native_shortcut_event_type_t = 2;
+pub const NATIVE_SHORTCUT_EVENT_TYPE_REGISTRATION_FAILED: native_shortcut_event_type_t = 3;
+#[doc = " Which concrete ShortcutEvent arrived."]
 pub type native_shortcut_event_type_t = ::std::os::raw::c_uint;
-#[doc = " Shortcut event structure"]
+#[doc = " One ShortcutEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct native_shortcut_event_t {
     pub type_: native_shortcut_event_type_t,
     pub shortcut_id: native_shortcut_id_t,
-    pub accelerator: *const ::std::os::raw::c_char,
+    pub accelerator: *mut ::std::os::raw::c_char,
     pub data: native_shortcut_event_t__bindgen_ty_1,
 }
 #[repr(C)]
@@ -1350,7 +1580,7 @@ pub union native_shortcut_event_t__bindgen_ty_1 {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct native_shortcut_event_t__bindgen_ty_1__bindgen_ty_1 {
-    pub error_message: *const ::std::os::raw::c_char,
+    pub error_message: *mut ::std::os::raw::c_char,
 }
 impl Default for native_shortcut_event_t__bindgen_ty_1__bindgen_ty_1 {
     fn default() -> Self {
@@ -1379,278 +1609,178 @@ impl Default for native_shortcut_event_t {
         }
     }
 }
-#[doc = " Shortcut event callback function type"]
 pub type native_shortcut_event_callback_t = ::std::option::Option<
     unsafe extern "C" fn(
         event: *const native_shortcut_event_t,
         user_data: *mut ::std::os::raw::c_void,
     ),
 >;
-#[doc = " Shortcut list structure"]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct native_shortcut_list_t {
-    pub shortcuts: *mut native_shortcut_t,
-    pub count: usize,
-}
-impl Default for native_shortcut_list_t {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
+unsafe extern "C" {
+    #[doc = " Frees everything the struct owns."]
+    pub fn native_shortcut_options_free(value: *mut native_shortcut_options_t);
 }
 unsafe extern "C" {
-    #[doc = " Free a shortcut list\n @param list The list to free"]
-    pub fn native_shortcut_list_free(list: native_shortcut_list_t);
+    #[doc = " Creates a Shortcut instance; release it with native_shortcut_free()."]
+    pub fn native_shortcut_create_with_id_and_options(
+        id: native_shortcut_id_t,
+        options: native_shortcut_options_t,
+    ) -> native_shortcut_t;
 }
 unsafe extern "C" {
-    #[doc = " Check if global shortcuts are supported on the current platform\n @return true if supported, false otherwise"]
+    #[doc = " Creates a Shortcut instance; release it with native_shortcut_free()."]
+    pub fn native_shortcut_create_with_id_and_accelerator_and_callback(
+        id: native_shortcut_id_t,
+        accelerator: *const ::std::os::raw::c_char,
+        callback: native_shortcut_create_with_id_and_accelerator_and_callback_t,
+        callback_user_data: *mut ::std::os::raw::c_void,
+    ) -> native_shortcut_t;
+}
+unsafe extern "C" {
+    pub fn native_shortcut_get_id(shortcut: native_shortcut_t) -> native_shortcut_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_shortcut_get_accelerator(
+        shortcut: native_shortcut_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_shortcut_get_description(
+        shortcut: native_shortcut_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_shortcut_set_description(
+        shortcut: native_shortcut_t,
+        description: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    pub fn native_shortcut_get_scope(shortcut: native_shortcut_t) -> native_shortcut_scope_t;
+}
+unsafe extern "C" {
+    pub fn native_shortcut_set_enabled(shortcut: native_shortcut_t, enabled: bool);
+}
+unsafe extern "C" {
+    pub fn native_shortcut_is_enabled(shortcut: native_shortcut_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_shortcut_invoke(shortcut: native_shortcut_t);
+}
+unsafe extern "C" {
+    pub fn native_shortcut_set_callback(
+        shortcut: native_shortcut_t,
+        callback: native_shortcut_set_callback_t,
+        callback_user_data: *mut ::std::os::raw::c_void,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_shortcut_free(shortcut: native_shortcut_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees the array and releases every handle it contains."]
+    pub fn native_shortcut_list_free(list: *mut native_shortcut_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees only the array; the caller takes over the handles."]
+    pub fn native_shortcut_list_release(list: *mut native_shortcut_list_t);
+}
+pub type native_shortcut_manager_register_callback_t =
+    ::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void)>;
+unsafe extern "C" {
     pub fn native_shortcut_manager_is_supported() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Register a new keyboard shortcut with a simple accelerator string\n @param accelerator The keyboard shortcut string (e.g., \"Ctrl+Shift+A\")\n @param callback The callback function to invoke when the shortcut is activated\n @param user_data User data to pass to the callback\n @return Shortcut handle, or NULL if registration failed"]
-    pub fn native_shortcut_manager_register(
+    #[doc = " Caller owns the returned handle; release it with native_shortcut_free()."]
+    pub fn native_shortcut_manager_register_with_accelerator_and_callback(
         accelerator: *const ::std::os::raw::c_char,
-        callback: native_shortcut_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
+        callback: native_shortcut_manager_register_callback_t,
+        callback_user_data: *mut ::std::os::raw::c_void,
     ) -> native_shortcut_t;
 }
 unsafe extern "C" {
-    #[doc = " Register a new keyboard shortcut with detailed options\n @param options The shortcut options\n @param callback The callback function to invoke when the shortcut is activated\n @param user_data User data to pass to the callback\n @return Shortcut handle, or NULL if registration failed"]
+    #[doc = " Caller owns the returned handle; release it with native_shortcut_free()."]
     pub fn native_shortcut_manager_register_with_options(
-        options: *const native_shortcut_options_t,
-        callback: native_shortcut_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
+        options: native_shortcut_options_t,
     ) -> native_shortcut_t;
 }
 unsafe extern "C" {
-    #[doc = " Unregister a keyboard shortcut by its ID\n @param shortcut_id The shortcut ID\n @return true if unregistered successfully, false otherwise"]
-    pub fn native_shortcut_manager_unregister_by_id(shortcut_id: native_shortcut_id_t) -> bool;
+    pub fn native_shortcut_manager_unregister_with_id(id: native_shortcut_id_t) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Unregister a keyboard shortcut by its accelerator string\n @param accelerator The keyboard shortcut string\n @return true if unregistered successfully, false otherwise"]
-    pub fn native_shortcut_manager_unregister_by_accelerator(
+    pub fn native_shortcut_manager_unregister_with_accelerator(
         accelerator: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Unregister all keyboard shortcuts\n @return Number of shortcuts that were unregistered"]
     pub fn native_shortcut_manager_unregister_all() -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = " Get a shortcut by its ID\n @param shortcut_id The shortcut ID\n @return Shortcut handle, or NULL if not found"]
-    pub fn native_shortcut_manager_get_by_id(
-        shortcut_id: native_shortcut_id_t,
-    ) -> native_shortcut_t;
+    #[doc = " Caller owns the returned handle; release it with native_shortcut_free()."]
+    pub fn native_shortcut_manager_get_with_id(id: native_shortcut_id_t) -> native_shortcut_t;
 }
 unsafe extern "C" {
-    #[doc = " Get a shortcut by its accelerator string\n @param accelerator The keyboard shortcut string\n @return Shortcut handle, or NULL if not found"]
-    pub fn native_shortcut_manager_get_by_accelerator(
+    #[doc = " Caller owns the returned handle; release it with native_shortcut_free()."]
+    pub fn native_shortcut_manager_get_with_accelerator(
         accelerator: *const ::std::os::raw::c_char,
     ) -> native_shortcut_t;
 }
 unsafe extern "C" {
-    #[doc = " Get all registered shortcuts\n @return List of all shortcuts (caller must free with native_shortcut_list_free)"]
     pub fn native_shortcut_manager_get_all() -> native_shortcut_list_t;
 }
 unsafe extern "C" {
-    #[doc = " Get shortcuts filtered by scope\n @param scope The shortcut scope to filter by\n @return List of matching shortcuts (caller must free with native_shortcut_list_free)"]
     pub fn native_shortcut_manager_get_by_scope(
         scope: native_shortcut_scope_t,
     ) -> native_shortcut_list_t;
 }
 unsafe extern "C" {
-    #[doc = " Check if a specific accelerator is available for registration\n @param accelerator The keyboard shortcut string to check\n @return true if available, false if already in use"]
     pub fn native_shortcut_manager_is_available(accelerator: *const ::std::os::raw::c_char)
         -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Validate an accelerator string format\n @param accelerator The keyboard shortcut string to validate\n @return true if the format is valid, false otherwise"]
     pub fn native_shortcut_manager_is_valid_accelerator(
         accelerator: *const ::std::os::raw::c_char,
     ) -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Enable or disable shortcut processing\n @param enabled true to enable, false to disable"]
     pub fn native_shortcut_manager_set_enabled(enabled: bool);
 }
 unsafe extern "C" {
-    #[doc = " Check if shortcut processing is enabled\n @return true if enabled, false otherwise"]
     pub fn native_shortcut_manager_is_enabled() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Register a callback for shortcut events\n @param callback The callback function to register\n @param user_data User data to pass to the callback\n @return Registration ID, or -1 on failure"]
-    pub fn native_shortcut_manager_register_event_callback(
-        callback: native_shortcut_event_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
+    pub fn native_shortcut_manager_emit_shortcut_activated(
+        id: native_shortcut_id_t,
+        accelerator: *const ::std::os::raw::c_char,
+    );
 }
 unsafe extern "C" {
-    #[doc = " Unregister a shortcut event callback\n @param registration_id The registration ID returned by register_event_callback\n @return true if callback was found and unregistered, false otherwise"]
-    pub fn native_shortcut_manager_unregister_event_callback(
-        registration_id: ::std::os::raw::c_int,
-    ) -> bool;
+    #[doc = " Registers @p callback for every ShortcutEvent this ShortcutManager emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_shortcut_manager_add_listener(
+        callback: native_shortcut_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
 }
-#[doc = " Opaque handle for tray icon objects"]
-pub type native_tray_icon_t = *mut ::std::os::raw::c_void;
-#[doc = " Tray icon identifier"]
-pub type native_tray_icon_id_t = ::std::os::raw::c_long;
-#[doc = " Tray icon clicked event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_tray_icon_clicked_event_t {
-    pub tray_icon_id: native_tray_icon_id_t,
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_shortcut_manager_remove_listener(listener_id: native_listener_id_t) -> bool;
 }
-#[doc = " Tray icon right-clicked event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_tray_icon_right_clicked_event_t {
-    pub tray_icon_id: native_tray_icon_id_t,
-}
-#[doc = " Tray icon double-clicked event"]
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_tray_icon_double_clicked_event_t {
-    pub tray_icon_id: native_tray_icon_id_t,
-}
-pub const NATIVE_TRAY_ICON_EVENT_CLICKED: native_tray_icon_event_type_t = 0;
-pub const NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED: native_tray_icon_event_type_t = 1;
-pub const NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED: native_tray_icon_event_type_t = 2;
-#[doc = " Event types for tray icon events"]
-pub type native_tray_icon_event_type_t = ::std::os::raw::c_uint;
+pub type native_tray_icon_id_t = ::std::os::raw::c_uint;
 pub const NATIVE_CONTEXT_MENU_TRIGGER_NONE: native_context_menu_trigger_t = 0;
 pub const NATIVE_CONTEXT_MENU_TRIGGER_CLICKED: native_context_menu_trigger_t = 1;
 pub const NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED: native_context_menu_trigger_t = 2;
 pub const NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED: native_context_menu_trigger_t = 3;
-#[doc = " Context menu trigger modes\n Defines how the context menu is triggered for a tray icon"]
 pub type native_context_menu_trigger_t = ::std::os::raw::c_uint;
-#[doc = " Event callback function type"]
-pub type native_tray_icon_event_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        event: *const ::std::os::raw::c_void,
-        user_data: *mut ::std::os::raw::c_void,
-    ),
->;
-unsafe extern "C" {
-    #[doc = " Create a new tray icon\n @return Tray icon handle, or NULL if creation failed"]
-    pub fn native_tray_icon_create() -> native_tray_icon_t;
-}
-unsafe extern "C" {
-    #[doc = " Create a tray icon from a native platform object\n @param native_tray Pointer to platform-specific tray icon object\n @return Tray icon handle, or NULL if creation failed"]
-    pub fn native_tray_icon_create_from_native(
-        native_tray: *mut ::std::os::raw::c_void,
-    ) -> native_tray_icon_t;
-}
-unsafe extern "C" {
-    #[doc = " Destroy a tray icon and release its resources\n @param tray_icon The tray icon to destroy"]
-    pub fn native_tray_icon_destroy(tray_icon: native_tray_icon_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the ID of a tray icon\n @param tray_icon The tray icon\n @return The tray icon ID"]
-    pub fn native_tray_icon_get_id(tray_icon: native_tray_icon_t) -> native_tray_icon_id_t;
-}
-unsafe extern "C" {
-    #[doc = " Set the icon image for the tray icon using an Image object\n @param tray_icon The tray icon\n @param image The Image object to set as the icon, or NULL to clear the icon"]
-    pub fn native_tray_icon_set_icon(tray_icon: native_tray_icon_t, image: native_image_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the current icon image of the tray icon\n @param tray_icon The tray icon\n @return The Image object, or NULL if no icon is set. Caller must call\n         native_image_destroy() when done."]
-    pub fn native_tray_icon_get_icon(tray_icon: native_tray_icon_t) -> native_image_t;
-}
-unsafe extern "C" {
-    #[doc = " Set the title text for the tray icon\n @param tray_icon The tray icon\n @param title The title text to set, or NULL to clear the title"]
-    pub fn native_tray_icon_set_title(
-        tray_icon: native_tray_icon_t,
-        title: *const ::std::os::raw::c_char,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the title text of the tray icon\n @param tray_icon The tray icon\n @return The title text, or NULL if no title is set or error. Caller must free\n the returned string."]
-    pub fn native_tray_icon_get_title(tray_icon: native_tray_icon_t)
-        -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Set the tooltip text for the tray icon\n @param tray_icon The tray icon\n @param tooltip The tooltip text to set, or NULL to clear the tooltip"]
-    pub fn native_tray_icon_set_tooltip(
-        tray_icon: native_tray_icon_t,
-        tooltip: *const ::std::os::raw::c_char,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the tooltip text of the tray icon\n @param tray_icon The tray icon\n @return The tooltip text, or NULL if no tooltip is set or error. Caller must\n free the returned string."]
-    pub fn native_tray_icon_get_tooltip(
-        tray_icon: native_tray_icon_t,
-    ) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-    #[doc = " Set the context menu for the tray icon\n @param tray_icon The tray icon\n @param menu The context menu to set"]
-    pub fn native_tray_icon_set_context_menu(tray_icon: native_tray_icon_t, menu: native_menu_t);
-}
-unsafe extern "C" {
-    #[doc = " Get the context menu of the tray icon\n @param tray_icon The tray icon\n @return The context menu handle, or NULL if no menu set"]
-    pub fn native_tray_icon_get_context_menu(tray_icon: native_tray_icon_t) -> native_menu_t;
-}
-unsafe extern "C" {
-    #[doc = " Set the context menu trigger behavior\n @param tray_icon The tray icon\n @param trigger The desired trigger behavior"]
-    pub fn native_tray_icon_set_context_menu_trigger(
-        tray_icon: native_tray_icon_t,
-        trigger: native_context_menu_trigger_t,
-    );
-}
-unsafe extern "C" {
-    #[doc = " Get the current context menu trigger behavior\n @param tray_icon The tray icon\n @return The current trigger behavior"]
-    pub fn native_tray_icon_get_context_menu_trigger(
-        tray_icon: native_tray_icon_t,
-    ) -> native_context_menu_trigger_t;
-}
-unsafe extern "C" {
-    #[doc = " Get the screen bounds of the tray icon\n @param tray_icon The tray icon\n @param bounds Pointer to store the bounds (caller allocated)\n @return true if bounds were retrieved successfully, false otherwise"]
-    pub fn native_tray_icon_get_bounds(
-        tray_icon: native_tray_icon_t,
-        bounds: *mut native_rectangle_t,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Set the visibility of the tray icon in the system tray\n @param tray_icon The tray icon\n @param visible true to show the icon, false to hide it\n @return true if visibility was changed successfully, false otherwise"]
-    pub fn native_tray_icon_set_visible(tray_icon: native_tray_icon_t, visible: bool) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Check if the tray icon is currently visible\n @param tray_icon The tray icon\n @return true if visible, false otherwise"]
-    pub fn native_tray_icon_is_visible(tray_icon: native_tray_icon_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Add an event listener for tray icon events\n @param tray_icon The tray icon\n @param event_type The type of event to listen for\n @param callback The callback function\n @param user_data User data to pass to callback\n @return Listener ID that can be used to remove the listener, or -1 on error"]
-    pub fn native_tray_icon_add_listener(
-        tray_icon: native_tray_icon_t,
-        event_type: native_tray_icon_event_type_t,
-        callback: native_tray_icon_event_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Remove an event listener\n @param tray_icon The tray icon\n @param listener_id The listener ID returned by add_listener\n @return true if the listener was found and removed, false otherwise"]
-    pub fn native_tray_icon_remove_listener(
-        tray_icon: native_tray_icon_t,
-        listener_id: ::std::os::raw::c_int,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Open the context menu at default location\n @param tray_icon The tray icon\n @return true if menu was opened successfully, false otherwise"]
-    pub fn native_tray_icon_open_context_menu(tray_icon: native_tray_icon_t) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Close the currently displayed context menu\n @param tray_icon The tray icon\n @return true if menu was closed successfully or wasn't visible, false on\n error"]
-    pub fn native_tray_icon_close_context_menu(tray_icon: native_tray_icon_t) -> bool;
-}
-#[doc = " Tray icon list structure"]
+#[doc = " Opaque TrayIcon handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_TRAY_ICON rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_tray_icon_t = u64;
+#[doc = " Owning list of TrayIcon handles."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct native_tray_icon_list_t {
     pub tray_icons: *mut native_tray_icon_t,
-    pub count: usize,
+    pub count: ::std::os::raw::c_long,
 }
 impl Default for native_tray_icon_list_t {
     fn default() -> Self {
@@ -1661,21 +1791,182 @@ impl Default for native_tray_icon_list_t {
         }
     }
 }
+pub const NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED: native_tray_icon_event_type_t = 0;
+pub const NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED: native_tray_icon_event_type_t = 1;
+pub const NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED: native_tray_icon_event_type_t = 2;
+#[doc = " Which concrete TrayIconEvent arrived."]
+pub type native_tray_icon_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One TrayIconEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct native_tray_icon_event_t {
+    pub type_: native_tray_icon_event_type_t,
+    pub data: native_tray_icon_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_tray_icon_event_t__bindgen_ty_1 {
+    pub clicked: native_tray_icon_event_t__bindgen_ty_1__bindgen_ty_1,
+    pub right_clicked: native_tray_icon_event_t__bindgen_ty_1__bindgen_ty_2,
+    pub double_clicked: native_tray_icon_event_t__bindgen_ty_1__bindgen_ty_3,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_tray_icon_event_t__bindgen_ty_1__bindgen_ty_1 {
+    pub tray_icon_id: native_tray_icon_id_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_tray_icon_event_t__bindgen_ty_1__bindgen_ty_2 {
+    pub tray_icon_id: native_tray_icon_id_t,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_tray_icon_event_t__bindgen_ty_1__bindgen_ty_3 {
+    pub tray_icon_id: native_tray_icon_id_t,
+}
+impl Default for native_tray_icon_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_tray_icon_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type native_tray_icon_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        event: *const native_tray_icon_event_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ),
+>;
 unsafe extern "C" {
-    #[doc = " Check if system tray is supported on the current platform\n @return true if system tray is supported, false otherwise"]
+    #[doc = " Creates a TrayIcon instance; release it with native_tray_icon_free()."]
+    pub fn native_tray_icon_create() -> native_tray_icon_t;
+}
+unsafe extern "C" {
+    #[doc = " Creates a TrayIcon instance; release it with native_tray_icon_free()."]
+    pub fn native_tray_icon_create_with_tray(
+        tray: *mut ::std::os::raw::c_void,
+    ) -> native_tray_icon_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_get_id(tray_icon: native_tray_icon_t) -> native_tray_icon_id_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_icon(tray_icon: native_tray_icon_t, image: native_image_t);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_image_free()."]
+    pub fn native_tray_icon_get_icon(tray_icon: native_tray_icon_t) -> native_image_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_title(
+        tray_icon: native_tray_icon_t,
+        title: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_tray_icon_get_title(tray_icon: native_tray_icon_t)
+        -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_tooltip(
+        tray_icon: native_tray_icon_t,
+        tooltip: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_tray_icon_get_tooltip(
+        tray_icon: native_tray_icon_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_context_menu(tray_icon: native_tray_icon_t, menu: native_menu_t);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_menu_free()."]
+    pub fn native_tray_icon_get_context_menu(tray_icon: native_tray_icon_t) -> native_menu_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_context_menu_trigger(
+        tray_icon: native_tray_icon_t,
+        trigger: native_context_menu_trigger_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_get_context_menu_trigger(
+        tray_icon: native_tray_icon_t,
+    ) -> native_context_menu_trigger_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_get_bounds(tray_icon: native_tray_icon_t) -> native_rectangle_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_visible(tray_icon: native_tray_icon_t, visible: bool) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_is_visible(tray_icon: native_tray_icon_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_open_context_menu(tray_icon: native_tray_icon_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_close_context_menu(tray_icon: native_tray_icon_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
+    pub fn native_tray_icon_get_native_object(
+        tray_icon: native_tray_icon_t,
+    ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_tray_icon_free(tray_icon: native_tray_icon_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees the array and releases every handle it contains."]
+    pub fn native_tray_icon_list_free(list: *mut native_tray_icon_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees only the array; the caller takes over the handles."]
+    pub fn native_tray_icon_list_release(list: *mut native_tray_icon_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Registers @p callback for every TrayIconEvent this TrayIcon emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_tray_icon_add_listener(
+        tray_icon: native_tray_icon_t,
+        callback: native_tray_icon_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_tray_icon_remove_listener(
+        tray_icon: native_tray_icon_t,
+        listener_id: native_listener_id_t,
+    ) -> bool;
+}
+unsafe extern "C" {
     pub fn native_tray_manager_is_supported() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Get a tray icon by its ID\n @param tray_icon_id The tray icon ID\n @return Tray icon handle, or NULL if not found"]
-    pub fn native_tray_manager_get(tray_icon_id: native_tray_icon_id_t) -> native_tray_icon_t;
+    #[doc = " Caller owns the returned handle; release it with native_tray_icon_free()."]
+    pub fn native_tray_manager_get(id: native_tray_icon_id_t) -> native_tray_icon_t;
 }
 unsafe extern "C" {
-    #[doc = " Get all managed tray icons\n @return List of all tray icons (caller must free with native_tray_icon_list_free)"]
     pub fn native_tray_manager_get_all() -> native_tray_icon_list_t;
-}
-unsafe extern "C" {
-    #[doc = " Free a tray icon list\n @param list The list to free"]
-    pub fn native_tray_icon_list_free(list: native_tray_icon_list_t);
 }
 pub const NATIVE_URL_OPEN_ERROR_CODE_NONE: native_url_open_error_code_t = 0;
 pub const NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_EMPTY: native_url_open_error_code_t = 1;
@@ -1702,6 +1993,10 @@ impl Default for native_url_open_result_t {
     }
 }
 unsafe extern "C" {
+    #[doc = " Frees everything the struct owns."]
+    pub fn native_url_open_result_free(value: *mut native_url_open_result_t);
+}
+unsafe extern "C" {
     pub fn native_url_opener_is_supported() -> bool;
 }
 unsafe extern "C" {
@@ -1710,130 +2005,61 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn native_url_opener_open(url: *const ::std::os::raw::c_char) -> native_url_open_result_t;
 }
-unsafe extern "C" {
-    pub fn native_url_open_result_free(value: *mut native_url_open_result_t);
-}
-pub const NATIVE_WINDOW_EVENT_FOCUSED: native_window_event_type_t = 0;
-pub const NATIVE_WINDOW_EVENT_BLURRED: native_window_event_type_t = 1;
-pub const NATIVE_WINDOW_EVENT_MINIMIZED: native_window_event_type_t = 2;
-pub const NATIVE_WINDOW_EVENT_MAXIMIZED: native_window_event_type_t = 3;
-pub const NATIVE_WINDOW_EVENT_RESTORED: native_window_event_type_t = 4;
-pub const NATIVE_WINDOW_EVENT_MOVED: native_window_event_type_t = 5;
-pub const NATIVE_WINDOW_EVENT_RESIZED: native_window_event_type_t = 6;
-#[doc = " Window event types"]
-pub type native_window_event_type_t = ::std::os::raw::c_uint;
-#[doc = " Window event structure"]
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct native_window_event_t {
-    pub type_: native_window_event_type_t,
-    pub window_id: native_window_id_t,
-    pub data: native_window_event_t__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union native_window_event_t__bindgen_ty_1 {
-    pub moved: native_window_event_t__bindgen_ty_1__bindgen_ty_1,
-    pub resized: native_window_event_t__bindgen_ty_1__bindgen_ty_2,
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_window_event_t__bindgen_ty_1__bindgen_ty_1 {
-    pub position: native_point_t,
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_window_event_t__bindgen_ty_1__bindgen_ty_2 {
-    pub size: native_size_t,
-}
-impl Default for native_window_event_t__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl Default for native_window_event_t {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[doc = " Window event callback function type"]
-pub type native_window_event_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        event: *const native_window_event_t,
-        user_data: *mut ::std::os::raw::c_void,
-    ),
+pub type native_window_manager_set_will_show_hook_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(arg0: ::std::os::raw::c_uint, user_data: *mut ::std::os::raw::c_void),
+>;
+pub type native_window_manager_set_will_hide_hook_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(arg0: ::std::os::raw::c_uint, user_data: *mut ::std::os::raw::c_void),
 >;
 unsafe extern "C" {
-    #[doc = " Get a window by its ID\n @param window_id The window ID\n @return Window handle, or NULL if not found"]
-    pub fn native_window_manager_get(window_id: native_window_id_t) -> native_window_t;
+    #[doc = " Caller owns the returned handle; release it with native_window_free()."]
+    pub fn native_window_manager_get(id: native_window_id_t) -> native_window_t;
 }
 unsafe extern "C" {
-    #[doc = " Get all managed windows\n @return List of all windows (caller must free with native_window_list_free)"]
     pub fn native_window_manager_get_all() -> native_window_list_t;
 }
 unsafe extern "C" {
-    #[doc = " Get the currently active/focused window\n @return Current window handle, or NULL if no window is active"]
+    #[doc = " Caller owns the returned handle; release it with native_window_free()."]
     pub fn native_window_manager_get_current() -> native_window_t;
 }
 unsafe extern "C" {
-    #[doc = " Register a callback for window events\n @param callback The callback function to register\n @param user_data User data to pass to the callback\n @return Registration ID, or -1 on failure"]
-    pub fn native_window_manager_register_event_callback(
-        callback: native_window_event_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Unregister a window event callback\n @param registration_id The registration ID returned by register_event_callback\n @return true if callback was found and unregistered, false otherwise"]
-    pub fn native_window_manager_unregister_event_callback(
-        registration_id: ::std::os::raw::c_int,
-    ) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Shutdown the window manager and cleanup resources"]
-    pub fn native_window_manager_shutdown();
-}
-#[doc = " Hooks called BEFORE a native window is shown/hidden.\n Passing NULL clears the corresponding hook."]
-pub type native_window_will_show_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(window_id: native_window_id_t, user_data: *mut ::std::os::raw::c_void),
->;
-pub type native_window_will_hide_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(window_id: native_window_id_t, user_data: *mut ::std::os::raw::c_void),
->;
-unsafe extern "C" {
-    #[doc = " Set (or clear) the \"will show\" hook.\n @param callback Function called before window is shown (e.g., makeKeyAndOrderFront: on macOS).\n NULL to clear.\n @param user_data Opaque pointer passed back to callback."]
     pub fn native_window_manager_set_will_show_hook(
-        callback: native_window_will_show_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
+        hook: native_window_manager_set_will_show_hook_callback_t,
+        hook_user_data: *mut ::std::os::raw::c_void,
     );
 }
 unsafe extern "C" {
-    #[doc = " Set (or clear) the \"will hide\" hook.\n @param callback Function called before window is hidden (e.g., orderOut: on macOS). NULL to\n clear.\n @param user_data Opaque pointer passed back to callback."]
     pub fn native_window_manager_set_will_hide_hook(
-        callback: native_window_will_hide_callback_t,
-        user_data: *mut ::std::os::raw::c_void,
+        hook: native_window_manager_set_will_hide_hook_callback_t,
+        hook_user_data: *mut ::std::os::raw::c_void,
     );
 }
 unsafe extern "C" {
-    #[doc = " Check if the \"will show\" hook is set.\n @return true if hook is set, false otherwise."]
     pub fn native_window_manager_has_will_show_hook() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Check if the \"will hide\" hook is set.\n @return true if hook is set, false otherwise."]
     pub fn native_window_manager_has_will_hide_hook() -> bool;
 }
 unsafe extern "C" {
-    #[doc = " Call the original native show implementation for the specified window.\n This bypasses the swizzled hook path on macOS.\n @return true on success, false if the window wasn't found or unsupported."]
-    pub fn native_window_manager_call_original_show(window_id: native_window_id_t) -> bool;
+    pub fn native_window_manager_handle_will_show(id: native_window_id_t);
 }
 unsafe extern "C" {
-    #[doc = " Call the original native hide implementation for the specified window.\n This bypasses the swizzled hook path on macOS.\n @return true on success, false if the window wasn't found or unsupported."]
-    pub fn native_window_manager_call_original_hide(window_id: native_window_id_t) -> bool;
+    pub fn native_window_manager_handle_will_hide(id: native_window_id_t);
+}
+unsafe extern "C" {
+    pub fn native_window_manager_call_original_show(id: native_window_id_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_manager_call_original_hide(id: native_window_id_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Registers @p callback for every WindowEvent this WindowManager emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_window_manager_add_listener(
+        callback: native_window_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+    ) -> native_listener_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_window_manager_remove_listener(listener_id: native_listener_id_t) -> bool;
 }

@@ -20,7 +20,13 @@ fn main() {
     match target_os.as_str() {
         "macos" => {
             cmake_config.define("CMAKE_SYSTEM_NAME", "Darwin");
+            // Mirrors src/CMakeLists.txt. Cocoa alone leaves the global
+            // shortcut and launch-at-login implementations unresolved: hotkeys
+            // go through Carbon's RegisterEventHotKey, and login items through
+            // SMAppService.
             println!("cargo:rustc-link-lib=framework=Cocoa");
+            println!("cargo:rustc-link-lib=framework=Carbon");
+            println!("cargo:rustc-link-lib=framework=ServiceManagement");
         }
         "ios" => {
             cmake_config.define("CMAKE_SYSTEM_NAME", "iOS");
