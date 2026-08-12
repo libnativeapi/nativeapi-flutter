@@ -1,3 +1,0 @@
-{%- macro render_alias(item, mapping) -%}
-{% set target = item.target.mapped if item.target else 'dynamic' %}typedef {{ item.name }} = {% if '::' in target or '&' in target %}dynamic{% else %}{{ target }}{% endif %};
-{%- endmacro -%}

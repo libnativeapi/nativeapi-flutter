@@ -1,3 +1,0 @@
-{%- macro render_constant(item, mapping) -%}
-{% set ctype = item.type.mapped if item.type else 'dynamic' %}const {% if '::' in ctype or '&' in ctype %}dynamic{% else %}{{ ctype }}{% endif %} {{ item.name }} = {{ item.value }};
-{%- endmacro -%}
