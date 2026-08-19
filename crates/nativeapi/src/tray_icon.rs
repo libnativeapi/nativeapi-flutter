@@ -103,9 +103,9 @@ impl TrayIcon {
         }
     }
 
-    pub fn set_icon(&self, image: &Image) {
+    pub fn set_icon(&self, image: Option<&Image>) {
         unsafe {
-            cnativeapi::native_tray_icon_set_icon(self.handle, image.as_raw());
+            cnativeapi::native_tray_icon_set_icon(self.handle, image.map_or(0, |value| value.as_raw()));
         }
     }
 
@@ -153,9 +153,9 @@ impl TrayIcon {
         }
     }
 
-    pub fn set_context_menu(&self, menu: &Menu) {
+    pub fn set_context_menu(&self, menu: Option<&Menu>) {
         unsafe {
-            cnativeapi::native_tray_icon_set_context_menu(self.handle, menu.as_raw());
+            cnativeapi::native_tray_icon_set_context_menu(self.handle, menu.map_or(0, |value| value.as_raw()));
         }
     }
 

@@ -33,14 +33,14 @@ fn main() {
     // --- 2. Menu bar ---
     if let Some(menu_bar) = Menu::new() {
         if let Some(about) = MenuItem::with_label_and_type("About", MenuItemType::Normal) {
-            menu_bar.add_item(&about);
+            menu_bar.add_item(Some(&about));
         }
         menu_bar.add_separator();
         if let Some(quit) = MenuItem::with_label_and_type("Quit", MenuItemType::Normal) {
             quit.add_listener(|_| Application::quit(0));
-            menu_bar.add_item(&quit);
+            menu_bar.add_item(Some(&quit));
         }
-        println!("Menu bar installed: {}", Application::set_menu_bar(&menu_bar));
+        println!("Menu bar installed: {}", Application::set_menu_bar(Some(&menu_bar)));
     }
 
     // --- 3. Primary window ---
@@ -58,7 +58,7 @@ fn main() {
     );
     window.center();
 
-    Application::set_primary_window(&window);
+    Application::set_primary_window(Some(&window));
     if let Some(primary) = Application::get_primary_window() {
         println!("Primary window: #{}", primary.id());
     }
@@ -74,7 +74,7 @@ fn main() {
 
     window.show();
     println!("Running. Close the window or press Ctrl+C to quit.");
-    let exit_code = Application::run_with_window(&window);
+    let exit_code = Application::run_with_window(Some(&window));
     println!("Exited with {exit_code}");
 
     Application::remove_listener(listener);

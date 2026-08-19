@@ -44,9 +44,9 @@ impl Application {
         }
     }
 
-    pub fn run_with_window(window: &Window) -> i32 {
+    pub fn run_with_window(window: Option<&Window>) -> i32 {
         unsafe {
-            cnativeapi::native_application_run_with_window(window.as_raw())
+            cnativeapi::native_application_run_with_window(window.map_or(0, |value| value.as_raw()))
         }
     }
 
@@ -81,9 +81,9 @@ impl Application {
         }
     }
 
-    pub fn set_menu_bar(menu: &Menu) -> bool {
+    pub fn set_menu_bar(menu: Option<&Menu>) -> bool {
         unsafe {
-            cnativeapi::native_application_set_menu_bar(menu.as_raw())
+            cnativeapi::native_application_set_menu_bar(menu.map_or(0, |value| value.as_raw()))
         }
     }
 
@@ -93,9 +93,9 @@ impl Application {
         }
     }
 
-    pub fn set_primary_window(window: &Window) {
+    pub fn set_primary_window(window: Option<&Window>) {
         unsafe {
-            cnativeapi::native_application_set_primary_window(window.as_raw());
+            cnativeapi::native_application_set_primary_window(window.map_or(0, |value| value.as_raw()));
         }
     }
 

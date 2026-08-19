@@ -161,9 +161,9 @@ impl MenuItem {
         }
     }
 
-    pub fn set_icon(&self, image: &Image) {
+    pub fn set_icon(&self, image: Option<&Image>) {
         unsafe {
-            cnativeapi::native_menu_item_set_icon(self.handle, image.as_raw());
+            cnativeapi::native_menu_item_set_icon(self.handle, image.map_or(0, |value| value.as_raw()));
         }
     }
 
@@ -242,9 +242,9 @@ impl MenuItem {
         }
     }
 
-    pub fn set_submenu(&self, submenu: &Menu) {
+    pub fn set_submenu(&self, submenu: Option<&Menu>) {
         unsafe {
-            cnativeapi::native_menu_item_set_submenu(self.handle, submenu.as_raw());
+            cnativeapi::native_menu_item_set_submenu(self.handle, submenu.map_or(0, |value| value.as_raw()));
         }
     }
 
@@ -359,21 +359,21 @@ impl Menu {
         }
     }
 
-    pub fn add_item(&self, item: &MenuItem) {
+    pub fn add_item(&self, item: Option<&MenuItem>) {
         unsafe {
-            cnativeapi::native_menu_add_item(self.handle, item.as_raw());
+            cnativeapi::native_menu_add_item(self.handle, item.map_or(0, |value| value.as_raw()));
         }
     }
 
-    pub fn insert_item(&self, index: std::os::raw::c_ulong, item: &MenuItem) {
+    pub fn insert_item(&self, index: std::os::raw::c_ulong, item: Option<&MenuItem>) {
         unsafe {
-            cnativeapi::native_menu_insert_item(self.handle, index, item.as_raw());
+            cnativeapi::native_menu_insert_item(self.handle, index, item.map_or(0, |value| value.as_raw()));
         }
     }
 
-    pub fn remove_item(&self, item: &MenuItem) -> bool {
+    pub fn remove_item(&self, item: Option<&MenuItem>) -> bool {
         unsafe {
-            cnativeapi::native_menu_remove_item(self.handle, item.as_raw())
+            cnativeapi::native_menu_remove_item(self.handle, item.map_or(0, |value| value.as_raw()))
         }
     }
 

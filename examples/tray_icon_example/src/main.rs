@@ -50,7 +50,7 @@ fn main() {
                 image.format(),
                 image.size()
             );
-            tray.set_icon(&image);
+            tray.set_icon(Some(&image));
         }
         None => println!("Could not decode the embedded icon."),
     }
@@ -59,15 +59,15 @@ fn main() {
     if let Some(menu) = Menu::new() {
         for label in ["Show", "Preferences"] {
             if let Some(item) = MenuItem::with_label_and_type(label, MenuItemType::Normal) {
-                menu.add_item(&item);
+                menu.add_item(Some(&item));
             }
         }
         menu.add_separator();
         if let Some(quit) = MenuItem::with_label_and_type("Quit", MenuItemType::Normal) {
-            menu.add_item(&quit);
+            menu.add_item(Some(&quit));
         }
 
-        tray.set_context_menu(&menu);
+        tray.set_context_menu(Some(&menu));
         tray.set_context_menu_trigger(ContextMenuTrigger::RightClicked);
         println!("Trigger: {:?}", tray.get_context_menu_trigger());
         if let Some(attached) = tray.get_context_menu() {

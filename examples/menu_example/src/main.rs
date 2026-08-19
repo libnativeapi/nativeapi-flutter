@@ -35,7 +35,7 @@ fn main() {
             println!("[item] {item_id} clicked");
         }
     });
-    menu.add_item(&new_file);
+    menu.add_item(Some(&new_file));
 
     menu.add_separator();
 
@@ -51,7 +51,7 @@ fn main() {
         word_wrap.set_state(state);
         println!("Word Wrap state -> {:?}", word_wrap.state());
     }
-    menu.add_item(&word_wrap);
+    menu.add_item(Some(&word_wrap));
 
     // --- 3. A radio group ---
     for (index, label) in ["Light", "Dark", "Auto"].iter().enumerate() {
@@ -62,27 +62,27 @@ fn main() {
         if index == 0 {
             item.set_state(MenuItemState::Checked);
         }
-        menu.add_item(&item);
+        menu.add_item(Some(&item));
     }
 
     // --- 4. A submenu ---
     let Some(tools) = Menu::new() else { return };
     for label in ["Clear Cache", "Reset Settings"] {
         if let Some(item) = MenuItem::with_label_and_type(label, MenuItemType::Normal) {
-            tools.add_item(&item);
+            tools.add_item(Some(&item));
         }
     }
     let Some(tools_item) = MenuItem::with_label_and_type("Tools", MenuItemType::Submenu) else {
         return;
     };
-    tools_item.set_submenu(&tools);
-    menu.add_item(&tools_item);
+    tools_item.set_submenu(Some(&tools));
+    menu.add_item(Some(&tools_item));
 
     // --- 5. A disabled item ---
     if let Some(quit) = MenuItem::with_label_and_type("Quit", MenuItemType::Normal) {
         quit.set_enabled(false);
         println!("Quit enabled = {}", quit.is_enabled());
-        menu.add_item(&quit);
+        menu.add_item(Some(&quit));
     }
 
     // --- 6. Inspect ---
