@@ -1,61 +1,77 @@
-import 'dart:ffi';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-import 'package:flutter/material.dart';
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
+// ignore_for_file: unused_import, unnecessary_import
+
+import 'dart:ffi' as ffi;
+import 'dart:ui';
+
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'display.dart';
+import 'foundation/geometry.dart';
 
-class DisplayManager with CNativeApiBindingsMixin {
-  static final DisplayManager _instance = DisplayManager._();
+import 'support.dart';
 
-  /// Returns the singleton instance of [DisplayManager].
-  static DisplayManager get instance => _instance;
+final _bindings = c.cnativeApiBindings;
 
-  /// Creates a new instance of [DisplayManager].
-  ///
-  /// This constructor is private to ensure that only one instance of [DisplayManager]
-  /// can be created. It initializes the native display manager API bindings.
-  DisplayManager._();
+class DisplayManager {
+  const DisplayManager._();
 
-  /// Returns a list of all displays.
-  ///
-  /// This method retrieves a list of all available displays using the native
-  /// display manager API. It then converts each display handle into a Dart
-  /// [Display] object and returns the list.
+  /// The shared instance backed by the native singleton.
+  static const DisplayManager instance = DisplayManager._();
+
   List<Display> getAll() {
-    final displayList = bindings.native_display_manager_get_all();
-    final displays = <Display>[];
-
-    for (int i = 0; i < displayList.count; i++) {
-      final nativeHandle = (displayList.displays + i).value;
-      displays.add(Display(nativeHandle));
+    final list = _bindings.native_display_manager_get_all();
+    final items = <Display>[];
+    for (var i = 0; i < list.count; i++) {
+      items.add(Display.fromHandle(list.displays[i]));
     }
-
-    // bindings.native_display_list_free(displayList);
-
-    return displays;
+    final listPointer = pkg_ffi.calloc<c.native_display_list_t>();
+    listPointer.ref = list;
+    // The handles now belong to `items`; free just the array.
+    _bindings.native_display_list_release(listPointer);
+    pkg_ffi.calloc.free(listPointer);
+    return items;
   }
 
-  /// Returns the current cursor position.
-  ///
-  /// This method retrieves the current cursor position using the native display
-  /// manager API. It then converts the position into a Dart [Point] object and
-  /// returns it.
-  Offset getCursorPosition() {
-    final nativePoint = bindings.native_display_manager_get_cursor_position();
-    return Offset(nativePoint.x, nativePoint.y);
-  }
-
-  /// Returns the primary display.
-  ///
-  /// This method retrieves the primary display using the native display manager
-  /// API. It then converts the display handle into a Dart [Display] object and
-  /// returns it.
   Display? getPrimary() {
-    final nativeHandle = bindings.native_display_manager_get_primary();
-    if (nativeHandle == nullptr) {
-      return null;
-    }
-    return Display(nativeHandle);
+    final handle = _bindings.native_display_manager_get_primary();
+    if (handle == 0) return null;
+    return Display.fromHandle(handle);
   }
+
+  Offset getCursorPosition() {
+    final raw = _bindings.native_display_manager_get_cursor_position();
+    return Offset(raw.x, raw.y);
+  }
+
+  /// Registers [callback] for every `DisplayEvent` this `DisplayManager` emits.
+  ///
+  /// The callback runs synchronously on whichever thread the native side
+  /// dispatches from, because the event struct is freed as soon as it
+  /// returns. That thread must therefore be this isolate's own; see the
+  /// package README for what that means under Flutter.
+  ListenerId addListener(void Function(DisplayEvent) callback) {
+    final callable = ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<c.native_display_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
+      (ffi.Pointer<c.native_display_event_t> event, ffi.Pointer<ffi.Void> _) {
+        if (event == ffi.nullptr) return;
+        final value = DisplayEvent.fromNative(event.ref);
+        if (value != null) callback(value);
+      },
+    );
+    _listeners.add(callable);  // keeps the trampoline alive
+    return _bindings.native_display_manager_add_listener(callable.nativeFunction, ffi.nullptr);
+  }
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool removeListener(ListenerId listenerId) =>
+      _bindings.native_display_manager_remove_listener(listenerId);
+
+  /// Trampolines stay reachable for as long as the C side may call them.
+  static final List<Object> _listeners = <Object>[];
+
 }
+

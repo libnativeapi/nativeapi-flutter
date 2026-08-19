@@ -1,246 +1,138 @@
-import 'dart:ffi';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-import 'package:ffi/ffi.dart';
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
-import 'package:nativeapi/src/foundation/storage.dart';
+// ignore_for_file: unused_import, unnecessary_import
 
-/// Platform-specific preferences storage implementation.
-///
-/// Provides persistent key-value storage using platform-native mechanisms:
-/// - Windows: Registry or app settings
-/// - macOS: NSUserDefaults
-/// - Linux: GSettings or file-based storage
-/// - Android: SharedPreferences
-///
-/// This class is suitable for storing non-sensitive application settings
-/// and user preferences. For sensitive data like passwords or tokens,
-/// use [SecureStorage] instead.
-///
-/// Example:
-/// ```dart
-/// // Create preferences with default scope
-/// final prefs = Preferences();
-///
-/// // Store user preferences
-/// prefs.set('theme', 'dark');
-/// prefs.set('language', 'en');
-/// prefs.set('notifications_enabled', 'true');
-///
-/// // Retrieve preferences
-/// final theme = prefs.get('theme', 'light'); // Default to 'light'
-/// print('Current theme: $theme');
-///
-/// // Check if preference exists
-/// if (prefs.contains('language')) {
-///   print('Language is set');
-/// }
-///
-/// // Get all preferences
-/// final allPrefs = prefs.getAll();
-/// print('All preferences: $allPrefs');
-///
-/// // Remove a preference
-/// prefs.remove('notifications_enabled');
-///
-/// // Clear all preferences
-/// prefs.clear();
-///
-/// // Always dispose when done
-/// prefs.dispose();
-/// ```
-///
-/// For scoped preferences (e.g., per-user or per-feature):
-/// ```dart
-/// final userPrefs = Preferences.withScope('user_123');
-/// userPrefs.set('last_login', DateTime.now().toIso8601String());
-///
-/// final featurePrefs = Preferences.withScope('feature_flags');
-/// featurePrefs.set('new_ui_enabled', 'true');
-/// ```
-class Preferences
-    with CNativeApiBindingsMixin
-    implements Storage, NativeHandleWrapper<native_preferences_t> {
-  late final native_preferences_t _nativeHandle;
+import 'dart:ffi' as ffi;
+import 'dart:ui';
 
-  /// Create a preferences storage with default scope.
-  Preferences() {
-    _nativeHandle = bindings.native_preferences_create();
-    if (_nativeHandle == nullptr) {
-      throw Exception('Failed to create Preferences instance');
-    }
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
+
+final _bindings = c.cnativeApiBindings;
+
+class Preferences {
+  /// Adopts a handle returned by the C API and releases it when this
+  /// object becomes unreachable.
+  Preferences.fromHandle(this.nativeHandle) {
+    _finalizer.attach(this, nativeHandle, detach: this);
   }
 
-  /// Create a preferences storage with custom scope.
-  ///
-  /// The [scope] parameter allows you to isolate preferences for different
-  /// purposes (e.g., different users, features, or modules).
-  ///
-  /// Example:
-  /// ```dart
-  /// final userPrefs = Preferences.withScope('user_${userId}');
-  /// final appPrefs = Preferences.withScope('app_settings');
-  /// ```
-  Preferences.withScope(String scope) {
-    final scopePtr = scope.toNativeUtf8().cast<Char>();
-    _nativeHandle = bindings.native_preferences_create_with_scope(scopePtr);
-    calloc.free(scopePtr);
+  /// Wraps a handle owned elsewhere; releasing it stays the owner's job.
+  Preferences.borrowed(this.nativeHandle);
 
-    if (_nativeHandle == nullptr) {
-      throw Exception(
-        'Failed to create Preferences instance with scope: $scope',
-      );
-    }
-  }
+  /// The underlying handle-table entry.
+  final int nativeHandle;
 
-  @override
-  native_preferences_t get nativeHandle => _nativeHandle;
+  static final Finalizer<int> _finalizer = Finalizer<int>(
+    (handle) => _bindings.native_preferences_free(handle),
+  );
 
-  @override
-  bool set(String key, String value) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final valuePtr = value.toNativeUtf8().cast<Char>();
-
-    final result = bindings.native_preferences_set(
-      _nativeHandle,
-      keyPtr,
-      valuePtr,
-    );
-
-    calloc.free(keyPtr);
-    calloc.free(valuePtr);
-
-    return result;
-  }
-
-  @override
-  String get(String key, [String defaultValue = '']) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final defaultPtr = defaultValue.isNotEmpty
-        ? defaultValue.toNativeUtf8().cast<Char>()
-        : nullptr.cast<Char>();
-
-    final resultPtr = bindings.native_preferences_get(
-      _nativeHandle,
-      keyPtr,
-      defaultPtr,
-    );
-
-    calloc.free(keyPtr);
-    if (defaultPtr != nullptr) {
-      calloc.free(defaultPtr);
-    }
-
-    if (resultPtr == nullptr) {
-      return defaultValue;
-    }
-
-    final result = resultPtr.cast<Utf8>().toDartString();
-    bindings.native_preferences_free_string(resultPtr);
-
-    return result;
-  }
-
-  @override
-  bool remove(String key) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final result = bindings.native_preferences_remove(_nativeHandle, keyPtr);
-    calloc.free(keyPtr);
-    return result;
-  }
-
-  @override
-  bool clear() {
-    return bindings.native_preferences_clear(_nativeHandle);
-  }
-
-  @override
-  bool contains(String key) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final result = bindings.native_preferences_contains(_nativeHandle, keyPtr);
-    calloc.free(keyPtr);
-    return result;
-  }
-
-  @override
-  List<String> get keys {
-    final keysPtr = calloc<Pointer<Pointer<Char>>>();
-    final countPtr = calloc<Size>();
-
-    final success = bindings.native_preferences_get_keys(
-      _nativeHandle,
-      keysPtr,
-      countPtr,
-    );
-
-    if (!success || keysPtr.value == nullptr) {
-      calloc.free(keysPtr);
-      calloc.free(countPtr);
-      return [];
-    }
-
-    final count = countPtr.value;
-    final List<String> result = [];
-
-    for (int i = 0; i < count; i++) {
-      final keyPtr = (keysPtr.value + i).value;
-      if (keyPtr != nullptr) {
-        result.add(keyPtr.cast<Utf8>().toDartString());
-      }
-    }
-
-    bindings.native_preferences_free_string_array(keysPtr.value, count);
-    calloc.free(keysPtr);
-    calloc.free(countPtr);
-
-    return result;
-  }
-
-  @override
-  int get size {
-    return bindings.native_preferences_get_size(_nativeHandle);
-  }
-
-  @override
-  Map<String, String> getAll() {
-    final keysPtr = calloc<Pointer<Pointer<Char>>>();
-    final countPtr = calloc<Size>();
-
-    final success = bindings.native_preferences_get_keys(
-      _nativeHandle,
-      keysPtr,
-      countPtr,
-    );
-
-    if (!success || keysPtr.value == nullptr) {
-      calloc.free(keysPtr);
-      calloc.free(countPtr);
-      return {};
-    }
-
-    final count = countPtr.value;
-    final Map<String, String> result = {};
-
-    for (int i = 0; i < count; i++) {
-      final keyPtr = (keysPtr.value + i).value;
-      if (keyPtr != nullptr) {
-        final key = keyPtr.cast<Utf8>().toDartString();
-        final value = get(key);
-        result[key] = value;
-      }
-    }
-
-    bindings.native_preferences_free_string_array(keysPtr.value, count);
-    calloc.free(keysPtr);
-    calloc.free(countPtr);
-
-    return result;
-  }
-
-  @override
+  /// Releases the handle now instead of at collection.
   void dispose() {
-    if (_nativeHandle != nullptr) {
-      bindings.native_preferences_destroy(_nativeHandle);
-    }
+    _finalizer.detach(this);
+    _bindings.native_preferences_free(nativeHandle);
   }
+
+  /// Creates a new `Preferences`; returns null if the native side failed.
+  static Preferences? create() {
+    final handle = _bindings.native_preferences_create();
+    if (handle == 0) return null;
+    return Preferences.fromHandle(handle);
+  }
+
+  /// Creates a new `Preferences`; returns null if the native side failed.
+  static Preferences? createWithScope(String scope) {
+    final scopeNative = scope.toNativeUtf8().cast<ffi.Char>();
+    final handle = _bindings.native_preferences_create_with_scope(scopeNative);
+    pkg_ffi.calloc.free(scopeNative);
+    if (handle == 0) return null;
+    return Preferences.fromHandle(handle);
+  }
+
+  bool set(String key, String value) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final valueNative = value.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_preferences_set(nativeHandle, keyNative, valueNative);
+    pkg_ffi.calloc.free(keyNative);
+    pkg_ffi.calloc.free(valueNative);
+    return result;
+  }
+
+  String? get(String key, String defaultValue) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final defaultValueNative = defaultValue.toNativeUtf8().cast<ffi.Char>();
+    final resultPointer = _bindings.native_preferences_get(nativeHandle, keyNative, defaultValueNative);
+    pkg_ffi.calloc.free(keyNative);
+    pkg_ffi.calloc.free(defaultValueNative);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  bool remove(String key) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_preferences_remove(nativeHandle, keyNative);
+    pkg_ffi.calloc.free(keyNative);
+    return result;
+  }
+
+  bool clear() {
+    return _bindings.native_preferences_clear(nativeHandle);
+  }
+
+  bool contains(String key) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_preferences_contains(nativeHandle, keyNative);
+    pkg_ffi.calloc.free(keyNative);
+    return result;
+  }
+
+  List<String> get keys {
+    final list = _bindings.native_preferences_get_keys(nativeHandle);
+    final items = <String>[];
+    for (var i = 0; i < list.count; i++) {
+      final item = list.items[i];
+      if (item == ffi.nullptr) continue;
+      items.add(item.cast<pkg_ffi.Utf8>().toDartString());
+    }
+    final listPointer = pkg_ffi.calloc<c.native_string_list_t>();
+    listPointer.ref = list;
+    _bindings.native_string_list_free(listPointer);
+    pkg_ffi.calloc.free(listPointer);
+    return items;
+  }
+
+  int get size {
+    return _bindings.native_preferences_get_size(nativeHandle);
+  }
+
+  Map<String, String> get all {
+    final raw = _bindings.native_preferences_get_all(nativeHandle);
+    final entries = <String, String>{};
+    for (var i = 0; i < raw.count; i++) {
+      final key = raw.keys[i];
+      if (key == ffi.nullptr) continue;
+      final value = raw.values[i];
+      entries[key.cast<pkg_ffi.Utf8>().toDartString()] = value == ffi.nullptr
+          ? ''
+          : value.cast<pkg_ffi.Utf8>().toDartString();
+    }
+    final rawPointer = pkg_ffi.calloc<c.native_string_map_t>();
+    rawPointer.ref = raw;
+    _bindings.native_string_map_free(rawPointer);
+    pkg_ffi.calloc.free(rawPointer);
+    return entries;
+  }
+
+  String? get scope {
+    final resultPointer = _bindings.native_preferences_get_scope(nativeHandle);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
 }
+

@@ -1,85 +1,47 @@
-import 'package:cnativeapi/cnativeapi.dart' show native_placement_t;
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-/// Placement options for positioning UI elements relative to an anchor.
-///
-/// Placement defines how a UI element (such as a menu or popover) should be
-/// positioned relative to a reference point or rectangle.
-///
-/// Example:
-/// ```dart
-/// // Position menu below the anchor, horizontally centered
-/// menu.open(strategy, Placement.bottom);
-///
-/// // Position menu below the anchor, aligned to the left
-/// menu.open(strategy, Placement.bottomStart);
-///
-/// // Position menu above the anchor, aligned to the right
-/// menu.open(strategy, Placement.topEnd);
-/// ```
+// ignore_for_file: unused_import, unnecessary_import
+
+import 'dart:ffi' as ffi;
+import 'dart:ui';
+
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
+
 enum Placement {
-  /// Position above the anchor, horizontally centered.
-  top,
+  top(0),
+  topStart(1),
+  topEnd(2),
+  right(3),
+  rightStart(4),
+  rightEnd(5),
+  bottom(6),
+  bottomStart(7),
+  bottomEnd(8),
+  left(9),
+  leftStart(10),
+  leftEnd(11);
 
-  /// Position above the anchor, aligned to the start (left).
-  topStart,
+  const Placement(this.value);
+  final int value;
 
-  /// Position above the anchor, aligned to the end (right).
-  topEnd,
+  static Placement fromValue(int value) => switch (value) {
+    0 => Placement.top,
+    1 => Placement.topStart,
+    2 => Placement.topEnd,
+    3 => Placement.right,
+    4 => Placement.rightStart,
+    5 => Placement.rightEnd,
+    6 => Placement.bottom,
+    7 => Placement.bottomStart,
+    8 => Placement.bottomEnd,
+    9 => Placement.left,
+    10 => Placement.leftStart,
+    11 => Placement.leftEnd,
+    _ => Placement.top,
+  };
 
-  /// Position to the right of the anchor, vertically centered.
-  right,
-
-  /// Position to the right of the anchor, aligned to the start (top).
-  rightStart,
-
-  /// Position to the right of the anchor, aligned to the end (bottom).
-  rightEnd,
-
-  /// Position below the anchor, horizontally centered.
-  bottom,
-
-  /// Position below the anchor, aligned to the start (left).
-  bottomStart,
-
-  /// Position below the anchor, aligned to the end (right).
-  bottomEnd,
-
-  /// Position to the left of the anchor, vertically centered.
-  left,
-
-  /// Position to the left of the anchor, aligned to the start (top).
-  leftStart,
-
-  /// Position to the left of the anchor, aligned to the end (bottom).
-  leftEnd;
-
-  /// Convert this Placement to a native placement enum value.
-  native_placement_t toNative() {
-    switch (this) {
-      case Placement.top:
-        return native_placement_t.NATIVE_PLACEMENT_TOP;
-      case Placement.topStart:
-        return native_placement_t.NATIVE_PLACEMENT_TOP_START;
-      case Placement.topEnd:
-        return native_placement_t.NATIVE_PLACEMENT_TOP_END;
-      case Placement.right:
-        return native_placement_t.NATIVE_PLACEMENT_RIGHT;
-      case Placement.rightStart:
-        return native_placement_t.NATIVE_PLACEMENT_RIGHT_START;
-      case Placement.rightEnd:
-        return native_placement_t.NATIVE_PLACEMENT_RIGHT_END;
-      case Placement.bottom:
-        return native_placement_t.NATIVE_PLACEMENT_BOTTOM;
-      case Placement.bottomStart:
-        return native_placement_t.NATIVE_PLACEMENT_BOTTOM_START;
-      case Placement.bottomEnd:
-        return native_placement_t.NATIVE_PLACEMENT_BOTTOM_END;
-      case Placement.left:
-        return native_placement_t.NATIVE_PLACEMENT_LEFT;
-      case Placement.leftStart:
-        return native_placement_t.NATIVE_PLACEMENT_LEFT_START;
-      case Placement.leftEnd:
-        return native_placement_t.NATIVE_PLACEMENT_LEFT_END;
-    }
-  }
+  c.native_placement_t get raw => c.native_placement_t.fromValue(value);
 }
+

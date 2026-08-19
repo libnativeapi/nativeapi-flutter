@@ -1,36 +1,47 @@
-import 'package:cnativeapi/cnativeapi.dart';
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'package:nativeapi/src/tray_icon.dart';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-class TrayManager with CNativeApiBindingsMixin {
-  static final TrayManager _instance = TrayManager._();
+// ignore_for_file: unused_import, unnecessary_import
 
-  /// Returns the singleton instance of [TrayManager].
-  static TrayManager get instance => _instance;
+import 'dart:ffi' as ffi;
+import 'dart:ui';
 
-  /// Creates a new instance of [TrayManager].
-  ///
-  /// This constructor is private to ensure that only one instance of [TrayManager]
-  /// can be created. It initializes the native tray manager API bindings.
-  TrayManager._();
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
 
-  bool get isSupported {
-    return cnativeApiBindings.native_tray_manager_is_supported();
+import 'tray_icon.dart';
+
+final _bindings = c.cnativeApiBindings;
+
+class TrayManager {
+  const TrayManager._();
+
+  /// The shared instance backed by the native singleton.
+  static const TrayManager instance = TrayManager._();
+
+  bool isSupported() {
+    return _bindings.native_tray_manager_is_supported();
   }
 
-  TrayIcon? get(int trayIconId) {
-    throw Exception('Method not implemented');
+  TrayIcon? get(TrayIconId id) {
+    final handle = _bindings.native_tray_manager_get(id);
+    if (handle == 0) return null;
+    return TrayIcon.fromHandle(handle);
   }
 
-  /// Returns a list of all tray icons.
-  ///
-  /// This method retrieves a list of all available tray icons using the native
-  /// tray manager API. It then converts each tray icon handle into a Dart
-  /// [TrayIcon] object and returns the list.
   List<TrayIcon> getAll() {
-    throw Exception('Method not implemented');
+    final list = _bindings.native_tray_manager_get_all();
+    final items = <TrayIcon>[];
+    for (var i = 0; i < list.count; i++) {
+      items.add(TrayIcon.fromHandle(list.tray_icons[i]));
+    }
+    final listPointer = pkg_ffi.calloc<c.native_tray_icon_list_t>();
+    listPointer.ref = list;
+    // The handles now belong to `items`; free just the array.
+    _bindings.native_tray_icon_list_release(listPointer);
+    pkg_ffi.calloc.free(listPointer);
+    return items;
   }
 
-  @override
-  String toString() => 'TrayManager()';
 }
+

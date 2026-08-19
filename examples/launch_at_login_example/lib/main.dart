@@ -51,7 +51,7 @@ class _LaunchAtLoginExamplePageState extends State<LaunchAtLoginExamplePage> {
   @override
   void initState() {
     super.initState();
-    _launchAtLogin = LaunchAtLogin();
+    _launchAtLogin = LaunchAtLogin.create()!;
     _refreshState();
   }
 
@@ -66,12 +66,12 @@ class _LaunchAtLoginExamplePageState extends State<LaunchAtLoginExamplePage> {
 
   void _refreshState() {
     setState(() {
-      _isSupported = LaunchAtLogin.isSupported;
+      _isSupported = LaunchAtLogin.isSupported();
       if (_isSupported) {
         _isEnabled = _launchAtLogin.isEnabled;
-        _currentId = _launchAtLogin.id;
-        _currentDisplayName = _launchAtLogin.displayName;
-        _currentExecutablePath = _launchAtLogin.executablePath;
+        _currentId = _launchAtLogin.id ?? '';
+        _currentDisplayName = _launchAtLogin.displayName ?? '';
+        _currentExecutablePath = _launchAtLogin.executablePath ?? '';
         _currentArguments = _launchAtLogin.arguments.join(' ');
 
         // Sync text fields with current values

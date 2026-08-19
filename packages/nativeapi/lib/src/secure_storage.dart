@@ -1,265 +1,142 @@
-import 'dart:ffi';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-import 'package:ffi/ffi.dart';
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
-import 'package:nativeapi/src/foundation/storage.dart';
+// ignore_for_file: unused_import, unnecessary_import
 
-/// Platform-specific secure storage implementation.
-///
-/// Provides encrypted key-value storage using platform-native secure storage:
-/// - Windows: Windows Credential Manager (DPAPI)
-/// - macOS: Keychain Services
-/// - Linux: Secret Service API (libsecret)
-/// - Android: Android Keystore System
-///
-/// This class is designed for storing sensitive data like passwords, API tokens,
-/// encryption keys, and other secrets. The data is encrypted at rest and protected
-/// by the operating system's security mechanisms.
-///
-/// **Security Considerations:**
-/// - Data is encrypted using platform-native encryption
-/// - On macOS/iOS, data is stored in the Keychain
-/// - On Windows, data is protected using DPAPI
-/// - On Linux, data is stored using Secret Service (requires libsecret)
-/// - On Android, data is encrypted using Android Keystore
-///
-/// Example:
-/// ```dart
-/// // Create secure storage with default scope
-/// final storage = SecureStorage();
-///
-/// // Store sensitive data
-/// storage.set('api_token', 'secret_token_abc123');
-/// storage.set('password', 'user_password_here');
-/// storage.set('encryption_key', 'base64_encoded_key');
-///
-/// // Retrieve sensitive data
-/// final token = storage.get('api_token');
-/// if (token.isNotEmpty) {
-///   print('Token retrieved successfully');
-/// }
-///
-/// // Check if secret exists
-/// if (storage.contains('password')) {
-///   final password = storage.get('password');
-///   // Use password...
-/// }
-///
-/// // Remove a secret
-/// storage.remove('api_token');
-///
-/// // Clear all secrets (use with caution!)
-/// storage.clear();
-///
-/// // Always dispose when done
-/// storage.dispose();
-/// ```
-///
-/// For scoped secure storage (e.g., per-user or per-service):
-/// ```dart
-/// final userStorage = SecureStorage.withScope('user_${userId}');
-/// userStorage.set('refresh_token', 'token_xyz');
-///
-/// final apiStorage = SecureStorage.withScope('api_credentials');
-/// apiStorage.set('client_secret', 'secret_123');
-/// ```
-///
-/// **Important Notes:**
-/// - Always call [dispose] when done to free native resources
-/// - Do not store extremely large data (> 1KB) - secure storage is designed for small secrets
-/// - Consider using [Preferences] for non-sensitive application settings
-/// - On first use, the system may prompt the user for permission (especially on macOS)
-class SecureStorage
-    with CNativeApiBindingsMixin
-    implements Storage, NativeHandleWrapper<native_secure_storage_t> {
-  late final native_secure_storage_t _nativeHandle;
+import 'dart:ffi' as ffi;
+import 'dart:ui';
 
-  /// Create a secure storage with default scope.
-  SecureStorage() {
-    _nativeHandle = bindings.native_secure_storage_create();
-    if (_nativeHandle == nullptr) {
-      throw Exception('Failed to create SecureStorage instance');
-    }
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
+
+final _bindings = c.cnativeApiBindings;
+
+class SecureStorage {
+  /// Adopts a handle returned by the C API and releases it when this
+  /// object becomes unreachable.
+  SecureStorage.fromHandle(this.nativeHandle) {
+    _finalizer.attach(this, nativeHandle, detach: this);
   }
 
-  /// Create a secure storage with custom scope.
-  ///
-  /// The [scope] parameter allows you to isolate secure storage for different
-  /// purposes (e.g., different users, services, or security domains).
-  ///
-  /// On macOS, this corresponds to the Keychain service name.
-  /// On Windows, this is part of the credential target name.
-  /// On Linux, this is the Secret Service collection label.
-  ///
-  /// Example:
-  /// ```dart
-  /// final userStorage = SecureStorage.withScope('user_${userId}');
-  /// final apiStorage = SecureStorage.withScope('api_service');
-  /// ```
-  SecureStorage.withScope(String scope) {
-    final scopePtr = scope.toNativeUtf8().cast<Char>();
-    _nativeHandle = bindings.native_secure_storage_create_with_scope(scopePtr);
-    calloc.free(scopePtr);
+  /// Wraps a handle owned elsewhere; releasing it stays the owner's job.
+  SecureStorage.borrowed(this.nativeHandle);
 
-    if (_nativeHandle == nullptr) {
-      throw Exception(
-        'Failed to create SecureStorage instance with scope: $scope',
-      );
-    }
-  }
+  /// The underlying handle-table entry.
+  final int nativeHandle;
 
-  @override
-  native_secure_storage_t get nativeHandle => _nativeHandle;
+  static final Finalizer<int> _finalizer = Finalizer<int>(
+    (handle) => _bindings.native_secure_storage_free(handle),
+  );
 
-  @override
-  bool set(String key, String value) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final valuePtr = value.toNativeUtf8().cast<Char>();
-
-    final result = bindings.native_secure_storage_set(
-      _nativeHandle,
-      keyPtr,
-      valuePtr,
-    );
-
-    calloc.free(keyPtr);
-    calloc.free(valuePtr);
-
-    return result;
-  }
-
-  @override
-  String get(String key, [String defaultValue = '']) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final defaultPtr = defaultValue.isNotEmpty
-        ? defaultValue.toNativeUtf8().cast<Char>()
-        : nullptr.cast<Char>();
-
-    final resultPtr = bindings.native_secure_storage_get(
-      _nativeHandle,
-      keyPtr,
-      defaultPtr,
-    );
-
-    calloc.free(keyPtr);
-    if (defaultPtr != nullptr) {
-      calloc.free(defaultPtr);
-    }
-
-    if (resultPtr == nullptr) {
-      return defaultValue;
-    }
-
-    final result = resultPtr.cast<Utf8>().toDartString();
-    bindings.native_secure_storage_free_string(resultPtr);
-
-    return result;
-  }
-
-  @override
-  bool remove(String key) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final result = bindings.native_secure_storage_remove(_nativeHandle, keyPtr);
-    calloc.free(keyPtr);
-    return result;
-  }
-
-  @override
-  bool clear() {
-    return bindings.native_secure_storage_clear(_nativeHandle);
-  }
-
-  @override
-  bool contains(String key) {
-    final keyPtr = key.toNativeUtf8().cast<Char>();
-    final result = bindings.native_secure_storage_contains(
-      _nativeHandle,
-      keyPtr,
-    );
-    calloc.free(keyPtr);
-    return result;
-  }
-
-  @override
-  List<String> get keys {
-    final keysPtr = calloc<Pointer<Pointer<Char>>>();
-    final countPtr = calloc<Size>();
-
-    final success = bindings.native_secure_storage_get_keys(
-      _nativeHandle,
-      keysPtr,
-      countPtr,
-    );
-
-    if (!success || keysPtr.value == nullptr) {
-      calloc.free(keysPtr);
-      calloc.free(countPtr);
-      return [];
-    }
-
-    final count = countPtr.value;
-    final List<String> result = [];
-
-    for (int i = 0; i < count; i++) {
-      final keyPtr = (keysPtr.value + i).value;
-      if (keyPtr != nullptr) {
-        result.add(keyPtr.cast<Utf8>().toDartString());
-      }
-    }
-
-    bindings.native_secure_storage_free_string_array(keysPtr.value, count);
-    calloc.free(keysPtr);
-    calloc.free(countPtr);
-
-    return result;
-  }
-
-  @override
-  int get size {
-    return bindings.native_secure_storage_get_size(_nativeHandle);
-  }
-
-  @override
-  Map<String, String> getAll() {
-    final keysPtr = calloc<Pointer<Pointer<Char>>>();
-    final countPtr = calloc<Size>();
-
-    final success = bindings.native_secure_storage_get_keys(
-      _nativeHandle,
-      keysPtr,
-      countPtr,
-    );
-
-    if (!success || keysPtr.value == nullptr) {
-      calloc.free(keysPtr);
-      calloc.free(countPtr);
-      return {};
-    }
-
-    final count = countPtr.value;
-    final Map<String, String> result = {};
-
-    for (int i = 0; i < count; i++) {
-      final keyPtr = (keysPtr.value + i).value;
-      if (keyPtr != nullptr) {
-        final key = keyPtr.cast<Utf8>().toDartString();
-        final value = get(key);
-        result[key] = value;
-      }
-    }
-
-    bindings.native_secure_storage_free_string_array(keysPtr.value, count);
-    calloc.free(keysPtr);
-    calloc.free(countPtr);
-
-    return result;
-  }
-
-  @override
+  /// Releases the handle now instead of at collection.
   void dispose() {
-    if (_nativeHandle != nullptr) {
-      bindings.native_secure_storage_destroy(_nativeHandle);
-    }
+    _finalizer.detach(this);
+    _bindings.native_secure_storage_free(nativeHandle);
   }
+
+  /// Creates a new `SecureStorage`; returns null if the native side failed.
+  static SecureStorage? create() {
+    final handle = _bindings.native_secure_storage_create();
+    if (handle == 0) return null;
+    return SecureStorage.fromHandle(handle);
+  }
+
+  /// Creates a new `SecureStorage`; returns null if the native side failed.
+  static SecureStorage? createWithScope(String scope) {
+    final scopeNative = scope.toNativeUtf8().cast<ffi.Char>();
+    final handle = _bindings.native_secure_storage_create_with_scope(scopeNative);
+    pkg_ffi.calloc.free(scopeNative);
+    if (handle == 0) return null;
+    return SecureStorage.fromHandle(handle);
+  }
+
+  bool set(String key, String value) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final valueNative = value.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_secure_storage_set(nativeHandle, keyNative, valueNative);
+    pkg_ffi.calloc.free(keyNative);
+    pkg_ffi.calloc.free(valueNative);
+    return result;
+  }
+
+  String? get(String key, String defaultValue) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final defaultValueNative = defaultValue.toNativeUtf8().cast<ffi.Char>();
+    final resultPointer = _bindings.native_secure_storage_get(nativeHandle, keyNative, defaultValueNative);
+    pkg_ffi.calloc.free(keyNative);
+    pkg_ffi.calloc.free(defaultValueNative);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  bool remove(String key) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_secure_storage_remove(nativeHandle, keyNative);
+    pkg_ffi.calloc.free(keyNative);
+    return result;
+  }
+
+  bool clear() {
+    return _bindings.native_secure_storage_clear(nativeHandle);
+  }
+
+  bool contains(String key) {
+    final keyNative = key.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_secure_storage_contains(nativeHandle, keyNative);
+    pkg_ffi.calloc.free(keyNative);
+    return result;
+  }
+
+  List<String> get keys {
+    final list = _bindings.native_secure_storage_get_keys(nativeHandle);
+    final items = <String>[];
+    for (var i = 0; i < list.count; i++) {
+      final item = list.items[i];
+      if (item == ffi.nullptr) continue;
+      items.add(item.cast<pkg_ffi.Utf8>().toDartString());
+    }
+    final listPointer = pkg_ffi.calloc<c.native_string_list_t>();
+    listPointer.ref = list;
+    _bindings.native_string_list_free(listPointer);
+    pkg_ffi.calloc.free(listPointer);
+    return items;
+  }
+
+  int get size {
+    return _bindings.native_secure_storage_get_size(nativeHandle);
+  }
+
+  Map<String, String> get all {
+    final raw = _bindings.native_secure_storage_get_all(nativeHandle);
+    final entries = <String, String>{};
+    for (var i = 0; i < raw.count; i++) {
+      final key = raw.keys[i];
+      if (key == ffi.nullptr) continue;
+      final value = raw.values[i];
+      entries[key.cast<pkg_ffi.Utf8>().toDartString()] = value == ffi.nullptr
+          ? ''
+          : value.cast<pkg_ffi.Utf8>().toDartString();
+    }
+    final rawPointer = pkg_ffi.calloc<c.native_string_map_t>();
+    rawPointer.ref = raw;
+    _bindings.native_string_map_free(rawPointer);
+    pkg_ffi.calloc.free(rawPointer);
+    return entries;
+  }
+
+  String? get scope {
+    final resultPointer = _bindings.native_secure_storage_get_scope(nativeHandle);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  static bool isAvailable() {
+    return _bindings.native_secure_storage_is_available();
+  }
+
 }
+

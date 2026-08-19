@@ -45,15 +45,15 @@ class _NativeApiSmokeTestPageState extends State<NativeApiSmokeTestPage> {
 
     final results = <_CheckResult>[
       _check('UrlOpener support', () {
-        final supported = UrlOpener.instance.isSupported;
+        final supported = UrlOpener.instance.isSupported();
         return 'supported: $supported';
       }),
       _check('TrayManager support', () {
-        final supported = TrayManager.instance.isSupported;
+        final supported = TrayManager.instance.isSupported();
         return 'supported: $supported';
       }),
       _check('Accessibility state', () {
-        final enabled = AccessibilityManager().isEnabled;
+        final enabled = AccessibilityManager.instance.isEnabled();
         return 'enabled: $enabled';
       }),
       _check('DisplayManager primary display', () {
@@ -65,14 +65,14 @@ class _NativeApiSmokeTestPageState extends State<NativeApiSmokeTestPage> {
       }),
       _check('WindowManager current window', () {
         final current = WindowManager.instance.getCurrent();
-        return current == null ? 'no active native window' : current.title;
+        return current == null ? 'no active native window' : (current.title ?? '');
       }),
       _check('Preferences read/write', () {
-        final prefs = Preferences.withScope('cocoapods_example');
+        final prefs = Preferences.createWithScope('cocoapods_example')!;
         const key = 'smoke_test';
         final value = DateTime.now().toIso8601String();
         final wrote = prefs.set(key, value);
-        final readValue = prefs.get(key);
+        final readValue = prefs.get(key, '');
         final removed = prefs.remove(key);
         prefs.dispose();
         return 'wrote: $wrote, matched: ${readValue == value}, removed: $removed';

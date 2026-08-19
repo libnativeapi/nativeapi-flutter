@@ -1,390 +1,234 @@
-import 'dart:ffi';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-import 'package:ffi/ffi.dart' as ffi;
-import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:nativeapi/src/foundation/event_emitter.dart';
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'package:nativeapi/src/foundation/geometry.dart';
-import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
-import 'package:nativeapi/src/image.dart';
-import 'package:nativeapi/src/menu.dart';
-import 'package:nativeapi/src/tray_icon_event.dart';
+// ignore_for_file: unused_import, unnecessary_import
 
-/// Defines how the context menu is triggered for a tray icon.
-///
-/// This enum specifies which mouse interactions should display the tray icon's
-/// context menu. The values align with tray icon event types for consistency.
+import 'dart:ffi' as ffi;
+import 'dart:ui';
+
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
+
+import 'foundation/geometry.dart';
+import 'image.dart';
+import 'menu.dart';
+
+import 'support.dart';
+
+final _bindings = c.cnativeApiBindings;
+
+typedef TrayIconId = int;
+
 enum ContextMenuTrigger {
-  /// Context menu is not automatically triggered by mouse events.
-  ///
-  /// The application must call [TrayIcon.openContextMenu] explicitly to display
-  /// the menu. Use this when you want full control over when the menu appears.
-  none,
+  none(0),
+  clicked(1),
+  rightClicked(2),
+  doubleClicked(3);
 
-  /// Context menu is triggered on [TrayIconClickedEvent].
-  ///
-  /// Automatically opens the context menu when the tray icon is left-clicked.
-  /// This is common on some Linux desktop environments.
-  clicked,
+  const ContextMenuTrigger(this.value);
+  final int value;
 
-  /// Context menu is triggered on [TrayIconRightClickedEvent].
-  ///
-  /// Automatically opens the context menu when the tray icon is right-clicked.
-  /// This follows the convention on Windows and most desktop environments.
-  rightClicked,
+  static ContextMenuTrigger fromValue(int value) => switch (value) {
+    0 => ContextMenuTrigger.none,
+    1 => ContextMenuTrigger.clicked,
+    2 => ContextMenuTrigger.rightClicked,
+    3 => ContextMenuTrigger.doubleClicked,
+    _ => ContextMenuTrigger.none,
+  };
 
-  /// Context menu is triggered on [TrayIconDoubleClickedEvent].
-  ///
-  /// Automatically opens the context menu when the tray icon is double-clicked.
-  /// Less common but useful for applications that use single-click for another action.
-  doubleClicked,
+  c.native_context_menu_trigger_t get raw => c.native_context_menu_trigger_t.fromValue(value);
 }
 
-/// Extension methods for ContextMenuTrigger conversion
-extension ContextMenuTriggerExtension on ContextMenuTrigger {
-  /// Convert this ContextMenuTrigger to a native enum value.
-  native_context_menu_trigger_t toNative() {
-    switch (this) {
-      case ContextMenuTrigger.none:
-        return native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_NONE;
-      case ContextMenuTrigger.clicked:
-        return native_context_menu_trigger_t
-            .NATIVE_CONTEXT_MENU_TRIGGER_CLICKED;
-      case ContextMenuTrigger.rightClicked:
-        return native_context_menu_trigger_t
-            .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED;
-      case ContextMenuTrigger.doubleClicked:
-        return native_context_menu_trigger_t
-            .NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED;
-    }
-  }
+/// One `TrayIconEvent`, in its concrete form.
+sealed class TrayIconEvent {
+  const TrayIconEvent();
 
-  /// Convert a native enum value to ContextMenuTrigger.
-  static ContextMenuTrigger fromNative(native_context_menu_trigger_t native) {
-    switch (native) {
-      case native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_NONE:
-        return ContextMenuTrigger.none;
-      case native_context_menu_trigger_t.NATIVE_CONTEXT_MENU_TRIGGER_CLICKED:
-        return ContextMenuTrigger.clicked;
-      case native_context_menu_trigger_t
-          .NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED:
-        return ContextMenuTrigger.rightClicked;
-      case native_context_menu_trigger_t
-          .NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED:
-        return ContextMenuTrigger.doubleClicked;
+  /// Reads the event out of its C form. Returns null for a variant this
+  /// binding does not know about.
+  static TrayIconEvent? fromNative(c.native_tray_icon_event_t raw) {
+    if (raw.type == c.native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED.value) {
+      return TrayIconClickedEvent(trayIconId: raw.data.clicked.tray_icon_id);
     }
+    if (raw.type == c.native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED.value) {
+      return TrayIconRightClickedEvent(trayIconId: raw.data.right_clicked.tray_icon_id);
+    }
+    if (raw.type == c.native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED.value) {
+      return TrayIconDoubleClickedEvent(trayIconId: raw.data.double_clicked.tray_icon_id);
+    }
+    return null;
   }
 }
 
-class TrayIcon
-    with EventEmitter, CNativeApiBindingsMixin
-    implements NativeHandleWrapper<native_tray_icon_t> {
-  // Static map to track instances by their native handle address
-  static final Map<int, TrayIcon> _instances = {};
+final class TrayIconClickedEvent extends TrayIconEvent {
+  const TrayIconClickedEvent({required this.trayIconId, });
 
-  // Native callables for event callbacks
-  static late final NativeCallable<Void Function(Pointer<Void>, Pointer<Void>)>
-  _clickedCallback;
-  static late final NativeCallable<Void Function(Pointer<Void>, Pointer<Void>)>
-  _rightClickedCallback;
-  static late final NativeCallable<Void Function(Pointer<Void>, Pointer<Void>)>
-  _doubleClickedCallback;
+  final TrayIconId trayIconId;
+}
 
-  static bool _callbacksInitialized = false;
+final class TrayIconRightClickedEvent extends TrayIconEvent {
+  const TrayIconRightClickedEvent({required this.trayIconId, });
 
-  late final native_tray_icon_t _nativeHandle;
+  final TrayIconId trayIconId;
+}
 
-  // Store listener IDs for cleanup
-  int? _clickedListenerId;
-  int? _rightClickedListenerId;
-  int? _doubleClickedListenerId;
+final class TrayIconDoubleClickedEvent extends TrayIconEvent {
+  const TrayIconDoubleClickedEvent({required this.trayIconId, });
 
-  TrayIcon() {
-    _nativeHandle = bindings.native_tray_icon_create();
+  final TrayIconId trayIconId;
+}
 
-    // Store instance in static map using handle address as key
-    _instances[nativeHandle.address] = this;
+class TrayIcon {
+  /// Adopts a handle returned by the C API and releases it when this
+  /// object becomes unreachable.
+  TrayIcon.fromHandle(this.nativeHandle) {
+    _finalizer.attach(this, nativeHandle, detach: this);
   }
 
-  @override
-  void startEventListening() {
-    // Initialize callbacks once
-    if (!_callbacksInitialized) {
-      _clickedCallback =
-          NativeCallable<Void Function(Pointer<Void>, Pointer<Void>)>.listener(
-            _nativeOnClickedEvent,
-          );
-      _rightClickedCallback =
-          NativeCallable<Void Function(Pointer<Void>, Pointer<Void>)>.listener(
-            _nativeOnRightClickedEvent,
-          );
-      _doubleClickedCallback =
-          NativeCallable<Void Function(Pointer<Void>, Pointer<Void>)>.listener(
-            _nativeOnDoubleClickedEvent,
-          );
-      _callbacksInitialized = true;
-    }
+  /// Wraps a handle owned elsewhere; releasing it stays the owner's job.
+  TrayIcon.borrowed(this.nativeHandle);
 
-    // Register listeners for each event type with native callbacks and store IDs
-    // Pass the native handle as userData so callbacks can find the instance
-    _clickedListenerId = bindings.native_tray_icon_add_listener(
-      _nativeHandle,
-      native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_CLICKED,
-      _clickedCallback.nativeFunction,
-      _nativeHandle,
-    );
-    _rightClickedListenerId = bindings.native_tray_icon_add_listener(
-      _nativeHandle,
-      native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED,
-      _rightClickedCallback.nativeFunction,
-      _nativeHandle,
-    );
-    _doubleClickedListenerId = bindings.native_tray_icon_add_listener(
-      _nativeHandle,
-      native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED,
-      _doubleClickedCallback.nativeFunction,
-      _nativeHandle,
-    );
+  /// The underlying handle-table entry.
+  final int nativeHandle;
+
+  static final Finalizer<int> _finalizer = Finalizer<int>(
+    (handle) => _bindings.native_tray_icon_free(handle),
+  );
+
+  /// Releases the handle now instead of at collection.
+  void dispose() {
+    _finalizer.detach(this);
+    _bindings.native_tray_icon_free(nativeHandle);
   }
 
-  @override
-  void stopEventListening() {
-    // Remove native listeners using stored IDs
-    if (_clickedListenerId != null) {
-      bindings.native_tray_icon_remove_listener(
-        _nativeHandle,
-        _clickedListenerId!,
-      );
-      _clickedListenerId = null;
-    }
-    if (_rightClickedListenerId != null) {
-      bindings.native_tray_icon_remove_listener(
-        _nativeHandle,
-        _rightClickedListenerId!,
-      );
-      _rightClickedListenerId = null;
-    }
-    if (_doubleClickedListenerId != null) {
-      bindings.native_tray_icon_remove_listener(
-        _nativeHandle,
-        _doubleClickedListenerId!,
-      );
-      _doubleClickedListenerId = null;
-    }
+  /// Creates a new `TrayIcon`; returns null if the native side failed.
+  static TrayIcon? create() {
+    final handle = _bindings.native_tray_icon_create();
+    if (handle == 0) return null;
+    return TrayIcon.fromHandle(handle);
   }
 
-  // Static callback functions for FFI
-  static void _nativeOnClickedEvent(
-    Pointer<Void> event,
-    Pointer<Void> userData,
-  ) {
-    final instance = _instances[userData.address];
-    if (instance != null) {
-      if (kDebugMode) {
-        print('Tray icon clicked');
-      }
-      instance.emitSync(TrayIconClickedEvent());
-    }
+  /// Creates a new `TrayIcon`; returns null if the native side failed.
+  static TrayIcon? createWithTray(ffi.Pointer<ffi.Void> tray) {
+    final handle = _bindings.native_tray_icon_create_with_tray(tray);
+    if (handle == 0) return null;
+    return TrayIcon.fromHandle(handle);
   }
 
-  static void _nativeOnDoubleClickedEvent(
-    Pointer<Void> event,
-    Pointer<Void> userData,
-  ) {
-    final instance = _instances[userData.address];
-    if (instance != null) {
-      if (kDebugMode) {
-        print('Tray icon double clicked');
-      }
-      instance.emitSync(TrayIconDoubleClickedEvent());
-    }
+  TrayIconId getId() {
+    return _bindings.native_tray_icon_get_id(nativeHandle);
   }
 
-  static void _nativeOnRightClickedEvent(
-    Pointer<Void> event,
-    Pointer<Void> userData,
-  ) {
-    final instance = _instances[userData.address];
-    if (instance != null) {
-      if (kDebugMode) {
-        print('Tray icon right clicked');
-      }
-      instance.emitSync(TrayIconRightClickedEvent());
-    }
+  set icon(Image? value) {
+    _bindings.native_tray_icon_set_icon(nativeHandle, value?.nativeHandle ?? 0);
   }
-
-  int get id => bindings.native_tray_icon_get_id(_nativeHandle);
 
   Image? get icon {
-    final iconHandle = bindings.native_tray_icon_get_icon(_nativeHandle);
-    if (iconHandle == nullptr) {
-      return null;
-    }
-    return Image(iconHandle);
+    final handle = _bindings.native_tray_icon_get_icon(nativeHandle);
+    if (handle == 0) return null;
+    return Image.fromHandle(handle);
   }
 
-  set icon(Image? icon) {
-    bindings.native_tray_icon_set_icon(
-      _nativeHandle,
-      icon?.nativeHandle ?? nullptr,
-    );
+  void setTitle(String? title) {
+    final titleNative = title == null
+        ? ffi.nullptr
+        : title.toNativeUtf8().cast<ffi.Char>();
+    _bindings.native_tray_icon_set_title(nativeHandle, titleNative);
+    if (titleNative != ffi.nullptr) pkg_ffi.calloc.free(titleNative);
   }
 
-  String? get title {
-    final titlePtr = bindings.native_tray_icon_get_title(_nativeHandle);
-    final title = titlePtr.cast<ffi.Utf8>().toDartString();
-    bindings.free_c_str(titlePtr);
-    return title;
+  String? getTitle() {
+    final resultPointer = _bindings.native_tray_icon_get_title(nativeHandle);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
   }
 
-  set title(String? title) {
-    if (title != null) {
-      final titleUtf8 = title.toNativeUtf8();
-      try {
-        bindings.native_tray_icon_set_title(
-          _nativeHandle,
-          titleUtf8.cast<Char>(),
-        );
-      } finally {
-        ffi.malloc.free(titleUtf8);
-      }
-    } else {
-      bindings.native_tray_icon_set_title(_nativeHandle, nullptr);
-    }
+  void setTooltip(String? tooltip) {
+    final tooltipNative = tooltip == null
+        ? ffi.nullptr
+        : tooltip.toNativeUtf8().cast<ffi.Char>();
+    _bindings.native_tray_icon_set_tooltip(nativeHandle, tooltipNative);
+    if (tooltipNative != ffi.nullptr) pkg_ffi.calloc.free(tooltipNative);
   }
 
-  String? get tooltip {
-    final tooltipPtr = bindings.native_tray_icon_get_tooltip(_nativeHandle);
-    final tooltip = tooltipPtr.cast<ffi.Utf8>().toDartString();
-    bindings.free_c_str(tooltipPtr);
-    return tooltip;
+  String? getTooltip() {
+    final resultPointer = _bindings.native_tray_icon_get_tooltip(nativeHandle);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
   }
 
-  set tooltip(String? tooltip) {
-    if (tooltip != null) {
-      final tooltipUtf8 = tooltip.toNativeUtf8();
-      try {
-        bindings.native_tray_icon_set_tooltip(
-          _nativeHandle,
-          tooltipUtf8.cast<Char>(),
-        );
-      } finally {
-        ffi.malloc.free(tooltipUtf8);
-      }
-    } else {
-      bindings.native_tray_icon_set_tooltip(_nativeHandle, nullptr);
-    }
+  void setContextMenu(Menu? menu) {
+    _bindings.native_tray_icon_set_context_menu(nativeHandle, menu?.nativeHandle ?? 0);
   }
 
-  Menu? get contextMenu {
-    final menuHandle = bindings.native_tray_icon_get_context_menu(
-      _nativeHandle,
-    );
-    if (menuHandle == nullptr) {
-      return null;
-    }
-    return Menu(menuHandle);
+  Menu? getContextMenu() {
+    final handle = _bindings.native_tray_icon_get_context_menu(nativeHandle);
+    if (handle == 0) return null;
+    return Menu.fromHandle(handle);
   }
 
-  set contextMenu(Menu? menu) {
-    bindings.native_tray_icon_set_context_menu(
-      _nativeHandle,
-      menu?.nativeHandle ?? nullptr,
-    );
+  void setContextMenuTrigger(ContextMenuTrigger trigger) {
+    _bindings.native_tray_icon_set_context_menu_trigger(nativeHandle, trigger.raw);
   }
 
-  /// Get the current context menu trigger behavior.
+  ContextMenuTrigger getContextMenuTrigger() {
+    final raw = _bindings.native_tray_icon_get_context_menu_trigger(nativeHandle);
+    return ContextMenuTrigger.fromValue(raw.value);
+  }
+
+  Rect getBounds() {
+    final raw = _bindings.native_tray_icon_get_bounds(nativeHandle);
+    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+  }
+
+  bool setVisible(bool visible) {
+    return _bindings.native_tray_icon_set_visible(nativeHandle, visible);
+  }
+
+  bool isVisible() {
+    return _bindings.native_tray_icon_is_visible(nativeHandle);
+  }
+
+  bool openContextMenu() {
+    return _bindings.native_tray_icon_open_context_menu(nativeHandle);
+  }
+
+  bool closeContextMenu() {
+    return _bindings.native_tray_icon_close_context_menu(nativeHandle);
+  }
+
+  /// Platform-specific native object behind this handle.
+  ffi.Pointer<ffi.Void> get nativeObject =>
+      _bindings.native_tray_icon_get_native_object(nativeHandle);
+
+  /// Registers [callback] for every `TrayIconEvent` this `TrayIcon` emits.
   ///
-  /// Returns the current [ContextMenuTrigger] setting that determines
-  /// which mouse interactions will automatically display the context menu.
-  ContextMenuTrigger get contextMenuTrigger {
-    final native = bindings.native_tray_icon_get_context_menu_trigger(
-      _nativeHandle,
+  /// The callback runs synchronously on whichever thread the native side
+  /// dispatches from, because the event struct is freed as soon as it
+  /// returns. That thread must therefore be this isolate's own; see the
+  /// package README for what that means under Flutter.
+  ListenerId addListener(void Function(TrayIconEvent) callback) {
+    final callable = ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<c.native_tray_icon_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
+      (ffi.Pointer<c.native_tray_icon_event_t> event, ffi.Pointer<ffi.Void> _) {
+        if (event == ffi.nullptr) return;
+        final value = TrayIconEvent.fromNative(event.ref);
+        if (value != null) callback(value);
+      },
     );
-    return ContextMenuTriggerExtension.fromNative(native);
+    _listeners.add(callable);  // keeps the trampoline alive
+    return _bindings.native_tray_icon_add_listener(nativeHandle, callable.nativeFunction, ffi.nullptr);
   }
 
-  /// Set the context menu trigger behavior.
-  ///
-  /// Determines which mouse interactions will automatically display the
-  /// context menu. By default, the trigger is set to [ContextMenuTrigger.none],
-  /// requiring explicit control via [openContextMenu] or by setting a trigger mode.
-  ///
-  /// Example:
-  /// ```dart
-  /// // Right click shows menu (common on Windows/Linux)
-  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
-  ///
-  /// // Left click shows menu (common on some Linux environments and macOS)
-  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.clicked;
-  ///
-  /// // Double click shows menu
-  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.doubleClicked;
-  ///
-  /// // Manual control (default) - handle events yourself
-  /// trayIcon.contextMenuTrigger = ContextMenuTrigger.none;
-  /// trayIcon.addListener<TrayIconRightClickedEvent>((event) {
-  ///   // Custom logic before showing menu
-  ///   trayIcon.openContextMenu();
-  /// });
-  /// ```
-  set contextMenuTrigger(ContextMenuTrigger trigger) {
-    bindings.native_tray_icon_set_context_menu_trigger(
-      _nativeHandle,
-      trigger.toNative(),
-    );
-  }
+  /// Unregisters a listener. Returns false if unknown.
+  bool removeListener(ListenerId listenerId) =>
+      _bindings.native_tray_icon_remove_listener(nativeHandle, listenerId);
 
-  Rect? get bounds {
-    final boundsPtr = ffi.calloc<native_rectangle_t>();
-    final success = bindings.native_tray_icon_get_bounds(
-      _nativeHandle,
-      boundsPtr,
-    );
+  /// Trampolines stay reachable for as long as the C side may call them.
+  static final List<Object> _listeners = <Object>[];
 
-    if (!success) {
-      ffi.calloc.free(boundsPtr);
-      return null;
-    }
-
-    final bounds = Rect.fromLTWH(
-      boundsPtr.ref.x,
-      boundsPtr.ref.y,
-      boundsPtr.ref.width,
-      boundsPtr.ref.height,
-    );
-
-    ffi.calloc.free(boundsPtr);
-    return bounds;
-  }
-
-  bool get isVisible {
-    return bindings.native_tray_icon_is_visible(_nativeHandle);
-  }
-
-  set isVisible(bool value) {
-    bindings.native_tray_icon_set_visible(_nativeHandle, value);
-  }
-
-  void openContextMenu() {
-    bindings.native_tray_icon_open_context_menu(_nativeHandle);
-  }
-
-  void closeContextMenu() {
-    bindings.native_tray_icon_close_context_menu(_nativeHandle);
-  }
-
-  @override
-  native_tray_icon_t get nativeHandle => _nativeHandle;
-
-  @override
-  void dispose() {
-    // Remove instance from static map
-    _instances.remove(_nativeHandle.address);
-
-    // Dispose event emitter (will call stopEventListening if needed)
-    disposeEventEmitter();
-
-    bindings.native_tray_icon_destroy(_nativeHandle);
-  }
 }
+

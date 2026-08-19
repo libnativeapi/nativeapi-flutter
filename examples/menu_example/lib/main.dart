@@ -84,7 +84,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   void _loadTestIcon() {
     // Try to load a test icon from assets
-    _testIcon = Image.fromAsset('images/flutter_logo.png');
+    _testIcon = ImageAsset.fromAsset('images/flutter_logo.png');
     if (_testIcon != null) {
       _addToHistory('Test icon loaded successfully');
     } else {
@@ -141,20 +141,23 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _setupContextMenu() {
-    _contextMenu = Menu();
+    _contextMenu = Menu.create()!;
 
     // Listen to menu events
-    _contextMenu.addCallbackListener<MenuOpenedEvent>((event) {
+    _contextMenu.addListener((event) {
+      if (event is! MenuOpenedEvent) return;
       _addToHistory('Menu opened (ID: ${event.menuId})');
     });
-    _contextMenu.addCallbackListener<MenuClosedEvent>((event) {
+    _contextMenu.addListener((event) {
+      if (event is! MenuClosedEvent) return;
       _addToHistory('Menu closed (ID: ${event.menuId})');
     });
 
     // 1. Normal menu item
-    final normalItem = MenuItem('Normal Menu Item', MenuItemType.normal);
-    normalItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Normal item clicked (ID: ${event.menuItemId})');
+    final normalItem = MenuItem.createWithLabelAndType('Normal Menu Item', MenuItemType.normal)!;
+    normalItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Normal item clicked (ID: ${event.itemId})');
     });
     _contextMenu.addItem(normalItem);
     _menuItems.add(normalItem);
@@ -163,9 +166,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 3. Checkbox menu item
-    _checkboxItem = MenuItem('Checkbox Item', MenuItemType.checkbox);
+    _checkboxItem = MenuItem.createWithLabelAndType('Checkbox Item', MenuItemType.checkbox)!;
     _checkboxItem.state = MenuItemState.unchecked;
-    _checkboxItem.on<MenuItemClickedEvent>((event) {
+    _checkboxItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       setState(() {
         _checkboxState = !_checkboxState;
         _checkboxItem.state = _checkboxState
@@ -173,71 +177,76 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
             : MenuItemState.unchecked;
       });
       _addToHistory(
-        'Checkbox clicked - State: $_checkboxState (ID: ${event.menuItemId})',
+        'Checkbox clicked - State: $_checkboxState (ID: ${event.itemId})',
       );
     });
     _contextMenu.addItem(_checkboxItem);
     _menuItems.add(_checkboxItem);
 
     // 4. Radio menu items (grouped together)
-    _radio1 = MenuItem('Radio Option 1', MenuItemType.radio);
+    _radio1 = MenuItem.createWithLabelAndType('Radio Option 1', MenuItemType.radio)!;
     _radio1.radioGroup = 1; // Set radio group ID
     _radio1.state = MenuItemState.checked; // Default selection
-    _radio1.on<MenuItemClickedEvent>((event) {
+    _radio1.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       setState(() {
         _radioSelection = 'Option 1';
         _radio1.state = MenuItemState.checked;
         _radio2.state = MenuItemState.unchecked;
         _radio3.state = MenuItemState.unchecked;
       });
-      _addToHistory('Radio Option 1 selected (ID: ${event.menuItemId})');
+      _addToHistory('Radio Option 1 selected (ID: ${event.itemId})');
     });
     _contextMenu.addItem(_radio1);
     _menuItems.add(_radio1);
 
-    _radio2 = MenuItem('Radio Option 2', MenuItemType.radio);
+    _radio2 = MenuItem.createWithLabelAndType('Radio Option 2', MenuItemType.radio)!;
     _radio2.radioGroup = 1; // Same radio group
     _radio2.state = MenuItemState.unchecked;
-    _radio2.on<MenuItemClickedEvent>((event) {
+    _radio2.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       setState(() {
         _radioSelection = 'Option 2';
         _radio1.state = MenuItemState.unchecked;
         _radio2.state = MenuItemState.checked;
         _radio3.state = MenuItemState.unchecked;
       });
-      _addToHistory('Radio Option 2 selected (ID: ${event.menuItemId})');
+      _addToHistory('Radio Option 2 selected (ID: ${event.itemId})');
     });
     _contextMenu.addItem(_radio2);
     _menuItems.add(_radio2);
 
-    _radio3 = MenuItem('Radio Option 3', MenuItemType.radio);
+    _radio3 = MenuItem.createWithLabelAndType('Radio Option 3', MenuItemType.radio)!;
     _radio3.radioGroup = 1; // Same radio group
     _radio3.state = MenuItemState.unchecked;
-    _radio3.on<MenuItemClickedEvent>((event) {
+    _radio3.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       setState(() {
         _radioSelection = 'Option 3';
         _radio1.state = MenuItemState.unchecked;
         _radio2.state = MenuItemState.unchecked;
         _radio3.state = MenuItemState.checked;
       });
-      _addToHistory('Radio Option 3 selected (ID: ${event.menuItemId})');
+      _addToHistory('Radio Option 3 selected (ID: ${event.itemId})');
     });
     _contextMenu.addItem(_radio3);
     _menuItems.add(_radio3);
 
     // 5. Disabled menu items
-    _disabledItem = MenuItem('Disabled Item');
-    _disabledItem.enabled = false;
-    _disabledItem.on<MenuItemClickedEvent>((event) {
+    _disabledItem = MenuItem.createWithLabelAndType('Disabled Item', MenuItemType.normal)!;
+    _disabledItem.isEnabled = false;
+    _disabledItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('Disabled item clicked (should not fire!)');
     });
     _contextMenu.addItem(_disabledItem);
     _menuItems.add(_disabledItem);
 
-    _disabledCheckbox = MenuItem('Disabled Checkbox', MenuItemType.checkbox);
+    _disabledCheckbox = MenuItem.createWithLabelAndType('Disabled Checkbox', MenuItemType.checkbox)!;
     _disabledCheckbox.state = MenuItemState.checked;
-    _disabledCheckbox.enabled = false;
-    _disabledCheckbox.on<MenuItemClickedEvent>((event) {
+    _disabledCheckbox.isEnabled = false;
+    _disabledCheckbox.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('Disabled checkbox clicked (should not fire!)');
     });
     _contextMenu.addItem(_disabledCheckbox);
@@ -247,18 +256,21 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 8. Menu item with dynamic label
-    final dynamicLabelItem = MenuItem(_currentLabel);
-    dynamicLabelItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Dynamic label item clicked (ID: ${event.menuItemId})');
+    final dynamicLabelItem =
+        MenuItem.createWithLabelAndType(_currentLabel, MenuItemType.normal)!;
+    dynamicLabelItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Dynamic label item clicked (ID: ${event.itemId})');
     });
     _contextMenu.addItem(dynamicLabelItem);
     _menuItems.add(dynamicLabelItem);
 
     // 9. Menu item with tooltip
-    final tooltipItem = MenuItem('Item with Tooltip');
+    final tooltipItem = MenuItem.createWithLabelAndType('Item with Tooltip', MenuItemType.normal)!;
     tooltipItem.tooltip = 'This is a helpful tooltip message';
-    tooltipItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Tooltip item clicked (ID: ${event.menuItemId})');
+    tooltipItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Tooltip item clicked (ID: ${event.itemId})');
     });
     _contextMenu.addItem(tooltipItem);
     _menuItems.add(tooltipItem);
@@ -267,34 +279,39 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 11. Submenu
-    _submenu = Menu();
-    _submenuItem = MenuItem('Submenu', MenuItemType.submenu);
+    _submenu = Menu.create()!;
+    _submenuItem = MenuItem.createWithLabelAndType('Submenu', MenuItemType.submenu)!;
 
-    _submenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
-      _addToHistory('Submenu opened (ID: ${event.menuItemId})');
+    _submenuItem.addListener((event) {
+      if (event is! MenuItemSubmenuOpenedEvent) return;
+      _addToHistory('Submenu opened (ID: ${event.itemId})');
     });
-    _submenuItem.on<MenuItemSubmenuClosedEvent>((event) {
-      _addToHistory('Submenu closed (ID: ${event.menuItemId})');
+    _submenuItem.addListener((event) {
+      if (event is! MenuItemSubmenuClosedEvent) return;
+      _addToHistory('Submenu closed (ID: ${event.itemId})');
     });
 
     // Add items to submenu
-    final subItem1 = MenuItem('Submenu Item 1');
-    subItem1.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Submenu Item 1 clicked (ID: ${event.menuItemId})');
+    final subItem1 = MenuItem.createWithLabelAndType('Submenu Item 1', MenuItemType.normal)!;
+    subItem1.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Submenu Item 1 clicked (ID: ${event.itemId})');
     });
     _submenu.addItem(subItem1);
 
-    final subItem2 = MenuItem('Submenu Item 2');
-    subItem2.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Submenu Item 2 clicked (ID: ${event.menuItemId})');
+    final subItem2 = MenuItem.createWithLabelAndType('Submenu Item 2', MenuItemType.normal)!;
+    subItem2.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Submenu Item 2 clicked (ID: ${event.itemId})');
     });
     _submenu.addItem(subItem2);
 
     _submenu.addSeparator();
 
-    final subItem3 = MenuItem('Submenu Item 3');
-    subItem3.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Submenu Item 3 clicked (ID: ${event.menuItemId})');
+    final subItem3 = MenuItem.createWithLabelAndType('Submenu Item 3', MenuItemType.normal)!;
+    subItem3.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Submenu Item 3 clicked (ID: ${event.itemId})');
     });
     _submenu.addItem(subItem3);
 
@@ -308,9 +325,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 13. Menu items with special characters
-    final specialCharsItem = MenuItem('Special: 中文 日本語 🎉 @#\$%');
-    specialCharsItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Special chars item clicked (ID: ${event.menuItemId})');
+    final specialCharsItem = MenuItem.createWithLabelAndType('Special: 中文 日本語 🎉 @#\$%', MenuItemType.normal)!;
+    specialCharsItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Special chars item clicked (ID: ${event.itemId})');
     });
     _contextMenu.addItem(specialCharsItem);
     _menuItems.add(specialCharsItem);
@@ -319,23 +337,27 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _setupPositioningMenu() {
-    _positioningMenu = Menu();
+    _positioningMenu = Menu.create()!;
 
-    _positioningMenu.addCallbackListener<MenuOpenedEvent>((event) {
+    _positioningMenu.addListener((event) {
+      if (event is! MenuOpenedEvent) return;
       _addToHistory('Positioning menu opened');
     });
-    _positioningMenu.addCallbackListener<MenuClosedEvent>((event) {
+    _positioningMenu.addListener((event) {
+      if (event is! MenuClosedEvent) return;
       _addToHistory('Positioning menu closed');
     });
 
-    final item1 = MenuItem('Positioning Menu Item 1');
-    item1.on<MenuItemClickedEvent>((event) {
+    final item1 = MenuItem.createWithLabelAndType('Positioning Menu Item 1', MenuItemType.normal)!;
+    item1.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('Positioning menu item 1 clicked');
     });
     _positioningMenu.addItem(item1);
 
-    final item2 = MenuItem('Positioning Menu Item 2');
-    item2.on<MenuItemClickedEvent>((event) {
+    final item2 = MenuItem.createWithLabelAndType('Positioning Menu Item 2', MenuItemType.normal)!;
+    item2.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('Positioning menu item 2 clicked');
     });
     _positioningMenu.addItem(item2);
@@ -384,11 +406,13 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _addSubmenuItem() {
-    final newSubItem = MenuItem(
+    final newSubItem = MenuItem.createWithLabelAndType(
       'Dynamic Submenu Item ${_submenu.itemCount + 1}',
-    );
-    newSubItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Dynamic submenu item clicked (ID: ${event.menuItemId})');
+      MenuItemType.normal,
+    )!;
+    newSubItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Dynamic submenu item clicked (ID: ${event.itemId})');
     });
     _submenu.addItem(newSubItem);
     _addToHistory('Added new item to submenu (Total: ${_submenu.itemCount})');
@@ -407,8 +431,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _addNewMenuItem() {
-    final newItem = MenuItem('New Item ${_menuItems.length + 1}');
-    newItem.on<MenuItemClickedEvent>((event) {
+    final newItem = MenuItem.createWithLabelAndType('New Item ${_menuItems.length + 1}', MenuItemType.normal)!;
+    newItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('New item ${_menuItems.length} clicked');
     });
     _contextMenu.addItem(newItem);
@@ -418,8 +443,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _insertMenuItemAtPosition() {
-    final insertItem = MenuItem('Inserted Item');
-    insertItem.on<MenuItemClickedEvent>((event) {
+    final insertItem = MenuItem.createWithLabelAndType('Inserted Item', MenuItemType.normal)!;
+    insertItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('Inserted item clicked');
     });
     _contextMenu.insertItem(2, insertItem);
@@ -632,12 +658,12 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _showMenuAtAbsolutePosition(Offset position) {
-    _positioningMenu.open(PositioningStrategy.absolute(position));
+    _positioningMenu.open(PositioningStrategy.absolute(position)!, Placement.bottomStart);
     _addToHistory('Opened menu at absolute position: $position');
   }
 
   void _showMenuAtCursorPosition() {
-    _positioningMenu.open(PositioningStrategy.cursorPosition());
+    _positioningMenu.open(PositioningStrategy.cursorPosition()!, Placement.bottomStart);
     _addToHistory('Opened menu at cursor position');
   }
 
@@ -645,39 +671,42 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   void _openBugReproMenu(Offset position) {
     // This directly reproduces the code from the issue:
     // https://github.com/libnativeapi/nativeapi-flutter/issues/4
-    final menu = Menu();
+    final menu = Menu.create()!;
 
     // Checkable item with Checked state
-    final checkableItem = MenuItem('Checkable', MenuItemType.checkbox);
+    final checkableItem = MenuItem.createWithLabelAndType('Checkable', MenuItemType.checkbox)!;
     checkableItem.state = MenuItemState.checked;
-    checkableItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Checkable item clicked (ID: ${event.menuItemId})');
+    checkableItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Checkable item clicked (ID: ${event.itemId})');
     });
     menu.addItem(checkableItem);
 
     // Disabled item
-    final disabledItem = MenuItem('Disabled');
-    disabledItem.enabled = false;
-    disabledItem.on<MenuItemClickedEvent>((event) {
+    final disabledItem = MenuItem.createWithLabelAndType('Disabled', MenuItemType.normal)!;
+    disabledItem.isEnabled = false;
+    disabledItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       _addToHistory('Disabled item clicked (should not fire!)');
     });
     menu.addItem(disabledItem);
 
     // Add a few more items for context
     menu.addSeparator();
-    final exitItem = MenuItem('Close Menu');
-    exitItem.on<MenuItemClickedEvent>((event) {
+    final exitItem = MenuItem.createWithLabelAndType('Close Menu', MenuItemType.normal)!;
+    exitItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       menu.close();
     });
     menu.addItem(exitItem);
 
-    menu.open(PositioningStrategy.absolute(position));
+    menu.open(PositioningStrategy.absolute(position)!, Placement.bottomStart);
 
     _addToHistory('');
     _addToHistory('=== BUG REPRODUCTION (Issue #4) ===');
     _addToHistory('Menu opened at ${position}');
     _addToHistory('Checkable item initial state: ${checkableItem.state}');
-    _addToHistory('Disabled item enabled: ${disabledItem.enabled}');
+    _addToHistory('Disabled item enabled: ${disabledItem.isEnabled}');
     _addToHistory('');
     _addToHistory('EXPECTED: Checkbox shows checkmark; Disabled item grayed');
     _addToHistory(

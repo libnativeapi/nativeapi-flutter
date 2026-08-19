@@ -66,77 +66,75 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    _menu = Menu();
-    _menu.addCallbackListener<MenuOpenedEvent>((event) {
-      print('主菜单打开了！菜单ID: ${event.menuId}');
+    _menu = Menu.create()!;
+    // One listener per emitter now; the event carries which kind it is.
+    _menu.addListener((event) {
+      switch (event) {
+        case MenuOpenedEvent(:final menuId):
+          print('主菜单打开了！菜单ID: $menuId');
+        case MenuClosedEvent(:final menuId):
+          print('主菜单关闭了！菜单ID: $menuId');
+        default:
+          break;
+      }
     });
 
-    _menu.addCallbackListener<MenuClosedEvent>((event) {
-      print('主菜单关闭了！菜单ID: ${event.menuId}');
-    });
-
-    MenuItem item1 = MenuItem('MenuItem 1');
-    item1.on<MenuItemClickedEvent>((event) {
-      print('MenuItem 1 clicked event: $event');
-    });
-    _menu.addItem(item1);
-    MenuItem item2 = MenuItem('MenuItem 2');
-    item2.on<MenuItemClickedEvent>((event) {
-      print('MenuItem 2 clicked event: $event');
-    });
-    _menu.addItem(item2);
+    for (final label in ['MenuItem 1', 'MenuItem 2']) {
+      final item = MenuItem.createWithLabelAndType(label, MenuItemType.normal)!;
+      item.addListener((event) {
+        if (event is MenuItemClickedEvent) {
+          print('$label clicked, item ${event.itemId}');
+        }
+      });
+      _menu.addItem(item);
+    }
   }
 
   void addTrayIcon() {
-    final trayManager = TrayManager.instance;
-    if (!trayManager.isSupported) {
+    if (!TrayManager.instance.isSupported()) {
       print('Tray icon is not supported on this platform.');
       return;
     }
-    _trayIcon = TrayIcon();
+    _trayIcon = TrayIcon.create()!;
 
-    _trayIcon.title = 'My App';
-    _trayIcon.tooltip = 'This is my app';
-    _trayIcon.on<TrayIconClickedEvent>((event) {
-      print('Tray icon clicked event: $event');
-      _trayIcon.openContextMenu();
-    });
-    _trayIcon.addCallbackListener<TrayIconClickedEvent>((event) {
-      print('Tray icon clicked event(callback): $event');
-    });
-
-    Menu menu = Menu();
-    // 为菜单添加事件监听器
-    menu.addCallbackListener<MenuOpenedEvent>((event) {
-      print('主菜单打开了！菜单ID: ${event.menuId}');
+    _trayIcon.setTitle('My App');
+    _trayIcon.setTooltip('This is my app');
+    _trayIcon.addListener((event) {
+      if (event is TrayIconClickedEvent) {
+        print('Tray icon clicked, icon ${event.trayIconId}');
+        _trayIcon.openContextMenu();
+      }
     });
 
-    menu.addCallbackListener<MenuClosedEvent>((event) {
-      print('主菜单关闭了！菜单ID: ${event.menuId}');
+    final menu = Menu.create()!;
+    menu.addListener((event) {
+      switch (event) {
+        case MenuOpenedEvent(:final menuId):
+          print('托盘菜单打开了！菜单ID: $menuId');
+        case MenuClosedEvent(:final menuId):
+          print('托盘菜单关闭了！菜单ID: $menuId');
+        default:
+          break;
+      }
     });
 
-    MenuItem item1 = MenuItem('Item 1');
-    item1.on<MenuItemClickedEvent>((event) {
-      print('Item 1 clicked event: $event');
-    });
-    menu.addItem(item1);
-    MenuItem item2 = MenuItem('Item 2');
-    item2.on<MenuItemClickedEvent>((event) {
-      print('Item 2 clicked event: $event');
-    });
-    menu.addItem(item2);
-    _trayIcon.contextMenu = menu;
-    _trayIcon.isVisible = true;
+    for (final label in ['Item 1', 'Item 2']) {
+      final item = MenuItem.createWithLabelAndType(label, MenuItemType.normal)!;
+      item.addListener((event) {
+        if (event is MenuItemClickedEvent) {
+          print('$label clicked, item ${event.itemId}');
+        }
+      });
+      menu.addItem(item);
+    }
+    _trayIcon.setContextMenu(menu);
+    _trayIcon.setVisible(true);
   }
 
   void _incrementCounter() {
-    final displayManager = DisplayManager.instance;
-    final displays = displayManager.getAll();
-
-    for (final display in displays) {
+    for (final display in DisplayManager.instance.getAll()) {
       print('Display ID: ${display.id}');
       print('Display Name: ${display.name}');
-      print('Display Size: ${display.size}');
       print('Display Width: ${display.size.width}');
       print('Display Height: ${display.size.height}');
     }
@@ -212,23 +210,32 @@ class _MyHomePageState extends State<MyHomePage> {
             FilledButton(
               child: Text('Show Context Menu'),
               onPressed: () {
-                Menu menu = Menu();
-                MenuItem item1 = MenuItem('Item1');
+                final menu = Menu.create()!;
+                final item1 = MenuItem.createWithLabelAndType(
+                  'Item1',
+                  MenuItemType.normal,
+                )!;
                 menu.addItem(item1);
                 print(item1.label);
-                MenuItem item2 = MenuItem('Item2');
+                final item2 = MenuItem.createWithLabelAndType(
+                  'Item2',
+                  MenuItemType.normal,
+                )!;
                 menu.addItem(item2);
                 print('Context menu shown, item count: ${menu.itemCount}');
-                menu.open(PositioningStrategy.absolute(Offset(100.0, 100.0)));
+                menu.open(
+                  PositioningStrategy.absolute(const Offset(100.0, 100.0))!,
+                  Placement.bottomStart,
+                );
               },
             ),
             FilledButton(
               child: Text('Show Message Dialog'),
               onPressed: () {
-                final dialog = MessageDialog(
+                final dialog = MessageDialog.create(
                   'Update Available',
                   'A new version is available. Would you like to update?',
-                );
+                )!;
                 dialog.modality = DialogModality.application;
                 dialog.open();
               },

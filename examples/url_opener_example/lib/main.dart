@@ -32,7 +32,6 @@ class _UrlOpenerExamplePageState extends State<UrlOpenerExamplePage> {
   final TextEditingController _urlController = TextEditingController(
     text: 'https://flutter.dev',
   );
-  late final UrlOpener _urlOpener;
 
   bool _isSupported = false;
   bool _isOpening = false;
@@ -42,7 +41,6 @@ class _UrlOpenerExamplePageState extends State<UrlOpenerExamplePage> {
   @override
   void initState() {
     super.initState();
-    _urlOpener = UrlOpener.instance;
     _refreshSupport();
   }
 
@@ -53,7 +51,7 @@ class _UrlOpenerExamplePageState extends State<UrlOpenerExamplePage> {
   }
 
   void _refreshSupport() {
-    final supported = _urlOpener.isSupported;
+    final supported = UrlOpener.instance.isSupported();
     setState(() {
       _isSupported = supported;
       _status = supported
@@ -78,7 +76,7 @@ class _UrlOpenerExamplePageState extends State<UrlOpenerExamplePage> {
       _lastResult = null;
     });
 
-    final result = _urlOpener.open(url);
+    final result = UrlOpener.instance.open(url);
 
     setState(() {
       _isOpening = false;
@@ -152,11 +150,11 @@ class _UrlOpenerExamplePageState extends State<UrlOpenerExamplePage> {
                       label: 'Error code',
                       value: _lastResult!.errorCode.name,
                     ),
-                    if (_lastResult!.errorMessage.isNotEmpty) ...[
+                    if ((_lastResult!.errorMessage?.isNotEmpty ?? false)) ...[
                       const SizedBox(height: 8),
                       _InfoRow(
                         label: 'Error message',
-                        value: _lastResult!.errorMessage,
+                        value: _lastResult!.errorMessage ?? '',
                       ),
                     ],
                   ],

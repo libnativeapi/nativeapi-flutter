@@ -7,7 +7,7 @@ import 'package:nativeapi/nativeapi.dart';
 void main() {
   Display? primaryDisplay = DisplayManager.instance.getPrimary();
   WindowManager.instance.setWillShowHook((windowId) {
-    Window? window = WindowManager.instance.getById(windowId);
+    Window? window = WindowManager.instance.get(windowId);
     if (window != null && primaryDisplay != null) {
       switch (window.title) {
         case 'Primary Window':
@@ -24,11 +24,9 @@ void main() {
           break;
       }
     }
-    return true;
   });
   WindowManager.instance.setWillHideHook((windowId) {
     print('[Dart] will hide hook $windowId');
-    return true;
   });
   runWidget(
     ViewCollection(
@@ -52,8 +50,8 @@ void _positionPrimaryWindow(Window window, Display display) {
   final topRowHeight = totalHeight * 0.5;
 
   // Top row, centered, full width
-  window.setSize(totalWidth, topRowHeight);
-  window.setPosition(startX, startY);
+  window.setSize(Size(totalWidth, topRowHeight), false);
+  window.position = Offset(startX, startY);
 }
 
 void _positionSecondaryWindow(Window window, Display display) {
@@ -76,8 +74,8 @@ void _positionSecondaryWindow(Window window, Display display) {
   final bottomWindowWidth = totalWidth * 0.5;
 
   // Bottom left
-  window.setSize(bottomWindowWidth, bottomRowHeight);
-  window.setPosition(startX, startY + topRowHeight);
+  window.setSize(Size(bottomWindowWidth, bottomRowHeight), false);
+  window.position = Offset(startX, startY + topRowHeight);
 }
 
 void _positionTertiaryWindow(Window window, Display display) {
@@ -100,8 +98,8 @@ void _positionTertiaryWindow(Window window, Display display) {
   final bottomWindowWidth = totalWidth * 0.5;
 
   // Bottom right
-  window.setSize(bottomWindowWidth, bottomRowHeight);
-  window.setPosition(startX + bottomWindowWidth, startY + topRowHeight);
+  window.setSize(Size(bottomWindowWidth, bottomRowHeight), false);
+  window.position = Offset(startX + bottomWindowWidth, startY + topRowHeight);
 }
 
 class PrimaryWindow extends StatefulWidget {
@@ -113,7 +111,7 @@ class PrimaryWindow extends StatefulWidget {
 
 class _PrimaryWindowState extends State<PrimaryWindow> {
   final _windowController = RegularWindowController(
-    preferredSize: const Size(800, 600),
+    size: const Size(800, 600),
     title: 'Primary Window',
   );
 
@@ -139,7 +137,7 @@ class _PrimaryWindowState extends State<PrimaryWindow> {
                       }
                     }
                     if (primaryWindow != null) {
-                      primaryWindow.setSize(1000, 1000);
+                      primaryWindow.setSize(Size(1000, 1000), false);
                       primaryWindow.show();
                     }
                   },
@@ -163,7 +161,7 @@ class SecondaryWindow extends StatefulWidget {
 
 class _SecondaryWindowState extends State<SecondaryWindow> {
   final _windowController = RegularWindowController(
-    preferredSize: const Size(800, 600),
+    size: const Size(800, 600),
     title: 'Secondary Window',
   );
 
@@ -191,7 +189,7 @@ class TertiaryWindow extends StatefulWidget {
 
 class _TertiaryWindowState extends State<TertiaryWindow> {
   final _windowController = RegularWindowController(
-    preferredSize: const Size(800, 600),
+    size: const Size(800, 600),
     title: 'Tertiary Window',
   );
 

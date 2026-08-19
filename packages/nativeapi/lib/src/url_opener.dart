@@ -1,31 +1,15 @@
-// =============================================================================
-// Auto-generated Dart wrapper for: url_opener.h
-// Generated wrapper from C++ API. Calls existing ffigen bindings.
-// =============================================================================
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
+
+// ignore_for_file: unused_import, unnecessary_import
+
 import 'dart:ffi' as ffi;
-import 'package:ffi/ffi.dart' as pkgffi;
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
+import 'dart:ui';
 
-class UrlOpenResult {
-  const UrlOpenResult({
-    required this.success,
-    required this.errorCode,
-    required this.errorMessage,
-  });
-  final bool success;
-  final UrlOpenErrorCode errorCode;
-  final String errorMessage;
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
 
-  factory UrlOpenResult.fromNative(native_url_open_result_t native) {
-    return UrlOpenResult(
-      success: native.success,
-      errorCode: UrlOpenErrorCode.fromNativeValue(native.error_code),
-      errorMessage: native.error_message == ffi.nullptr
-          ? ''
-          : native.error_message.cast<pkgffi.Utf8>().toDartString(),
-    );
-  }
-}
+final _bindings = c.cnativeApiBindings;
 
 enum UrlOpenErrorCode {
   none(0),
@@ -35,43 +19,82 @@ enum UrlOpenErrorCode {
   unsupportedPlatform(4),
   invocationFailed(5);
 
-  const UrlOpenErrorCode(this.nativeValue);
+  const UrlOpenErrorCode(this.value);
+  final int value;
 
-  final int nativeValue;
-
-  static UrlOpenErrorCode fromNativeValue(int value) => switch (value) {
+  static UrlOpenErrorCode fromValue(int value) => switch (value) {
     0 => UrlOpenErrorCode.none,
     1 => UrlOpenErrorCode.invalidUrlEmpty,
     2 => UrlOpenErrorCode.invalidUrlMissingScheme,
     3 => UrlOpenErrorCode.invalidUrlUnsupportedScheme,
     4 => UrlOpenErrorCode.unsupportedPlatform,
     5 => UrlOpenErrorCode.invocationFailed,
-    _ => throw ArgumentError('Unknown value for UrlOpenErrorCode: $value'),
+    _ => UrlOpenErrorCode.none,
   };
+
+  c.native_url_open_error_code_t get raw => c.native_url_open_error_code_t.fromValue(value);
 }
 
-class UrlOpener with CNativeApiBindingsMixin {
-  static final UrlOpener instance = UrlOpener._();
+class UrlOpenResult {
+  const UrlOpenResult({required this.success, required this.errorCode, required this.errorMessage, });
 
-  UrlOpener._();
-  bool get isSupported {
-    return bindings.native_url_opener_is_supported();
+  final bool success;
+  final UrlOpenErrorCode errorCode;
+  final String? errorMessage;
+
+  factory UrlOpenResult.fromNative(c.native_url_open_result_t raw) => UrlOpenResult(
+    success: raw.success,
+    errorCode: UrlOpenErrorCode.fromValue(raw.error_code),
+    errorMessage: raw.error_message == ffi.nullptr ? null : raw.error_message.cast<pkg_ffi.Utf8>().toDartString(),
+  );
+
+  /// Allocates the C form; free it with [freeNative].
+  ffi.Pointer<c.native_url_open_result_t> allocNative() {
+    final pointer = pkg_ffi.calloc<c.native_url_open_result_t>();
+    pointer.ref.success = success;
+    pointer.ref.error_code = errorCode.value;
+    pointer.ref.error_message = errorMessage == null
+        ? ffi.nullptr
+        : errorMessage!.toNativeUtf8().cast<ffi.Char>();
+    return pointer;
+  }
+
+  static void freeNative(ffi.Pointer<c.native_url_open_result_t> pointer) {
+    if (pointer.ref.error_message != ffi.nullptr) {
+      pkg_ffi.calloc.free(pointer.ref.error_message);
+    }
+    pkg_ffi.calloc.free(pointer);
+  }
+}
+
+class UrlOpener {
+  const UrlOpener._();
+
+  /// The shared instance backed by the native singleton.
+  static const UrlOpener instance = UrlOpener._();
+
+  bool isSupported() {
+    return _bindings.native_url_opener_is_supported();
+  }
+
+  bool canOpen(String url) {
+    final urlNative = url.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_url_opener_can_open(urlNative);
+    pkg_ffi.calloc.free(urlNative);
+    return result;
   }
 
   UrlOpenResult open(String url) {
     final urlNative = url.toNativeUtf8().cast<ffi.Char>();
-    try {
-      final nativeValue = bindings.native_url_opener_open(urlNative);
-      try {
-        return UrlOpenResult.fromNative(nativeValue);
-      } finally {
-        final nativeValuePtr = pkgffi.malloc<native_url_open_result_t>();
-        nativeValuePtr.ref = nativeValue;
-        bindings.native_url_open_result_free(nativeValuePtr);
-        pkgffi.malloc.free(nativeValuePtr);
-      }
-    } finally {
-      pkgffi.malloc.free(urlNative);
-    }
+    final raw = _bindings.native_url_opener_open(urlNative);
+    pkg_ffi.calloc.free(urlNative);
+    final result = UrlOpenResult.fromNative(raw);
+    final rawPointer = pkg_ffi.calloc<c.native_url_open_result_t>();
+    rawPointer.ref = raw;
+    _bindings.native_url_open_result_free(rawPointer);
+    pkg_ffi.calloc.free(rawPointer);
+    return result;
   }
+
 }
+

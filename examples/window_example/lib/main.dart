@@ -88,9 +88,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
     _updateTimer?.cancel();
     _feedbackTimer?.cancel();
     _tabController.dispose();
-    final windowManager = WindowManager.instance;
     for (final id in _windowListenerIds) {
-      windowManager.removeListener(id);
+      WindowManager.instance.removeListener(id);
     }
     _windowListenerIds.clear();
     super.dispose();
@@ -131,55 +130,30 @@ class _WindowManagerPageState extends State<WindowManagerPage>
       if (mounted) _updateWindows();
     });
 
-    final wm = WindowManager.instance;
-    _windowListenerIds.addAll([
-      wm.addCallbackListener<WindowCreatedEvent>((e) {
-        _addLog('Window #${e.windowId} created', color: Colors.green);
-        _updateWindows();
+    _windowListenerIds.add(
+      WindowManager.instance.addListener((event) {
+        if (event is WindowFocusedEvent) {
+          _addLog('Window #${event.windowId} focused');
+          _updateWindows();
+        }
+        if (event is WindowBlurredEvent) {
+          _addLog('Window #${event.windowId} blurred');
+          _updateWindows();
+        }
+        if (event is WindowMinimizedEvent) {
+          _addLog('Window #${event.windowId} minimized');
+          _updateWindows();
+        }
+        if (event is WindowMaximizedEvent) {
+          _addLog('Window #${event.windowId} maximized');
+          _updateWindows();
+        }
+        if (event is WindowRestoredEvent) {
+          _addLog('Window #${event.windowId} restored');
+          _updateWindows();
+        }
       }),
-      wm.addCallbackListener<WindowClosedEvent>((e) {
-        _addLog('Window #${e.windowId} closed', color: Colors.red);
-        _updateWindows();
-      }),
-      wm.addCallbackListener<WindowFocusedEvent>((e) {
-        _addLog('Window #${e.windowId} focused', color: Colors.indigo);
-        _updateWindows();
-        _refreshSelected(e.windowId);
-      }),
-      wm.addCallbackListener<WindowBlurredEvent>((e) {
-        _addLog('Window #${e.windowId} blurred', color: Colors.grey);
-        _refreshSelected(e.windowId);
-      }),
-      wm.addCallbackListener<WindowMinimizedEvent>((e) {
-        _addLog('Window #${e.windowId} minimized', color: Colors.orange);
-        _updateWindows();
-        _refreshSelected(e.windowId);
-      }),
-      wm.addCallbackListener<WindowMaximizedEvent>((e) {
-        _addLog('Window #${e.windowId} maximized', color: Colors.purple);
-        _updateWindows();
-        _refreshSelected(e.windowId);
-      }),
-      wm.addCallbackListener<WindowRestoredEvent>((e) {
-        _addLog('Window #${e.windowId} restored', color: Colors.teal);
-        _updateWindows();
-        _refreshSelected(e.windowId);
-      }),
-      wm.addCallbackListener<WindowMovedEvent>((e) {
-        _addLog(
-          'Window #${e.windowId} moved → (${e.position.dx.toInt()}, ${e.position.dy.toInt()})',
-          color: Colors.blue,
-        );
-        if (_selectedWindow?.id == e.windowId) _refreshSelected(e.windowId);
-      }),
-      wm.addCallbackListener<WindowResizedEvent>((e) {
-        _addLog(
-          'Window #${e.windowId} resized → ${e.size.width.toInt()}×${e.size.height.toInt()}',
-          color: Colors.blue,
-        );
-        if (_selectedWindow?.id == e.windowId) _refreshSelected(e.windowId);
-      }),
-    ]);
+    );
   }
 
   void _updateWindows() {
@@ -199,7 +173,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
   void _refreshSelected(int windowId) {
     if (_selectedWindow?.id == windowId) {
       try {
-        final w = WindowManager.instance.getById(windowId);
+        final w = WindowManager.instance.get(windowId);
         if (mounted) setState(() => _selectedWindow = w);
       } catch (_) {}
     }
@@ -565,7 +539,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        window.title.isNotEmpty ? window.title : 'Untitled',
+                        (window.title?.isNotEmpty ?? false) ? window.title! : 'Untitled',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -602,7 +576,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                 _stateChip('Focused', window.isFocused, Colors.indigo),
                 _stateChip('Maximized', window.isMaximized, Colors.purple),
                 _stateChip('Minimized', window.isMinimized, Colors.orange),
-                _stateChip('Fullscreen', window.isFullscreen, Colors.red),
+                _stateChip('Fullscreen', window.isFullScreen, Colors.red),
                 _stateChip('Always on Top', window.isAlwaysOnTop, Colors.teal),
               ],
             ),
@@ -876,15 +850,15 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               _showFeedback('Window restored');
             }),
             _actionBtn(
-              window.isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
+              window.isFullScreen ? 'Exit Fullscreen' : 'Fullscreen',
               Icons.fullscreen,
               () {
-                window.isFullscreen = !window.isFullscreen;
+                window.isFullScreen = !window.isFullScreen;
                 _showFeedback(
-                  window.isFullscreen ? 'Fullscreen on' : 'Fullscreen off',
+                  window.isFullScreen ? 'Fullscreen on' : 'Fullscreen off',
                 );
               },
-              color: window.isFullscreen ? Colors.red : null,
+              color: window.isFullScreen ? Colors.red : null,
             ),
           ]),
 
@@ -907,23 +881,23 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               _showFeedback('Window centered');
             }),
             _actionBtn('800 × 600', Icons.aspect_ratio, () {
-              window.setSize(800, 600);
+              window.setSize(Size(800, 600), false);
               _showFeedback('Size set to 800 × 600');
             }),
             _actionBtn('1024 × 768', Icons.aspect_ratio, () {
-              window.setSize(1024, 768);
+              window.setSize(Size(1024, 768), false);
               _showFeedback('Size set to 1024 × 768');
             }),
             _actionBtn('Set Content 760×540', Icons.crop_free, () {
-              window.setContentSize(760, 540);
+              window.contentSize = Size(760, 540);
               _showFeedback('Content size set to 760 × 540');
             }),
             _actionBtn('Position (100, 100)', Icons.pin_drop, () {
-              window.setPosition(100, 100);
+              window.position = Offset(100, 100);
               _showFeedback('Position set to (100, 100)');
             }),
             _actionBtn('Position (400, 300)', Icons.pin_drop, () {
-              window.setPosition(400, 300);
+              window.position = Offset(400, 300);
               _showFeedback('Position set to (400, 300)');
             }),
           ]),
@@ -931,16 +905,16 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           // --- Size Constraints ---
           _group('Size Constraints', Icons.straighten, [
             _actionBtn('Set Min 400×300', Icons.arrow_circle_down, () {
-              window.setMinimumSize(400, 300);
+              window.minimumSize = Size(400, 300);
               _showFeedback('Minimum size set to 400 × 300');
             }),
             _actionBtn('Set Max 1200×900', Icons.arrow_circle_up, () {
-              window.setMaximumSize(1200, 900);
+              window.maximumSize = Size(1200, 900);
               _showFeedback('Maximum size set to 1200 × 900');
             }),
             _actionBtn('Reset Constraints', Icons.remove_circle_outline, () {
-              window.setMinimumSize(0, 0);
-              window.setMaximumSize(0, 0);
+              window.minimumSize = Size(0, 0);
+              window.maximumSize = Size(0, 0);
               _showFeedback('Size constraints reset');
             }),
           ]),
@@ -1065,8 +1039,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
             ),
             _toggleBtn(
               'Fullscreenable',
-              window.isFullscreenable,
-              (v) => window.isFullscreenable = v,
+              window.isFullScreenable,
+              (v) => window.isFullScreenable = v,
             ),
             _toggleBtn(
               'Closable',
@@ -1079,8 +1053,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           _group('Platform Specific', Icons.desktop_windows, [
             _toggleBtn(
               'Control Buttons Visible',
-              window.windowControlButtonsVisible,
-              (v) => window.windowControlButtonsVisible = v,
+              window.isWindowControlButtonsVisible,
+              (v) => window.isWindowControlButtonsVisible = v,
             ),
             _toggleBtn(
               'Visible on All Workspaces',
@@ -1089,8 +1063,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
             ),
             _toggleBtn(
               'Ignore Mouse Events',
-              window.ignoreMouseEvents,
-              (v) => window.ignoreMouseEvents = v,
+              window.isIgnoreMouseEvents,
+              (v) => window.isIgnoreMouseEvents = v,
             ),
             _toggleBtn(
               'Focusable',
@@ -1720,7 +1694,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  display.name,
+                  display.name ?? '',
                   style: TextStyle(
                     fontSize: (8 * scale).clamp(6.0, 10.0),
                     color: Colors.white,
@@ -1887,7 +1861,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
 
   String _windowLabel(Window w) {
     final title = w.title;
-    if (title.isNotEmpty) return title;
+    if (title != null && title.isNotEmpty) return title;
     return 'Window #${w.id}';
   }
 

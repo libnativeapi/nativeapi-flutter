@@ -56,10 +56,10 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
 
   void _initializeStorage() {
     try {
-      _preferences = Preferences();
-      _scopedPreferences = Preferences.withScope('user_settings');
-      _secureStorage = SecureStorage();
-      _scopedSecureStorage = SecureStorage.withScope('api_credentials');
+      _preferences = Preferences.create()!;
+      _scopedPreferences = Preferences.createWithScope('user_settings')!;
+      _secureStorage = SecureStorage.create()!;
+      _scopedSecureStorage = SecureStorage.createWithScope('api_credentials')!;
 
       _isInitialized = true;
       _addToHistory('Storage instances initialized successfully');
@@ -70,7 +70,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
   }
 
-  Storage? _getCurrentStorage() {
+  dynamic _getCurrentStorage() {
     if (!_isInitialized) return null;
 
     switch (_selectedStorage) {
@@ -280,7 +280,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     _addToHistory('✓ Set test_key = test_value');
 
     // Get
-    final value = storage.get('test_key');
+    final value = storage.get('test_key', '');
     _addToHistory('✓ Get test_key = $value');
 
     // Contains
@@ -345,7 +345,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
 
     for (var (key, value) in testCases) {
       storage.set(key, value);
-      final retrieved = storage.get(key);
+      final retrieved = storage.get(key, '');
       final match = retrieved == value ? '✓' : '✗';
       _addToHistory('$match "$key" = "$value" (retrieved: "$retrieved")');
     }
@@ -368,7 +368,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     _addToHistory('✓ Get non-existent with default = "$value1"');
 
     // Test non-existent key without default
-    final value2 = storage.get('another_non_existent_key');
+    final value2 = storage.get('another_non_existent_key', '');
     _addToHistory('✓ Get non-existent without default = "$value2"');
 
     _addToHistory('--- Default Values Test Complete ---');
@@ -386,13 +386,13 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     storage.set('overwrite_test', 'original_value');
     _addToHistory('✓ Set original value');
 
-    final value1 = storage.get('overwrite_test');
+    final value1 = storage.get('overwrite_test', '');
     _addToHistory('✓ Retrieved: "$value1"');
 
     storage.set('overwrite_test', 'updated_value');
     _addToHistory('✓ Overwrote with new value');
 
-    final value2 = storage.get('overwrite_test');
+    final value2 = storage.get('overwrite_test', '');
     _addToHistory('✓ Retrieved after overwrite: "$value2"');
 
     storage.remove('overwrite_test');
@@ -419,7 +419,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
       final key = 'large_data_$size';
 
       final setSuccess = storage.set(key, largeValue);
-      final retrieved = storage.get(key);
+      final retrieved = storage.get(key, '');
       final match = retrieved.length == size;
 
       _addToHistory(
@@ -472,8 +472,8 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     _preferences!.set('shared_key', 'regular_value');
     _scopedPreferences!.set('shared_key', 'scoped_value');
 
-    final regularValue = _preferences!.get('shared_key');
-    final scopedValue = _scopedPreferences!.get('shared_key');
+    final regularValue = _preferences!.get('shared_key', '');
+    final scopedValue = _scopedPreferences!.get('shared_key', '');
 
     _addToHistory('✓ Regular preferences: "$regularValue"');
     _addToHistory('✓ Scoped preferences: "$scopedValue"');

@@ -1,253 +1,121 @@
-import 'dart:ffi';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-import 'package:ffi/ffi.dart' as ffi;
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'package:nativeapi/src/foundation/geometry.dart';
-import 'package:nativeapi/src/window.dart';
+// ignore_for_file: unused_import, unnecessary_import
 
-/// Type of positioning strategy.
+import 'dart:ffi' as ffi;
+import 'dart:ui';
+
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
+
+import 'foundation/geometry.dart';
+import 'window.dart';
+
+final _bindings = c.cnativeApiBindings;
+
 enum PositioningStrategyType {
-  /// Position at fixed screen coordinates.
-  absolute,
+  absolute(0),
+  cursorPosition(1),
+  relative(2);
 
-  /// Position at current mouse cursor location.
-  cursorPosition,
+  const PositioningStrategyType(this.value);
+  final int value;
 
-  /// Position relative to a rectangle.
-  relative,
+  static PositioningStrategyType fromValue(int value) => switch (value) {
+    0 => PositioningStrategyType.absolute,
+    1 => PositioningStrategyType.cursorPosition,
+    2 => PositioningStrategyType.relative,
+    _ => PositioningStrategyType.absolute,
+  };
+
+  c.native_positioning_strategy_type_t get raw => c.native_positioning_strategy_type_t.fromValue(value);
 }
 
-/// Strategy for determining where to position UI elements.
-///
-/// PositioningStrategy defines how to calculate the position for UI elements
-/// such as menus, tooltips, or popovers. It supports various positioning modes:
-/// - Absolute: Fixed screen coordinates
-/// - CursorPosition: Current mouse cursor position
-/// - Relative: Position relative to a rectangle or window
-///
-/// Example:
-/// ```dart
-/// // Position menu at absolute screen coordinates
-/// menu.open(PositioningStrategy.absolute(Offset(100, 200)));
-///
-/// // Position menu at current mouse location
-/// menu.open(PositioningStrategy.cursorPosition());
-///
-/// // Position menu relative to a rectangle with offset
-/// final buttonRect = Rect.fromLTWH(10, 10, 100, 30);
-/// menu.open(PositioningStrategy.relative(buttonRect, Offset(0, 10)));
-///
-/// // Position menu relative to a window with offset
-/// final window = WindowManager.instance.create(options);
-/// menu.open(PositioningStrategy.relativeToWindow(window, Offset(0, 10)));
-/// ```
-class PositioningStrategy with CNativeApiBindingsMixin {
-  final PositioningStrategyType _type;
-  final Offset? _absolutePosition;
-  final Rect? _relativeRectangle;
-  final Offset? _relativeOffset;
-  final Window? _relativeWindow;
-
-  PositioningStrategy._({
-    required PositioningStrategyType type,
-    Offset? absolutePosition,
-    Rect? relativeRectangle,
-    Offset? relativeOffset,
-    Window? relativeWindow,
-  }) : _type = type,
-       _absolutePosition = absolutePosition,
-       _relativeRectangle = relativeRectangle,
-       _relativeOffset = relativeOffset,
-       _relativeWindow = relativeWindow;
-
-  /// Create a strategy for absolute positioning at fixed coordinates.
-  ///
-  /// Example:
-  /// ```dart
-  /// final strategy = PositioningStrategy.absolute(Offset(100, 200));
-  /// menu.open(strategy);
-  /// ```
-  factory PositioningStrategy.absolute(Offset point) {
-    return PositioningStrategy._(
-      type: PositioningStrategyType.absolute,
-      absolutePosition: point,
-    );
+class PositioningStrategy {
+  /// Adopts a handle returned by the C API and releases it when this
+  /// object becomes unreachable.
+  PositioningStrategy.fromHandle(this.nativeHandle) {
+    _finalizer.attach(this, nativeHandle, detach: this);
   }
 
-  /// Create a strategy for positioning at current mouse location.
-  ///
-  /// Example:
-  /// ```dart
-  /// final strategy = PositioningStrategy.cursorPosition();
-  /// contextMenu.open(strategy);
-  /// ```
-  factory PositioningStrategy.cursorPosition() {
-    return PositioningStrategy._(type: PositioningStrategyType.cursorPosition);
+  /// Wraps a handle owned elsewhere; releasing it stays the owner's job.
+  PositioningStrategy.borrowed(this.nativeHandle);
+
+  /// The underlying handle-table entry.
+  final int nativeHandle;
+
+  static final Finalizer<int> _finalizer = Finalizer<int>(
+    (handle) => _bindings.native_positioning_strategy_free(handle),
+  );
+
+  /// Releases the handle now instead of at collection.
+  void dispose() {
+    _finalizer.detach(this);
+    _bindings.native_positioning_strategy_free(nativeHandle);
   }
 
-  /// Create a strategy for positioning relative to a rectangle.
-  ///
-  /// Example:
-  /// ```dart
-  /// final buttonRect = Rect.fromLTWH(10, 10, 100, 30);
-  /// // Position at bottom of button (no offset)
-  /// final strategy = PositioningStrategy.relative(buttonRect);
-  /// menu.open(strategy);
-  ///
-  /// // Position at bottom of button with 10px vertical offset
-  /// final strategy2 = PositioningStrategy.relative(buttonRect, Offset(0, 10));
-  /// menu.open(strategy2);
-  /// ```
-  factory PositioningStrategy.relative(
-    Rect rect, [
-    Offset offset = Offset.zero,
-  ]) {
-    return PositioningStrategy._(
-      type: PositioningStrategyType.relative,
-      relativeRectangle: rect,
-      relativeOffset: offset,
-    );
+  static PositioningStrategy? absolute(Offset point) {
+    final pointPointer = pkg_ffi.calloc<c.native_point_t>();
+    pointPointer.ref.x = point.dx;
+    pointPointer.ref.y = point.dy;
+    final handle = _bindings.native_positioning_strategy_absolute(pointPointer.ref);
+    pkg_ffi.calloc.free(pointPointer);
+    if (handle == 0) return null;
+    return PositioningStrategy.fromHandle(handle);
   }
 
-  /// Create a strategy for positioning relative to a window.
-  ///
-  /// This method stores a reference to the window and will obtain its bounds
-  /// dynamically when [relativeRectangle] is accessed, ensuring the position
-  /// reflects the window's current state.
-  ///
-  /// Example:
-  /// ```dart
-  /// final window = WindowManager.instance.create(options);
-  /// // Position menu at bottom of window (no offset)
-  /// final strategy = PositioningStrategy.relativeToWindow(window);
-  /// menu.open(strategy);
-  ///
-  /// // Position menu at bottom of window with 10px vertical offset
-  /// final strategy2 = PositioningStrategy.relativeToWindow(window, Offset(0, 10));
-  /// menu.open(strategy2);
-  /// ```
-  factory PositioningStrategy.relativeToWindow(
-    Window window, [
-    Offset offset = Offset.zero,
-  ]) {
-    return PositioningStrategy._(
-      type: PositioningStrategyType.relative,
-      relativeWindow: window,
-      relativeOffset: offset,
-    );
+  static PositioningStrategy? cursorPosition() {
+    final handle = _bindings.native_positioning_strategy_cursor_position();
+    if (handle == 0) return null;
+    return PositioningStrategy.fromHandle(handle);
   }
 
-  /// Get the type of this positioning strategy.
-  PositioningStrategyType get type => _type;
-
-  /// Get the absolute position (for Absolute type).
-  ///
-  /// Only valid when type == PositioningStrategyType.absolute
-  Offset? get absolutePosition => _absolutePosition;
-
-  /// Get the relative rectangle (for Relative type).
-  ///
-  /// Only valid when type == PositioningStrategyType.relative
-  /// If the strategy was created with a Window, this will return the
-  /// window's current bounds (obtained dynamically).
-  Rect? get relativeRectangle {
-    if (_relativeWindow != null) {
-      return _relativeWindow.bounds;
-    }
-    return _relativeRectangle;
+  static PositioningStrategy? relativeWithRectAndOffset(Rect rect, Offset offset) {
+    final rectPointer = pkg_ffi.calloc<c.native_rectangle_t>();
+    rectPointer.ref.x = rect.left;
+    rectPointer.ref.y = rect.top;
+    rectPointer.ref.width = rect.width;
+    rectPointer.ref.height = rect.height;
+    final offsetPointer = pkg_ffi.calloc<c.native_point_t>();
+    offsetPointer.ref.x = offset.dx;
+    offsetPointer.ref.y = offset.dy;
+    final handle = _bindings.native_positioning_strategy_relative_with_rect_and_offset(rectPointer.ref, offsetPointer.ref);
+    pkg_ffi.calloc.free(rectPointer);
+    pkg_ffi.calloc.free(offsetPointer);
+    if (handle == 0) return null;
+    return PositioningStrategy.fromHandle(handle);
   }
 
-  /// Get the relative offset point (for Relative type).
-  ///
-  /// Only valid when type == PositioningStrategyType.relative
-  Offset? get relativeOffset => _relativeOffset;
-
-  /// Get the relative window (for Relative type created with Window).
-  ///
-  /// Only valid when type == PositioningStrategyType.relative and strategy was created with a Window
-  Window? get relativeWindow => _relativeWindow;
-
-  /// Convert this strategy to a native positioning strategy handle.
-  ///
-  /// The caller is responsible for freeing the returned handle using
-  /// native_positioning_strategy_free().
-  native_positioning_strategy_t toNative() {
-    switch (_type) {
-      case PositioningStrategyType.absolute:
-        final position = _absolutePosition;
-        if (position == null) {
-          throw StateError(
-            'Absolute position is required for absolute strategy',
-          );
-        }
-        final pointPtr = ffi.calloc<native_point_t>();
-        pointPtr.ref.x = position.dx;
-        pointPtr.ref.y = position.dy;
-
-        final strategy = bindings.native_positioning_strategy_absolute(
-          pointPtr,
-        );
-
-        ffi.calloc.free(pointPtr);
-        return strategy;
-
-      case PositioningStrategyType.cursorPosition:
-        return bindings.native_positioning_strategy_cursor_position();
-
-      case PositioningStrategyType.relative:
-        // If this strategy was created with a Window, use the window-specific native function
-        if (_relativeWindow != null) {
-          final offset = _relativeOffset;
-          final offsetPtr = offset != null
-              ? (ffi.calloc<native_point_t>()
-                  ..ref.x = offset.dx
-                  ..ref.y = offset.dy)
-              : nullptr;
-
-          final strategy = bindings
-              .native_positioning_strategy_relative_to_window(
-                _relativeWindow.nativeHandle,
-                offsetPtr.cast<native_point_t>(),
-              );
-
-          if (offsetPtr != nullptr) {
-            ffi.calloc.free(offsetPtr);
-          }
-
-          return strategy;
-        }
-
-        // Otherwise, use the rectangle-based positioning
-        final rect = relativeRectangle;
-        if (rect == null) {
-          throw StateError(
-            'Relative rectangle is required for relative strategy',
-          );
-        }
-        final rectPtr = ffi.calloc<native_rectangle_t>();
-        rectPtr.ref.x = rect.left;
-        rectPtr.ref.y = rect.top;
-        rectPtr.ref.width = rect.width;
-        rectPtr.ref.height = rect.height;
-
-        final offset = _relativeOffset;
-        final offsetPtr = offset != null
-            ? (ffi.calloc<native_point_t>()
-                ..ref.x = offset.dx
-                ..ref.y = offset.dy)
-            : nullptr;
-
-        final strategy = bindings.native_positioning_strategy_relative(
-          rectPtr,
-          offsetPtr.cast<native_point_t>(),
-        );
-
-        ffi.calloc.free(rectPtr);
-        if (offsetPtr != nullptr) {
-          ffi.calloc.free(offsetPtr);
-        }
-
-        return strategy;
-    }
+  static PositioningStrategy? relativeWithWindowAndOffset(Window window, Offset offset) {
+    final offsetPointer = pkg_ffi.calloc<c.native_point_t>();
+    offsetPointer.ref.x = offset.dx;
+    offsetPointer.ref.y = offset.dy;
+    final handle = _bindings.native_positioning_strategy_relative_with_window_and_offset(window.nativeHandle, offsetPointer.ref);
+    pkg_ffi.calloc.free(offsetPointer);
+    if (handle == 0) return null;
+    return PositioningStrategy.fromHandle(handle);
   }
+
+  PositioningStrategyType get type {
+    final raw = _bindings.native_positioning_strategy_get_type(nativeHandle);
+    return PositioningStrategyType.fromValue(raw.value);
+  }
+
+  Offset get absolutePosition {
+    final raw = _bindings.native_positioning_strategy_get_absolute_position(nativeHandle);
+    return Offset(raw.x, raw.y);
+  }
+
+  Rect get relativeRectangle {
+    final raw = _bindings.native_positioning_strategy_get_relative_rectangle(nativeHandle);
+    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+  }
+
+  Offset get relativeOffset {
+    final raw = _bindings.native_positioning_strategy_get_relative_offset(nativeHandle);
+    return Offset(raw.x, raw.y);
+  }
+
 }
+

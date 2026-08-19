@@ -103,9 +103,9 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
 
   void _addTrayIcon() {
     try {
-      final trayIcon = TrayIcon();
+      final trayIcon = TrayIcon.create()!;
 
-      final icon = Image.fromAsset('images/tray_icon.png');
+      final icon = ImageAsset.fromAsset('images/tray_icon.png');
       if (icon != null) {
         trayIcon.icon = icon;
       }
@@ -126,7 +126,8 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       );
 
       // Set up event listeners
-      trayIcon.on<TrayIconClickedEvent>((event) {
+      trayIcon.addListener((event) {
+      if (event is! TrayIconClickedEvent) return;
         setState(() {
           trayIconData.clickCount++;
         });
@@ -135,7 +136,8 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         );
       });
 
-      trayIcon.on<TrayIconRightClickedEvent>((event) {
+      trayIcon.addListener((event) {
+      if (event is! TrayIconRightClickedEvent) return;
         setState(() {
           trayIconData.rightClickCount++;
         });
@@ -144,7 +146,8 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         );
       });
 
-      trayIcon.on<TrayIconDoubleClickedEvent>((event) {
+      trayIcon.addListener((event) {
+      if (event is! TrayIconDoubleClickedEvent) return;
         setState(() {
           trayIconData.doubleClickCount++;
         });
@@ -154,10 +157,10 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       });
 
       // Set initial properties
-      // trayIcon.title = trayIconData.title; // Set via UI
-      // trayIcon.tooltip = trayIconData.tooltip; // Set via UI
-      trayIcon.isVisible = trayIconData.isVisible;
-      trayIcon.contextMenuTrigger = trayIconData.contextMenuTrigger;
+      // trayIcon.setTitle(trayIconData.title); // Set via UI
+      // trayIcon.setTooltip(trayIconData.tooltip); // Set via UI
+      trayIcon.setVisible(trayIconData.isVisible);
+      trayIcon.setContextMenuTrigger(trayIconData.contextMenuTrigger);
 
       _trayIcons.add(trayIconData);
 
@@ -168,28 +171,30 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
   }
 
   Menu _createContextMenu(TrayIcon trayIcon) {
-    final contextMenu = Menu();
+    final contextMenu = Menu.create()!;
 
     // Listen to menu events
-    contextMenu.addCallbackListener<MenuOpenedEvent>((event) {
-      _addToHistory('Context menu opened for tray icon ${trayIcon.id}');
+    contextMenu.addListener((event) {
+      if (event is! MenuOpenedEvent) return;
+      _addToHistory('Context menu opened for tray icon ${trayIcon.getId()}');
     });
-    contextMenu.addCallbackListener<MenuClosedEvent>((event) {
-      _addToHistory('Context menu closed for tray icon ${trayIcon.id}');
+    contextMenu.addListener((event) {
+      if (event is! MenuClosedEvent) return;
+      _addToHistory('Context menu closed for tray icon ${trayIcon.getId()}');
     });
 
     // Add menu items
-    final showItem = MenuItem('Show Window');
-    final hideItem = MenuItem('Hide Window');
-    final separatorItem = MenuItem('', MenuItemType.separator);
-    final toggleItem = MenuItem('Toggle Visibility');
-    final separatorItem2 = MenuItem('', MenuItemType.separator);
+    final showItem = MenuItem.createWithLabelAndType('Show Window', MenuItemType.normal)!;
+    final hideItem = MenuItem.createWithLabelAndType('Hide Window', MenuItemType.normal)!;
+    final separatorItem = MenuItem.createWithLabelAndType('', MenuItemType.separator)!;
+    final toggleItem = MenuItem.createWithLabelAndType('Toggle Visibility', MenuItemType.normal)!;
+    final separatorItem2 = MenuItem.createWithLabelAndType('', MenuItemType.separator)!;
 
     // Create submenu
-    final submenuMenu = Menu();
-    final submenuItem1 = MenuItem('Submenu Item 1');
-    final submenuItem2 = MenuItem('Submenu Item 2');
-    final submenuItem3 = MenuItem('Submenu Item 3');
+    final submenuMenu = Menu.create()!;
+    final submenuItem1 = MenuItem.createWithLabelAndType('Submenu Item 1', MenuItemType.normal)!;
+    final submenuItem2 = MenuItem.createWithLabelAndType('Submenu Item 2', MenuItemType.normal)!;
+    final submenuItem3 = MenuItem.createWithLabelAndType('Submenu Item 3', MenuItemType.normal)!;
 
     // Add submenu items
     submenuMenu.addItem(submenuItem1);
@@ -197,59 +202,69 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     submenuMenu.addItem(submenuItem3);
 
     // Create submenu menu item
-    final submenuMenuItem = MenuItem('More Options', MenuItemType.submenu);
+    final submenuMenuItem = MenuItem.createWithLabelAndType('More Options', MenuItemType.submenu)!;
     submenuMenuItem.submenu = submenuMenu;
 
     // Listen to submenu open/close events
-    submenuMenuItem.on<MenuItemSubmenuOpenedEvent>((event) {
-      _addToHistory('Submenu opened for tray icon ${trayIcon.id}');
+    submenuMenuItem.addListener((event) {
+      if (event is! MenuItemSubmenuOpenedEvent) return;
+      _addToHistory('Submenu opened for tray icon ${trayIcon.getId()}');
     });
 
-    submenuMenuItem.on<MenuItemSubmenuClosedEvent>((event) {
-      _addToHistory('Submenu closed for tray icon ${trayIcon.id}');
+    submenuMenuItem.addListener((event) {
+      if (event is! MenuItemSubmenuClosedEvent) return;
+      _addToHistory('Submenu closed for tray icon ${trayIcon.getId()}');
     });
 
     // Add event listeners for submenu items
-    submenuItem1.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Submenu Item 1 clicked for tray icon ${trayIcon.id}');
+    submenuItem1.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Submenu Item 1 clicked for tray icon ${trayIcon.getId()}');
     });
 
-    submenuItem2.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Submenu Item 2 clicked for tray icon ${trayIcon.id}');
+    submenuItem2.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Submenu Item 2 clicked for tray icon ${trayIcon.getId()}');
     });
 
-    submenuItem3.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Submenu Item 3 clicked for tray icon ${trayIcon.id}');
+    submenuItem3.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Submenu Item 3 clicked for tray icon ${trayIcon.getId()}');
     });
 
-    final separatorItem3 = MenuItem('', MenuItemType.separator);
-    final aboutItem = MenuItem('About');
-    final quitItem = MenuItem('Quit');
+    final separatorItem3 = MenuItem.createWithLabelAndType('', MenuItemType.separator)!;
+    final aboutItem = MenuItem.createWithLabelAndType('About', MenuItemType.normal)!;
+    final quitItem = MenuItem.createWithLabelAndType('Quit', MenuItemType.normal)!;
 
     // Add event listeners for menu items
-    showItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Show Window clicked for tray icon ${trayIcon.id}');
+    showItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Show Window clicked for tray icon ${trayIcon.getId()}');
     });
 
-    hideItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Hide Window clicked for tray icon ${trayIcon.id}');
+    hideItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Hide Window clicked for tray icon ${trayIcon.getId()}');
     });
 
-    toggleItem.on<MenuItemClickedEvent>((event) {
+    toggleItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
       final trayIconData = _trayIcons.firstWhere(
-        (data) => data.trayIcon.id == trayIcon.id,
+        (data) => data.trayIcon.getId() == trayIcon.getId(),
         orElse: () => throw Exception('Tray icon not found'),
       );
       _toggleTrayIconVisibility(trayIconData.id);
     });
 
-    aboutItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('About clicked for tray icon ${trayIcon.id}');
+    aboutItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('About clicked for tray icon ${trayIcon.getId()}');
       _showAboutDialog();
     });
 
-    quitItem.on<MenuItemClickedEvent>((event) {
-      _addToHistory('Quit clicked for tray icon ${trayIcon.id}');
+    quitItem.addListener((event) {
+      if (event is! MenuItemClickedEvent) return;
+      _addToHistory('Quit clicked for tray icon ${trayIcon.getId()}');
       // In a real app, you would close the application here
     });
 
@@ -265,7 +280,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     contextMenu.addItem(quitItem);
 
     // Set the context menu
-    trayIcon.contextMenu = contextMenu;
+    trayIcon.setContextMenu(contextMenu);
 
     return contextMenu;
   }
@@ -294,7 +309,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       (trayIconData) => trayIconData.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    trayIconData.trayIcon.title = title;
+    trayIconData.trayIcon.setTitle(title);
     trayIconData.title = title;
     _addToHistory('Title updated for tray icon $id: $title');
   }
@@ -304,7 +319,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       (trayIconData) => trayIconData.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    trayIconData.trayIcon.tooltip = tooltip;
+    trayIconData.trayIcon.setTooltip(tooltip);
     trayIconData.tooltip = tooltip;
     _addToHistory('Tooltip updated for tray icon $id: $tooltip');
   }
@@ -314,7 +329,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       (trayIconData) => trayIconData.id == id,
       orElse: () => throw Exception('Tray icon not found'),
     );
-    trayIconData.trayIcon.contextMenuTrigger = trigger;
+    trayIconData.trayIcon.setContextMenuTrigger(trigger);
     trayIconData.contextMenuTrigger = trigger;
     final triggerName = _getTriggerName(trigger);
     _addToHistory(
@@ -341,7 +356,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       orElse: () => throw Exception('Tray icon not found'),
     );
     trayIconData.isVisible = !trayIconData.isVisible;
-    trayIconData.trayIcon.isVisible = trayIconData.isVisible;
+    trayIconData.trayIcon.setVisible(trayIconData.isVisible);
     _addToHistory(
       'Visibility changed for tray icon $id: ${trayIconData.isVisible ? "visible" : "hidden"}',
     );
@@ -548,7 +563,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       orElse: () => throw Exception('Tray icon not found'),
     );
 
-    final icon = Image.fromAsset('images/tray_icon.png');
+    final icon = ImageAsset.fromAsset('images/tray_icon.png');
     if (icon != null) {
       trayIconData.trayIcon.icon = icon;
       _addToHistory('Asset icon set on tray icon $id');

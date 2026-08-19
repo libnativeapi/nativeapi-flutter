@@ -1,23 +1,28 @@
+# AUTO-GENERATED. DO NOT EDIT.
+# Any manual changes WILL BE LOST when this file is regenerated.
+#
 # Run with `dart run ffigen --config ffigen.yaml`.
 name: CNativeApiBindings
 description: |
   Bindings for `nativeapi capi`.
-
-  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
 output: "lib/src/bindings_generated.dart"
 headers:
   entry-points:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
     - "cxx_impl/src/capi/application_c.h"
-    - "cxx_impl/src/capi/launch_at_login_c.h"
     - "cxx_impl/src/capi/color_c.h"
+    - "cxx_impl/src/capi/common_c.h"
+    - "cxx_impl/src/capi/dialog_c.h"
     - "cxx_impl/src/capi/display_c.h"
     - "cxx_impl/src/capi/display_manager_c.h"
     - "cxx_impl/src/capi/geometry_c.h"
     - "cxx_impl/src/capi/image_c.h"
+    - "cxx_impl/src/capi/keyboard_c.h"
     - "cxx_impl/src/capi/keyboard_monitor_c.h"
+    - "cxx_impl/src/capi/launch_at_login_c.h"
     - "cxx_impl/src/capi/menu_c.h"
     - "cxx_impl/src/capi/message_dialog_c.h"
+    - "cxx_impl/src/capi/placement_c.h"
     - "cxx_impl/src/capi/positioning_strategy_c.h"
     - "cxx_impl/src/capi/preferences_c.h"
     - "cxx_impl/src/capi/secure_storage_c.h"
@@ -33,15 +38,19 @@ headers:
   include-directives:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
     - "cxx_impl/src/capi/application_c.h"
-    - "cxx_impl/src/capi/launch_at_login_c.h"
     - "cxx_impl/src/capi/color_c.h"
+    - "cxx_impl/src/capi/common_c.h"
+    - "cxx_impl/src/capi/dialog_c.h"
     - "cxx_impl/src/capi/display_c.h"
     - "cxx_impl/src/capi/display_manager_c.h"
     - "cxx_impl/src/capi/geometry_c.h"
     - "cxx_impl/src/capi/image_c.h"
+    - "cxx_impl/src/capi/keyboard_c.h"
     - "cxx_impl/src/capi/keyboard_monitor_c.h"
+    - "cxx_impl/src/capi/launch_at_login_c.h"
     - "cxx_impl/src/capi/menu_c.h"
     - "cxx_impl/src/capi/message_dialog_c.h"
+    - "cxx_impl/src/capi/placement_c.h"
     - "cxx_impl/src/capi/positioning_strategy_c.h"
     - "cxx_impl/src/capi/preferences_c.h"
     - "cxx_impl/src/capi/secure_storage_c.h"
@@ -61,4 +70,5 @@ preamble: |
 comments:
   style: any
   length: full
+silence-enum-warning: true
 ignore-source-errors: true
