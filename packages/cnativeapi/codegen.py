@@ -311,6 +311,12 @@ def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
         if "/capi/" in file_str:
             capi_files.append(rel_path)
         elif f"/platform/{platform}/" in file_str:
+            # The Carbon-based shortcut implementation is `#include`d directly in
+            # the cnativeapi.mm preamble (before the "Include source files" marker)
+            # so it can shadow Carbon's global `Point` before any file introduces
+            # `using namespace nativeapi;`. Skip it here to avoid including it twice.
+            if platform == "macos" and "shortcut_manager_macos.mm" in file_str:
+                continue
             platform_files.append(rel_path)
         elif "/foundation/" in file_str:
             foundation_files.append(rel_path)

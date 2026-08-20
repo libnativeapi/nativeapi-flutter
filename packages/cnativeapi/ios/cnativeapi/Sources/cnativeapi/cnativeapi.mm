@@ -5,19 +5,26 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+// NOTE: The C API translation units (cxx_impl/src/capi/*.cpp) are compiled in
+// this unity translation unit. Their C++ <-> C conversion helpers are defined in
+// the *_c.h header that owns each type, so every *_c.cpp shares one definition
+// and merging them here raises no redefinition errors.
+
 // Include source files
 #include "../../../../cxx_impl/src/capi/accessibility_manager_c.cpp"
 #include "../../../../cxx_impl/src/capi/application_c.cpp"
-#include "../../../../cxx_impl/src/capi/launch_at_login_c.cpp"
 #include "../../../../cxx_impl/src/capi/color_c.cpp"
+#include "../../../../cxx_impl/src/capi/dialog_c.cpp"
 #include "../../../../cxx_impl/src/capi/display_c.cpp"
 #include "../../../../cxx_impl/src/capi/display_manager_c.cpp"
+#include "../../../../cxx_impl/src/capi/geometry_c.cpp"
 #include "../../../../cxx_impl/src/capi/image_c.cpp"
-#include "../../../../cxx_impl/src/capi/dialog_c.cpp"
 #include "../../../../cxx_impl/src/capi/keyboard_c.cpp"
 #include "../../../../cxx_impl/src/capi/keyboard_monitor_c.cpp"
+#include "../../../../cxx_impl/src/capi/launch_at_login_c.cpp"
 #include "../../../../cxx_impl/src/capi/menu_c.cpp"
 #include "../../../../cxx_impl/src/capi/message_dialog_c.cpp"
+#include "../../../../cxx_impl/src/capi/placement_c.cpp"
 #include "../../../../cxx_impl/src/capi/positioning_strategy_c.cpp"
 #include "../../../../cxx_impl/src/capi/preferences_c.cpp"
 #include "../../../../cxx_impl/src/capi/secure_storage_c.cpp"
@@ -30,13 +37,13 @@
 #include "../../../../cxx_impl/src/capi/window_c.cpp"
 #include "../../../../cxx_impl/src/capi/window_manager_c.cpp"
 #include "../../../../cxx_impl/src/platform/ios/accessibility_manager_ios.mm"
-#include "../../../../cxx_impl/src/platform/ios/dispatcher_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/application_ios.mm"
-#include "../../../../cxx_impl/src/platform/ios/launch_at_login_ios.mm"
+#include "../../../../cxx_impl/src/platform/ios/dispatcher_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/display_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/display_manager_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/image_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/keyboard_monitor_ios.mm"
+#include "../../../../cxx_impl/src/platform/ios/launch_at_login_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/menu_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/message_dialog_ios.mm"
 #include "../../../../cxx_impl/src/platform/ios/preferences_ios.mm"
