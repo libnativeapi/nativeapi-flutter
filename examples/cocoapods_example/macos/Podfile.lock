@@ -1,5 +1,5 @@
 PODS:
-  - cnativeapi (0.0.1):
+  - cnativeapi (0.1.3):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
 
@@ -14,9 +14,9 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  cnativeapi: c720da595faf6cf3ed84c986c7b8b34dad44574f
-  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  cnativeapi: 759339e44085e31c21b8eb059784985f6a469115
+  FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
 
-PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
+PODFILE CHECKSUM: 1e95c36afbfd1cb6423ceca4de7a8e1b256fb6ac
 
 COCOAPODS: 1.16.2
