@@ -1,0 +1,3 @@
+[submodule "cxx_impl"]
+	path = cxx_impl
+	url = https://github.com/libnativeapi/nativeapi.git
