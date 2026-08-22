@@ -4,13 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <RootNamespace>NativeAPI</RootNamespace>
-    <AssemblyName>NativeAPI</AssemblyName>
+    <RootNamespace>CNativeAPI</RootNamespace>
+    <AssemblyName>CNativeAPI</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../CNativeAPI/CNativeAPI.csproj" />
+    <Compile Remove="cxx_impl/**;native/**" />
+    <None Remove="cxx_impl/**;native/**" />
   </ItemGroup>
 
 </Project>

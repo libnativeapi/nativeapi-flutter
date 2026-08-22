@@ -5,14 +5,15 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using CNativeAPI;
 
-namespace NativeAPI;
+namespace CNativeAPI;
 
-public enum DialogModality
+[StructLayout(LayoutKind.Sequential)]
+public struct native_color_t
 {
-    None = 0,
-    Application = 1,
-    Window = 2,
+    public byte r;
+    public byte g;
+    public byte b;
+    public byte a;
 }
 

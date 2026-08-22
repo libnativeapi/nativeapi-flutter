@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -77,13 +78,13 @@ public sealed partial class MessageDialog : IDisposable
         get
         {
             var rawResult = Interop.native_message_dialog_get_modality(NativeHandle);
-            return rawResult;
+            return (DialogModality)rawResult;
         }
     }
 
     public void SetModality(DialogModality modality)
     {
-        Interop.native_message_dialog_set_modality(NativeHandle, modality);
+        Interop.native_message_dialog_set_modality(NativeHandle, (int)modality);
     }
 
     public bool Open()
@@ -98,40 +99,5 @@ public sealed partial class MessageDialog : IDisposable
         return rawResult;
     }
 
-}
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_message_dialog_close(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_message_dialog_open(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern DialogModality native_message_dialog_get_modality(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_message_dialog_get_message(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_message_dialog_get_title(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_message_dialog_create([MarshalAs(UnmanagedType.LPUTF8Str)] string? title, [MarshalAs(UnmanagedType.LPUTF8Str)] string? message);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_message_dialog_free(ulong handle);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_message_dialog_set_message(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? message);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_message_dialog_set_modality(ulong self, DialogModality modality);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_message_dialog_set_title(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? title);
 }
 

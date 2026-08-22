@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -41,18 +42,5 @@ public sealed partial class TrayManager
         return items;
     }
 
-}
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_tray_manager_is_supported();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_tray_icon_list_t native_tray_manager_get_all();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_tray_manager_get(uint id);
 }
 

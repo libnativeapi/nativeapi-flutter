@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -16,14 +17,6 @@ public enum UrlOpenErrorCode
     InvalidUrlUnsupportedScheme = 3,
     UnsupportedPlatform = 4,
     InvocationFailed = 5,
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_url_open_result_t
-{
-    internal byte success;
-    internal UrlOpenErrorCode error_code;
-    internal IntPtr error_message;
 }
 
 public struct UrlOpenResult
@@ -41,14 +34,14 @@ public struct UrlOpenResult
 
     internal static UrlOpenResult FromRaw(in native_url_open_result_t raw)
     {
-        return new UrlOpenResult(raw.success != 0, raw.error_code, Marshal.PtrToStringUTF8(raw.error_message));
+        return new UrlOpenResult(raw.success != 0, (UrlOpenErrorCode)raw.error_code, Marshal.PtrToStringUTF8(raw.error_message));
     }
 
     internal native_url_open_result_t ToRaw()
     {
         var raw = new native_url_open_result_t();
         raw.success = (byte)(Success ? 1 : 0);
-        raw.error_code = ErrorCode;
+        raw.error_code = (int)ErrorCode;
         raw.error_message = Marshal.StringToCoTaskMemUTF8(ErrorMessage);
         return raw;
     }
@@ -87,22 +80,5 @@ public sealed partial class UrlOpener
         return result;
     }
 
-}
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_url_opener_can_open([MarshalAs(UnmanagedType.LPUTF8Str)] string? url);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_url_opener_is_supported();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_url_open_result_t native_url_opener_open([MarshalAs(UnmanagedType.LPUTF8Str)] string? url);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_url_open_result_free(ref native_url_open_result_t value);
 }
 

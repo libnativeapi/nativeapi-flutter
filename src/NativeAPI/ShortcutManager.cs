@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -82,7 +83,7 @@ public sealed partial class ShortcutManager
 
     public Shortcut[] GetByScope(ShortcutScope scope)
     {
-        var rawResult = Interop.native_shortcut_manager_get_by_scope(scope);
+        var rawResult = Interop.native_shortcut_manager_get_by_scope((int)scope);
         var count = rawResult.shortcuts == IntPtr.Zero ? 0 : checked((int)rawResult.count.Value);
         var items = new Shortcut[count];
         for (var i = 0; i < count; i++)
@@ -151,69 +152,5 @@ public sealed partial class ShortcutManager
         return Interop.native_shortcut_manager_remove_listener(listenerId);
     }
 
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void ShortcutManagerRegisterWithAcceleratorAndCallbackCallbackNativeCallback(IntPtr userData);
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_is_available([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_is_enabled();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_is_supported();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_is_valid_accelerator([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_remove_listener(ulong listenerId);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_unregister_with_accelerator([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_manager_unregister_with_id(uint id);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int native_shortcut_manager_unregister_all();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_shortcut_list_t native_shortcut_manager_get_all();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_shortcut_list_t native_shortcut_manager_get_by_scope(ShortcutScope scope);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_manager_add_listener(ShortcutEventNativeCallback callback, IntPtr userData);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_manager_get_with_accelerator([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_manager_get_with_id(uint id);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_manager_register_with_accelerator_and_callback([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator, ShortcutManagerRegisterWithAcceleratorAndCallbackCallbackNativeCallback callback, IntPtr callback_user_data);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_manager_register_with_options(native_shortcut_options_t options);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_manager_emit_shortcut_activated(uint id, [MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_manager_set_enabled([MarshalAs(UnmanagedType.I1)] bool enabled);
 }
 

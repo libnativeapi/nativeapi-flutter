@@ -5,15 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_point_t
-{
-    internal double x;
-    internal double y;
-}
 
 public struct Point
 {
@@ -40,13 +34,6 @@ public struct Point
     }
 }
 
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_size_t
-{
-    internal double width;
-    internal double height;
-}
-
 public struct Size
 {
     public double Width;
@@ -70,15 +57,6 @@ public struct Size
         raw.height = Height;
         return raw;
     }
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_rectangle_t
-{
-    internal double x;
-    internal double y;
-    internal double width;
-    internal double height;
 }
 
 public struct Rectangle

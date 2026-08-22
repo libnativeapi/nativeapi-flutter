@@ -6,22 +6,22 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace NativeAPI;
+namespace CNativeAPI;
 
-internal static class Libraries
+public static class Libraries
 {
-    internal const string NativeApi = "nativeapi";
+    public const string NativeApi = "nativeapi";
 }
 
 /// <summary>
 /// Keeps callback delegates alive for the lifetime of the process: the C ABI
 /// stores the function pointer but offers no hook to release it.
 /// </summary>
-internal static class CallbackKeeper
+public static class CallbackKeeper
 {
     private static readonly List<Delegate> Retained = new();
 
-    internal static T Retain<T>(T callback) where T : Delegate
+    public static T Retain<T>(T callback) where T : Delegate
     {
         lock (Retained)
         {
@@ -32,33 +32,33 @@ internal static class CallbackKeeper
 }
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct native_string_list_t
+public struct native_string_list_t
 {
-    internal IntPtr items;
-    internal CLong count;
+    public IntPtr items;
+    public CLong count;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct native_string_map_t
+public struct native_string_map_t
 {
-    internal IntPtr keys;
-    internal IntPtr values;
-    internal CLong count;
+    public IntPtr keys;
+    public IntPtr values;
+    public CLong count;
 }
 
-internal static partial class Interop
+public static partial class Interop
 {
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void free_c_str(IntPtr str);
+    public static extern void free_c_str(IntPtr str);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_string_list_free(ref native_string_list_t list);
+    public static extern void native_string_list_free(ref native_string_list_t list);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_string_map_free(ref native_string_map_t map);
+    public static extern void native_string_map_free(ref native_string_map_t map);
 
     /// <summary>Reads an owned C string and frees it.</summary>
-    internal static string? ConsumeString(IntPtr value)
+    public static string? ConsumeString(IntPtr value)
     {
         if (value == IntPtr.Zero)
         {
@@ -75,7 +75,7 @@ internal static partial class Interop
     }
 
     /// <summary>Reads an owned C string list and frees it.</summary>
-    internal static string[] ConsumeStringList(ref native_string_list_t list)
+    public static string[] ConsumeStringList(ref native_string_list_t list)
     {
         var count = list.items == IntPtr.Zero ? 0 : checked((int)list.count.Value);
         var items = new string[count];
@@ -89,7 +89,7 @@ internal static partial class Interop
     }
 
     /// <summary>Reads an owned C string map and frees it.</summary>
-    internal static Dictionary<string, string> ConsumeStringMap(ref native_string_map_t map)
+    public static Dictionary<string, string> ConsumeStringMap(ref native_string_map_t map)
     {
         var count = map.keys == IntPtr.Zero || map.values == IntPtr.Zero
             ? 0
@@ -111,7 +111,7 @@ internal static partial class Interop
     }
 
     /// <summary>Copies strings into unmanaged UTF-8 buffers.</summary>
-    internal static IntPtr[] AllocUtf8Array(IReadOnlyList<string> values)
+    public static IntPtr[] AllocUtf8Array(IReadOnlyList<string> values)
     {
         var ptrs = new IntPtr[values.Count];
         for (var i = 0; i < values.Count; i++)
@@ -122,14 +122,14 @@ internal static partial class Interop
     }
 
     /// <summary>Copies a pointer array into one unmanaged block.</summary>
-    internal static IntPtr AllocPointerArray(IntPtr[] values)
+    public static IntPtr AllocPointerArray(IntPtr[] values)
     {
         var block = Marshal.AllocHGlobal(IntPtr.Size * Math.Max(values.Length, 1));
         Marshal.Copy(values, 0, block, values.Length);
         return block;
     }
 
-    internal static void FreeUtf8Array(IntPtr[] values)
+    public static void FreeUtf8Array(IntPtr[] values)
     {
         foreach (var ptr in values)
         {

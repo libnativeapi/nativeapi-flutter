@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -70,24 +71,5 @@ public sealed partial class DisplayManager
         return Interop.native_display_manager_remove_listener(listenerId);
     }
 
-}
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_display_manager_remove_listener(ulong listenerId);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_display_list_t native_display_manager_get_all();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_point_t native_display_manager_get_cursor_position();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_display_manager_add_listener(DisplayEventNativeCallback callback, IntPtr userData);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_display_manager_get_primary();
 }
 

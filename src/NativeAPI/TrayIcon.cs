@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -14,39 +15,6 @@ public enum ContextMenuTrigger
     Clicked = 1,
     RightClicked = 2,
     DoubleClicked = 3,
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_tray_icon_event_t
-{
-    internal int type;
-    internal DataUnion data;
-
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct DataUnion
-    {
-        [FieldOffset(0)] internal ClickedData clicked;
-        [FieldOffset(0)] internal RightClickedData right_clicked;
-        [FieldOffset(0)] internal DoubleClickedData double_clicked;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ClickedData
-    {
-        internal uint tray_icon_id;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct RightClickedData
-    {
-        internal uint tray_icon_id;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct DoubleClickedData
-    {
-        internal uint tray_icon_id;
-    }
 }
 
 /// <summary>One TrayIconEvent, in its concrete form.</summary>
@@ -68,13 +36,6 @@ public abstract record TrayIconEvent
             default: return null;
         }
     }
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_tray_icon_list_t
-{
-    internal IntPtr tray_icons;
-    internal CLong count;
 }
 
 /// <summary>Owned handle to a native TrayIcon.</summary>
@@ -175,13 +136,13 @@ public sealed partial class TrayIcon : IDisposable
 
     public void SetContextMenuTrigger(ContextMenuTrigger trigger)
     {
-        Interop.native_tray_icon_set_context_menu_trigger(NativeHandle, trigger);
+        Interop.native_tray_icon_set_context_menu_trigger(NativeHandle, (int)trigger);
     }
 
     public ContextMenuTrigger GetContextMenuTrigger()
     {
         var rawResult = Interop.native_tray_icon_get_context_menu_trigger(NativeHandle);
-        return rawResult;
+        return (ContextMenuTrigger)rawResult;
     }
 
     public Rectangle GetBounds()
@@ -246,85 +207,5 @@ public sealed partial class TrayIcon : IDisposable
         return Interop.native_tray_icon_remove_listener(NativeHandle, listenerId);
     }
 
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void TrayIconEventNativeCallback(IntPtr evt, IntPtr userData);
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_tray_icon_close_context_menu(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_tray_icon_is_visible(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_tray_icon_open_context_menu(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_tray_icon_remove_listener(ulong self, ulong listenerId);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_tray_icon_set_visible(ulong self, [MarshalAs(UnmanagedType.I1)] bool visible);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ContextMenuTrigger native_tray_icon_get_context_menu_trigger(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_tray_icon_get_native_object(ulong handle);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_tray_icon_get_title(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_tray_icon_get_tooltip(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_rectangle_t native_tray_icon_get_bounds(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern uint native_tray_icon_get_id(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_tray_icon_add_listener(ulong self, TrayIconEventNativeCallback callback, IntPtr userData);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_tray_icon_create();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_tray_icon_create_with_tray(IntPtr tray);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_tray_icon_get_context_menu(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_tray_icon_get_icon(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_free(ulong handle);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_list_release(ref native_tray_icon_list_t list);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_set_context_menu(ulong self, ulong menu);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_set_context_menu_trigger(ulong self, ContextMenuTrigger trigger);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_set_icon(ulong self, ulong image);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_set_title(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? title);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_tray_icon_set_tooltip(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? tooltip);
 }
 

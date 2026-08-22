@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -12,17 +13,6 @@ public enum ShortcutScope
 {
     Global = 0,
     Application = 1,
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_shortcut_options_t
-{
-    internal IntPtr accelerator;
-    internal IntPtr callback;
-    internal IntPtr callback_user_data;
-    internal IntPtr description;
-    internal ShortcutScope scope;
-    internal byte enabled;
 }
 
 public struct ShortcutOptions
@@ -44,7 +34,7 @@ public struct ShortcutOptions
 
     internal static ShortcutOptions FromRaw(in native_shortcut_options_t raw)
     {
-        return new ShortcutOptions(Marshal.PtrToStringUTF8(raw.accelerator), null, Marshal.PtrToStringUTF8(raw.description), raw.scope, raw.enabled != 0);
+        return new ShortcutOptions(Marshal.PtrToStringUTF8(raw.accelerator), null, Marshal.PtrToStringUTF8(raw.description), (ShortcutScope)raw.scope, raw.enabled != 0);
     }
 
     internal native_shortcut_options_t ToRaw()
@@ -58,7 +48,7 @@ public struct ShortcutOptions
             raw.callback_user_data = IntPtr.Zero;
         }
         raw.description = Marshal.StringToCoTaskMemUTF8(Description);
-        raw.scope = Scope;
+        raw.scope = (int)Scope;
         raw.enabled = (byte)(Enabled ? 1 : 0);
         return raw;
     }
@@ -69,27 +59,6 @@ public struct ShortcutOptions
         raw.accelerator = IntPtr.Zero;
         Marshal.FreeCoTaskMem(raw.description);
         raw.description = IntPtr.Zero;
-    }
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_shortcut_event_t
-{
-    internal int type;
-    internal uint shortcut_id;
-    internal IntPtr accelerator;
-    internal DataUnion data;
-
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct DataUnion
-    {
-        [FieldOffset(0)] internal RegistrationFailedData registration_failed;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct RegistrationFailedData
-    {
-        internal IntPtr error_message;
     }
 }
 
@@ -114,13 +83,6 @@ public abstract record ShortcutEvent
             default: return null;
         }
     }
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_shortcut_list_t
-{
-    internal IntPtr shortcuts;
-    internal CLong count;
 }
 
 /// <summary>Owned handle to a native Shortcut.</summary>
@@ -206,7 +168,7 @@ public sealed partial class Shortcut : IDisposable
         get
         {
             var rawResult = Interop.native_shortcut_get_scope(NativeHandle);
-            return rawResult;
+            return (ShortcutScope)rawResult;
         }
     }
 
@@ -235,63 +197,5 @@ public sealed partial class Shortcut : IDisposable
         Interop.native_shortcut_set_callback(NativeHandle, nativeCallback, IntPtr.Zero);
     }
 
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void ShortcutCreateWithIdAndAcceleratorAndCallbackCallbackNativeCallback(IntPtr userData);
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void ShortcutEventNativeCallback(IntPtr evt, IntPtr userData);
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void ShortcutOptionsCallbackNativeCallback(IntPtr userData);
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void ShortcutSetCallbackCallbackNativeCallback(IntPtr userData);
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_shortcut_is_enabled(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_shortcut_get_accelerator(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr native_shortcut_get_description(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ShortcutScope native_shortcut_get_scope(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern uint native_shortcut_get_id(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_create_with_id_and_accelerator_and_callback(uint id, [MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator, ShortcutCreateWithIdAndAcceleratorAndCallbackCallbackNativeCallback callback, IntPtr callback_user_data);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_shortcut_create_with_id_and_options(uint id, native_shortcut_options_t options);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_free(ulong handle);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_invoke(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_list_release(ref native_shortcut_list_t list);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_options_free(ref native_shortcut_options_t value);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_set_callback(ulong self, ShortcutSetCallbackCallbackNativeCallback callback, IntPtr callback_user_data);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_set_description(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? description);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_shortcut_set_enabled(ulong self, [MarshalAs(UnmanagedType.I1)] bool enabled);
 }
 

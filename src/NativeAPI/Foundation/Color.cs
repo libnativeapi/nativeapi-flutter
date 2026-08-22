@@ -5,17 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_color_t
-{
-    internal byte r;
-    internal byte g;
-    internal byte b;
-    internal byte a;
-}
 
 public struct Color
 {

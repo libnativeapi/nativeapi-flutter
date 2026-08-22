@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace NativeAPI;
+namespace CNativeAPI;
 
 /// <summary>
 /// Resolves the "nativeapi" native library. The NATIVEAPI_LIBRARY_PATH

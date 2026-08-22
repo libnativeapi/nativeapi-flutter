@@ -5,27 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_application_event_t
-{
-    internal int type;
-    internal DataUnion data;
-
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct DataUnion
-    {
-        [FieldOffset(0)] internal ExitingData exiting;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ExitingData
-    {
-        internal int exit_code;
-    }
-}
 
 /// <summary>One ApplicationEvent, in its concrete form.</summary>
 public abstract record ApplicationEvent
@@ -160,56 +142,5 @@ public sealed partial class Application
         return Interop.native_application_remove_listener(listenerId);
     }
 
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void ApplicationEventNativeCallback(IntPtr evt, IntPtr userData);
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_application_is_running();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_application_is_single_instance();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_application_remove_listener(ulong listenerId);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_application_set_dock_icon_visible([MarshalAs(UnmanagedType.I1)] bool visible);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_application_set_icon([MarshalAs(UnmanagedType.LPUTF8Str)] string? iconPath);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool native_application_set_menu_bar(ulong menu);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int native_application_run();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int native_application_run_with_window(ulong window);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern native_window_list_t native_application_get_all_windows();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_application_add_listener(ApplicationEventNativeCallback callback, IntPtr userData);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern ulong native_application_get_primary_window();
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_application_quit(int exitCode);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_application_set_primary_window(ulong window);
 }
 

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/DisplayExample/DisplayExample.csproj" />
+    <Project Path="examples/PreferencesExample/PreferencesExample.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/CNativeAPI/CNativeAPI.csproj" />
+    <Project Path="src/NativeAPI/NativeAPI.csproj" />
+  </Folder>
+</Solution>

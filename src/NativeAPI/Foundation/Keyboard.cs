@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CNativeAPI;
 
 namespace NativeAPI;
 
@@ -21,13 +22,6 @@ public enum ModifierKey
     ScrollLock = 128,
 }
 
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_keyboard_accelerator_t
-{
-    internal ModifierKey modifiers;
-    internal IntPtr key;
-}
-
 public struct KeyboardAccelerator
 {
     public ModifierKey Modifiers;
@@ -41,13 +35,13 @@ public struct KeyboardAccelerator
 
     internal static KeyboardAccelerator FromRaw(in native_keyboard_accelerator_t raw)
     {
-        return new KeyboardAccelerator(raw.modifiers, Marshal.PtrToStringUTF8(raw.key));
+        return new KeyboardAccelerator((ModifierKey)raw.modifiers, Marshal.PtrToStringUTF8(raw.key));
     }
 
     internal native_keyboard_accelerator_t ToRaw()
     {
         var raw = new native_keyboard_accelerator_t();
-        raw.modifiers = Modifiers;
+        raw.modifiers = (int)Modifiers;
         raw.key = Marshal.StringToCoTaskMemUTF8(Key);
         return raw;
     }
@@ -56,26 +50,6 @@ public struct KeyboardAccelerator
     {
         Marshal.FreeCoTaskMem(raw.key);
         raw.key = IntPtr.Zero;
-    }
-}
-
-[StructLayout(LayoutKind.Sequential)]
-internal struct native_keyboard_event_t
-{
-    internal int type;
-    internal int keycode;
-    internal DataUnion data;
-
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct DataUnion
-    {
-        [FieldOffset(0)] internal ModifierKeysChangedData modifier_keys_changed;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ModifierKeysChangedData
-    {
-        internal uint modifier_keys;
     }
 }
 
@@ -98,14 +72,5 @@ public abstract record KeyboardEvent
             default: return null;
         }
     }
-}
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void KeyboardEventNativeCallback(IntPtr evt, IntPtr userData);
-
-internal static partial class Interop
-{
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void native_keyboard_accelerator_free(ref native_keyboard_accelerator_t value);
 }
 

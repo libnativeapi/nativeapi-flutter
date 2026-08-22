@@ -4,30 +4,48 @@ C# bindings for [libnativeapi](https://github.com/libnativeapi/nativeapi).
 
 ## Layout
 
-- `src/NativeAPI/` — the managed binding. Files starting with
-  `// AUTO-GENERATED. DO NOT EDIT.` are produced by the workspace code
-  generator (`./codegen` in the workspace repo); edit the C++ headers and
-  regenerate instead of editing them.
-- `cxx_impl/` — the core C++ library as a git submodule; the native code the
-  bindings call into.
-- `native/` — CMake wrapper that builds `cxx_impl` into the shared library
-  (`libnativeapi.dylib` / `libnativeapi.so` / `nativeapi.dll`) the managed
-  binding loads at runtime.
+```
+src/
+├── CNativeAPI/          # raw interop layer (assembly CNativeAPI)
+│   ├── cxx_impl/        # the core C++ library, as a git submodule
+│   ├── native/          # CMake wrapper building cxx_impl into the shared
+│   │                    #   library (libnativeapi.dylib / .so / nativeapi.dll)
+│   ├── generated/       # [generated] C struct mirrors, delegates, DllImports
+│   └── NativeLibraryResolver.cs
+└── NativeAPI/           # public API layer (assembly NativeAPI)
+    └── *.cs             # [generated] idiomatic C# wrappers
+examples/
+├── DisplayExample/
+└── PreferencesExample/
+```
+
+Files starting with `// AUTO-GENERATED. DO NOT EDIT.` are produced by the
+workspace code generator (`./codegen` in the workspace repo); edit the C++
+headers and regenerate instead of editing them. `CNativeAPI` mirrors the C ABI
+one-to-one (C naming included, like Rust's `bindings.rs`); everything idiomatic
+lives in `NativeAPI`.
 
 ## Build
 
 ```bash
-# Managed assembly
-dotnet build src/NativeAPI
+# Managed assemblies + examples
+dotnet build NativeAPI.slnx
 
 # Native shared library (requires CMake >= 3.24)
-cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+cmake -S src/CNativeAPI/native -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native
 ```
 
+## Run the examples
+
 At runtime the binding resolves the native library through the standard .NET
-probing paths; set `NATIVEAPI_LIBRARY_PATH` to point at an explicit
-`libnativeapi` build when it lives somewhere else.
+probing paths; set `NATIVEAPI_LIBRARY_PATH` to point at an explicit build:
+
+```bash
+export NATIVEAPI_LIBRARY_PATH=$PWD/build/native/libnativeapi.dylib
+dotnet run --project examples/DisplayExample
+dotnet run --project examples/PreferencesExample
+```
 
 ```csharp
 using NativeAPI;
