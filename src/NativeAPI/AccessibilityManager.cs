@@ -1,0 +1,40 @@
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
+namespace NativeAPI;
+
+public sealed partial class AccessibilityManager
+{
+    /// <summary>The shared instance backed by the native singleton.</summary>
+    public static AccessibilityManager Shared { get; } = new AccessibilityManager();
+
+    private AccessibilityManager() { }
+
+    public void Enable()
+    {
+        Interop.native_accessibility_manager_enable();
+    }
+
+    public bool IsEnabled()
+    {
+        var rawResult = Interop.native_accessibility_manager_is_enabled();
+        return rawResult;
+    }
+
+}
+
+internal static partial class Interop
+{
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    internal static extern bool native_accessibility_manager_is_enabled();
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void native_accessibility_manager_enable();
+}
+
