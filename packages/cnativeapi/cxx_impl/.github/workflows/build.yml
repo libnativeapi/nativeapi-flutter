@@ -1,0 +1,253 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Android builds (ARM64, ARMv7, x86_64)
+  build-android:
+    strategy:
+      matrix:
+        abi:
+          - arm64-v8a
+          - armeabi-v7a
+          - x86_64
+
+    runs-on: ubuntu-latest
+    name: Build Android (${{ matrix.abi }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Install Android NDK
+        run: |
+          ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
+          echo "y" | $SDKMANAGER "ndk;25.2.9519653"
+          echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/25.2.9519653" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/25.2.9519653" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Configure CMake for Android
+        shell: bash
+        run: |
+          mkdir build-android
+          cd build-android
+          cmake .. \
+            -DCMAKE_SYSTEM_NAME=Android \
+            -DCMAKE_ANDROID_NDK=$ANDROID_NDK_ROOT \
+            -DCMAKE_ANDROID_ARCH_ABI=${{ matrix.abi }} \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Examples
+        shell: bash
+        run: |
+          cd build-android
+          cmake --build . --config Release
+
+  # iOS builds (device and simulator)
+  build-ios:
+    strategy:
+      matrix:
+        include:
+          - target: device
+            arch: arm64
+            sysroot: iphoneos
+            platform_name: iOS Device
+          - target: simulator
+            arch: arm64
+            sysroot: iphonesimulator
+            platform_name: iOS Simulator
+
+    runs-on: macos-latest
+    name: Build ${{ matrix.platform_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake for iOS
+        shell: bash
+        run: |
+          mkdir build-ios-${{ matrix.target }}
+          cd build-ios-${{ matrix.target }}
+          cmake .. \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_SYSTEM_VERSION=14.0 \
+            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+            -DCMAKE_OSX_SYSROOT=${{ matrix.sysroot }} \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Examples
+        shell: bash
+        run: |
+          cd build-ios-${{ matrix.target }}
+          cmake --build . --config Release
+
+  # Linux build
+  build-linux:
+    runs-on: ubuntu-latest
+    name: Build Linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up CMake
+        shell: bash
+        run: |
+          cmake --version
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgtk-3-dev libx11-dev libxi-dev
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Examples
+        shell: bash
+        run: |
+          cd build
+          cmake --build . --config Release
+
+  # macOS build
+  build-macos:
+    runs-on: macos-latest
+    name: Build macOS
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up CMake
+        shell: bash
+        run: cmake --version
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Examples
+        shell: bash
+        run: |
+          cd build
+          cmake --build . --config Release
+
+  # OpenHarmony builds
+  build-ohos:
+    runs-on: ubuntu-latest
+    name: Build OpenHarmony
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build unzip
+
+      - name: Cache OpenHarmony Native SDK
+        id: cache-ohos-sdk
+        uses: actions/cache@v4
+        with:
+          path: sdk
+          key: ohos-sdk-v5.1.0-linux-x64-${{ runner.os }}
+
+      - name: Download OpenHarmony Native SDK
+        if: steps.cache-ohos-sdk.outputs.cache-hit != 'true'
+        run: |
+          echo $PWD
+          wget -q \
+            https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.1.0/ohos-sdk-windows_linux-public.tar.gz.aa
+          wget -q \
+            https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.1.0/ohos-sdk-windows_linux-public.tar.gz.ab
+          cat ohos-sdk-windows_linux-public.tar.gz.aa ohos-sdk-windows_linux-public.tar.gz.ab > sdk.tar.gz
+          echo "Extracting native..."
+          mkdir sdk
+          tar -xzf sdk.tar.gz ohos-sdk/linux/native-linux-x64-5.1.0.107-Release.zip
+          tar -xzf sdk.tar.gz ohos-sdk/linux/toolchains-linux-x64-5.1.0.107-Release.zip
+          unzip -qq ohos-sdk/linux/native-linux-x64-5.1.0.107-Release.zip -d sdk
+          unzip -qq ohos-sdk/linux/toolchains-linux-x64-5.1.0.107-Release.zip -d sdk
+          ls -la sdk/native/llvm/bin/
+          rm -rf ohos-sdk-windows_linux-public.tar.gz.aa ohos-sdk-windows_linux-public.tar.gz.ab ohos-sdk/ sdk.tar.gz
+
+      - name: Setup build environment
+        run: |
+          SDK_DIR=$(pwd)/sdk
+          
+          # Find the API level directory (usually "20" or similar)
+          API_LEVEL=$(ls -1 $SDK_DIR | grep -E '^[0-9]+$' | head -1)
+          if [ -z "$API_LEVEL" ]; then
+            # Fallback to direct native/ structure
+            OHOS_NATIVE_TOOLCHAIN="$SDK_DIR/native/build/cmake/ohos.toolchain.cmake"
+          else
+            OHOS_NATIVE_TOOLCHAIN="$SDK_DIR/$API_LEVEL/native/build/cmake/ohos.toolchain.cmake"
+          fi
+          
+          echo "OHOS_NDK_HOME=$SDK_DIR" >> $GITHUB_ENV
+          echo "OHOS_SDK_PATH=$SDK_DIR" >> $GITHUB_ENV
+          echo "OHOS_NATIVE_TOOLCHAIN=$OHOS_NATIVE_TOOLCHAIN" >> $GITHUB_ENV
+          
+          # Debug: Show SDK structure
+          echo "SDK structure:"
+          ls -la $SDK_DIR/ || true
+          echo "Looking for toolchain at: $OHOS_NATIVE_TOOLCHAIN"
+          ls -la $OHOS_NATIVE_TOOLCHAIN || true
+
+      - name: Configure CMake for OpenHarmony
+        shell: bash
+        run: |
+          mkdir build-ohos
+          cd build-ohos
+
+          # Configure CMake with OpenHarmony toolchain
+          cmake -DCMAKE_SYSTEM_NAME=OHOS \
+                -DCMAKE_TOOLCHAIN_FILE="$OHOS_NATIVE_TOOLCHAIN" \
+                ..
+
+      - name: Build Examples
+        shell: bash
+        run: |
+          cd build-ohos
+          cmake --build . --config Release
+
+  # Windows build
+  build-windows:
+    runs-on: windows-latest
+    name: Build Windows
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up CMake
+        shell: bash
+        run: cmake --version
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Examples
+        shell: bash
+        run: |
+          cd build
+          cmake --build . --config Release

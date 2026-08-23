@@ -1,0 +1,555 @@
+---
+globs: capi/*.c,capi/*.h
+description: Creating C API bindings for C++ APIs to enable FFI from other languages
+---
+
+# C API Bindings Rules
+
+The nativeapi library provides C-compatible bindings for all C++ APIs to enable Foreign Function Interface (FFI) from languages like Dart, Swift, Rust, Python, etc. All C API code lives in [src/capi/](mdc:src/capi).
+
+## Why C API Bindings?
+
+1. **Language Interoperability** - C is the universal FFI standard
+2. **Stable ABI** - C has predictable memory layout and calling conventions
+3. **No Name Mangling** - C functions have simple, predictable names
+4. **Simplicity** - C types map directly to FFI types in most languages
+
+## File Organization
+
+For each C++ API, create corresponding C binding files:
+
+| C++ API | C API Header | C API Implementation |
+|---------|-------------|---------------------|
+| [window.h](mdc:src/window.h) | [window_c.h](mdc:src/capi/window_c.h) | [window_c.cpp](mdc:src/capi/window_c.cpp) |
+| [window_manager.h](mdc:src/window_manager.h) | [window_manager_c.h](mdc:src/capi/window_manager_c.h) | [window_manager_c.cpp](mdc:src/capi/window_manager_c.cpp) |
+| [menu.h](mdc:src/menu.h) | [menu_c.h](mdc:src/capi/menu_c.h) | [menu_c.cpp](mdc:src/capi/menu_c.cpp) |
+
+## C API Header Pattern
+
+### Basic Structure ([window_c.h](mdc:src/capi/window_c.h))
+
+```c
+#pragma once
+
+#include <stdbool.h>
+#include <stdint.h>
+
+// Export macro for DLL support
+#if _WIN32
+#define FFI_PLUGIN_EXPORT __declspec(dllexport)
+#else
+#define FFI_PLUGIN_EXPORT
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "geometry_c.h"  // Include C versions of dependencies
+
+// Opaque handle type
+typedef void* native_window_t;
+typedef long native_window_id_t;
+
+// C struct for options (plain C types only)
+typedef struct {
+    const char* title;
+    native_size_t size;
+    native_size_t minimum_size;
+    native_size_t maximum_size;
+    bool centered;
+} native_window_options_t;
+
+// C functions matching C++ API
+FFI_PLUGIN_EXPORT
+native_window_t native_window_create(const native_window_options_t* options);
+
+FFI_PLUGIN_EXPORT
+void native_window_destroy(native_window_t window);
+
+FFI_PLUGIN_EXPORT
+native_window_id_t native_window_get_id(native_window_t window);
+
+FFI_PLUGIN_EXPORT
+void native_window_show(native_window_t window);
+
+FFI_PLUGIN_EXPORT
+void native_window_hide(native_window_t window);
+
+FFI_PLUGIN_EXPORT
+bool native_window_is_visible(native_window_t window);
+
+// Memory management helpers
+FFI_PLUGIN_EXPORT
+void native_window_free(native_window_t window);
+
+#ifdef __cplusplus
+}
+#endif
+```
+
+### Key Elements
+
+1. **Export Macro** - `FFI_PLUGIN_EXPORT` for DLL/shared library support
+2. **Extern "C" Block** - Prevents C++ name mangling
+3. **Opaque Pointers** - `typedef void* native_xxx_t` for object handles
+4. **Plain C Types** - Only `bool`, `int`, `float`, `double`, `char*`, structs
+5. **Naming Convention** - `native_<module>_<function>` pattern
+6. **Documentation** - Comment each function for FFI consumers
+
+## C API Implementation Pattern
+
+### Basic Structure ([window_c.cpp](mdc:src/capi/window_c.cpp))
+
+```cpp
+#include "window_c.h"
+#include <memory>
+#include "../window.h"
+#include "../window_manager.h"
+#include "string_utils_c.h"
+
+using namespace nativeapi;
+
+// Convert C options to C++ options
+static WindowOptions ConvertToWindowOptions(const native_window_options_t* options) {
+    WindowOptions cpp_options;
+    
+    if (options->title) {
+        cpp_options.title = std::string(options->title);
+    }
+    
+    cpp_options.size.width = options->size.width;
+    cpp_options.size.height = options->size.height;
+    cpp_options.minimum_size.width = options->minimum_size.width;
+    cpp_options.minimum_size.height = options->minimum_size.height;
+    cpp_options.maximum_size.width = options->maximum_size.width;
+    cpp_options.maximum_size.height = options->maximum_size.height;
+    cpp_options.centered = options->centered;
+    
+    return cpp_options;
+}
+
+// Convert C++ window to C handle
+static native_window_t WindowToHandle(std::shared_ptr<Window> window) {
+    return window ? static_cast<void*>(window.get()) : nullptr;
+}
+
+// Convert C handle to C++ window
+static std::shared_ptr<Window> HandleToWindow(native_window_t handle) {
+    if (!handle) return nullptr;
+    
+    // Get from manager's internal registry
+    Window* raw_ptr = static_cast<Window*>(handle);
+    return WindowManager::GetInstance().Get(raw_ptr->GetId());
+}
+
+// Implement C functions
+native_window_t native_window_create(const native_window_options_t* options) {
+    if (!options) return nullptr;
+    
+    try {
+        auto cpp_options = ConvertToWindowOptions(options);
+        auto window = WindowManager::GetInstance().Create(cpp_options);
+        return WindowToHandle(window);
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+void native_window_destroy(native_window_t window) {
+    try {
+        auto cpp_window = HandleToWindow(window);
+        if (cpp_window) {
+            WindowManager::GetInstance().Destroy(cpp_window->GetId());
+        }
+    } catch (...) {
+        // Ignore exceptions
+    }
+}
+
+native_window_id_t native_window_get_id(native_window_t window) {
+    try {
+        auto cpp_window = HandleToWindow(window);
+        return cpp_window ? cpp_window->GetId() : 0;
+    } catch (...) {
+        return 0;
+    }
+}
+
+void native_window_show(native_window_t window) {
+    try {
+        auto cpp_window = HandleToWindow(window);
+        if (cpp_window) {
+            cpp_window->Show();
+        }
+    } catch (...) {
+        // Ignore exceptions
+    }
+}
+
+bool native_window_is_visible(native_window_t window) {
+    try {
+        auto cpp_window = HandleToWindow(window);
+        return cpp_window ? cpp_window->IsVisible() : false;
+    } catch (...) {
+        return false;
+    }
+}
+
+void native_window_free(native_window_t window) {
+    // Handle is managed by WindowManager, nothing to free
+    // This exists for API consistency
+}
+```
+
+### Key Implementation Patterns
+
+1. **Exception Safety** - Wrap all calls in try-catch
+2. **Null Checks** - Always validate handles before use
+3. **Conversion Helpers** - Static functions for C ↔ C++ conversion
+4. **Manager Integration** - Use managers to resolve handles to shared_ptr
+5. **Memory Safety** - C handles are weak references, manager owns objects
+
+## Type Mapping
+
+### Primitive Types
+
+| C++ Type | C Type |
+|----------|--------|
+| `bool` | `bool` |
+| `int`, `long` | `int`, `long` |
+| `float`, `double` | `float`, `double` |
+| `std::string` | `const char*` |
+
+### Complex Types
+
+| C++ Type | C Type | Notes |
+|----------|--------|-------|
+| `std::shared_ptr<Window>` | `native_window_t` (void*) | Opaque handle |
+| `std::vector<Window>` | `native_window_list_t` | Custom struct with array |
+| `WindowOptions` | `native_window_options_t` | Plain C struct |
+| `enum class MenuItemType` | `native_menu_item_type_t` (int) | Plain enum |
+| `std::optional<std::string>` | `const char*` | Use `nullptr` for none |
+
+### Geometry Types ([geometry_c.h](mdc:src/capi/geometry_c.h))
+
+```c
+typedef struct {
+    double x;
+    double y;
+} native_point_t;
+
+typedef struct {
+    double width;
+    double height;
+} native_size_t;
+
+typedef struct {
+    double x;
+    double y;
+    double width;
+    double height;
+} native_rectangle_t;
+```
+
+## Event Handling Pattern
+
+### C Callback Functions ([window_manager_c.h](mdc:src/capi/window_manager_c.h))
+
+```c
+// Event type enum
+typedef enum {
+    NATIVE_WINDOW_EVENT_CREATED = 0,
+    NATIVE_WINDOW_EVENT_CLOSED = 1,
+    NATIVE_WINDOW_EVENT_FOCUSED = 2,
+    NATIVE_WINDOW_EVENT_MOVED = 3,
+} native_window_event_type_t;
+
+// Event data structure
+typedef struct {
+    native_window_event_type_t type;
+    native_window_id_t window_id;
+    union {
+        struct {
+            native_point_t position;
+        } moved;
+        struct {
+            native_size_t size;
+        } resized;
+    } data;
+} native_window_event_t;
+
+// Callback function type
+typedef void (*native_window_event_callback_t)(
+    const native_window_event_t* event,
+    void* user_data
+);
+
+// Register callback
+FFI_PLUGIN_EXPORT
+int native_window_manager_register_event_callback(
+    native_window_event_callback_t callback,
+    void* user_data
+);
+
+// Unregister callback
+FFI_PLUGIN_EXPORT
+bool native_window_manager_unregister_event_callback(int registration_id);
+```
+
+### C Callback Implementation ([window_manager_c.cpp](mdc:src/capi/window_manager_c.cpp))
+
+```cpp
+// Global state for callbacks
+struct EventCallbackInfo {
+    native_window_event_callback_t callback;
+    void* user_data;
+    int id;
+};
+
+static std::mutex g_callback_mutex;
+static std::unordered_map<int, EventCallbackInfo> g_event_callbacks;
+static int g_next_callback_id = 1;
+
+// Bridge C++ events to C callbacks
+class CEventListener {
+public:
+    CEventListener() {
+        auto& manager = WindowManager::GetInstance();
+        
+        manager.AddListener<WindowCreatedEvent>(
+            [this](const WindowCreatedEvent& e) {
+                native_window_event_t event;
+                event.type = NATIVE_WINDOW_EVENT_CREATED;
+                event.window_id = e.GetWindowId();
+                DispatchEvent(event);
+            }
+        );
+        
+        // ... register for other events
+    }
+
+private:
+    void DispatchEvent(const native_window_event_t& event) {
+        std::lock_guard<std::mutex> lock(g_callback_mutex);
+        
+        for (const auto& [id, info] : g_event_callbacks) {
+            try {
+                info.callback(&event, info.user_data);
+            } catch (...) {
+                // Ignore exceptions from callbacks
+            }
+        }
+    }
+};
+
+// Initialize event listener on first callback registration
+static CEventListener* g_event_listener = nullptr;
+
+int native_window_manager_register_event_callback(
+    native_window_event_callback_t callback,
+    void* user_data
+) {
+    if (!callback) return -1;
+    
+    std::lock_guard<std::mutex> lock(g_callback_mutex);
+    
+    // Initialize listener if needed
+    if (!g_event_listener) {
+        g_event_listener = new CEventListener();
+    }
+    
+    int id = g_next_callback_id++;
+    g_event_callbacks[id] = {callback, user_data, id};
+    
+    return id;
+}
+
+bool native_window_manager_unregister_event_callback(int registration_id) {
+    std::lock_guard<std::mutex> lock(g_callback_mutex);
+    return g_event_callbacks.erase(registration_id) > 0;
+}
+```
+
+## String Handling
+
+### Utility Functions ([string_utils_c.h](mdc:src/capi/string_utils_c.h))
+
+```c
+// Allocate C string from C++ string
+FFI_PLUGIN_EXPORT
+char* native_string_allocate(const char* str);
+
+// Free C string
+FFI_PLUGIN_EXPORT
+void native_string_free(char* str);
+```
+
+### Implementation ([string_utils_c.cpp](mdc:src/capi/string_utils_c.cpp))
+
+```cpp
+char* native_string_allocate(const char* str) {
+    if (!str) return nullptr;
+    
+    size_t len = strlen(str);
+    char* result = static_cast<char*>(malloc(len + 1));
+    
+    if (result) {
+        strcpy(result, str);
+    }
+    
+    return result;
+}
+
+void native_string_free(char* str) {
+    if (str) {
+        free(str);
+    }
+}
+```
+
+### String Return Pattern
+
+```cpp
+// Method returning string
+FFI_PLUGIN_EXPORT
+char* native_window_get_title(native_window_t window) {
+    try {
+        auto cpp_window = HandleToWindow(window);
+        if (!cpp_window) return nullptr;
+        
+        std::string title = cpp_window->GetTitle();
+        return native_string_allocate(title.c_str());
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+// Caller must free
+char* title = native_window_get_title(window);
+if (title) {
+    // Use title
+    printf("Title: %s\n", title);
+    
+    // Free when done
+    native_string_free(title);
+}
+```
+
+## Collection Handling
+
+### List Pattern ([window_manager_c.h](mdc:src/capi/window_manager_c.h))
+
+```c
+typedef struct {
+    native_window_t* windows;
+    size_t count;
+} native_window_list_t;
+
+FFI_PLUGIN_EXPORT
+native_window_list_t native_window_manager_get_all(void);
+
+FFI_PLUGIN_EXPORT
+void native_window_list_free(native_window_list_t list);
+```
+
+### Implementation
+
+```cpp
+native_window_list_t native_window_manager_get_all(void) {
+    native_window_list_t result = {nullptr, 0};
+    
+    try {
+        auto windows = WindowManager::GetInstance().GetAll();
+        
+        if (windows.empty()) {
+            return result;
+        }
+        
+        result.count = windows.size();
+        result.windows = static_cast<native_window_t*>(
+            malloc(sizeof(native_window_t) * result.count)
+        );
+        
+        if (result.windows) {
+            for (size_t i = 0; i < windows.size(); ++i) {
+                result.windows[i] = WindowToHandle(windows[i]);
+            }
+        }
+    } catch (...) {
+        // Return empty list
+    }
+    
+    return result;
+}
+
+void native_window_list_free(native_window_list_t list) {
+    if (list.windows) {
+        free(list.windows);
+    }
+}
+```
+
+## Best Practices
+
+1. **Always wrap in try-catch** - C callers can't handle C++ exceptions
+2. **Return error indicators** - `nullptr`, `false`, `-1`, etc. on error
+3. **Validate all inputs** - Check for null pointers, invalid handles
+4. **Use opaque handles** - Never expose C++ objects directly
+5. **Provide free functions** - Match every allocate with a free
+6. **Document memory ownership** - Who allocates? Who frees?
+7. **Thread safety** - Assume C callers are multi-threaded
+8. **Keep it simple** - C API should be straightforward to use
+
+## Testing C API
+
+Create C example programs ([examples/window_c_example/main.c](mdc:examples/window_c_example/main.c)):
+
+```c
+#include "nativeapi.h"
+#include <stdio.h>
+
+void on_window_event(const native_window_event_t* event, void* user_data) {
+    printf("Window event: %d\n", event->type);
+}
+
+int main() {
+    // Create window
+    native_window_options_t options = {
+        .title = "C API Example",
+        .size = {800, 600},
+        .minimum_size = {400, 300},
+        .maximum_size = {0, 0},
+        .centered = true
+    };
+    
+    native_window_t window = native_window_manager_create(&options);
+    if (!window) {
+        printf("Failed to create window\n");
+        return 1;
+    }
+    
+    // Register event callback
+    int callback_id = native_window_manager_register_event_callback(
+        on_window_event,
+        NULL
+    );
+    
+    // Show window
+    native_window_show(window);
+    
+    // ... run event loop ...
+    
+    // Cleanup
+    native_window_manager_unregister_event_callback(callback_id);
+    native_window_destroy(window);
+    
+    return 0;
+}
+```
+
+## Related Topics
+
+- See [Project Architecture Rules](mdc:.cursor/rules/project-architecture.mdc) for overall structure
+- See [Singleton Managers Rules](mdc:.cursor/rules/singleton-managers.mdc) for manager pattern
+- See [Event System Rules](mdc:.cursor/rules/event-system.mdc) for event handling

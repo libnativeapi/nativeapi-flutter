@@ -1,0 +1,519 @@
+---
+alwaysApply: true
+description: Pattern for exposing platform-specific native handles from cross-platform wrappers
+---
+
+# Native Object Provider Pattern Rules
+
+Classes that wrap platform-specific objects inherit from [NativeObjectProvider](mdc:src/foundation/native_object_provider.h) to expose their underlying native handles. This enables advanced use cases where users need direct access to platform APIs while maintaining the cross-platform abstraction.
+
+## Purpose
+
+The NativeObjectProvider pattern serves several purposes:
+
+1. **Escape Hatch** - Allows access to native APIs not wrapped by the library
+2. **Interop** - Enables integration with other libraries expecting native handles
+3. **Advanced Features** - Supports platform-specific functionality
+4. **Type Safety** - Returns `void*` for cross-platform compatibility
+5. **Encapsulation** - Keeps implementation details hidden until explicitly requested
+
+## Base Class Structure
+
+### Header ([foundation/native_object_provider.h](mdc:src/foundation/native_object_provider.h))
+
+```cpp
+#pragma once
+
+namespace nativeapi {
+
+class NativeObjectProvider {
+public:
+    virtual ~NativeObjectProvider() = default;
+    
+    /**
+     * Get the native platform-specific object.
+     * 
+     * Platform-specific return types:
+     * - macOS: NSWindow*, NSMenu*, NSMenuItem*, NSView*, etc.
+     * - Windows: HWND, HMENU, etc.
+     * - Linux: GtkWidget*, GtkMenu*, GdkWindow*, etc.
+     */
+    void* GetNativeObject() const {
+        return GetNativeObjectInternal();
+    }
+
+protected:
+    /**
+     * Derived classes must implement this to return their native object.
+     */
+    virtual void* GetNativeObjectInternal() const = 0;
+};
+
+}  // namespace nativeapi
+```
+
+## Implementing NativeObjectProvider
+
+### Pattern for Classes
+
+All classes wrapping native objects should:
+
+1. Inherit from `NativeObjectProvider`
+2. Implement `GetNativeObjectInternal()` protected method
+3. Return platform-specific handle as `void*`
+
+### Example: Window Class
+
+#### Header ([window.h](mdc:src/window.h))
+
+```cpp
+#pragma once
+#include "foundation/native_object_provider.h"
+
+namespace nativeapi {
+
+class Window : public NativeObjectProvider {
+public:
+    Window();
+    Window(void* native_window);
+    virtual ~Window();
+    
+    // ... public API methods ...
+
+protected:
+    void* GetNativeObjectInternal() const override;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pimpl_;
+};
+
+}  // namespace nativeapi
+```
+
+#### Platform Implementations
+
+##### Windows ([platform/windows/window_windows.cpp](mdc:src/platform/windows))
+
+```cpp
+#include <windows.h>
+#include "../../window.h"
+
+namespace nativeapi {
+
+class Window::Impl {
+public:
+    HWND hwnd_;
+};
+
+void* Window::GetNativeObjectInternal() const {
+    // Cast HWND to void*
+    return static_cast<void*>(pimpl_->hwnd_);
+}
+
+}  // namespace nativeapi
+```
+
+##### macOS ([platform/macos/window_macos.mm](mdc:src/platform/macos))
+
+```objc
+#import <Cocoa/Cocoa.h>
+#include "../../window.h"
+
+namespace nativeapi {
+
+class Window::Impl {
+public:
+    NSWindow* window_;
+};
+
+void* Window::GetNativeObjectInternal() const {
+    // Cast NSWindow* to void*
+    return static_cast<void*>(pimpl_->window_);
+}
+
+}  // namespace nativeapi
+```
+
+##### Linux ([platform/linux/window_linux.cpp](mdc:src/platform/linux))
+
+```cpp
+#include <gtk/gtk.h>
+#include "../../window.h"
+
+namespace nativeapi {
+
+class Window::Impl {
+public:
+    GtkWidget* window_;
+};
+
+void* Window::GetNativeObjectInternal() const {
+    // Cast GtkWidget* to void*
+    return static_cast<void*>(pimpl_->window_);
+}
+
+}  // namespace nativeapi
+```
+
+## Using Native Objects
+
+### Cross-Platform Usage
+
+Users can access native objects when they need platform-specific functionality. Since platform-specific implementations are separated into `/platform/{windows|macos|linux}` directories, users should cast the native handle to the appropriate platform-specific type:
+
+```cpp
+#include <nativeapi.h>
+
+using namespace nativeapi;
+
+auto& manager = WindowManager::GetInstance();
+auto window = manager.Create(options);
+
+// Get native handle
+void* native = window->GetNativeObject();
+
+// Cast to platform-specific type
+// Windows: HWND
+// macOS: NSWindow*
+// Linux: GtkWidget* (GtkWindow)
+```
+
+### Platform-Specific Usage Examples
+
+#### Windows Implementation
+```cpp
+// In Windows-specific code
+HWND hwnd = static_cast<HWND>(window->GetNativeObject());
+SetWindowLongPtr(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+```
+
+#### macOS Implementation
+```objc
+// In macOS-specific code
+NSWindow* nswindow = static_cast<NSWindow*>(window->GetNativeObject());
+[nswindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+```
+
+#### Linux Implementation
+```cpp
+// In Linux-specific code
+GtkWidget* gtkwindow = static_cast<GtkWidget*>(window->GetNativeObject());
+gtk_window_set_keep_above(GTK_WINDOW(gtkwindow), TRUE);
+```
+
+## Classes Using NativeObjectProvider
+
+The following classes inherit from NativeObjectProvider:
+
+| Class | Native Type (Windows) | Native Type (macOS) | Native Type (Linux) |
+|-------|----------------------|---------------------|---------------------|
+| [Window](mdc:src/window.h) | `HWND` | `NSWindow*` | `GtkWidget*` (GtkWindow) |
+| [Display](mdc:src/display.h) | `HMONITOR` | `NSScreen*` | `GdkDisplay*` / `GdkMonitor*` |
+| [Menu](mdc:src/menu.h) | `HMENU` | `NSMenu*` | `GtkWidget*` (GtkMenu) |
+| [MenuItem](mdc:src/menu.h) | N/A (part of HMENU) | `NSMenuItem*` | `GtkWidget*` (GtkMenuItem) |
+| [TrayIcon](mdc:src/tray_icon.h) | `HWND` (hidden window) | `NSStatusItem*` | `AppIndicator*` |
+
+## Example Use Cases
+
+### Use Case 1: Setting Custom Window Attributes
+
+```cpp
+// User wants to make window transparent (not in cross-platform API)
+auto window = manager.Create(options);
+void* native = window->GetNativeObject();
+
+// Platform-specific implementations would be in separate files:
+// - Windows: platform/windows/window_windows.cpp
+// - macOS: platform/macos/window_macos.mm  
+// - Linux: platform/linux/window_linux.cpp
+```
+
+#### Windows Implementation
+```cpp
+// In platform/windows/window_windows.cpp
+HWND hwnd = static_cast<HWND>(native);
+
+// Enable transparency using Win32 API
+SetWindowLongPtr(hwnd, GWL_EXSTYLE, 
+                 GetWindowLongPtr(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 128, LWA_ALPHA);
+```
+
+#### macOS Implementation
+```objc
+// In platform/macos/window_macos.mm
+NSWindow* nswindow = static_cast<NSWindow*>(native);
+
+// Enable transparency using Cocoa API
+[nswindow setOpaque:NO];
+[nswindow setBackgroundColor:[NSColor colorWithRed:0 green:0 blue:0 alpha:0.5]];
+```
+
+#### Linux Implementation
+```cpp
+// In platform/linux/window_linux.cpp
+GtkWidget* gtkwindow = static_cast<GtkWidget*>(native);
+
+// Enable transparency using GTK API
+gtk_widget_set_opacity(gtkwindow, 0.5);
+```
+
+### Use Case 2: Integrating with Third-Party Libraries
+
+```cpp
+// Embedding a web view that expects native window handle
+auto window = manager.Create(options);
+void* native = window->GetNativeObject();
+
+// Platform-specific implementations would be in separate files
+```
+
+#### Windows Implementation
+```cpp
+// In platform/windows/window_windows.cpp
+HWND hwnd = static_cast<HWND>(native);
+WebView2::Create(hwnd, ...);
+```
+
+#### macOS Implementation
+```objc
+// In platform/macos/window_macos.mm
+NSWindow* nswindow = static_cast<NSWindow*>(native);
+WKWebView* webview = [[WKWebView alloc] initWithFrame:[nswindow contentView].bounds];
+[[nswindow contentView] addSubview:webview];
+```
+
+#### Linux Implementation
+```cpp
+// In platform/linux/window_linux.cpp
+GtkWidget* gtkwindow = static_cast<GtkWidget*>(native);
+GtkWidget* webview = webkit_web_view_new();
+gtk_container_add(GTK_CONTAINER(gtkwindow), webview);
+```
+
+### Use Case 3: Platform-Specific Menu Customization
+
+```cpp
+auto menu = std::make_shared<Menu>();
+auto item = std::make_shared<MenuItem>("File");
+menu->AddItem(item);
+
+// Platform-specific implementations would be in separate files
+```
+
+#### macOS Implementation
+```objc
+// In platform/macos/menu_macos.mm
+NSMenu* nsmenu = static_cast<NSMenu*>(menu->GetNativeObject());
+[nsmenu setAutoenablesItems:NO];
+
+NSMenuItem* nsitem = static_cast<NSMenuItem*>(item->GetNativeObject());
+[nsitem setTarget:customTarget];
+[nsitem setAction:@selector(customAction:)];
+```
+
+### Use Case 4: Advanced Display Configuration
+
+```cpp
+auto& display_manager = DisplayManager::GetInstance();
+auto primary = display_manager.GetPrimary();
+void* native = primary.GetNativeObject();
+
+// Platform-specific implementations would be in separate files
+```
+
+#### Windows Implementation
+```cpp
+// In platform/windows/display_windows.cpp
+HMONITOR hmonitor = static_cast<HMONITOR>(native);
+
+MONITORINFOEX mi = {};
+mi.cbSize = sizeof(MONITORINFOEX);
+GetMonitorInfo(hmonitor, &mi);
+
+// Access device name for advanced configuration
+std::wcout << L"Device: " << mi.szDevice << std::endl;
+```
+
+#### macOS Implementation
+```objc
+// In platform/macos/display_macos.mm
+NSScreen* screen = static_cast<NSScreen*>(native);
+
+// Access color space information
+NSColorSpace* colorSpace = [screen colorSpace];
+std::cout << "Color space: " << [[colorSpace localizedName] UTF8String] << std::endl;
+```
+
+## Design Considerations
+
+### Why void* Instead of Templates?
+
+```cpp
+// Alternative: Template approach (NOT USED)
+template<typename TNative>
+class Window {
+    TNative GetNativeObject() const;
+};
+
+// Why we don't do this:
+// 1. Breaks ABI compatibility
+// 2. Requires platform knowledge at compile time
+// 3. Complicates cross-platform code
+// 4. Makes headers include platform-specific types
+```
+
+The `void*` approach:
+- ✅ Maintains clean cross-platform API
+- ✅ Allows casting in implementation files
+- ✅ No platform headers in public API
+- ✅ Binary compatible across platforms
+
+### Null Handling
+
+Always check for null before using native objects:
+
+```cpp
+void* native = window->GetNativeObject();
+
+if (!native) {
+    // Handle error - window may not be initialized
+    return;
+}
+
+// Platform-specific validation would be in separate implementation files
+```
+
+#### Windows Implementation
+```cpp
+// In platform/windows/window_windows.cpp
+HWND hwnd = static_cast<HWND>(native);
+if (!IsWindow(hwnd)) {
+    // Handle invalid window
+    return;
+}
+```
+
+#### macOS Implementation
+```objc
+// In platform/macos/window_macos.mm
+NSWindow* nswindow = static_cast<NSWindow*>(native);
+if (!nswindow || ![nswindow isKindOfClass:[NSWindow class]]) {
+    // Handle invalid window
+    return;
+}
+```
+
+#### Linux Implementation
+```cpp
+// In platform/linux/window_linux.cpp
+GtkWidget* gtkwindow = static_cast<GtkWidget*>(native);
+if (!GTK_IS_WINDOW(gtkwindow)) {
+    // Handle invalid window
+    return;
+}
+```
+
+### Lifetime Considerations
+
+The native object lifetime is managed by the C++ wrapper:
+
+```cpp
+auto window = manager.Create(options);
+void* native = window->GetNativeObject();
+
+// Native handle is valid as long as window is alive
+UseNativeHandle(native);  // OK
+
+// After destroying window, native handle becomes invalid
+manager.Destroy(window->GetId());
+// native is now dangling pointer - DON'T USE!
+```
+
+## Best Practices
+
+1. **Document native types** - Comment what type is returned on each platform
+2. **Validate before casting** - Check for null, platform-specific validity
+3. **Don't store native handles** - They may become invalid when wrapper is destroyed
+4. **Separate platform implementations** - Keep platform-specific code in `/platform/{windows|macos|linux}` directories
+5. **Prefer cross-platform API** - Only use native handles when absolutely necessary
+6. **Thread safety** - Native APIs may have threading restrictions
+7. **Keep it simple** - Minimize platform-specific code in user code
+
+## Documentation Example
+
+When documenting APIs that return native objects:
+
+```cpp
+/**
+ * @brief Get the native platform-specific window handle.
+ * 
+ * This method provides access to the underlying native window object
+ * for advanced use cases. The lifetime of the native object is managed
+ * by this Window instance.
+ * 
+ * @return void* pointer to native window object:
+ *         - Windows: HWND
+ *         - macOS: NSWindow*
+ *         - Linux: GtkWidget* (GtkWindow)
+ * 
+ * @warning The native handle becomes invalid when this Window is destroyed.
+ *          Do not store the handle long-term. Always check for null before use.
+ * 
+ * @example
+ * ```cpp
+ * void* native = window->GetNativeObject();
+ * 
+ * // Platform-specific implementations would be in separate files:
+ * // Windows: platform/windows/window_windows.cpp
+ * // macOS: platform/macos/window_macos.mm
+ * // Linux: platform/linux/window_linux.cpp
+ * ```
+ */
+void* GetNativeObject() const;
+```
+
+## Common Pitfalls
+
+### ❌ Don't Cast to Wrong Type
+
+```cpp
+// Bad - wrong type for platform
+// In Windows implementation file, casting to macOS type
+NSWindow* window = static_cast<NSWindow*>(native);  // Error!
+
+// Good - correct type for platform
+// In platform/windows/window_windows.cpp
+HWND hwnd = static_cast<HWND>(native);
+```
+
+### ❌ Don't Mix Platform Code
+
+```cpp
+// Bad - mixing platform APIs in same file
+HWND hwnd = static_cast<HWND>(window->GetNativeObject());
+NSWindow* nswindow = static_cast<NSWindow*>(window->GetNativeObject());  // Wrong!
+
+// Good - separate platform implementations
+// Windows: platform/windows/window_windows.cpp
+// macOS: platform/macos/window_macos.mm
+```
+
+### ❌ Don't Manage Native Lifetime Manually
+
+```cpp
+// Bad - trying to destroy native object directly
+// In platform/windows/window_windows.cpp
+HWND hwnd = static_cast<HWND>(window->GetNativeObject());
+DestroyWindow(hwnd);  // Wrapper still thinks it owns this!
+
+// Good - let wrapper manage lifetime
+manager.Destroy(window->GetId());
+```
+
+## Related Topics
+
+- See [PIMPL Pattern Rules](mdc:.cursor/rules/pimpl-pattern.mdc) for implementation hiding
+- See [Platform Implementation Rules](mdc:.cursor/rules/platform-implementation.mdc) for platform code
+- See [Project Architecture Rules](mdc:.cursor/rules/project-architecture.mdc) for overall structure

@@ -1,0 +1,337 @@
+---
+alwaysApply: true
+description: Generic event system architecture and usage patterns
+---
+
+# Generic Event System Rules
+
+This project uses a comprehensive, type-safe event system built on top of C++ templates and inheritance. Understanding this system is crucial for working with any event-driven components.
+
+## Core Architecture
+
+### Base Event Class
+
+All events inherit from [Event](mdc:src/foundation/event.h) which provides:
+
+- Automatic timestamp generation
+- Virtual `GetTypeName()` method for debugging
+- Type-safe event hierarchy
+
+### Event Emitter Pattern
+
+Classes that emit events inherit from `EventEmitter<BaseEventType>` from [event_emitter.h](mdc:src/foundation/event_emitter.h):
+
+- Provides compile-time type safety
+- Supports both synchronous and asynchronous event emission
+- Thread-safe listener management
+- Automatic background thread management for async events
+
+## Event Types
+
+Events are organized into hierarchies based on their domain. Each hierarchy has a base event class that other specific events inherit from. This provides type safety and allows listeners to register for either specific events or entire categories.
+
+## Usage Patterns
+
+### Creating Event Classes
+
+```cpp
+class MyCustomEvent : public Event {
+public:
+    MyCustomEvent(const std::string& data) : data_(data) {}
+
+    const std::string& GetData() const { return data_; }
+    std::string GetTypeName() const override { return "MyCustomEvent"; }
+
+private:
+    std::string data_;
+};
+```
+
+### Creating Event Emitters
+
+```cpp
+class MyClass : public EventEmitter<MyCustomEvent> {
+public:
+    void DoSomething() {
+        // Synchronous emission
+        Emit<MyCustomEvent>("some data");
+
+        // Asynchronous emission
+        EmitAsync<MyCustomEvent>("async data");
+    }
+};
+```
+
+### Adding Event Listeners
+
+```cpp
+// Using lambda functions
+auto listener_id = emitter.AddListener<MyCustomEvent>(
+    [](const MyCustomEvent& event) {
+        std::cout << "Received: " << event.GetData() << std::endl;
+    }
+);
+
+// Using custom listener class
+class MyListener : public EventListener<MyCustomEvent> {
+public:
+    void OnEvent(const MyCustomEvent& event) override {
+        // Handle event
+    }
+};
+
+MyListener listener;
+auto listener_id = emitter.AddListener<MyCustomEvent>(&listener);
+```
+
+### Removing Listeners
+
+```cpp
+// Remove by ID
+emitter.RemoveListener(listener_id);
+
+// Remove all listeners for specific event type
+emitter.RemoveAllListeners<MyCustomEvent>();
+
+// Remove all listeners
+emitter.RemoveAllListeners();
+```
+
+## Best Practices
+
+1. **Always inherit from appropriate base event class** - Don't inherit directly from `Event` unless creating a new event hierarchy
+2. **Use specific event types** - Prefer `EventListener<SpecificEvent>` over `EventListener<Event>` for type safety
+3. **Implement GetTypeName()** - Always override this method for debugging purposes
+4. **Use const references** - Event handlers should accept `const EventType&` parameters
+5. **Manage listener lifetimes** - Ensure listener objects remain valid while registered
+6. **Prefer async emission for heavy operations** - Use `EmitAsync` for events that might trigger expensive operations
+7. **Use RAII for listener management** - Store listener IDs and remove them in destructors
+
+## Thread Safety
+
+- Event emission is thread-safe
+- Listener registration/removal is thread-safe
+- Async event processing uses a dedicated background thread
+- Event handlers may be called from different threads depending on emission method
+
+## Common Patterns
+
+### Singleton Event Emitters
+
+Many managers (WindowManager, DisplayManager) are singletons that emit events:
+
+```cpp
+auto& manager = WindowManager::GetInstance();
+manager.AddListener<WindowCreatedEvent>([](const WindowCreatedEvent& event) {
+    // Handle window creation
+});
+```
+
+### Event Forwarding
+
+Platform-specific implementations often forward system events to the generic event system:
+
+```cpp
+void PlatformWindow::OnSystemEvent(const SystemEvent& sys_event) {
+    // Convert to generic event and emit
+    WindowEvent generic_event(sys_event.GetWindowId());
+    emitter_.Emit(generic_event);
+}
+```
+
+### Event Filtering
+
+Listeners can filter events by checking specific types:
+
+```cpp
+emitter.AddListener<WindowEvent>([](const WindowEvent& event) {
+    if (auto moved_event = dynamic_cast<const WindowMovedEvent*>(&event)) {
+        // Handle only window moved events
+    }
+});
+```
+
+### Event Listening Lifecycle Management
+
+Managers can efficiently manage platform-specific event monitoring by overriding `StartEventListening()` and `StopEventListening()` hooks. These hooks are automatically called when the first listener is added and when the last listener is removed, respectively.
+
+#### Purpose
+
+This pattern allows managers to:
+- **Lazy initialization** - Only start platform event monitoring when needed
+- **Resource efficiency** - Stop monitoring when no listeners exist
+- **Automatic management** - No manual tracking of listener count required
+
+#### Implementation Pattern
+
+```cpp
+// tray_icon.h
+class TrayIcon : public EventEmitter<TrayIconEvent>, public NativeObjectProvider {
+public:
+    TrayIcon();
+    virtual ~TrayIcon();
+    
+    // ... public API ...
+
+protected:
+    // Override these to control platform event monitoring
+    void StartEventListening() override;
+    void StopEventListening() override;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pimpl_;
+};
+
+// tray_icon.cpp
+TrayIcon::TrayIcon() : pimpl_(std::make_unique<Impl>()) {
+    // DON'T call SetupEventMonitoring() here anymore!
+    // It will be called automatically when first listener is added
+}
+
+void TrayIcon::StartEventListening() {
+    // Called automatically when first listener is added
+    pimpl_->SetupEventMonitoring();
+}
+
+void TrayIcon::StopEventListening() {
+    // Called automatically when last listener is removed
+    pimpl_->CleanupEventMonitoring();
+}
+```
+
+#### Platform Implementation Example
+
+```objc
+// platform/macos/tray_icon_macos.mm
+class TrayIcon::Impl {
+public:
+    Impl(NSStatusItem* status_item) 
+        : ns_status_item_(status_item), 
+          ns_status_bar_button_target_(nil),
+          click_handler_setup_(false) {}
+    
+    void SetupEventMonitoring() {
+        if (click_handler_setup_) {
+            return;  // Already monitoring
+        }
+        
+        if (!ns_status_item_ || !ns_status_item_.button) {
+            return;
+        }
+        
+        // Create and set up button target
+        ns_status_bar_button_target_ = [[NSStatusBarButtonTarget alloc] init];
+        
+        // Set up event handlers
+        [ns_status_item_.button setTarget:ns_status_bar_button_target_];
+        [ns_status_item_.button setAction:@selector(handleStatusItemEvent:)];
+        
+        // Enable click handling
+        [ns_status_item_.button sendActionOn:NSEventMaskLeftMouseUp | NSEventMaskRightMouseUp];
+        
+        click_handler_setup_ = true;
+    }
+    
+    void CleanupEventMonitoring() {
+        if (!click_handler_setup_) {
+            return;  // Not monitoring
+        }
+        
+        // Remove event handlers
+        if (ns_status_item_ && ns_status_item_.button) {
+            [ns_status_item_.button setTarget:nil];
+            [ns_status_item_.button setAction:nil];
+        }
+        
+        // Clean up button target
+        ns_status_bar_button_target_ = nil;
+        
+        click_handler_setup_ = false;
+    }
+
+private:
+    NSStatusItem* ns_status_item_;
+    NSStatusBarButtonTarget* ns_status_bar_button_target_;
+    bool click_handler_setup_;
+};
+```
+
+#### Usage Flow
+
+```cpp
+// Application code
+auto tray_icon = std::make_shared<TrayIcon>();
+tray_icon->SetIcon(icon);
+tray_icon->SetTooltip("My Application");
+
+// At this point, NO platform event monitoring is active
+// (saves system resources)
+
+// Add first listener - triggers StartEventListening()
+auto listener_id = tray_icon->AddListener<TrayIconClickedEvent>(
+    [](const TrayIconClickedEvent& event) {
+        std::cout << "Tray icon clicked: " << event.GetTrayIconId() << std::endl;
+    }
+);
+
+// Platform event monitoring is now ACTIVE
+
+// Add more listeners - StartEventListening() NOT called again
+auto right_click_id = tray_icon->AddListener<TrayIconRightClickedEvent>(
+    [](const TrayIconRightClickedEvent& event) {
+        std::cout << "Tray icon right clicked" << std::endl;
+    }
+);
+
+// Remove one listener - StopEventListening() NOT called (still have listeners)
+tray_icon->RemoveListener(right_click_id);
+
+// Remove last listener - triggers StopEventListening()
+tray_icon->RemoveListener(listener_id);
+
+// Platform event monitoring is now STOPPED
+// (saves system resources again)
+```
+
+#### Important Considerations
+
+1. **Mutex Held**: `StartEventListening()` and `StopEventListening()` are called while holding `listeners_mutex_`. Keep the implementation fast and avoid acquiring other locks that could cause deadlocks.
+
+2. **Default Implementation**: The default implementations are empty, so existing subclasses don't need to change unless they want to use this feature.
+
+3. **Transitional Calls**: These methods are only called on transitions (0 → 1+ listeners and 1+ → 0 listeners), not on every add/remove operation.
+
+4. **Destructor Cleanup**: If the emitter is destroyed while listeners exist, `StopEventListening()` is NOT called. Clean up resources in the destructor if needed.
+
+5. **Idempotent Operations**: Implement setup/cleanup methods to be safe to call multiple times without side effects.
+
+#### Migration from Old Pattern
+
+##### Before (Always Monitoring)
+
+```cpp
+TrayIcon::TrayIcon() : pimpl_(std::make_unique<Impl>()) {
+    SetupEventMonitoring();  // Always monitoring
+}
+
+TrayIcon::~TrayIcon() {
+    CleanupEventMonitoring();
+}
+```
+
+##### After (Lazy Monitoring)
+
+```cpp
+TrayIcon::TrayIcon() : pimpl_(std::make_unique<Impl>()) {
+    // No need to call SetupEventMonitoring()
+}
+
+void TrayIcon::StartEventListening() {
+    pimpl_->SetupEventMonitoring();  // Called when first listener added
+}
+
+void TrayIcon::StopEventListening() {
+    pimpl_->CleanupEventMonitoring();  // Called when last listener removed
+}
+```

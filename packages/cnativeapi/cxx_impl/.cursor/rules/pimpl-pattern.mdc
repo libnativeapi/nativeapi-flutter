@@ -1,0 +1,434 @@
+---
+alwaysApply: true
+description: PIMPL (Pointer to Implementation) pattern for platform-specific code
+---
+
+# PIMPL Pattern Rules
+
+The nativeapi library uses the PIMPL (Pointer to Implementation) idiom extensively to hide platform-specific implementation details from the public API. This provides binary compatibility, reduces compilation dependencies, and enables clean platform abstraction.
+
+## What is PIMPL?
+
+PIMPL separates a class's interface from its implementation by:
+1. Declaring a private nested `Impl` class in the header
+2. Storing only a pointer to the implementation
+3. Implementing platform-specific logic in the source files
+
+## Pattern Structure
+
+### Header File Pattern ([window.h](mdc:src/window.h))
+
+```cpp
+#pragma once
+#include <memory>
+
+namespace nativeapi {
+
+class Window {
+public:
+    Window();
+    Window(void* native_window);
+    virtual ~Window();
+
+    // Public interface methods
+    void Show();
+    void Hide();
+    bool IsVisible() const;
+
+private:
+    // Forward declaration only - no definition
+    class Impl;
+
+    // Pointer to implementation
+    std::unique_ptr<Impl> pimpl_;
+};
+
+}  // namespace nativeapi
+```
+
+**Key Points:**
+- Forward declare `Impl` class - don't define it in header
+- Use `std::unique_ptr<Impl>` for automatic cleanup
+- No platform-specific includes in header
+- No platform-specific types in public interface
+
+### Platform-Specific Implementation Files
+
+Each platform provides its own `Impl` definition:
+
+#### Windows Implementation ([platform/windows/window_windows.cpp](mdc:src/platform/windows))
+
+```cpp
+#include <windows.h>  // Platform includes only in .cpp
+#include "../../window.h"
+
+namespace nativeapi {
+
+// Define Impl class with platform-specific members
+class Window::Impl {
+public:
+    Impl(HWND hwnd) : hwnd_(hwnd) {}
+
+    HWND hwnd_;  // Windows-specific handle
+    // Other Windows-specific state...
+};
+
+Window::Window() : pimpl_(std::make_unique<Impl>(nullptr)) {}
+
+Window::Window(void* window)
+    : pimpl_(std::make_unique<Impl>(static_cast<HWND>(window))) {}
+
+Window::~Window() = default;  // unique_ptr handles cleanup
+
+void Window::Show() {
+    if (pimpl_->hwnd_) {
+        ShowWindow(pimpl_->hwnd_, SW_SHOW);
+    }
+}
+
+}  // namespace nativeapi
+```
+
+#### macOS Implementation ([platform/macos/window_macos.mm](mdc:src/platform/macos))
+
+```objc
+#import <Cocoa/Cocoa.h>  // Platform includes only in .mm
+#include "../../window.h"
+
+namespace nativeapi {
+
+// Define Impl class with macOS-specific members
+class Window::Impl {
+public:
+    Impl(NSWindow* window) : window_(window) {}
+
+    NSWindow* window_;  // macOS-specific handle
+    // Other macOS-specific state...
+};
+
+Window::Window() : pimpl_(std::make_unique<Impl>(nil)) {}
+
+Window::Window(void* window)
+    : pimpl_(std::make_unique<Impl>(static_cast<NSWindow*>(window))) {}
+
+Window::~Window() = default;
+
+void Window::Show() {
+    if (pimpl_->window_) {
+        [pimpl_->window_ makeKeyAndOrderFront:nil];
+    }
+}
+
+}  // namespace nativeapi
+```
+
+#### Linux Implementation ([platform/linux/window_linux.cpp](mdc:src/platform/linux))
+
+```cpp
+#include <gtk/gtk.h>  // Platform includes only in .cpp
+#include "../../window.h"
+
+namespace nativeapi {
+
+// Define Impl class with GTK-specific members
+class Window::Impl {
+public:
+    Impl(GtkWidget* window) : window_(window) {}
+
+    GtkWidget* window_;  // GTK-specific handle
+    // Other GTK-specific state...
+};
+
+Window::Window() : pimpl_(std::make_unique<Impl>(nullptr)) {}
+
+Window::Window(void* window)
+    : pimpl_(std::make_unique<Impl>(static_cast<GtkWidget*>(window))) {}
+
+Window::~Window() = default;
+
+void Window::Show() {
+    if (pimpl_->window_) {
+        gtk_widget_show(pimpl_->window_);
+    }
+}
+
+}  // namespace nativeapi
+```
+
+## Implementation Guidelines
+
+### 1. Creating a New PIMPL Class
+
+When adding a new cross-platform class:
+
+```cpp
+// my_class.h
+#pragma once
+#include <memory>
+
+namespace nativeapi {
+
+class MyClass {
+public:
+    MyClass();
+    virtual ~MyClass();
+
+    void DoSomething();
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pimpl_;
+};
+
+}  // namespace nativeapi
+```
+
+Then create implementations for each platform:
+- `src/platform/windows/my_class_windows.cpp`
+- `src/platform/macos/my_class_macos.mm`
+- `src/platform/linux/my_class_linux.cpp`
+
+### 2. Accessing Platform State
+
+Always access platform-specific members through `pimpl_`:
+
+```cpp
+// Good
+void Window::SetTitle(const std::string& title) {
+    if (pimpl_->hwnd_) {  // Access through pimpl_
+        SetWindowTextW(pimpl_->hwnd_, ...);
+    }
+}
+
+// Bad - won't compile, hwnd_ not in public interface
+void Window::SetTitle(const std::string& title) {
+    if (hwnd_) {  // Error: no member named 'hwnd_'
+        ...
+    }
+}
+```
+
+### 3. Constructor/Destructor Pattern
+
+Follow this pattern for all PIMPL classes:
+
+```cpp
+// Header
+class MyClass {
+public:
+    MyClass();
+    virtual ~MyClass();  // Virtual if used as base class
+
+    // Copy/move operations - handle appropriately
+    MyClass(const MyClass&) = delete;
+    MyClass& operator=(const MyClass&) = delete;
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pimpl_;
+};
+
+// Implementation
+MyClass::MyClass() : pimpl_(std::make_unique<Impl>()) {}
+MyClass::~MyClass() = default;  // unique_ptr handles cleanup
+```
+
+#### Constructor Delegation Pattern
+
+When a class has multiple constructors, use **delegating constructors** to avoid code duplication. The default constructor delegates to the parameterized constructor:
+
+```cpp
+// Header
+class TrayIcon {
+public:
+    TrayIcon();                  // Default constructor
+    TrayIcon(void* native_tray); // Wraps existing native object
+    virtual ~TrayIcon();
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> pimpl_;
+};
+
+// Implementation - delegate to avoid duplication
+TrayIcon::TrayIcon() : TrayIcon(nullptr) {}  // Delegate to parameterized constructor
+
+TrayIcon::TrayIcon(void* tray) {
+    // Handle both cases in one place
+    NSStatusItem* status_item = nullptr;
+
+    if (tray == nullptr) {
+        // Create new platform object
+        NSStatusBar* status_bar = [NSStatusBar systemStatusBar];
+        status_item = [status_bar statusItemWithLength:NSVariableStatusItemLength];
+    } else {
+        // Wrap existing platform object
+        status_item = (__bridge NSStatusItem*)tray;
+    }
+
+    // All initialization logic in one place
+    pimpl_ = std::make_unique<Impl>(status_item);
+
+    // Additional setup that applies to both cases
+    if (pimpl_->status_item_) {
+        // Configure the status item...
+    }
+}
+
+TrayIcon::~TrayIcon() = default;
+```
+
+**Benefits:**
+- ✅ Eliminates duplicate initialization code
+- ✅ Single source of truth for object setup
+- ✅ Easier to maintain and update
+- ✅ Prevents inconsistencies between constructors
+
+**Without Delegation (Don't do this):**
+```cpp
+// Bad - duplicated initialization logic
+TrayIcon::TrayIcon() : pimpl_(std::make_unique<Impl>()) {
+    NSStatusBar* status_bar = [NSStatusBar systemStatusBar];
+    NSStatusItem* status_item = [status_bar statusItemWithLength:NSVariableStatusItemLength];
+    pimpl_->status_item_ = status_item;
+
+    // Setup code duplicated...
+    if (pimpl_->status_item_) {
+        // Configure...
+    }
+}
+
+TrayIcon::TrayIcon(void* tray) : pimpl_(std::make_unique<Impl>()) {
+    NSStatusItem* status_item = (__bridge NSStatusItem*)tray;
+    pimpl_->status_item_ = status_item;
+
+    // Same setup code duplicated again!
+    if (pimpl_->status_item_) {
+        // Configure...
+    }
+}
+```
+
+### 4. Manager Classes with PIMPL
+
+Singleton managers also use PIMPL ([window_manager.h](mdc:src/window_manager.h)):
+
+```cpp
+class WindowManager : public EventEmitter<WindowEvent> {
+public:
+    static WindowManager& GetInstance();
+    virtual ~WindowManager();
+
+    std::shared_ptr<Window> Create(const WindowOptions& options);
+
+private:
+    WindowManager();  // Private constructor
+
+    class Impl;
+    std::unique_ptr<Impl> pimpl_;
+
+    // Public data that doesn't vary by platform
+    std::unordered_map<WindowId, std::shared_ptr<Window>> windows_;
+};
+```
+
+Platform setup and cleanup methods:
+
+```cpp
+// Header
+private:
+    void SetupEventMonitoring();
+    void CleanupEventMonitoring();
+
+// Implementation forwards to pimpl_
+WindowManager::WindowManager() : pimpl_(std::make_unique<Impl>(this)) {
+    SetupEventMonitoring();
+}
+
+void WindowManager::SetupEventMonitoring() {
+    pimpl_->SetupEventMonitoring();
+}
+```
+
+## Common Patterns
+
+### Pattern 1: Wrapping Native Objects
+
+Constructors that accept native handles ([window.h](mdc:src/window.h)):
+
+```cpp
+// Header
+class Window {
+public:
+    Window();
+    Window(void* native_window);  // Wrap existing native window
+};
+
+// Windows implementation
+Window::Window(void* window)
+    : pimpl_(std::make_unique<Impl>(static_cast<HWND>(window))) {}
+
+// macOS implementation
+Window::Window(void* window)
+    : pimpl_(std::make_unique<Impl>(static_cast<NSWindow*>(window))) {}
+```
+
+### Pattern 2: Checking for Null Native Handles
+
+Always validate before using platform handles:
+
+```cpp
+void Window::Show() {
+    if (!pimpl_->hwnd_) return;  // Or pimpl_->window_, pimpl_->gtk_window_
+
+    // Safe to use handle
+    ShowWindow(pimpl_->hwnd_, SW_SHOW);
+}
+```
+
+### Pattern 3: Returning Platform Handles
+
+Use `NativeObjectProvider` base class ([native_object_provider.h](mdc:src/foundation/native_object_provider.h)):
+
+```cpp
+// Header
+class Window : public NativeObjectProvider {
+protected:
+    void* GetNativeObjectInternal() const override;
+};
+
+// Windows implementation
+void* Window::GetNativeObjectInternal() const {
+    return static_cast<void*>(pimpl_->hwnd_);
+}
+
+// macOS implementation
+void* Window::GetNativeObjectInternal() const {
+    return static_cast<void*>(pimpl_->window_);
+}
+```
+
+## Benefits of PIMPL
+
+1. **Binary Compatibility** - Implementation changes don't affect public API
+2. **Fast Compilation** - Platform headers not included in public headers
+3. **Clean Separation** - Platform code completely separated
+4. **Type Safety** - Compiler ensures correct platform build
+5. **No Leaks** - `unique_ptr` handles cleanup automatically
+
+## Best Practices
+
+1. **Always use `std::unique_ptr<Impl>`** - Never raw pointers
+2. **Define destructor in .cpp file** - Even if `= default`, needed for unique_ptr of incomplete type
+3. **Keep public headers clean** - No platform includes, no platform types
+4. **Validate handles** - Check for null before using native handles
+5. **Use forward declarations** - Minimize includes in headers
+6. **Follow naming** - Always name inner class `Impl`, always name member `pimpl_`
+7. **Consider copy/move** - Usually delete copy, sometimes allow move
+8. **Document constructors** - Especially those taking native handles
+
+## Related Patterns
+
+- See [Native Object Provider Rules](mdc:.cursor/rules/native-object-provider.mdc) for exposing native handles
+- See [Platform Implementation Rules](mdc:.cursor/rules/platform-implementation.mdc) for platform-specific code organization
+- See [Project Architecture Rules](mdc:.cursor/rules/project-architecture.mdc) for overall structure

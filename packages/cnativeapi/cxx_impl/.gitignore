@@ -1,0 +1,19 @@
+.idea/
+.vs/
+.vscode/
+build/
+build-android/
+build-ios/
+build-linux/
+build-macos/
+build-ohos/
+build-windows/
+cmake-build-debug/
+_codeql_detected_source_root
+
+# Generated test binaries and object files
+*.o
+*_test
+callback_test
+simple_test
+event_test
