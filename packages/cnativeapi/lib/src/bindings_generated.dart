@@ -4358,6 +4358,67 @@ class CNativeApiBindings {
       _native_window_manager_call_original_hidePtr
           .asFunction<bool Function(int)>();
 
+  void native_window_manager_set_will_close_hook(
+    native_window_manager_set_will_close_hook_callback_t hook,
+    ffi.Pointer<ffi.Void> hook_user_data,
+  ) {
+    return _native_window_manager_set_will_close_hook(hook, hook_user_data);
+  }
+
+  late final _native_window_manager_set_will_close_hookPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            native_window_manager_set_will_close_hook_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_manager_set_will_close_hook');
+  late final _native_window_manager_set_will_close_hook =
+      _native_window_manager_set_will_close_hookPtr
+          .asFunction<
+            void Function(
+              native_window_manager_set_will_close_hook_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  bool native_window_manager_has_will_close_hook() {
+    return _native_window_manager_has_will_close_hook();
+  }
+
+  late final _native_window_manager_has_will_close_hookPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_manager_has_will_close_hook',
+      );
+  late final _native_window_manager_has_will_close_hook =
+      _native_window_manager_has_will_close_hookPtr
+          .asFunction<bool Function()>();
+
+  void native_window_manager_handle_will_close(int id) {
+    return _native_window_manager_handle_will_close(id);
+  }
+
+  late final _native_window_manager_handle_will_closePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_id_t)>>(
+        'native_window_manager_handle_will_close',
+      );
+  late final _native_window_manager_handle_will_close =
+      _native_window_manager_handle_will_closePtr
+          .asFunction<void Function(int)>();
+
+  bool native_window_manager_call_original_close(int id) {
+    return _native_window_manager_call_original_close(id);
+  }
+
+  late final _native_window_manager_call_original_closePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_id_t)>>(
+        'native_window_manager_call_original_close',
+      );
+  late final _native_window_manager_call_original_close =
+      _native_window_manager_call_original_closePtr
+          .asFunction<bool Function(int)>();
+
   /// Registers @p callback for every WindowEvent this WindowManager emits.
   /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
   int native_window_manager_add_listener(
@@ -5398,6 +5459,16 @@ typedef native_window_manager_set_will_hide_hook_callback_t =
 typedef native_window_manager_set_will_hide_hook_callback_tFunction =
     ffi.Void Function(ffi.UnsignedInt arg0, ffi.Pointer<ffi.Void> user_data);
 typedef Dartnative_window_manager_set_will_hide_hook_callback_tFunction =
+    void Function(int arg0, ffi.Pointer<ffi.Void> user_data);
+typedef native_window_manager_set_will_close_hook_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<
+        native_window_manager_set_will_close_hook_callback_tFunction
+      >
+    >;
+typedef native_window_manager_set_will_close_hook_callback_tFunction =
+    ffi.Void Function(ffi.UnsignedInt arg0, ffi.Pointer<ffi.Void> user_data);
+typedef Dartnative_window_manager_set_will_close_hook_callback_tFunction =
     void Function(int arg0, ffi.Pointer<ffi.Void> user_data);
 typedef native_window_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_window_event_callback_tFunction>>;

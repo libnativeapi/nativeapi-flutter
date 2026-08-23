@@ -69,12 +69,27 @@ class WindowManager {
     _bindings.native_window_manager_set_will_hide_hook(hookCallable?.nativeFunction ?? ffi.nullptr, ffi.nullptr);
   }
 
+  void setWillCloseHook(void Function(int)? hook) {
+    final hookCallable = hook == null ? null : ffi.NativeCallable<
+        ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Void>)>.isolateLocal(
+      (int arg0, ffi.Pointer<ffi.Void> _) {
+        hook(arg0);
+      },
+    );
+    if (hookCallable != null) _listeners.add(hookCallable);
+    _bindings.native_window_manager_set_will_close_hook(hookCallable?.nativeFunction ?? ffi.nullptr, ffi.nullptr);
+  }
+
   bool hasWillShowHook() {
     return _bindings.native_window_manager_has_will_show_hook();
   }
 
   bool hasWillHideHook() {
     return _bindings.native_window_manager_has_will_hide_hook();
+  }
+
+  bool hasWillCloseHook() {
+    return _bindings.native_window_manager_has_will_close_hook();
   }
 
   void handleWillShow(WindowId id) {
@@ -85,12 +100,20 @@ class WindowManager {
     _bindings.native_window_manager_handle_will_hide(id);
   }
 
+  void handleWillClose(WindowId id) {
+    _bindings.native_window_manager_handle_will_close(id);
+  }
+
   bool callOriginalShow(WindowId id) {
     return _bindings.native_window_manager_call_original_show(id);
   }
 
   bool callOriginalHide(WindowId id) {
     return _bindings.native_window_manager_call_original_hide(id);
+  }
+
+  bool callOriginalClose(WindowId id) {
+    return _bindings.native_window_manager_call_original_close(id);
   }
 
   /// Registers [callback] for every `WindowEvent` this `WindowManager` emits.
