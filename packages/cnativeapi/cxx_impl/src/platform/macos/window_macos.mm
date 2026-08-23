@@ -12,6 +12,19 @@
 // Key for associated objects (used by both window_macos.mm and window_manager_macos.mm)
 const void* kWindowIdKey = &kWindowIdKey;
 
+// NSWindow UI operations (ordering, visibility, key state) must run on the main
+// thread. Flutter calls these from the UI thread (io.flutter.ui), not the main
+// thread, so we dispatch async. The old window_manager package did the same.
+// ponytail: async means Show() returns before the window is actually visible;
+// acceptable — callers don't depend on synchronous visibility.
+static inline void RunOnMainThread(dispatch_block_t block) {
+  if ([NSThread isMainThread]) {
+    block();
+  } else {
+    dispatch_async(dispatch_get_main_queue(), block);
+  }
+}
+
 namespace nativeapi {
 
 // Private implementation class
@@ -67,11 +80,13 @@ Window::Window(void* native_window) {
 Window::~Window() {}
 
 void Window::Focus() {
-  [pimpl_->ns_window_ makeKeyAndOrderFront:nil];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ [w makeKeyAndOrderFront:nil]; });
 }
 
 void Window::Blur() {
-  [pimpl_->ns_window_ orderBack:nil];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ [w orderBack:nil]; });
 }
 
 bool Window::IsFocused() const {
@@ -79,22 +94,31 @@ bool Window::IsFocused() const {
 }
 
 void Window::Show() {
-  [pimpl_->ns_window_ setIsVisible:YES];
-  // Panels receive key focus when shown but should not activate the app.
-  if (![pimpl_->ns_window_ isKindOfClass:[NSPanel class]]) {
-    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-  }
-  [pimpl_->ns_window_ makeKeyAndOrderFront:nil];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    [w setIsVisible:YES];
+    // Panels receive key focus when shown but should not activate the app.
+    if (![w isKindOfClass:[NSPanel class]]) {
+      [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    }
+    [w makeKeyAndOrderFront:nil];
+  });
 }
 
 void Window::ShowInactive() {
-  [pimpl_->ns_window_ setIsVisible:YES];
-  [pimpl_->ns_window_ orderFrontRegardless];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    [w setIsVisible:YES];
+    [w orderFrontRegardless];
+  });
 }
 
 void Window::Hide() {
-  [pimpl_->ns_window_ setIsVisible:NO];
-  [pimpl_->ns_window_ orderOut:nil];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    [w setIsVisible:NO];
+    [w orderOut:nil];
+  });
 }
 
 bool Window::IsVisible() const {
@@ -102,15 +126,13 @@ bool Window::IsVisible() const {
 }
 
 void Window::Maximize() {
-  if (!IsMaximized()) {
-    [pimpl_->ns_window_ zoom:nil];
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ if (![w isZoomed]) [w zoom:nil]; });
 }
 
 void Window::Unmaximize() {
-  if (IsMaximized()) {
-    [pimpl_->ns_window_ zoom:nil];
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ if ([w isZoomed]) [w zoom:nil]; });
 }
 
 bool Window::IsMaximized() const {
@@ -118,15 +140,13 @@ bool Window::IsMaximized() const {
 }
 
 void Window::Minimize() {
-  if (!IsMinimized()) {
-    [pimpl_->ns_window_ miniaturize:nil];
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ if (![w isMiniaturized]) [w miniaturize:nil]; });
 }
 
 void Window::Restore() {
-  if (IsMinimized()) {
-    [pimpl_->ns_window_ deminiaturize:nil];
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ if ([w isMiniaturized]) [w deminiaturize:nil]; });
 }
 
 bool Window::IsMinimized() const {
@@ -134,15 +154,11 @@ bool Window::IsMinimized() const {
 }
 
 void Window::SetFullScreen(bool is_full_screen) {
-  if (is_full_screen) {
-    if (!IsFullScreen()) {
-      [pimpl_->ns_window_ toggleFullScreen:nil];
-    }
-  } else {
-    if (IsFullScreen()) {
-      [pimpl_->ns_window_ toggleFullScreen:nil];
-    }
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    bool fs = ([w styleMask] & NSWindowStyleMaskFullScreen) != 0;
+    if (is_full_screen != fs) [w toggleFullScreen:nil];
+  });
 }
 
 bool Window::IsFullScreen() const {
@@ -153,10 +169,10 @@ bool Window::IsFullScreen() const {
 //// Color Window::GetBackgroundColor() const;
 
 void Window::SetBounds(Rectangle bounds) {
-  // Convert from topLeft coordinate system to bottom-left (macOS default)
+  NSWindow* w = pimpl_->ns_window_;
   NSRect topLeftRect = NSMakeRect(bounds.x, bounds.y, bounds.width, bounds.height);
   NSRect nsRect = NSRectExt::bottomLeft(topLeftRect);
-  [pimpl_->ns_window_ setFrame:nsRect display:YES];
+  RunOnMainThread(^{ [w setFrame:nsRect display:YES]; });
 }
 
 Rectangle Window::GetBounds() const {
@@ -169,15 +185,18 @@ Rectangle Window::GetBounds() const {
 }
 
 void Window::SetSize(Size size, bool animate) {
-  NSRect frame = [pimpl_->ns_window_ frame];
-  frame.origin.y += (frame.size.height - size.height);
-  frame.size.width = size.width;
-  frame.size.height = size.height;
-  if (animate) {
-    [[pimpl_->ns_window_ animator] setFrame:frame display:YES animate:YES];
-  } else {
-    [pimpl_->ns_window_ setFrame:frame display:YES];
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    NSRect frame = [w frame];
+    frame.origin.y += (frame.size.height - size.height);
+    frame.size.width = size.width;
+    frame.size.height = size.height;
+    if (animate) {
+      [[w animator] setFrame:frame display:YES animate:YES];
+    } else {
+      [w setFrame:frame display:YES];
+    }
+  });
 }
 
 Size Window::GetSize() const {
@@ -338,12 +357,13 @@ bool Window::IsAlwaysOnTop() const {
 }
 
 void Window::SetPosition(Point point) {
-  // Convert from topLeft coordinate system to bottom-left (macOS default)
-  // We need the window height to correctly convert the top-left position
-  NSRect frame = [pimpl_->ns_window_ frame];
-  CGPoint topLeftPoint = {point.x, point.y};
-  NSPoint bottomLeft = NSPointExt::bottomLeftForWindow(topLeftPoint, frame.size.height);
-  [pimpl_->ns_window_ setFrameOrigin:bottomLeft];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    NSRect frame = [w frame];
+    CGPoint topLeftPoint = {point.x, point.y};
+    NSPoint bottomLeft = NSPointExt::bottomLeftForWindow(topLeftPoint, frame.size.height);
+    [w setFrameOrigin:bottomLeft];
+  });
 }
 
 Point Window::GetPosition() const {
@@ -355,8 +375,8 @@ Point Window::GetPosition() const {
 }
 
 void Window::Center() {
-  // Use NSWindow's center method which automatically centers on the main screen
-  [pimpl_->ns_window_ center];
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{ [w center]; });
 }
 
 void Window::SetTitle(std::string title) {
@@ -525,10 +545,12 @@ bool Window::IsFocusable() const {
 }
 
 void Window::StartDragging() {
-  NSWindow* window = pimpl_->ns_window_;
-  if (window.currentEvent) {
-    [window performWindowDragWithEvent:window.currentEvent];
-  }
+  NSWindow* w = pimpl_->ns_window_;
+  RunOnMainThread(^{
+    if (w.currentEvent) {
+      [w performWindowDragWithEvent:w.currentEvent];
+    }
+  });
 }
 
 void Window::StartResizing() {}
