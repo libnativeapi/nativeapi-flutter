@@ -1017,6 +1017,7 @@ pub const NATIVE_DIALOG_MODALITY_NONE: native_dialog_modality_t = 0;
 pub const NATIVE_DIALOG_MODALITY_APPLICATION: native_dialog_modality_t = 1;
 pub const NATIVE_DIALOG_MODALITY_WINDOW: native_dialog_modality_t = 2;
 pub type native_dialog_modality_t = ::std::os::raw::c_uint;
+pub type native_display_id_t = ::std::os::raw::c_uint;
 pub const NATIVE_DISPLAY_ORIENTATION_PORTRAIT: native_display_orientation_t = 0;
 pub const NATIVE_DISPLAY_ORIENTATION_LANDSCAPE: native_display_orientation_t = 90;
 pub const NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED: native_display_orientation_t = 180;
@@ -1047,31 +1048,10 @@ pub const NATIVE_DISPLAY_EVENT_TYPE_CHANGED: native_display_event_type_t = 2;
 pub type native_display_event_type_t = ::std::os::raw::c_uint;
 #[doc = " One DisplayEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct native_display_event_t {
     pub type_: native_display_event_type_t,
     pub display: native_display_t,
-    pub data: native_display_event_t__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union native_display_event_t__bindgen_ty_1 {
-    pub changed: native_display_event_t__bindgen_ty_1__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct native_display_event_t__bindgen_ty_1__bindgen_ty_1 {
-    pub old_display: native_display_t,
-    pub new_display: native_display_t,
-}
-impl Default for native_display_event_t__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 impl Default for native_display_event_t {
     fn default() -> Self {
@@ -1090,17 +1070,10 @@ pub type native_display_event_callback_t = ::std::option::Option<
 >;
 unsafe extern "C" {
     #[doc = " Creates a Display instance; release it with native_display_free()."]
-    pub fn native_display_create() -> native_display_t;
+    pub fn native_display_create(display: *mut ::std::os::raw::c_void) -> native_display_t;
 }
 unsafe extern "C" {
-    #[doc = " Creates a Display instance; release it with native_display_free()."]
-    pub fn native_display_create_with_display(
-        display: *mut ::std::os::raw::c_void,
-    ) -> native_display_t;
-}
-unsafe extern "C" {
-    #[doc = " Caller owns the returned string; free it with free_c_str()."]
-    pub fn native_display_get_id(display: native_display_t) -> *mut ::std::os::raw::c_char;
+    pub fn native_display_get_id(display: native_display_t) -> native_display_id_t;
 }
 unsafe extern "C" {
     #[doc = " Caller owns the returned string; free it with free_c_str()."]

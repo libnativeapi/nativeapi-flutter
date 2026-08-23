@@ -34,7 +34,7 @@ pub use accessibility_manager::{AccessibilityManager};
 pub use application::{ApplicationEvent, Application};
 pub use color::{Color};
 pub use dialog::{DialogModality};
-pub use display::{DisplayOrientation, DisplayEvent, Display, DisplayRef};
+pub use display::{DisplayId, DisplayOrientation, DisplayEvent, Display, DisplayRef};
 pub use display_manager::{DisplayManager};
 pub use geometry::{Point, Size, Rectangle};
 pub use image::{Image, ImageRef};

@@ -34,7 +34,7 @@ fn describe(display: &Display) {
     let position = display.position();
     let work_area = display.work_area();
 
-    println!("  ID:           {}", display.id().unwrap_or_default());
+    println!("  ID:           {}", display.id());
     println!("  Name:         {}", display.name().unwrap_or_default());
     println!("  Size:         {} x {}", size.width, size.height);
     println!("  Position:     ({}, {})", position.x, position.y);

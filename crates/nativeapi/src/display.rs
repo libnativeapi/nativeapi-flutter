@@ -8,6 +8,8 @@ use std::ffi::{CStr, CString};
 
 use crate::geometry::{Point, Rectangle, Size};
 
+pub type DisplayId = u32;
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum DisplayOrientation {
@@ -38,7 +40,7 @@ impl DisplayOrientation {
 pub enum DisplayEvent {
     Added { display: DisplayRef },
     Removed { display: DisplayRef },
-    Changed { display: DisplayRef, old_display: DisplayRef, new_display: DisplayRef },
+    Changed { display: DisplayRef },
 }
 
 impl DisplayEvent {
@@ -46,7 +48,7 @@ impl DisplayEvent {
         Some(match raw.type_ {
             cnativeapi::NATIVE_DISPLAY_EVENT_TYPE_ADDED => Self::Added { display: DisplayRef::from_raw(raw.display) },
             cnativeapi::NATIVE_DISPLAY_EVENT_TYPE_REMOVED => Self::Removed { display: DisplayRef::from_raw(raw.display) },
-            cnativeapi::NATIVE_DISPLAY_EVENT_TYPE_CHANGED => Self::Changed { display: DisplayRef::from_raw(raw.display), old_display: DisplayRef::from_raw(raw.data.changed.old_display), new_display: DisplayRef::from_raw(raw.data.changed.new_display) },
+            cnativeapi::NATIVE_DISPLAY_EVENT_TYPE_CHANGED => Self::Changed { display: DisplayRef::from_raw(raw.display) },
             _ => return None,
         })
     }
@@ -77,28 +79,15 @@ impl Display {
     }
 
     /// Creates a new `Display`; returns `None` if the native side failed.
-    pub fn new() -> Option<Self> {
+    pub fn new(display: *mut std::ffi::c_void) -> Option<Self> {
         unsafe {
-            Self::from_raw(cnativeapi::native_display_create())
+            Self::from_raw(cnativeapi::native_display_create(display))
         }
     }
 
-    /// Creates a new `Display`; returns `None` if the native side failed.
-    pub fn with_display(display: *mut std::ffi::c_void) -> Option<Self> {
+    pub fn id(&self) -> DisplayId {
         unsafe {
-            Self::from_raw(cnativeapi::native_display_create_with_display(display))
-        }
-    }
-
-    pub fn id(&self) -> Option<String> {
-        unsafe {
-            let ptr = cnativeapi::native_display_get_id(self.handle);
-            if ptr.is_null() {
-                return None;
-            }
-            let value = CStr::from_ptr(ptr).to_string_lossy().into_owned();
-            cnativeapi::free_c_str(ptr);
-            Some(value)
+            cnativeapi::native_display_get_id(self.handle)
         }
     }
 
