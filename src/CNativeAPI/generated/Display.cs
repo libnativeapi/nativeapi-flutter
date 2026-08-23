@@ -13,20 +13,6 @@ public struct native_display_event_t
 {
     public int type;
     public ulong display;
-    public DataUnion data;
-
-    [StructLayout(LayoutKind.Explicit)]
-    public struct DataUnion
-    {
-        [FieldOffset(0)] public ChangedData changed;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct ChangedData
-    {
-        public ulong old_display;
-        public ulong new_display;
-    }
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -44,9 +30,6 @@ public static partial class Interop
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool native_display_is_primary(ulong self);
-
-    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr native_display_get_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr native_display_get_name(ulong self);
@@ -76,10 +59,10 @@ public static partial class Interop
     public static extern native_size_t native_display_get_size(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_display_create();
+    public static extern uint native_display_get_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_display_create_with_display(IntPtr display);
+    public static extern ulong native_display_create(IntPtr display);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_display_free(ulong handle);

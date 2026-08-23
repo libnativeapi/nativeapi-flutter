@@ -24,7 +24,7 @@ public abstract record DisplayEvent
 
     public sealed record Added(Display Display) : DisplayEvent;
     public sealed record Removed(Display Display) : DisplayEvent;
-    public sealed record Changed(Display Display, Display OldDisplay, Display NewDisplay) : DisplayEvent;
+    public sealed record Changed(Display Display) : DisplayEvent;
 
     internal static DisplayEvent? FromRaw(in native_display_event_t raw)
     {
@@ -32,7 +32,7 @@ public abstract record DisplayEvent
         {
             case 0: return new Added(new Display(raw.display, ownsHandle: false));
             case 1: return new Removed(new Display(raw.display, ownsHandle: false));
-            case 2: return new Changed(new Display(raw.display, ownsHandle: false), new Display(raw.data.changed.old_display, ownsHandle: false), new Display(raw.data.changed.new_display, ownsHandle: false));
+            case 2: return new Changed(new Display(raw.display, ownsHandle: false));
             default: return null;
         }
     }
@@ -68,25 +68,18 @@ public sealed partial class Display : IDisposable
     }
 
     /// <summary>Creates a new Display; returns null if the native side failed.</summary>
-    public static Display? Create()
+    public static Display? Create(IntPtr display)
     {
-        var handle = Interop.native_display_create();
+        var handle = Interop.native_display_create(display);
         return handle == 0 ? null : new Display(handle);
     }
 
-    /// <summary>Creates a new Display; returns null if the native side failed.</summary>
-    public static Display? CreateWithDisplay(IntPtr display)
-    {
-        var handle = Interop.native_display_create_with_display(display);
-        return handle == 0 ? null : new Display(handle);
-    }
-
-    public string? Id
+    public uint Id
     {
         get
         {
             var rawResult = Interop.native_display_get_id(NativeHandle);
-            return Interop.ConsumeString(rawResult);
+            return rawResult;
         }
     }
 
