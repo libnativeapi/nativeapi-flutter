@@ -1,3 +1,14 @@
+## 0.2.0
+
+* Regenerate the complete C bindings from the new code generator
+* Unify the object identity/lifecycle model with a generational handle table
+* Fix tray icon bounds on multi-display setups (macOS)
+* Fix macOS global shortcuts never firing
+* Rewrite EventEmitter locking and dispatch; add a main-thread dispatcher
+* Add `UrlOpener` CanOpen support
+* Require C++17 and propagate the requirement to consumers
+* Remove the obsolete Python bindgen tooling
+
 ## 0.1.4
 
 * Fix macOS menu item disabled state not being respected

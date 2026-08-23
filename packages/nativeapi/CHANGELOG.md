@@ -1,3 +1,14 @@
+## 0.2.0
+
+* **Breaking:** regenerate the Dart API from the new code generator; the object identity/lifecycle model is unified and many signatures changed
+* **Breaking:** rework the event system — `EventEmitter` and the separate `WindowEvent`/`MenuEvent`/`TrayIconEvent` classes are replaced by typed event listeners on each object
+* Add `Application` API
+* Add `KeyboardMonitor` API
+* Add `Shortcut` and `ShortcutManager` APIs for global shortcuts
+* Add `ImageAsset` widget helper
+* Fix tray icon bounds on multi-display setups (macOS)
+* Fix macOS global shortcuts never firing
+
 ## 0.1.4
 
 * Fix macOS menu item disabled state not being respected
