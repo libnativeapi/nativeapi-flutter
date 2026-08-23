@@ -45,11 +45,19 @@ void WindowManager::SetWillHideHook(std::optional<WindowWillHideHook> hook) {
   // Empty implementation
 }
 
+void WindowManager::SetWillCloseHook(std::optional<WindowWillCloseHook> hook) {
+  // Empty implementation — iOS has no desktop window close to intercept
+}
+
 bool WindowManager::HasWillShowHook() const {
   return false;
 }
 
 bool WindowManager::HasWillHideHook() const {
+  return false;
+}
+
+bool WindowManager::HasWillCloseHook() const {
   return false;
 }
 
@@ -61,6 +69,10 @@ void WindowManager::HandleWillHide(WindowId id) {
   // Empty implementation
 }
 
+void WindowManager::HandleWillClose(WindowId id) {
+  // Empty implementation
+}
+
 bool WindowManager::CallOriginalShow(WindowId id) {
   // iOS doesn't support swizzling for window show/hide
   // Return false to indicate unsupported
@@ -69,6 +81,12 @@ bool WindowManager::CallOriginalShow(WindowId id) {
 
 bool WindowManager::CallOriginalHide(WindowId id) {
   // iOS doesn't support swizzling for window show/hide
+  // Return false to indicate unsupported
+  return false;
+}
+
+bool WindowManager::CallOriginalClose(WindowId id) {
+  // iOS doesn't support swizzling for window close
   // Return false to indicate unsupported
   return false;
 }
