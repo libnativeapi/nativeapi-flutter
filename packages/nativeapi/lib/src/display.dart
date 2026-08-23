@@ -13,6 +13,8 @@ import 'foundation/geometry.dart';
 
 final _bindings = c.cnativeApiBindings;
 
+typedef DisplayId = int;
+
 enum DisplayOrientation {
   portrait(0),
   landscape(90),
@@ -47,7 +49,7 @@ sealed class DisplayEvent {
       return DisplayRemovedEvent(display: Display.borrowed(raw.display));
     }
     if (raw.type == c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_CHANGED.value) {
-      return DisplayChangedEvent(display: Display.borrowed(raw.display), oldDisplay: Display.borrowed(raw.data.changed.old_display), newDisplay: Display.borrowed(raw.data.changed.new_display));
+      return DisplayChangedEvent(display: Display.borrowed(raw.display));
     }
     return null;
   }
@@ -66,11 +68,9 @@ final class DisplayRemovedEvent extends DisplayEvent {
 }
 
 final class DisplayChangedEvent extends DisplayEvent {
-  const DisplayChangedEvent({required this.display, required this.oldDisplay, required this.newDisplay, });
+  const DisplayChangedEvent({required this.display, });
 
   final Display display;
-  final Display oldDisplay;
-  final Display newDisplay;
 }
 
 class Display {
@@ -97,25 +97,14 @@ class Display {
   }
 
   /// Creates a new `Display`; returns null if the native side failed.
-  static Display? create() {
-    final handle = _bindings.native_display_create();
+  static Display? create(ffi.Pointer<ffi.Void> display) {
+    final handle = _bindings.native_display_create(display);
     if (handle == 0) return null;
     return Display.fromHandle(handle);
   }
 
-  /// Creates a new `Display`; returns null if the native side failed.
-  static Display? createWithDisplay(ffi.Pointer<ffi.Void> display) {
-    final handle = _bindings.native_display_create_with_display(display);
-    if (handle == 0) return null;
-    return Display.fromHandle(handle);
-  }
-
-  String? get id {
-    final resultPointer = _bindings.native_display_get_id(nativeHandle);
-    if (resultPointer == ffi.nullptr) return null;
-    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
-    return result;
+  DisplayId get id {
+    return _bindings.native_display_get_id(nativeHandle);
   }
 
   String? get name {

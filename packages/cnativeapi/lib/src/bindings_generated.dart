@@ -2137,41 +2137,27 @@ class CNativeApiBindings {
       _native_application_remove_listenerPtr.asFunction<bool Function(int)>();
 
   /// Creates a Display instance; release it with native_display_free().
-  int native_display_create() {
-    return _native_display_create();
+  int native_display_create(ffi.Pointer<ffi.Void> display) {
+    return _native_display_create(display);
   }
 
   late final _native_display_createPtr =
-      _lookup<ffi.NativeFunction<native_display_t Function()>>(
-        'native_display_create',
-      );
-  late final _native_display_create = _native_display_createPtr
-      .asFunction<int Function()>();
-
-  /// Creates a Display instance; release it with native_display_free().
-  int native_display_create_with_display(ffi.Pointer<ffi.Void> display) {
-    return _native_display_create_with_display(display);
-  }
-
-  late final _native_display_create_with_displayPtr =
       _lookup<
         ffi.NativeFunction<native_display_t Function(ffi.Pointer<ffi.Void>)>
-      >('native_display_create_with_display');
-  late final _native_display_create_with_display =
-      _native_display_create_with_displayPtr
-          .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
+      >('native_display_create');
+  late final _native_display_create = _native_display_createPtr
+      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  /// Caller owns the returned string; free it with free_c_str().
-  ffi.Pointer<ffi.Char> native_display_get_id(int display) {
+  int native_display_get_id(int display) {
     return _native_display_get_id(display);
   }
 
   late final _native_display_get_idPtr =
       _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
+        ffi.NativeFunction<native_display_id_t Function(native_display_t)>
       >('native_display_get_id');
   late final _native_display_get_id = _native_display_get_idPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+      .asFunction<int Function(int)>();
 
   /// Caller owns the returned string; free it with free_c_str().
   ffi.Pointer<ffi.Char> native_display_get_name(int display) {
@@ -5015,22 +5001,10 @@ final class native_display_event_t extends ffi.Struct {
 
   @native_display_t()
   external int display;
-
-  external UnnamedUnion5 data;
 }
 
-final class UnnamedUnion5 extends ffi.Union {
-  external UnnamedStruct10 changed;
-}
-
-final class UnnamedStruct10 extends ffi.Struct {
-  @native_display_t()
-  external int old_display;
-
-  @native_display_t()
-  external int new_display;
-}
-
+typedef native_display_id_t = ffi.UnsignedInt;
+typedef Dartnative_display_id_t = int;
 typedef native_display_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_display_event_callback_tFunction>>;
 typedef native_display_event_callback_tFunction =
@@ -5214,17 +5188,17 @@ final class native_shortcut_event_t extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> accelerator;
 
-  external UnnamedUnion6 data;
+  external UnnamedUnion5 data;
 }
 
 typedef native_shortcut_id_t = ffi.UnsignedInt;
 typedef Dartnative_shortcut_id_t = int;
 
-final class UnnamedUnion6 extends ffi.Union {
-  external UnnamedStruct11 registration_failed;
+final class UnnamedUnion5 extends ffi.Union {
+  external UnnamedStruct10 registration_failed;
 }
 
-final class UnnamedStruct11 extends ffi.Struct {
+final class UnnamedStruct10 extends ffi.Struct {
   external ffi.Pointer<ffi.Char> error_message;
 }
 
@@ -5329,18 +5303,18 @@ final class native_tray_icon_event_t extends ffi.Struct {
   @ffi.UnsignedInt()
   external int type;
 
-  external UnnamedUnion7 data;
+  external UnnamedUnion6 data;
 }
 
-final class UnnamedUnion7 extends ffi.Union {
-  external UnnamedStruct12 clicked;
+final class UnnamedUnion6 extends ffi.Union {
+  external UnnamedStruct11 clicked;
 
-  external UnnamedStruct13 right_clicked;
+  external UnnamedStruct12 right_clicked;
 
-  external UnnamedStruct14 double_clicked;
+  external UnnamedStruct13 double_clicked;
 }
 
-final class UnnamedStruct12 extends ffi.Struct {
+final class UnnamedStruct11 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
@@ -5348,12 +5322,12 @@ final class UnnamedStruct12 extends ffi.Struct {
 typedef native_tray_icon_id_t = ffi.UnsignedInt;
 typedef Dartnative_tray_icon_id_t = int;
 
-final class UnnamedStruct13 extends ffi.Struct {
+final class UnnamedStruct12 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
 
-final class UnnamedStruct14 extends ffi.Struct {
+final class UnnamedStruct13 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
