@@ -2,7 +2,9 @@
 // Any manual changes WILL BE LOST when this file is regenerated.
 
 export 'accessibility_manager.dart';
+export 'app_info.dart';
 export 'application.dart';
+export 'device_info.dart';
 export 'dialog.dart';
 export 'display.dart';
 export 'display_manager.dart';

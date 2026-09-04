@@ -46,6 +46,56 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_name() {
+    return _native_app_info_get_name();
+  }
+
+  late final _native_app_info_get_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_name',
+      );
+  late final _native_app_info_get_name = _native_app_info_get_namePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_identifier() {
+    return _native_app_info_get_identifier();
+  }
+
+  late final _native_app_info_get_identifierPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_identifier',
+      );
+  late final _native_app_info_get_identifier =
+      _native_app_info_get_identifierPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_version() {
+    return _native_app_info_get_version();
+  }
+
+  late final _native_app_info_get_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_version',
+      );
+  late final _native_app_info_get_version = _native_app_info_get_versionPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_build_number() {
+    return _native_app_info_get_build_number();
+  }
+
+  late final _native_app_info_get_build_numberPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_build_number',
+      );
+  late final _native_app_info_get_build_number =
+      _native_app_info_get_build_numberPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
   /// Caller owns the returned handle; release it with native_image_free().
   int native_image_from_file(ffi.Pointer<ffi.Char> file_path) {
     return _native_image_from_file(file_path);
@@ -2135,6 +2185,95 @@ class CNativeApiBindings {
       );
   late final _native_application_remove_listener =
       _native_application_remove_listenerPtr.asFunction<bool Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_name() {
+    return _native_device_info_get_name();
+  }
+
+  late final _native_device_info_get_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_name',
+      );
+  late final _native_device_info_get_name = _native_device_info_get_namePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_model() {
+    return _native_device_info_get_model();
+  }
+
+  late final _native_device_info_get_modelPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_model',
+      );
+  late final _native_device_info_get_model = _native_device_info_get_modelPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_manufacturer() {
+    return _native_device_info_get_manufacturer();
+  }
+
+  late final _native_device_info_get_manufacturerPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_manufacturer',
+      );
+  late final _native_device_info_get_manufacturer =
+      _native_device_info_get_manufacturerPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_os_name() {
+    return _native_device_info_get_os_name();
+  }
+
+  late final _native_device_info_get_os_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_os_name',
+      );
+  late final _native_device_info_get_os_name =
+      _native_device_info_get_os_namePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_os_version() {
+    return _native_device_info_get_os_version();
+  }
+
+  late final _native_device_info_get_os_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_os_version',
+      );
+  late final _native_device_info_get_os_version =
+      _native_device_info_get_os_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_kernel_version() {
+    return _native_device_info_get_kernel_version();
+  }
+
+  late final _native_device_info_get_kernel_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_kernel_version',
+      );
+  late final _native_device_info_get_kernel_version =
+      _native_device_info_get_kernel_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_architecture() {
+    return _native_device_info_get_architecture();
+  }
+
+  late final _native_device_info_get_architecturePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_architecture',
+      );
+  late final _native_device_info_get_architecture =
+      _native_device_info_get_architecturePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Creates a Display instance; release it with native_display_free().
   int native_display_create(ffi.Pointer<ffi.Void> display) {

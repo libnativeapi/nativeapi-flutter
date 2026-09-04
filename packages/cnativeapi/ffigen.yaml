@@ -9,9 +9,11 @@ output: "lib/src/bindings_generated.dart"
 headers:
   entry-points:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
+    - "cxx_impl/src/capi/app_info_c.h"
     - "cxx_impl/src/capi/application_c.h"
     - "cxx_impl/src/capi/color_c.h"
     - "cxx_impl/src/capi/common_c.h"
+    - "cxx_impl/src/capi/device_info_c.h"
     - "cxx_impl/src/capi/dialog_c.h"
     - "cxx_impl/src/capi/display_c.h"
     - "cxx_impl/src/capi/display_manager_c.h"
@@ -37,9 +39,11 @@ headers:
 
   include-directives:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
+    - "cxx_impl/src/capi/app_info_c.h"
     - "cxx_impl/src/capi/application_c.h"
     - "cxx_impl/src/capi/color_c.h"
     - "cxx_impl/src/capi/common_c.h"
+    - "cxx_impl/src/capi/device_info_c.h"
     - "cxx_impl/src/capi/dialog_c.h"
     - "cxx_impl/src/capi/display_c.h"
     - "cxx_impl/src/capi/display_manager_c.h"

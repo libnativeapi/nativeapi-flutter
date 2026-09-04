@@ -3,7 +3,9 @@
 #ifdef __cplusplus
 // C++ API headers
 #include "../../../../../cxx_impl/src/accessibility_manager.h"
+#include "../../../../../cxx_impl/src/app_info.h"
 #include "../../../../../cxx_impl/src/application.h"
+#include "../../../../../cxx_impl/src/device_info.h"
 #include "../../../../../cxx_impl/src/dialog.h"
 #include "../../../../../cxx_impl/src/display.h"
 #include "../../../../../cxx_impl/src/display_manager.h"
@@ -41,9 +43,11 @@
 
 // C API headers (available for both C and C++)
 #include "../../../../../cxx_impl/src/capi/accessibility_manager_c.h"
+#include "../../../../../cxx_impl/src/capi/app_info_c.h"
 #include "../../../../../cxx_impl/src/capi/application_c.h"
 #include "../../../../../cxx_impl/src/capi/color_c.h"
 #include "../../../../../cxx_impl/src/capi/common_c.h"
+#include "../../../../../cxx_impl/src/capi/device_info_c.h"
 #include "../../../../../cxx_impl/src/capi/dialog_c.h"
 #include "../../../../../cxx_impl/src/capi/display_c.h"
 #include "../../../../../cxx_impl/src/capi/display_manager_c.h"
