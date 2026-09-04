@@ -4,8 +4,10 @@
 // Pulled into lib.rs with `include!("modules.rs");`.
 
 pub mod accessibility_manager;
+pub mod app_info;
 pub mod application;
 pub mod color;
+pub mod device_info;
 pub mod dialog;
 pub mod display;
 pub mod display_manager;
@@ -31,8 +33,10 @@ pub mod window_manager;
 // Flat re-exports, so `use nativeapi::Display;` works alongside
 // `use nativeapi::display::Display;`.
 pub use accessibility_manager::{AccessibilityManager};
+pub use app_info::{AppInfo};
 pub use application::{ApplicationEvent, Application};
 pub use color::{Color};
+pub use device_info::{DeviceInfo};
 pub use dialog::{DialogModality};
 pub use display::{DisplayId, DisplayOrientation, DisplayEvent, Display, DisplayRef};
 pub use display_manager::{DisplayManager};

@@ -12,6 +12,22 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn native_accessibility_manager_is_enabled() -> bool;
 }
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_app_info_get_name() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_app_info_get_identifier() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_app_info_get_version() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_app_info_get_build_number() -> *mut ::std::os::raw::c_char;
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct native_point_t {
@@ -1012,6 +1028,34 @@ unsafe extern "C" {
 unsafe extern "C" {
     #[doc = " Unregisters a listener. Returns false if unknown."]
     pub fn native_application_remove_listener(listener_id: native_listener_id_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_name() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_model() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_manufacturer() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_os_name() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_os_version() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_kernel_version() -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_device_info_get_architecture() -> *mut ::std::os::raw::c_char;
 }
 pub const NATIVE_DIALOG_MODALITY_NONE: native_dialog_modality_t = 0;
 pub const NATIVE_DIALOG_MODALITY_APPLICATION: native_dialog_modality_t = 1;
