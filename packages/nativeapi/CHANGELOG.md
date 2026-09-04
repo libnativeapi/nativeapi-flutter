@@ -1,3 +1,7 @@
+## 0.2.2
+
+* Fix macOS build failure in 0.2.1 coming from `cnativeapi` — see its changelog
+
 ## 0.2.1
 
 * Add `AppInfo` API for the running app's name, identifier, version and build number

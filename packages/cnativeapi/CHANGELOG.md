@@ -1,3 +1,9 @@
+## 0.2.2
+
+* Fix macOS build failure in 0.2.1: `redefinition of 'ToStdString'`. The macOS unity
+  build compiles every platform `.mm` into one translation unit, and `app_info`,
+  `device_info` and `launch_at_login` each defined that helper privately
+
 ## 0.2.1
 
 * Update `cxx_impl` to core 5a5afc7
