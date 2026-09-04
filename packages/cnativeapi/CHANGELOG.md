@@ -1,3 +1,10 @@
+## 0.2.1
+
+* Update `cxx_impl` to core 5a5afc7
+* Add `AppInfo` C bindings (name, identifier, version, build number)
+* Add `DeviceInfo` C bindings (name, model, manufacturer, OS, kernel, architecture)
+* Fix window focused/blurred events never being dispatched on macOS, Windows and Linux
+
 ## 0.2.0
 
 * Regenerate the complete C bindings from the new code generator

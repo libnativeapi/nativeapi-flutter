@@ -1,3 +1,10 @@
+## 0.2.1
+
+* Add `AppInfo` API for the running app's name, identifier, version and build number
+* Add `DeviceInfo` API for the machine's name, model, manufacturer, OS, kernel and architecture
+* Fix `WindowFocusedEvent` and `WindowBlurredEvent` never firing — the native layer
+  dispatched no window events at all, so `WindowManager.addListener` was silent
+
 ## 0.2.0
 
 * **Breaking:** regenerate the Dart API from the new code generator; the object identity/lifecycle model is unified and many signatures changed
