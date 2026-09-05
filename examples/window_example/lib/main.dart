@@ -264,8 +264,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                       w.minimize();
                     } catch (_) {}
                   }
-                  _addLog('Action: minimize all windows',
-                      color: Colors.orange);
+                  _addLog('Action: minimize all windows', color: Colors.orange);
                   _showFeedback('Minimized all windows');
                 case 'restore_all':
                   for (final w in _windows) {
@@ -273,8 +272,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                       w.restore();
                     } catch (_) {}
                   }
-                  _addLog('Action: restore all windows',
-                      color: Colors.teal);
+                  _addLog('Action: restore all windows', color: Colors.teal);
                   _showFeedback('Restored all windows');
                 case 'show_all':
                   for (final w in _windows) {
@@ -282,8 +280,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                       w.show();
                     } catch (_) {}
                   }
-                  _addLog('Action: show all windows',
-                      color: Colors.green);
+                  _addLog('Action: show all windows', color: Colors.green);
                   _showFeedback('Showed all windows');
                 case 'hide_all':
                   for (final w in _windows) {
@@ -291,8 +288,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                       w.hide();
                     } catch (_) {}
                   }
-                  _addLog('Action: hide all windows',
-                      color: Colors.grey);
+                  _addLog('Action: hide all windows', color: Colors.grey);
                   _showFeedback('Hidden all windows');
               }
             },
@@ -432,11 +428,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
             backgroundColor: _feedbackColor.withValues(alpha: 0.12),
             content: Row(
               children: [
-                Icon(
-                  Icons.check_circle,
-                  size: 20,
-                  color: _feedbackColor,
-                ),
+                Icon(Icons.check_circle, size: 20, color: _feedbackColor),
                 const SizedBox(width: 8),
                 Text(
                   _actionFeedback!,
@@ -539,7 +531,9 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        (window.title?.isNotEmpty ?? false) ? window.title! : 'Untitled',
+                        (window.title?.isNotEmpty ?? false)
+                            ? window.title!
+                            : 'Untitled',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -556,12 +550,21 @@ class _WindowManagerPageState extends State<WindowManagerPage>
         const SizedBox(height: 8),
         // Geometry
         _infoCard('Geometry', [
-          _infoRow(Icons.aspect_ratio, 'Size',
-              '${bounds.width.toInt()} × ${bounds.height.toInt()}'),
-          _infoRow(Icons.place, 'Position',
-              '(${bounds.left.toInt()}, ${bounds.top.toInt()})'),
-          _infoRow(Icons.crop_free, 'Content',
-              '${contentBounds.width.toInt()} × ${contentBounds.height.toInt()}'),
+          _infoRow(
+            Icons.aspect_ratio,
+            'Size',
+            '${bounds.width.toInt()} × ${bounds.height.toInt()}',
+          ),
+          _infoRow(
+            Icons.place,
+            'Position',
+            '(${bounds.left.toInt()}, ${bounds.top.toInt()})',
+          ),
+          _infoRow(
+            Icons.crop_free,
+            'Content',
+            '${contentBounds.width.toInt()} × ${contentBounds.height.toInt()}',
+          ),
         ], theme),
         const SizedBox(height: 8),
         // State badges
@@ -590,9 +593,12 @@ class _WindowManagerPageState extends State<WindowManagerPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Quick Actions',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  'Quick Actions',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -603,8 +609,10 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                         window.isMaximized,
                         () {
                           window.maximize();
-                          _addLog('Action: maximize #${window.id}',
-                              color: Colors.purple);
+                          _addLog(
+                            'Action: maximize #${window.id}',
+                            color: Colors.purple,
+                          );
                         },
                         Colors.purple,
                       ),
@@ -617,8 +625,10 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                         window.isMinimized,
                         () {
                           window.minimize();
-                          _addLog('Action: minimize #${window.id}',
-                              color: Colors.orange);
+                          _addLog(
+                            'Action: minimize #${window.id}',
+                            color: Colors.orange,
+                          );
                         },
                         Colors.orange,
                       ),
@@ -635,8 +645,10 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                         false,
                         () {
                           window.restore();
-                          _addLog('Action: restore #${window.id}',
-                              color: Colors.teal);
+                          _addLog(
+                            'Action: restore #${window.id}',
+                            color: Colors.teal,
+                          );
                         },
                         Colors.teal,
                       ),
@@ -649,8 +661,10 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                         !window.isVisible,
                         () {
                           window.hide();
-                          _addLog('Action: hide #${window.id}',
-                              color: Colors.orange);
+                          _addLog(
+                            'Action: hide #${window.id}',
+                            color: Colors.orange,
+                          );
                         },
                         Colors.orange,
                       ),
@@ -681,9 +695,12 @@ class _WindowManagerPageState extends State<WindowManagerPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const Divider(),
             ...rows,
           ],
@@ -701,12 +718,16 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           const SizedBox(width: 8),
           SizedBox(
             width: 72,
-            child: Text(label,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           Expanded(
-            child: SelectableText(value,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+            child: SelectableText(
+              value,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+            ),
           ),
         ],
       ),
@@ -722,7 +743,11 @@ class _WindowManagerPageState extends State<WindowManagerPage>
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
       ),
     );
   }
@@ -731,10 +756,14 @@ class _WindowManagerPageState extends State<WindowManagerPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: active ? color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
+        color: active
+            ? color.withValues(alpha: 0.15)
+            : Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: active ? color.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.3),
+          color: active
+              ? color.withValues(alpha: 0.5)
+              : Colors.grey.withValues(alpha: 0.3),
         ),
       ),
       child: Text(
@@ -927,7 +956,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                   : 'Hide Title Bar',
               Icons.title,
               () {
-                window.titleBarStyle = window.titleBarStyle == TitleBarStyle.hidden
+                window.titleBarStyle =
+                    window.titleBarStyle == TitleBarStyle.hidden
                     ? TitleBarStyle.normal
                     : TitleBarStyle.hidden;
                 _showFeedback(
@@ -945,31 +975,22 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                 );
               },
             ),
-            _toggleBtn(
-              'Always on Top',
-              window.isAlwaysOnTop,
-              (v) {
-                window.isAlwaysOnTop = v;
-                _showFeedback('Always on top: ${v ? 'ON' : 'OFF'}');
-              },
-            ),
+            _toggleBtn('Always on Top', window.isAlwaysOnTop, (v) {
+              window.isAlwaysOnTop = v;
+              _showFeedback('Always on top: ${v ? 'ON' : 'OFF'}');
+            }),
             // Opacity slider
-            _labeledSlider(
-              'Opacity',
-              window.opacity,
-              0.1,
-              1.0,
-              (v) {
-                window.opacity = v;
-                _showFeedback('Opacity: ${v.toStringAsFixed(2)}');
-              },
-            ),
+            _labeledSlider('Opacity', window.opacity, 0.1, 1.0, (v) {
+              window.opacity = v;
+              _showFeedback('Opacity: ${v.toStringAsFixed(2)}');
+            }),
           ]),
 
           // --- Visual Effects ---
           _group('Visual Effects', Icons.blur_on, [
             ...VisualEffect.values.map((effect) {
-              final label = effect.name[0].toUpperCase() + effect.name.substring(1);
+              final label =
+                  effect.name[0].toUpperCase() + effect.name.substring(1);
               return _actionBtn(
                 label,
                 effect == VisualEffect.none
@@ -1139,8 +1160,9 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               const SizedBox(width: 8),
               Text(
                 'Event Log (${_eventLog.length})',
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const Spacer(),
               TextButton.icon(
@@ -1213,8 +1235,9 @@ class _WindowManagerPageState extends State<WindowManagerPage>
         const SizedBox(width: 8),
         Text(
           text,
-          style: theme.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -1236,18 +1259,15 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                   const SizedBox(width: 8),
                   Text(
                     title,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               if (children.length <= 4)
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: children,
-                )
+                Wrap(spacing: 6, runSpacing: 6, children: children)
               else
                 ...children,
             ],
@@ -1292,18 +1312,12 @@ class _WindowManagerPageState extends State<WindowManagerPage>
     );
   }
 
-  Widget _toggleBtn(
-    String label,
-    bool value,
-    void Function(bool) onChanged,
-  ) {
+  Widget _toggleBtn(String label, bool value, void Function(bool) onChanged) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Expanded(
-            child: Text(label, style: const TextStyle(fontSize: 13)),
-          ),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
           Switch(
             value: value,
             onChanged: (v) {
@@ -1445,14 +1459,18 @@ class _WindowCanvasState extends State<WindowCanvas> {
   }
 
   void _zoomIn() {
-    final s = (_transformationController.value.getMaxScaleOnAxis() * 1.3)
-        .clamp(0.5, 5.0);
+    final s = (_transformationController.value.getMaxScaleOnAxis() * 1.3).clamp(
+      0.5,
+      5.0,
+    );
     _transformationController.value = Matrix4.diagonal3Values(s, s, 1);
   }
 
   void _zoomOut() {
-    final s = (_transformationController.value.getMaxScaleOnAxis() / 1.3)
-        .clamp(0.5, 5.0);
+    final s = (_transformationController.value.getMaxScaleOnAxis() / 1.3).clamp(
+      0.5,
+      5.0,
+    );
     _transformationController.value = Matrix4.diagonal3Values(s, s, 1);
   }
 
@@ -1507,10 +1525,11 @@ class _WindowCanvasState extends State<WindowCanvas> {
               right: 8,
               child: Container(
                 decoration: BoxDecoration(
-                  color: (theme.brightness == Brightness.dark
-                          ? Colors.grey[800]
-                          : Colors.white)
-                      ?.withValues(alpha: 0.95),
+                  color:
+                      (theme.brightness == Brightness.dark
+                              ? Colors.grey[800]
+                              : Colors.white)
+                          ?.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
@@ -1551,8 +1570,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
               bottom: 8,
               left: 8,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(4),
@@ -1589,10 +1607,8 @@ class _WindowCanvasState extends State<WindowCanvas> {
       child: Stack(
         children: [
           if (widget.displays.isNotEmpty)
-            ...widget.displays
-                .map((d) => _buildDisplay(d, bounds, scale)),
-          ...widget.windows
-              .map((w) => _buildWindow(w, bounds, scale)),
+            ...widget.displays.map((d) => _buildDisplay(d, bounds, scale)),
+          ...widget.windows.map((w) => _buildWindow(w, bounds, scale)),
         ],
       ),
     );
@@ -1628,7 +1644,11 @@ class _WindowCanvasState extends State<WindowCanvas> {
     if (minX == double.infinity) return Rect.zero;
     const pad = 50.0;
     return Rect.fromLTWH(
-        minX - pad, minY - pad, maxX - minX + pad * 2, maxY - minY + pad * 2);
+      minX - pad,
+      minY - pad,
+      maxX - minX + pad * 2,
+      maxY - minY + pad * 2,
+    );
   }
 
   Widget _buildDisplay(Display display, Rect bounds, double scale) {
@@ -1687,8 +1707,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
               top: 4,
               left: 4,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(4),
@@ -1727,7 +1746,9 @@ class _WindowCanvasState extends State<WindowCanvas> {
       final selected = widget.selectedWindow?.id == window.id;
       final accent = selected ? Colors.indigo : Colors.deepOrange;
 
-      if (left + w < 0 || top + h < 0 || left > bounds.width * scale ||
+      if (left + w < 0 ||
+          top + h < 0 ||
+          left > bounds.width * scale ||
           top > bounds.height * scale) {
         return const SizedBox.shrink();
       }
@@ -1742,10 +1763,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
             width: w,
             height: h,
             decoration: BoxDecoration(
-              border: Border.all(
-                color: accent,
-                width: selected ? 3 : 1.5,
-              ),
+              border: Border.all(color: accent, width: selected ? 3 : 1.5),
               boxShadow: [
                 BoxShadow(
                   color: accent.withValues(alpha: selected ? 0.35 : 0.15),
@@ -1757,9 +1775,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
             child: Stack(
               children: [
                 // Window fill
-                Container(
-                  color: accent.withValues(alpha: 0.08),
-                ),
+                Container(color: accent.withValues(alpha: 0.08)),
                 // Title bar
                 Positioned(
                   top: 0,
