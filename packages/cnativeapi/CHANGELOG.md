@@ -1,3 +1,8 @@
+## 0.2.3
+
+* Add `native_window_set_non_activating` / `native_window_is_non_activating`
+* macOS: `native_window_set_focusable` is now implemented (it was a no-op)
+
 ## 0.2.2
 
 * Fix macOS build failure in 0.2.1: `redefinition of 'ToStdString'`. The macOS unity

@@ -1,3 +1,12 @@
+## 0.2.3
+
+* Add `Window.isNonActivating`. A non-activating window can be shown on top and take
+  keyboard input without activating the app, so the previously active app keeps its
+  activation and the app's other windows stay put when it is hidden. Only macOS has
+  observable behavior (the window becomes a non-activating `NSPanel` in place); Windows
+  and Linux record the flag
+* macOS: `Window.isFocusable = false` now actually prevents the window from becoming key
+
 ## 0.2.2
 
 * Fix macOS build failure in 0.2.1 coming from `cnativeapi` — see its changelog
