@@ -398,6 +398,18 @@ impl Window {
         }
     }
 
+    pub fn set_non_activating(&self, is_non_activating: bool) {
+        unsafe {
+            cnativeapi::native_window_set_non_activating(self.handle, is_non_activating);
+        }
+    }
+
+    pub fn is_non_activating(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_non_activating(self.handle)
+        }
+    }
+
     pub fn set_position(&self, point: &Point) {
         let point_raw = point.to_raw();
         unsafe {

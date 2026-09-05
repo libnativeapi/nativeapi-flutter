@@ -465,6 +465,12 @@ unsafe extern "C" {
     pub fn native_window_is_always_on_top(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
+    pub fn native_window_set_non_activating(window: native_window_t, is_non_activating: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_non_activating(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
     pub fn native_window_set_position(window: native_window_t, point: native_point_t);
 }
 unsafe extern "C" {
