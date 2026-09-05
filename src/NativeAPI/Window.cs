@@ -401,6 +401,20 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public void SetNonActivating(bool isNonActivating)
+    {
+        Interop.native_window_set_non_activating(NativeHandle, isNonActivating);
+    }
+
+    public bool IsNonActivating
+    {
+        get
+        {
+            var rawResult = Interop.native_window_is_non_activating(NativeHandle);
+            return rawResult;
+        }
+    }
+
     public void SetPosition(Point point)
     {
         var rawPoint = point.ToRaw();
