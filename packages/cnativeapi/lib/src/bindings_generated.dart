@@ -882,6 +882,29 @@ class CNativeApiBindings {
   late final _native_window_is_always_on_top =
       _native_window_is_always_on_topPtr.asFunction<bool Function(int)>();
 
+  void native_window_set_non_activating(int window, bool is_non_activating) {
+    return _native_window_set_non_activating(window, is_non_activating);
+  }
+
+  late final _native_window_set_non_activatingPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_non_activating',
+      );
+  late final _native_window_set_non_activating =
+      _native_window_set_non_activatingPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_window_is_non_activating(int window) {
+    return _native_window_is_non_activating(window);
+  }
+
+  late final _native_window_is_non_activatingPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_non_activating',
+      );
+  late final _native_window_is_non_activating =
+      _native_window_is_non_activatingPtr.asFunction<bool Function(int)>();
+
   void native_window_set_position(int window, native_point_t point) {
     return _native_window_set_position(window, point);
   }

@@ -375,6 +375,14 @@ class Window {
     return _bindings.native_window_is_always_on_top(nativeHandle);
   }
 
+  set isNonActivating(bool value) {
+    _bindings.native_window_set_non_activating(nativeHandle, value);
+  }
+
+  bool get isNonActivating {
+    return _bindings.native_window_is_non_activating(nativeHandle);
+  }
+
   set position(Offset value) {
     final valuePointer = pkg_ffi.calloc<c.native_point_t>();
     valuePointer.ref.x = value.dx;
