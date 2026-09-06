@@ -12,6 +12,29 @@ use crate::window::Window;
 /// Identifies one registered event listener.
 pub type ListenerId = cnativeapi::native_listener_id_t;
 
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Brightness {
+    System = 0,
+    Light = 1,
+    Dark = 2,
+}
+
+impl Brightness {
+    pub(crate) fn from_raw(raw: cnativeapi::native_brightness_t) -> Self {
+        match raw {
+            cnativeapi::NATIVE_BRIGHTNESS_SYSTEM => Self::System,
+            cnativeapi::NATIVE_BRIGHTNESS_LIGHT => Self::Light,
+            cnativeapi::NATIVE_BRIGHTNESS_DARK => Self::Dark,
+            _ => Self::System,
+        }
+    }
+
+    pub(crate) fn to_raw(self) -> cnativeapi::native_brightness_t {
+        self as cnativeapi::native_brightness_t
+    }
+}
+
 /// One `ApplicationEvent`, in its concrete form.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ApplicationEvent {
@@ -78,6 +101,25 @@ impl Application {
     pub fn set_dock_icon_visible(visible: bool) -> bool {
         unsafe {
             cnativeapi::native_application_set_dock_icon_visible(visible)
+        }
+    }
+
+    pub fn set_progress_bar(progress: f64) -> bool {
+        unsafe {
+            cnativeapi::native_application_set_progress_bar(progress)
+        }
+    }
+
+    pub fn set_badge_label(label: &str) -> bool {
+        let label_native = CString::new(label).expect("string argument contains interior nul byte");
+        unsafe {
+            cnativeapi::native_application_set_badge_label(label_native.as_ptr())
+        }
+    }
+
+    pub fn set_brightness(brightness: Brightness) -> bool {
+        unsafe {
+            cnativeapi::native_application_set_brightness(brightness.to_raw())
         }
     }
 

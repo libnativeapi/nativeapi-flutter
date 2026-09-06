@@ -963,6 +963,10 @@ unsafe extern "C" {
         listener_id: native_listener_id_t,
     ) -> bool;
 }
+pub const NATIVE_BRIGHTNESS_SYSTEM: native_brightness_t = 0;
+pub const NATIVE_BRIGHTNESS_LIGHT: native_brightness_t = 1;
+pub const NATIVE_BRIGHTNESS_DARK: native_brightness_t = 2;
+pub type native_brightness_t = ::std::os::raw::c_uint;
 pub const NATIVE_APPLICATION_EVENT_TYPE_STARTED: native_application_event_type_t = 0;
 pub const NATIVE_APPLICATION_EVENT_TYPE_EXITING: native_application_event_type_t = 1;
 pub const NATIVE_APPLICATION_EVENT_TYPE_ACTIVATED: native_application_event_type_t = 2;
@@ -1031,6 +1035,15 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn native_application_set_dock_icon_visible(visible: bool) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_application_set_progress_bar(progress: f64) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_application_set_badge_label(label: *const ::std::os::raw::c_char) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_application_set_brightness(brightness: native_brightness_t) -> bool;
 }
 unsafe extern "C" {
     pub fn native_application_set_menu_bar(menu: native_menu_t) -> bool;

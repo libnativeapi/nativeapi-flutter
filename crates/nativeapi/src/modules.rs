@@ -34,7 +34,7 @@ pub mod window_manager;
 // `use nativeapi::display::Display;`.
 pub use accessibility_manager::{AccessibilityManager};
 pub use app_info::{AppInfo};
-pub use application::{ApplicationEvent, Application};
+pub use application::{Brightness, ApplicationEvent, Application};
 pub use color::{Color};
 pub use device_info::{DeviceInfo};
 pub use dialog::{DialogModality};
