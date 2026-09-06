@@ -2175,6 +2175,41 @@ class CNativeApiBindings {
       _native_application_set_dock_icon_visiblePtr
           .asFunction<bool Function(bool)>();
 
+  bool native_application_set_progress_bar(double progress) {
+    return _native_application_set_progress_bar(progress);
+  }
+
+  late final _native_application_set_progress_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Double)>>(
+        'native_application_set_progress_bar',
+      );
+  late final _native_application_set_progress_bar =
+      _native_application_set_progress_barPtr
+          .asFunction<bool Function(double)>();
+
+  bool native_application_set_badge_label(ffi.Pointer<ffi.Char> label) {
+    return _native_application_set_badge_label(label);
+  }
+
+  late final _native_application_set_badge_labelPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_application_set_badge_label',
+      );
+  late final _native_application_set_badge_label =
+      _native_application_set_badge_labelPtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  bool native_application_set_brightness(native_brightness_t brightness) {
+    return _native_application_set_brightness(brightness.value);
+  }
+
+  late final _native_application_set_brightnessPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.UnsignedInt)>>(
+        'native_application_set_brightness',
+      );
+  late final _native_application_set_brightness =
+      _native_application_set_brightnessPtr.asFunction<bool Function(int)>();
+
   bool native_application_set_menu_bar(int menu) {
     return _native_application_set_menu_bar(menu);
   }
@@ -5097,6 +5132,22 @@ typedef Dartnative_menu_event_callback_tFunction =
       ffi.Pointer<native_menu_event_t> event,
       ffi.Pointer<ffi.Void> user_data,
     );
+
+enum native_brightness_t {
+  NATIVE_BRIGHTNESS_SYSTEM(0),
+  NATIVE_BRIGHTNESS_LIGHT(1),
+  NATIVE_BRIGHTNESS_DARK(2);
+
+  final int value;
+  const native_brightness_t(this.value);
+
+  static native_brightness_t fromValue(int value) => switch (value) {
+    0 => NATIVE_BRIGHTNESS_SYSTEM,
+    1 => NATIVE_BRIGHTNESS_LIGHT,
+    2 => NATIVE_BRIGHTNESS_DARK,
+    _ => throw ArgumentError("Unknown value for native_brightness_t: $value"),
+  };
+}
 
 /// Which concrete ApplicationEvent arrived.
 enum native_application_event_type_t {

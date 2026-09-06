@@ -16,6 +16,24 @@ import 'support.dart';
 
 final _bindings = c.cnativeApiBindings;
 
+enum Brightness {
+  system(0),
+  light(1),
+  dark(2);
+
+  const Brightness(this.value);
+  final int value;
+
+  static Brightness fromValue(int value) => switch (value) {
+    0 => Brightness.system,
+    1 => Brightness.light,
+    2 => Brightness.dark,
+    _ => Brightness.system,
+  };
+
+  c.native_brightness_t get raw => c.native_brightness_t.fromValue(value);
+}
+
 /// One `ApplicationEvent`, in its concrete form.
 sealed class ApplicationEvent {
   const ApplicationEvent();
@@ -99,6 +117,21 @@ class Application {
 
   bool setDockIconVisible(bool visible) {
     return _bindings.native_application_set_dock_icon_visible(visible);
+  }
+
+  bool setProgressBar(double progress) {
+    return _bindings.native_application_set_progress_bar(progress);
+  }
+
+  bool setBadgeLabel(String label) {
+    final labelNative = label.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_application_set_badge_label(labelNative);
+    pkg_ffi.calloc.free(labelNative);
+    return result;
+  }
+
+  bool setBrightness(Brightness brightness) {
+    return _bindings.native_application_set_brightness(brightness.raw);
   }
 
   bool setMenuBar(Menu? menu) {
