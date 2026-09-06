@@ -979,6 +979,10 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               window.isAlwaysOnTop = v;
               _showFeedback('Always on top: ${v ? 'ON' : 'OFF'}');
             }),
+            _toggleBtn('Always on Bottom', window.isAlwaysOnBottom, (v) {
+              window.isAlwaysOnBottom = v;
+              _showFeedback('Always on bottom: ${v ? 'ON' : 'OFF'}');
+            }),
             // Opacity slider
             _labeledSlider('Opacity', window.opacity, 0.1, 1.0, (v) {
               window.opacity = v;
@@ -1101,8 +1105,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               _showFeedback('Drag started (move the mouse)');
             }),
             _actionBtn('Start Resizing', Icons.zoom_out_map, () {
-              window.startResizing();
-              _showFeedback('Resize started (move the mouse)');
+              window.startResizing(ResizeEdge.bottomRight);
+              _showFeedback('Resize started from bottom-right (move the mouse)');
             }),
           ]),
 

@@ -52,6 +52,34 @@ enum VisualEffect {
   c.native_visual_effect_t get raw => c.native_visual_effect_t.fromValue(value);
 }
 
+enum ResizeEdge {
+  top(0),
+  left(1),
+  right(2),
+  bottom(3),
+  topLeft(4),
+  topRight(5),
+  bottomLeft(6),
+  bottomRight(7);
+
+  const ResizeEdge(this.value);
+  final int value;
+
+  static ResizeEdge fromValue(int value) => switch (value) {
+    0 => ResizeEdge.top,
+    1 => ResizeEdge.left,
+    2 => ResizeEdge.right,
+    3 => ResizeEdge.bottom,
+    4 => ResizeEdge.topLeft,
+    5 => ResizeEdge.topRight,
+    6 => ResizeEdge.bottomLeft,
+    7 => ResizeEdge.bottomRight,
+    _ => ResizeEdge.top,
+  };
+
+  c.native_resize_edge_t get raw => c.native_resize_edge_t.fromValue(value);
+}
+
 /// One `WindowEvent`, in its concrete form.
 sealed class WindowEvent {
   const WindowEvent();
@@ -311,6 +339,14 @@ class Window {
     return Size(raw.width, raw.height);
   }
 
+  set aspectRatio(double value) {
+    _bindings.native_window_set_aspect_ratio(nativeHandle, value);
+  }
+
+  double get aspectRatio {
+    return _bindings.native_window_get_aspect_ratio(nativeHandle);
+  }
+
   set isResizable(bool value) {
     _bindings.native_window_set_resizable(nativeHandle, value);
   }
@@ -373,6 +409,14 @@ class Window {
 
   bool get isAlwaysOnTop {
     return _bindings.native_window_is_always_on_top(nativeHandle);
+  }
+
+  set isAlwaysOnBottom(bool value) {
+    _bindings.native_window_set_always_on_bottom(nativeHandle, value);
+  }
+
+  bool get isAlwaysOnBottom {
+    return _bindings.native_window_is_always_on_bottom(nativeHandle);
   }
 
   set isNonActivating(bool value) {
@@ -491,8 +535,8 @@ class Window {
     _bindings.native_window_start_dragging(nativeHandle);
   }
 
-  void startResizing() {
-    _bindings.native_window_start_resizing(nativeHandle);
+  void startResizing(ResizeEdge edge) {
+    _bindings.native_window_start_resizing(nativeHandle, edge.raw);
   }
 
   /// Platform-specific native object behind this handle.

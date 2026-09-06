@@ -696,6 +696,29 @@ class CNativeApiBindings {
       _native_window_get_maximum_sizePtr
           .asFunction<native_size_t Function(int)>();
 
+  void native_window_set_aspect_ratio(int window, double aspect_ratio) {
+    return _native_window_set_aspect_ratio(window, aspect_ratio);
+  }
+
+  late final _native_window_set_aspect_ratioPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Double)>
+      >('native_window_set_aspect_ratio');
+  late final _native_window_set_aspect_ratio =
+      _native_window_set_aspect_ratioPtr
+          .asFunction<void Function(int, double)>();
+
+  double native_window_get_aspect_ratio(int window) {
+    return _native_window_get_aspect_ratio(window);
+  }
+
+  late final _native_window_get_aspect_ratioPtr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(native_window_t)>>(
+        'native_window_get_aspect_ratio',
+      );
+  late final _native_window_get_aspect_ratio =
+      _native_window_get_aspect_ratioPtr.asFunction<double Function(int)>();
+
   void native_window_set_resizable(int window, bool is_resizable) {
     return _native_window_set_resizable(window, is_resizable);
   }
@@ -881,6 +904,32 @@ class CNativeApiBindings {
       );
   late final _native_window_is_always_on_top =
       _native_window_is_always_on_topPtr.asFunction<bool Function(int)>();
+
+  void native_window_set_always_on_bottom(
+    int window,
+    bool is_always_on_bottom,
+  ) {
+    return _native_window_set_always_on_bottom(window, is_always_on_bottom);
+  }
+
+  late final _native_window_set_always_on_bottomPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_always_on_bottom',
+      );
+  late final _native_window_set_always_on_bottom =
+      _native_window_set_always_on_bottomPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_window_is_always_on_bottom(int window) {
+    return _native_window_is_always_on_bottom(window);
+  }
+
+  late final _native_window_is_always_on_bottomPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_always_on_bottom',
+      );
+  late final _native_window_is_always_on_bottom =
+      _native_window_is_always_on_bottomPtr.asFunction<bool Function(int)>();
 
   void native_window_set_non_activating(int window, bool is_non_activating) {
     return _native_window_set_non_activating(window, is_non_activating);
@@ -1182,16 +1231,19 @@ class CNativeApiBindings {
   late final _native_window_start_dragging = _native_window_start_draggingPtr
       .asFunction<void Function(int)>();
 
-  void native_window_start_resizing(int window) {
-    return _native_window_start_resizing(window);
+  void native_window_start_resizing(
+    Dartnative_window_t window,
+    native_resize_edge_t edge,
+  ) {
+    return _native_window_start_resizing(window, edge.value);
   }
 
   late final _native_window_start_resizingPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
-        'native_window_start_resizing',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.UnsignedInt)>
+      >('native_window_start_resizing');
   late final _native_window_start_resizing = _native_window_start_resizingPtr
-      .asFunction<void Function(int)>();
+      .asFunction<void Function(int, int)>();
 
   /// Platform-specific native object (NSScreen*, HMONITOR, ...).
   ffi.Pointer<ffi.Void> native_window_get_native_object(int window) {
@@ -4755,6 +4807,32 @@ enum native_visual_effect_t {
     _ => throw ArgumentError(
       "Unknown value for native_visual_effect_t: $value",
     ),
+  };
+}
+
+enum native_resize_edge_t {
+  NATIVE_RESIZE_EDGE_TOP(0),
+  NATIVE_RESIZE_EDGE_LEFT(1),
+  NATIVE_RESIZE_EDGE_RIGHT(2),
+  NATIVE_RESIZE_EDGE_BOTTOM(3),
+  NATIVE_RESIZE_EDGE_TOP_LEFT(4),
+  NATIVE_RESIZE_EDGE_TOP_RIGHT(5),
+  NATIVE_RESIZE_EDGE_BOTTOM_LEFT(6),
+  NATIVE_RESIZE_EDGE_BOTTOM_RIGHT(7);
+
+  final int value;
+  const native_resize_edge_t(this.value);
+
+  static native_resize_edge_t fromValue(int value) => switch (value) {
+    0 => NATIVE_RESIZE_EDGE_TOP,
+    1 => NATIVE_RESIZE_EDGE_LEFT,
+    2 => NATIVE_RESIZE_EDGE_RIGHT,
+    3 => NATIVE_RESIZE_EDGE_BOTTOM,
+    4 => NATIVE_RESIZE_EDGE_TOP_LEFT,
+    5 => NATIVE_RESIZE_EDGE_TOP_RIGHT,
+    6 => NATIVE_RESIZE_EDGE_BOTTOM_LEFT,
+    7 => NATIVE_RESIZE_EDGE_BOTTOM_RIGHT,
+    _ => throw ArgumentError("Unknown value for native_resize_edge_t: $value"),
   };
 }
 
