@@ -23,6 +23,18 @@ public enum VisualEffect
     Mica = 3,
 }
 
+public enum ResizeEdge
+{
+    Top = 0,
+    Left = 1,
+    Right = 2,
+    Bottom = 3,
+    TopLeft = 4,
+    TopRight = 5,
+    BottomLeft = 6,
+    BottomRight = 7,
+}
+
 /// <summary>One WindowEvent, in its concrete form.</summary>
 public abstract record WindowEvent
 {
@@ -289,6 +301,20 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public void SetAspectRatio(double aspectRatio)
+    {
+        Interop.native_window_set_aspect_ratio(NativeHandle, aspectRatio);
+    }
+
+    public double AspectRatio
+    {
+        get
+        {
+            var rawResult = Interop.native_window_get_aspect_ratio(NativeHandle);
+            return rawResult;
+        }
+    }
+
     public void SetResizable(bool isResizable)
     {
         Interop.native_window_set_resizable(NativeHandle, isResizable);
@@ -397,6 +423,20 @@ public sealed partial class Window : IDisposable
         get
         {
             var rawResult = Interop.native_window_is_always_on_top(NativeHandle);
+            return rawResult;
+        }
+    }
+
+    public void SetAlwaysOnBottom(bool isAlwaysOnBottom)
+    {
+        Interop.native_window_set_always_on_bottom(NativeHandle, isAlwaysOnBottom);
+    }
+
+    public bool IsAlwaysOnBottom
+    {
+        get
+        {
+            var rawResult = Interop.native_window_is_always_on_bottom(NativeHandle);
             return rawResult;
         }
     }
@@ -567,9 +607,9 @@ public sealed partial class Window : IDisposable
         Interop.native_window_start_dragging(NativeHandle);
     }
 
-    public void StartResizing()
+    public void StartResizing(ResizeEdge edge)
     {
-        Interop.native_window_start_resizing(NativeHandle);
+        Interop.native_window_start_resizing(NativeHandle, (int)edge);
     }
 
     /// <summary>Platform-specific native object behind this handle.</summary>

@@ -53,6 +53,10 @@ public static partial class Interop
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_window_is_always_on_bottom(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool native_window_is_always_on_top(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
@@ -126,6 +130,9 @@ public static partial class Interop
     public static extern IntPtr native_window_get_title(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern double native_window_get_aspect_ratio(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern float native_window_get_opacity(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
@@ -195,7 +202,13 @@ public static partial class Interop
     public static extern void native_window_restore(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void native_window_set_always_on_bottom(ulong self, [MarshalAs(UnmanagedType.I1)] bool isAlwaysOnBottom);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_window_set_always_on_top(ulong self, [MarshalAs(UnmanagedType.I1)] bool isAlwaysOnTop);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void native_window_set_aspect_ratio(ulong self, double aspectRatio);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_window_set_background_color(ulong self, native_color_t color);
@@ -282,7 +295,7 @@ public static partial class Interop
     public static extern void native_window_start_dragging(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void native_window_start_resizing(ulong self);
+    public static extern void native_window_start_resizing(ulong self, int edge);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_window_unmaximize(ulong self);
