@@ -244,6 +244,15 @@ pub const NATIVE_VISUAL_EFFECT_BLUR: native_visual_effect_t = 1;
 pub const NATIVE_VISUAL_EFFECT_ACRYLIC: native_visual_effect_t = 2;
 pub const NATIVE_VISUAL_EFFECT_MICA: native_visual_effect_t = 3;
 pub type native_visual_effect_t = ::std::os::raw::c_uint;
+pub const NATIVE_RESIZE_EDGE_TOP: native_resize_edge_t = 0;
+pub const NATIVE_RESIZE_EDGE_LEFT: native_resize_edge_t = 1;
+pub const NATIVE_RESIZE_EDGE_RIGHT: native_resize_edge_t = 2;
+pub const NATIVE_RESIZE_EDGE_BOTTOM: native_resize_edge_t = 3;
+pub const NATIVE_RESIZE_EDGE_TOP_LEFT: native_resize_edge_t = 4;
+pub const NATIVE_RESIZE_EDGE_TOP_RIGHT: native_resize_edge_t = 5;
+pub const NATIVE_RESIZE_EDGE_BOTTOM_LEFT: native_resize_edge_t = 6;
+pub const NATIVE_RESIZE_EDGE_BOTTOM_RIGHT: native_resize_edge_t = 7;
+pub type native_resize_edge_t = ::std::os::raw::c_uint;
 #[doc = " Opaque Window handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
 pub type native_window_t = u64;
 #[doc = " Owning list of Window handles."]
@@ -414,6 +423,12 @@ unsafe extern "C" {
     pub fn native_window_get_maximum_size(window: native_window_t) -> native_size_t;
 }
 unsafe extern "C" {
+    pub fn native_window_set_aspect_ratio(window: native_window_t, aspect_ratio: f64);
+}
+unsafe extern "C" {
+    pub fn native_window_get_aspect_ratio(window: native_window_t) -> f64;
+}
+unsafe extern "C" {
     pub fn native_window_set_resizable(window: native_window_t, is_resizable: bool);
 }
 unsafe extern "C" {
@@ -463,6 +478,12 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn native_window_is_always_on_top(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_always_on_bottom(window: native_window_t, is_always_on_bottom: bool);
+}
+unsafe extern "C" {
+    pub fn native_window_is_always_on_bottom(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
     pub fn native_window_set_non_activating(window: native_window_t, is_non_activating: bool);
@@ -547,7 +568,7 @@ unsafe extern "C" {
     pub fn native_window_start_dragging(window: native_window_t);
 }
 unsafe extern "C" {
-    pub fn native_window_start_resizing(window: native_window_t);
+    pub fn native_window_start_resizing(window: native_window_t, edge: native_resize_edge_t);
 }
 unsafe extern "C" {
     #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]

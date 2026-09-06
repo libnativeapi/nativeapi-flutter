@@ -57,6 +57,39 @@ impl VisualEffect {
     }
 }
 
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ResizeEdge {
+    Top = 0,
+    Left = 1,
+    Right = 2,
+    Bottom = 3,
+    TopLeft = 4,
+    TopRight = 5,
+    BottomLeft = 6,
+    BottomRight = 7,
+}
+
+impl ResizeEdge {
+    pub(crate) fn from_raw(raw: cnativeapi::native_resize_edge_t) -> Self {
+        match raw {
+            cnativeapi::NATIVE_RESIZE_EDGE_TOP => Self::Top,
+            cnativeapi::NATIVE_RESIZE_EDGE_LEFT => Self::Left,
+            cnativeapi::NATIVE_RESIZE_EDGE_RIGHT => Self::Right,
+            cnativeapi::NATIVE_RESIZE_EDGE_BOTTOM => Self::Bottom,
+            cnativeapi::NATIVE_RESIZE_EDGE_TOP_LEFT => Self::TopLeft,
+            cnativeapi::NATIVE_RESIZE_EDGE_TOP_RIGHT => Self::TopRight,
+            cnativeapi::NATIVE_RESIZE_EDGE_BOTTOM_LEFT => Self::BottomLeft,
+            cnativeapi::NATIVE_RESIZE_EDGE_BOTTOM_RIGHT => Self::BottomRight,
+            _ => Self::Top,
+        }
+    }
+
+    pub(crate) fn to_raw(self) -> cnativeapi::native_resize_edge_t {
+        self as cnativeapi::native_resize_edge_t
+    }
+}
+
 /// One `WindowEvent`, in its concrete form.
 #[derive(Debug, Clone, PartialEq)]
 pub enum WindowEvent {
@@ -302,6 +335,18 @@ impl Window {
         }
     }
 
+    pub fn set_aspect_ratio(&self, aspect_ratio: f64) {
+        unsafe {
+            cnativeapi::native_window_set_aspect_ratio(self.handle, aspect_ratio);
+        }
+    }
+
+    pub fn aspect_ratio(&self) -> f64 {
+        unsafe {
+            cnativeapi::native_window_get_aspect_ratio(self.handle)
+        }
+    }
+
     pub fn set_resizable(&self, is_resizable: bool) {
         unsafe {
             cnativeapi::native_window_set_resizable(self.handle, is_resizable);
@@ -395,6 +440,18 @@ impl Window {
     pub fn is_always_on_top(&self) -> bool {
         unsafe {
             cnativeapi::native_window_is_always_on_top(self.handle)
+        }
+    }
+
+    pub fn set_always_on_bottom(&self, is_always_on_bottom: bool) {
+        unsafe {
+            cnativeapi::native_window_set_always_on_bottom(self.handle, is_always_on_bottom);
+        }
+    }
+
+    pub fn is_always_on_bottom(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_always_on_bottom(self.handle)
         }
     }
 
@@ -553,9 +610,9 @@ impl Window {
         }
     }
 
-    pub fn start_resizing(&self) {
+    pub fn start_resizing(&self, edge: ResizeEdge) {
         unsafe {
-            cnativeapi::native_window_start_resizing(self.handle);
+            cnativeapi::native_window_start_resizing(self.handle, edge.to_raw());
         }
     }
 

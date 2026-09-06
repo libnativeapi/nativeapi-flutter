@@ -56,5 +56,5 @@ pub use shortcut_manager::{ShortcutManager};
 pub use tray_icon::{TrayIconId, ContextMenuTrigger, TrayIconEvent, TrayIcon, TrayIconRef};
 pub use tray_manager::{TrayManager};
 pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
-pub use window::{WindowId, TitleBarStyle, VisualEffect, WindowEvent, Window, WindowRef};
+pub use window::{WindowId, TitleBarStyle, VisualEffect, ResizeEdge, WindowEvent, Window, WindowRef};
 pub use window_manager::{WindowManager};
