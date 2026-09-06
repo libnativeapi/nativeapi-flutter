@@ -46,6 +46,14 @@ public static partial class Interop
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_application_set_badge_label([MarshalAs(UnmanagedType.LPUTF8Str)] string? label);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_application_set_brightness(int brightness);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool native_application_set_dock_icon_visible([MarshalAs(UnmanagedType.I1)] bool visible);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
@@ -55,6 +63,10 @@ public static partial class Interop
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool native_application_set_menu_bar(ulong menu);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_application_set_progress_bar(double progress);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern int native_application_run();

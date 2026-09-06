@@ -9,6 +9,13 @@ using CNativeAPI;
 
 namespace NativeAPI;
 
+public enum Brightness
+{
+    System = 0,
+    Light = 1,
+    Dark = 2,
+}
+
 /// <summary>One ApplicationEvent, in its concrete form.</summary>
 public abstract record ApplicationEvent
 {
@@ -79,6 +86,24 @@ public sealed partial class Application
     public bool SetDockIconVisible(bool visible)
     {
         var rawResult = Interop.native_application_set_dock_icon_visible(visible);
+        return rawResult;
+    }
+
+    public bool SetProgressBar(double progress)
+    {
+        var rawResult = Interop.native_application_set_progress_bar(progress);
+        return rawResult;
+    }
+
+    public bool SetBadgeLabel(string label)
+    {
+        var rawResult = Interop.native_application_set_badge_label(label);
+        return rawResult;
+    }
+
+    public bool SetBrightness(Brightness brightness)
+    {
+        var rawResult = Interop.native_application_set_brightness((int)brightness);
         return rawResult;
     }
 
