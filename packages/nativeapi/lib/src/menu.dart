@@ -22,6 +22,22 @@ typedef MenuId = int;
 
 typedef MenuItemId = int;
 
+enum MenuBackend {
+  native(0),
+  winUi3(1);
+
+  const MenuBackend(this.value);
+  final int value;
+
+  static MenuBackend fromValue(int value) => switch (value) {
+    0 => MenuBackend.native,
+    1 => MenuBackend.winUi3,
+    _ => MenuBackend.native,
+  };
+
+  c.native_menu_backend_t get raw => c.native_menu_backend_t.fromValue(value);
+}
+
 enum MenuItemType {
   normal(0),
   checkbox(1),
@@ -327,6 +343,19 @@ class Menu {
 
   MenuId get id {
     return _bindings.native_menu_get_id(nativeHandle);
+  }
+
+  bool setBackend(MenuBackend backend) {
+    return _bindings.native_menu_set_backend(nativeHandle, backend.raw);
+  }
+
+  MenuBackend get backend {
+    final raw = _bindings.native_menu_get_backend(nativeHandle);
+    return MenuBackend.fromValue(raw.value);
+  }
+
+  static bool isBackendSupported(MenuBackend backend) {
+    return _bindings.native_menu_is_backend_supported(backend.raw);
   }
 
   void addItem(MenuItem? item) {

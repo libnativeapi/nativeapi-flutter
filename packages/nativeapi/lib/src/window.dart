@@ -458,6 +458,27 @@ class Window {
     return result;
   }
 
+  bool setTitleBarColors(Color background, Color foreground) {
+    final backgroundPointer = pkg_ffi.calloc<c.native_color_t>();
+    backgroundPointer.ref.r = (background.r * 255).round();
+    backgroundPointer.ref.g = (background.g * 255).round();
+    backgroundPointer.ref.b = (background.b * 255).round();
+    backgroundPointer.ref.a = (background.a * 255).round();
+    final foregroundPointer = pkg_ffi.calloc<c.native_color_t>();
+    foregroundPointer.ref.r = (foreground.r * 255).round();
+    foregroundPointer.ref.g = (foreground.g * 255).round();
+    foregroundPointer.ref.b = (foreground.b * 255).round();
+    foregroundPointer.ref.a = (foreground.a * 255).round();
+    final result = _bindings.native_window_set_title_bar_colors(nativeHandle, backgroundPointer.ref, foregroundPointer.ref);
+    pkg_ffi.calloc.free(backgroundPointer);
+    pkg_ffi.calloc.free(foregroundPointer);
+    return result;
+  }
+
+  bool resetTitleBarColors() {
+    return _bindings.native_window_reset_title_bar_colors(nativeHandle);
+  }
+
   set titleBarStyle(TitleBarStyle value) {
     _bindings.native_window_set_title_bar_style(nativeHandle, value.raw);
   }

@@ -950,6 +950,22 @@ class _WindowManagerPageState extends State<WindowManagerPage>
 
           // --- Appearance ---
           _group('Appearance', Icons.palette, [
+            _actionBtn('Blue Title Bar (WinUI 3)', Icons.color_lens, () {
+              final ok = window.setTitleBarColors(Colors.indigo, Colors.white);
+              _showFeedback(
+                ok
+                    ? 'Title bar colors applied'
+                    : 'Unsupported: requires Windows WinUI 3 and a live window',
+              );
+            }),
+            _actionBtn('Reset Title Bar Colors', Icons.restore, () {
+              final ok = window.resetTitleBarColors();
+              _showFeedback(
+                ok
+                    ? 'Title bar colors reset'
+                    : 'Title bar reset unsupported or failed',
+              );
+            }),
             _actionBtn(
               window.titleBarStyle == TitleBarStyle.hidden
                   ? 'Show Title Bar'
@@ -1106,7 +1122,9 @@ class _WindowManagerPageState extends State<WindowManagerPage>
             }),
             _actionBtn('Start Resizing', Icons.zoom_out_map, () {
               window.startResizing(ResizeEdge.bottomRight);
-              _showFeedback('Resize started from bottom-right (move the mouse)');
+              _showFeedback(
+                'Resize started from bottom-right (move the mouse)',
+              );
             }),
           ]),
 

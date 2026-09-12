@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
+import 'desktop_features.dart';
 
 void main() {
   runApp(const MyApp());
@@ -230,14 +231,13 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             FilledButton(
-              child: Text('Show Message Dialog'),
+              child: Text('Desktop Features: Dialogs, Pickers, Notifications'),
               onPressed: () {
-                final dialog = MessageDialog.create(
-                  'Update Available',
-                  'A new version is available. Would you like to update?',
-                )!;
-                dialog.modality = DialogModality.application;
-                dialog.open();
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const DesktopFeaturesPage(),
+                  ),
+                );
               },
             ),
           ],

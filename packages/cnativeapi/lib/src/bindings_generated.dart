@@ -1012,6 +1012,35 @@ class CNativeApiBindings {
   late final _native_window_get_title = _native_window_get_titlePtr
       .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
+  bool native_window_set_title_bar_colors(
+    int window,
+    native_color_t background,
+    native_color_t foreground,
+  ) {
+    return _native_window_set_title_bar_colors(window, background, foreground);
+  }
+
+  late final _native_window_set_title_bar_colorsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_color_t, native_color_t)
+        >
+      >('native_window_set_title_bar_colors');
+  late final _native_window_set_title_bar_colors =
+      _native_window_set_title_bar_colorsPtr
+          .asFunction<bool Function(int, native_color_t, native_color_t)>();
+
+  bool native_window_reset_title_bar_colors(int window) {
+    return _native_window_reset_title_bar_colors(window);
+  }
+
+  late final _native_window_reset_title_bar_colorsPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_reset_title_bar_colors',
+      );
+  late final _native_window_reset_title_bar_colors =
+      _native_window_reset_title_bar_colorsPtr.asFunction<bool Function(int)>();
+
   void native_window_set_title_bar_style(
     Dartnative_window_t window,
     native_title_bar_style_t style,
@@ -1861,6 +1890,42 @@ class CNativeApiBindings {
   late final _native_menu_get_id = _native_menu_get_idPtr
       .asFunction<int Function(int)>();
 
+  bool native_menu_set_backend(
+    Dartnative_menu_t menu,
+    native_menu_backend_t backend,
+  ) {
+    return _native_menu_set_backend(menu, backend.value);
+  }
+
+  late final _native_menu_set_backendPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.UnsignedInt)>
+      >('native_menu_set_backend');
+  late final _native_menu_set_backend = _native_menu_set_backendPtr
+      .asFunction<bool Function(int, int)>();
+
+  native_menu_backend_t native_menu_get_backend(Dartnative_menu_t menu) {
+    return native_menu_backend_t.fromValue(_native_menu_get_backend(menu));
+  }
+
+  late final _native_menu_get_backendPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_menu_t)>>(
+        'native_menu_get_backend',
+      );
+  late final _native_menu_get_backend = _native_menu_get_backendPtr
+      .asFunction<int Function(int)>();
+
+  bool native_menu_is_backend_supported(native_menu_backend_t backend) {
+    return _native_menu_is_backend_supported(backend.value);
+  }
+
+  late final _native_menu_is_backend_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.UnsignedInt)>>(
+        'native_menu_is_backend_supported',
+      );
+  late final _native_menu_is_backend_supported =
+      _native_menu_is_backend_supportedPtr.asFunction<bool Function(int)>();
+
   void native_menu_add_item(int menu, int item) {
     return _native_menu_add_item(menu, item);
   }
@@ -2639,6 +2704,223 @@ class CNativeApiBindings {
       _native_display_manager_remove_listenerPtr
           .asFunction<bool Function(int)>();
 
+  /// Free a C string allocated by to_c_str
+  /// @param str The string to free (can be nullptr)
+  void free_c_str(ffi.Pointer<ffi.Char> str) {
+    return _free_c_str(str);
+  }
+
+  late final _free_c_strPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'free_c_str',
+      );
+  late final _free_c_str = _free_c_strPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Free a string list allocated by to_c_string_list
+  /// @param list The list to free (can be nullptr)
+  void native_string_list_free(ffi.Pointer<native_string_list_t> list) {
+    return _native_string_list_free(list);
+  }
+
+  late final _native_string_list_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_string_list_t>)>
+      >('native_string_list_free');
+  late final _native_string_list_free = _native_string_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_string_list_t>)>();
+
+  /// Free a string map allocated by to_c_string_map
+  /// @param map The map to free (can be nullptr)
+  void native_string_map_free(ffi.Pointer<native_string_map_t> map) {
+    return _native_string_map_free(map);
+  }
+
+  late final _native_string_map_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_string_map_t>)>
+      >('native_string_map_free');
+  late final _native_string_map_free = _native_string_map_freePtr
+      .asFunction<void Function(ffi.Pointer<native_string_map_t>)>();
+
+  /// Creates a FileDialog instance; release it with native_file_dialog_free().
+  Dartnative_file_dialog_t native_file_dialog_create(
+    native_file_dialog_mode_t mode,
+  ) {
+    return _native_file_dialog_create(mode.value);
+  }
+
+  late final _native_file_dialog_createPtr =
+      _lookup<
+        ffi.NativeFunction<native_file_dialog_t Function(ffi.UnsignedInt)>
+      >('native_file_dialog_create');
+  late final _native_file_dialog_create = _native_file_dialog_createPtr
+      .asFunction<int Function(int)>();
+
+  bool native_file_dialog_is_supported() {
+    return _native_file_dialog_is_supported();
+  }
+
+  late final _native_file_dialog_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_file_dialog_is_supported',
+      );
+  late final _native_file_dialog_is_supported =
+      _native_file_dialog_is_supportedPtr.asFunction<bool Function()>();
+
+  bool native_file_dialog_set_parent_window(int file_dialog, int window) {
+    return _native_file_dialog_set_parent_window(file_dialog, window);
+  }
+
+  late final _native_file_dialog_set_parent_windowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_file_dialog_t, native_window_t)
+        >
+      >('native_file_dialog_set_parent_window');
+  late final _native_file_dialog_set_parent_window =
+      _native_file_dialog_set_parent_windowPtr
+          .asFunction<bool Function(int, int)>();
+
+  bool native_file_dialog_set_file_types(
+    int file_dialog,
+    native_string_list_t extensions,
+  ) {
+    return _native_file_dialog_set_file_types(file_dialog, extensions);
+  }
+
+  late final _native_file_dialog_set_file_typesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_file_dialog_t, native_string_list_t)
+        >
+      >('native_file_dialog_set_file_types');
+  late final _native_file_dialog_set_file_types =
+      _native_file_dialog_set_file_typesPtr
+          .asFunction<bool Function(int, native_string_list_t)>();
+
+  bool native_file_dialog_set_suggested_file_name(
+    int file_dialog,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _native_file_dialog_set_suggested_file_name(file_dialog, name);
+  }
+
+  late final _native_file_dialog_set_suggested_file_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_file_dialog_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_file_dialog_set_suggested_file_name');
+  late final _native_file_dialog_set_suggested_file_name =
+      _native_file_dialog_set_suggested_file_namePtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
+
+  native_dialog_modality_t native_file_dialog_get_modality(
+    Dartnative_file_dialog_t file_dialog,
+  ) {
+    return native_dialog_modality_t.fromValue(
+      _native_file_dialog_get_modality(file_dialog),
+    );
+  }
+
+  late final _native_file_dialog_get_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_file_dialog_t)>
+      >('native_file_dialog_get_modality');
+  late final _native_file_dialog_get_modality =
+      _native_file_dialog_get_modalityPtr.asFunction<int Function(int)>();
+
+  void native_file_dialog_set_modality(
+    Dartnative_file_dialog_t file_dialog,
+    native_dialog_modality_t modality,
+  ) {
+    return _native_file_dialog_set_modality(file_dialog, modality.value);
+  }
+
+  late final _native_file_dialog_set_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_file_dialog_t, ffi.UnsignedInt)
+        >
+      >('native_file_dialog_set_modality');
+  late final _native_file_dialog_set_modality =
+      _native_file_dialog_set_modalityPtr.asFunction<void Function(int, int)>();
+
+  bool native_file_dialog_open(int file_dialog) {
+    return _native_file_dialog_open(file_dialog);
+  }
+
+  late final _native_file_dialog_openPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_file_dialog_t)>>(
+        'native_file_dialog_open',
+      );
+  late final _native_file_dialog_open = _native_file_dialog_openPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_file_dialog_close(int file_dialog) {
+    return _native_file_dialog_close(file_dialog);
+  }
+
+  late final _native_file_dialog_closePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_file_dialog_t)>>(
+        'native_file_dialog_close',
+      );
+  late final _native_file_dialog_close = _native_file_dialog_closePtr
+      .asFunction<bool Function(int)>();
+
+  native_file_dialog_result_t native_file_dialog_get_result(
+    Dartnative_file_dialog_t file_dialog,
+  ) {
+    return native_file_dialog_result_t.fromValue(
+      _native_file_dialog_get_result(file_dialog),
+    );
+  }
+
+  late final _native_file_dialog_get_resultPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_file_dialog_t)>
+      >('native_file_dialog_get_result');
+  late final _native_file_dialog_get_result = _native_file_dialog_get_resultPtr
+      .asFunction<int Function(int)>();
+
+  native_string_list_t native_file_dialog_get_paths(int file_dialog) {
+    return _native_file_dialog_get_paths(file_dialog);
+  }
+
+  late final _native_file_dialog_get_pathsPtr =
+      _lookup<
+        ffi.NativeFunction<native_string_list_t Function(native_file_dialog_t)>
+      >('native_file_dialog_get_paths');
+  late final _native_file_dialog_get_paths = _native_file_dialog_get_pathsPtr
+      .asFunction<native_string_list_t Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_file_dialog_get_last_error(int file_dialog) {
+    return _native_file_dialog_get_last_error(file_dialog);
+  }
+
+  late final _native_file_dialog_get_last_errorPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_file_dialog_t)>
+      >('native_file_dialog_get_last_error');
+  late final _native_file_dialog_get_last_error =
+      _native_file_dialog_get_last_errorPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_file_dialog_free(int file_dialog) {
+    return _native_file_dialog_free(file_dialog);
+  }
+
+  late final _native_file_dialog_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_file_dialog_t)>>(
+        'native_file_dialog_free',
+      );
+  late final _native_file_dialog_free = _native_file_dialog_freePtr
+      .asFunction<void Function(int)>();
+
   /// Creates a KeyboardMonitor instance; release it with native_keyboard_monitor_free().
   int native_keyboard_monitor_create() {
     return _native_keyboard_monitor_create();
@@ -2752,45 +3034,6 @@ class CNativeApiBindings {
   late final _native_keyboard_monitor_remove_listener =
       _native_keyboard_monitor_remove_listenerPtr
           .asFunction<bool Function(int, int)>();
-
-  /// Free a C string allocated by to_c_str
-  /// @param str The string to free (can be nullptr)
-  void free_c_str(ffi.Pointer<ffi.Char> str) {
-    return _free_c_str(str);
-  }
-
-  late final _free_c_strPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-        'free_c_str',
-      );
-  late final _free_c_str = _free_c_strPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
-
-  /// Free a string list allocated by to_c_string_list
-  /// @param list The list to free (can be nullptr)
-  void native_string_list_free(ffi.Pointer<native_string_list_t> list) {
-    return _native_string_list_free(list);
-  }
-
-  late final _native_string_list_freePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_string_list_t>)>
-      >('native_string_list_free');
-  late final _native_string_list_free = _native_string_list_freePtr
-      .asFunction<void Function(ffi.Pointer<native_string_list_t>)>();
-
-  /// Free a string map allocated by to_c_string_map
-  /// @param map The map to free (can be nullptr)
-  void native_string_map_free(ffi.Pointer<native_string_map_t> map) {
-    return _native_string_map_free(map);
-  }
-
-  late final _native_string_map_freePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_string_map_t>)>
-      >('native_string_map_free');
-  late final _native_string_map_free = _native_string_map_freePtr
-      .asFunction<void Function(ffi.Pointer<native_string_map_t>)>();
 
   /// Creates a LaunchAtLogin instance; release it with native_launch_at_login_free().
   int native_launch_at_login_create() {
@@ -3034,6 +3277,211 @@ class CNativeApiBindings {
   late final _native_message_dialog_create = _native_message_dialog_createPtr
       .asFunction<int Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
+  bool native_message_dialog_is_extended_supported() {
+    return _native_message_dialog_is_extended_supported();
+  }
+
+  late final _native_message_dialog_is_extended_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_message_dialog_is_extended_supported',
+      );
+  late final _native_message_dialog_is_extended_supported =
+      _native_message_dialog_is_extended_supportedPtr
+          .asFunction<bool Function()>();
+
+  bool native_message_dialog_set_buttons(
+    int message_dialog,
+    ffi.Pointer<ffi.Char> primary,
+    ffi.Pointer<ffi.Char> secondary,
+    ffi.Pointer<ffi.Char> close,
+  ) {
+    return _native_message_dialog_set_buttons(
+      message_dialog,
+      primary,
+      secondary,
+      close,
+    );
+  }
+
+  late final _native_message_dialog_set_buttonsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_message_dialog_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_message_dialog_set_buttons');
+  late final _native_message_dialog_set_buttons =
+      _native_message_dialog_set_buttonsPtr
+          .asFunction<
+            bool Function(
+              int,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
+
+  bool native_message_dialog_set_default_button(
+    Dartnative_message_dialog_t message_dialog,
+    native_message_dialog_result_t button,
+  ) {
+    return _native_message_dialog_set_default_button(
+      message_dialog,
+      button.value,
+    );
+  }
+
+  late final _native_message_dialog_set_default_buttonPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, ffi.UnsignedInt)
+        >
+      >('native_message_dialog_set_default_button');
+  late final _native_message_dialog_set_default_button =
+      _native_message_dialog_set_default_buttonPtr
+          .asFunction<bool Function(int, int)>();
+
+  bool native_message_dialog_set_parent_window(int message_dialog, int window) {
+    return _native_message_dialog_set_parent_window(message_dialog, window);
+  }
+
+  late final _native_message_dialog_set_parent_windowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, native_window_t)
+        >
+      >('native_message_dialog_set_parent_window');
+  late final _native_message_dialog_set_parent_window =
+      _native_message_dialog_set_parent_windowPtr
+          .asFunction<bool Function(int, int)>();
+
+  native_message_dialog_result_t native_message_dialog_get_result(
+    Dartnative_message_dialog_t message_dialog,
+  ) {
+    return native_message_dialog_result_t.fromValue(
+      _native_message_dialog_get_result(message_dialog),
+    );
+  }
+
+  late final _native_message_dialog_get_resultPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_message_dialog_t)>
+      >('native_message_dialog_get_result');
+  late final _native_message_dialog_get_result =
+      _native_message_dialog_get_resultPtr.asFunction<int Function(int)>();
+
+  bool native_message_dialog_is_open(int message_dialog) {
+    return _native_message_dialog_is_open(message_dialog);
+  }
+
+  late final _native_message_dialog_is_openPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t)>>(
+        'native_message_dialog_is_open',
+      );
+  late final _native_message_dialog_is_open = _native_message_dialog_is_openPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_message_dialog_set_input_enabled(
+    int message_dialog,
+    bool enabled,
+  ) {
+    return _native_message_dialog_set_input_enabled(message_dialog, enabled);
+  }
+
+  late final _native_message_dialog_set_input_enabledPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t, ffi.Bool)>
+      >('native_message_dialog_set_input_enabled');
+  late final _native_message_dialog_set_input_enabled =
+      _native_message_dialog_set_input_enabledPtr
+          .asFunction<bool Function(int, bool)>();
+
+  bool native_message_dialog_set_input_text(
+    int message_dialog,
+    ffi.Pointer<ffi.Char> text,
+  ) {
+    return _native_message_dialog_set_input_text(message_dialog, text);
+  }
+
+  late final _native_message_dialog_set_input_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_message_dialog_set_input_text');
+  late final _native_message_dialog_set_input_text =
+      _native_message_dialog_set_input_textPtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_message_dialog_get_input_text(
+    int message_dialog,
+  ) {
+    return _native_message_dialog_get_input_text(message_dialog);
+  }
+
+  late final _native_message_dialog_get_input_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
+        >
+      >('native_message_dialog_get_input_text');
+  late final _native_message_dialog_get_input_text =
+      _native_message_dialog_get_input_textPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  bool native_message_dialog_set_checkbox(
+    int message_dialog,
+    ffi.Pointer<ffi.Char> label,
+    bool checked,
+  ) {
+    return _native_message_dialog_set_checkbox(message_dialog, label, checked);
+  }
+
+  late final _native_message_dialog_set_checkboxPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_message_dialog_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Bool,
+          )
+        >
+      >('native_message_dialog_set_checkbox');
+  late final _native_message_dialog_set_checkbox =
+      _native_message_dialog_set_checkboxPtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>, bool)>();
+
+  bool native_message_dialog_is_checkbox_checked(int message_dialog) {
+    return _native_message_dialog_is_checkbox_checked(message_dialog);
+  }
+
+  late final _native_message_dialog_is_checkbox_checkedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t)>>(
+        'native_message_dialog_is_checkbox_checked',
+      );
+  late final _native_message_dialog_is_checkbox_checked =
+      _native_message_dialog_is_checkbox_checkedPtr
+          .asFunction<bool Function(int)>();
+
+  bool native_message_dialog_set_progress(int message_dialog, double value) {
+    return _native_message_dialog_set_progress(message_dialog, value);
+  }
+
+  late final _native_message_dialog_set_progressPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, ffi.Double)
+        >
+      >('native_message_dialog_set_progress');
+  late final _native_message_dialog_set_progress =
+      _native_message_dialog_set_progressPtr
+          .asFunction<bool Function(int, double)>();
+
   void native_message_dialog_set_title(
     int message_dialog,
     ffi.Pointer<ffi.Char> title,
@@ -3164,6 +3612,136 @@ class CNativeApiBindings {
       );
   late final _native_message_dialog_free = _native_message_dialog_freePtr
       .asFunction<void Function(int)>();
+
+  bool native_notification_manager_is_supported() {
+    return _native_notification_manager_is_supported();
+  }
+
+  late final _native_notification_manager_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_notification_manager_is_supported',
+      );
+  late final _native_notification_manager_is_supported =
+      _native_notification_manager_is_supportedPtr
+          .asFunction<bool Function()>();
+
+  bool native_notification_manager_initialize() {
+    return _native_notification_manager_initialize();
+  }
+
+  late final _native_notification_manager_initializePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_notification_manager_initialize',
+      );
+  late final _native_notification_manager_initialize =
+      _native_notification_manager_initializePtr.asFunction<bool Function()>();
+
+  void native_notification_manager_shutdown() {
+    return _native_notification_manager_shutdown();
+  }
+
+  late final _native_notification_manager_shutdownPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+        'native_notification_manager_shutdown',
+      );
+  late final _native_notification_manager_shutdown =
+      _native_notification_manager_shutdownPtr.asFunction<void Function()>();
+
+  bool native_notification_manager_show(
+    ffi.Pointer<ffi.Char> title,
+    ffi.Pointer<ffi.Char> message,
+    ffi.Pointer<ffi.Char> tag,
+    ffi.Pointer<ffi.Char> button_label,
+  ) {
+    return _native_notification_manager_show(title, message, tag, button_label);
+  }
+
+  late final _native_notification_manager_showPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_notification_manager_show');
+  late final _native_notification_manager_show =
+      _native_notification_manager_showPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
+
+  bool native_notification_manager_remove(ffi.Pointer<ffi.Char> tag) {
+    return _native_notification_manager_remove(tag);
+  }
+
+  late final _native_notification_manager_removePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_notification_manager_remove',
+      );
+  late final _native_notification_manager_remove =
+      _native_notification_manager_removePtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_notification_manager_get_last_error() {
+    return _native_notification_manager_get_last_error();
+  }
+
+  late final _native_notification_manager_get_last_errorPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_notification_manager_get_last_error',
+      );
+  late final _native_notification_manager_get_last_error =
+      _native_notification_manager_get_last_errorPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Registers @p callback for every NotificationEvent this NotificationManager emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_notification_manager_add_listener(
+    native_notification_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_notification_manager_add_listener(callback, user_data);
+  }
+
+  late final _native_notification_manager_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_notification_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_notification_manager_add_listener');
+  late final _native_notification_manager_add_listener =
+      _native_notification_manager_add_listenerPtr
+          .asFunction<
+            int Function(
+              native_notification_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_notification_manager_remove_listener(int listener_id) {
+    return _native_notification_manager_remove_listener(listener_id);
+  }
+
+  late final _native_notification_manager_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_listener_id_t)>>(
+        'native_notification_manager_remove_listener',
+      );
+  late final _native_notification_manager_remove_listener =
+      _native_notification_manager_remove_listenerPtr
+          .asFunction<bool Function(int)>();
 
   /// Creates a Preferences instance; release it with native_preferences_free().
   int native_preferences_create() {
@@ -4974,6 +5552,20 @@ enum native_positioning_strategy_type_t {
 typedef native_positioning_strategy_t = ffi.Uint64;
 typedef Dartnative_positioning_strategy_t = int;
 
+enum native_menu_backend_t {
+  NATIVE_MENU_BACKEND_NATIVE(0),
+  NATIVE_MENU_BACKEND_WIN_UI3(1);
+
+  final int value;
+  const native_menu_backend_t(this.value);
+
+  static native_menu_backend_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MENU_BACKEND_NATIVE,
+    1 => NATIVE_MENU_BACKEND_WIN_UI3,
+    _ => throw ArgumentError("Unknown value for native_menu_backend_t: $value"),
+  };
+}
+
 enum native_menu_item_type_t {
   NATIVE_MENU_ITEM_TYPE_NORMAL(0),
   NATIVE_MENU_ITEM_TYPE_CHECKBOX(1),
@@ -5309,27 +5901,6 @@ typedef Dartnative_display_event_callback_tFunction =
       ffi.Pointer<ffi.Void> user_data,
     );
 
-/// Opaque KeyboardMonitor handle.
-///
-/// A generational index into the library's handle table, NOT a pointer:
-/// never dereference it, and compare it against NATIVE_INVALID_KEYBOARD_MONITOR rather than NULL.
-/// Releasing a handle invalidates it; later calls fail safely instead of
-/// touching freed memory.
-typedef native_keyboard_monitor_t = ffi.Uint64;
-typedef Dartnative_keyboard_monitor_t = int;
-typedef native_keyboard_event_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_keyboard_event_callback_tFunction>>;
-typedef native_keyboard_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_keyboard_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_keyboard_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_keyboard_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-
 /// An owning list of strings.
 ///
 /// Free with native_string_list_free(); it releases every item and the array.
@@ -5353,6 +5924,76 @@ final class native_string_map_t extends ffi.Struct {
   external int count;
 }
 
+enum native_file_dialog_mode_t {
+  NATIVE_FILE_DIALOG_MODE_OPEN_FILE(0),
+  NATIVE_FILE_DIALOG_MODE_OPEN_FILES(1),
+  NATIVE_FILE_DIALOG_MODE_SAVE_FILE(2),
+  NATIVE_FILE_DIALOG_MODE_SELECT_FOLDER(3);
+
+  final int value;
+  const native_file_dialog_mode_t(this.value);
+
+  static native_file_dialog_mode_t fromValue(int value) => switch (value) {
+    0 => NATIVE_FILE_DIALOG_MODE_OPEN_FILE,
+    1 => NATIVE_FILE_DIALOG_MODE_OPEN_FILES,
+    2 => NATIVE_FILE_DIALOG_MODE_SAVE_FILE,
+    3 => NATIVE_FILE_DIALOG_MODE_SELECT_FOLDER,
+    _ => throw ArgumentError(
+      "Unknown value for native_file_dialog_mode_t: $value",
+    ),
+  };
+}
+
+enum native_file_dialog_result_t {
+  NATIVE_FILE_DIALOG_RESULT_NONE(0),
+  NATIVE_FILE_DIALOG_RESULT_ACCEPTED(1),
+  NATIVE_FILE_DIALOG_RESULT_CANCELLED(2),
+  NATIVE_FILE_DIALOG_RESULT_FAILED(3);
+
+  final int value;
+  const native_file_dialog_result_t(this.value);
+
+  static native_file_dialog_result_t fromValue(int value) => switch (value) {
+    0 => NATIVE_FILE_DIALOG_RESULT_NONE,
+    1 => NATIVE_FILE_DIALOG_RESULT_ACCEPTED,
+    2 => NATIVE_FILE_DIALOG_RESULT_CANCELLED,
+    3 => NATIVE_FILE_DIALOG_RESULT_FAILED,
+    _ => throw ArgumentError(
+      "Unknown value for native_file_dialog_result_t: $value",
+    ),
+  };
+}
+
+/// Opaque FileDialog handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_FILE_DIALOG rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_file_dialog_t = ffi.Uint64;
+typedef Dartnative_file_dialog_t = int;
+
+/// Opaque KeyboardMonitor handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_KEYBOARD_MONITOR rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_keyboard_monitor_t = ffi.Uint64;
+typedef Dartnative_keyboard_monitor_t = int;
+typedef native_keyboard_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_keyboard_event_callback_tFunction>>;
+typedef native_keyboard_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_keyboard_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_keyboard_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_keyboard_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
 /// Opaque LaunchAtLogin handle.
 ///
 /// A generational index into the library's handle table, NOT a pointer:
@@ -5362,6 +6003,26 @@ final class native_string_map_t extends ffi.Struct {
 typedef native_launch_at_login_t = ffi.Uint64;
 typedef Dartnative_launch_at_login_t = int;
 
+enum native_message_dialog_result_t {
+  NATIVE_MESSAGE_DIALOG_RESULT_NONE(0),
+  NATIVE_MESSAGE_DIALOG_RESULT_PRIMARY(1),
+  NATIVE_MESSAGE_DIALOG_RESULT_SECONDARY(2),
+  NATIVE_MESSAGE_DIALOG_RESULT_CLOSE(3);
+
+  final int value;
+  const native_message_dialog_result_t(this.value);
+
+  static native_message_dialog_result_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MESSAGE_DIALOG_RESULT_NONE,
+    1 => NATIVE_MESSAGE_DIALOG_RESULT_PRIMARY,
+    2 => NATIVE_MESSAGE_DIALOG_RESULT_SECONDARY,
+    3 => NATIVE_MESSAGE_DIALOG_RESULT_CLOSE,
+    _ => throw ArgumentError(
+      "Unknown value for native_message_dialog_result_t: $value",
+    ),
+  };
+}
+
 /// Opaque MessageDialog handle.
 ///
 /// A generational index into the library's handle table, NOT a pointer:
@@ -5370,6 +6031,56 @@ typedef Dartnative_launch_at_login_t = int;
 /// touching freed memory.
 typedef native_message_dialog_t = ffi.Uint64;
 typedef Dartnative_message_dialog_t = int;
+
+/// Which concrete NotificationEvent arrived.
+enum native_notification_event_type_t {
+  NATIVE_NOTIFICATION_EVENT_TYPE_ACTIVATED(0);
+
+  final int value;
+  const native_notification_event_type_t(this.value);
+
+  static native_notification_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_NOTIFICATION_EVENT_TYPE_ACTIVATED,
+        _ => throw ArgumentError(
+          "Unknown value for native_notification_event_type_t: $value",
+        ),
+      };
+}
+
+/// One NotificationEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_notification_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  external UnnamedUnion5 data;
+}
+
+final class UnnamedUnion5 extends ffi.Union {
+  external UnnamedStruct10 activated;
+}
+
+final class UnnamedStruct10 extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> argument;
+}
+
+typedef native_notification_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_notification_event_callback_tFunction>
+    >;
+typedef native_notification_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_notification_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_notification_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_notification_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
 
 /// Opaque Preferences handle.
 ///
@@ -5479,17 +6190,17 @@ final class native_shortcut_event_t extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> accelerator;
 
-  external UnnamedUnion5 data;
+  external UnnamedUnion6 data;
 }
 
 typedef native_shortcut_id_t = ffi.UnsignedInt;
 typedef Dartnative_shortcut_id_t = int;
 
-final class UnnamedUnion5 extends ffi.Union {
-  external UnnamedStruct10 registration_failed;
+final class UnnamedUnion6 extends ffi.Union {
+  external UnnamedStruct11 registration_failed;
 }
 
-final class UnnamedStruct10 extends ffi.Struct {
+final class UnnamedStruct11 extends ffi.Struct {
   external ffi.Pointer<ffi.Char> error_message;
 }
 
@@ -5594,18 +6305,18 @@ final class native_tray_icon_event_t extends ffi.Struct {
   @ffi.UnsignedInt()
   external int type;
 
-  external UnnamedUnion6 data;
+  external UnnamedUnion7 data;
 }
 
-final class UnnamedUnion6 extends ffi.Union {
-  external UnnamedStruct11 clicked;
+final class UnnamedUnion7 extends ffi.Union {
+  external UnnamedStruct12 clicked;
 
-  external UnnamedStruct12 right_clicked;
+  external UnnamedStruct13 right_clicked;
 
-  external UnnamedStruct13 double_clicked;
+  external UnnamedStruct14 double_clicked;
 }
 
-final class UnnamedStruct11 extends ffi.Struct {
+final class UnnamedStruct12 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
@@ -5613,12 +6324,12 @@ final class UnnamedStruct11 extends ffi.Struct {
 typedef native_tray_icon_id_t = ffi.UnsignedInt;
 typedef Dartnative_tray_icon_id_t = int;
 
-final class UnnamedStruct12 extends ffi.Struct {
+final class UnnamedStruct13 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
 
-final class UnnamedStruct13 extends ffi.Struct {
+final class UnnamedStruct14 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
@@ -5716,6 +6427,8 @@ const int NATIVE_INVALID_MENU_ITEM = 0;
 const int NATIVE_INVALID_MENU = 0;
 
 const int NATIVE_INVALID_DISPLAY = 0;
+
+const int NATIVE_INVALID_FILE_DIALOG = 0;
 
 const int NATIVE_INVALID_KEYBOARD_MONITOR = 0;
 

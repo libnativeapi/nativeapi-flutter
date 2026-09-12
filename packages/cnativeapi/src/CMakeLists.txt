@@ -14,6 +14,21 @@ set(LIBNATIVEAPI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../cxx_impl")
 set(LIBNATIVEAPI_SRC_DIR "${LIBNATIVEAPI_ROOT}/src")
 set(LIBNATIVEAPI_INCLUDE_DIR "${LIBNATIVEAPI_ROOT}/include")
 
+# Use core's Windows build rules so optional backends and system libraries stay
+# in sync. Compile the C ABI into the DLL to retain every exported entry point.
+if(WIN32)
+    add_subdirectory("${LIBNATIVEAPI_SRC_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/nativeapi")
+    file(GLOB CAPI_SOURCES "${LIBNATIVEAPI_SRC_DIR}/capi/*.cpp" "${LIBNATIVEAPI_SRC_DIR}/capi/*.c")
+    add_library(cnativeapi SHARED ${CAPI_SOURCES})
+    if(MSVC)
+        target_compile_options(nativeapi PRIVATE /utf-8)
+        target_compile_options(cnativeapi PRIVATE /utf-8)
+    endif()
+    target_link_libraries(cnativeapi PRIVATE nativeapi ole32 uuid)
+    target_compile_definitions(cnativeapi PUBLIC DART_SHARED_LIB)
+    return()
+endif()
+
 # Common source files
 file(GLOB COMMON_SOURCES "${LIBNATIVEAPI_SRC_DIR}/*.cpp" "${LIBNATIVEAPI_SRC_DIR}/foundation/*.cpp")
 list(FILTER COMMON_SOURCES EXCLUDE REGEX "${LIBNATIVEAPI_SRC_DIR}/platform/*")

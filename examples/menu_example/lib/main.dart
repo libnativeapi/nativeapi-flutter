@@ -722,6 +722,27 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
         title: const Text('Menu Example - Comprehensive Test'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          DropdownButton<MenuBackend>(
+            value: _contextMenu.backend,
+            items: MenuBackend.values
+                .map(
+                  (backend) => DropdownMenuItem(
+                    value: backend,
+                    enabled: Menu.isBackendSupported(backend),
+                    child: Text(backend.name),
+                  ),
+                )
+                .toList(),
+            onChanged: (backend) {
+              if (backend == null) return;
+              final contextOk = _contextMenu.setBackend(backend);
+              final positioningOk = _positioningMenu.setBackend(backend);
+              _addToHistory(
+                'Backend ${backend.name}: context=$contextOk, positioning=$positioningOk',
+              );
+              setState(() {});
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.clear_all),
             onPressed: _clearHistory,

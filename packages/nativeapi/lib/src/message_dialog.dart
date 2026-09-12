@@ -10,8 +10,29 @@ import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'dialog.dart';
+import 'window.dart';
 
 final _bindings = c.cnativeApiBindings;
+
+enum MessageDialogResult {
+  none(0),
+  primary(1),
+  secondary(2),
+  close(3);
+
+  const MessageDialogResult(this.value);
+  final int value;
+
+  static MessageDialogResult fromValue(int value) => switch (value) {
+    0 => MessageDialogResult.none,
+    1 => MessageDialogResult.primary,
+    2 => MessageDialogResult.secondary,
+    3 => MessageDialogResult.close,
+    _ => MessageDialogResult.none,
+  };
+
+  c.native_message_dialog_result_t get raw => c.native_message_dialog_result_t.fromValue(value);
+}
 
 class MessageDialog {
   /// Adopts a handle returned by the C API and releases it when this
@@ -45,6 +66,72 @@ class MessageDialog {
     pkg_ffi.calloc.free(messageNative);
     if (handle == 0) return null;
     return MessageDialog.fromHandle(handle);
+  }
+
+  static bool isExtendedSupported() {
+    return _bindings.native_message_dialog_is_extended_supported();
+  }
+
+  bool setButtons(String primary, String secondary, String close) {
+    final primaryNative = primary.toNativeUtf8().cast<ffi.Char>();
+    final secondaryNative = secondary.toNativeUtf8().cast<ffi.Char>();
+    final closeNative = close.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_message_dialog_set_buttons(nativeHandle, primaryNative, secondaryNative, closeNative);
+    pkg_ffi.calloc.free(primaryNative);
+    pkg_ffi.calloc.free(secondaryNative);
+    pkg_ffi.calloc.free(closeNative);
+    return result;
+  }
+
+  bool setDefaultButton(MessageDialogResult button) {
+    return _bindings.native_message_dialog_set_default_button(nativeHandle, button.raw);
+  }
+
+  bool setParentWindow(Window? window) {
+    return _bindings.native_message_dialog_set_parent_window(nativeHandle, window?.nativeHandle ?? 0);
+  }
+
+  MessageDialogResult get result {
+    final raw = _bindings.native_message_dialog_get_result(nativeHandle);
+    return MessageDialogResult.fromValue(raw.value);
+  }
+
+  bool get isOpen {
+    return _bindings.native_message_dialog_is_open(nativeHandle);
+  }
+
+  bool setInputEnabled(bool enabled) {
+    return _bindings.native_message_dialog_set_input_enabled(nativeHandle, enabled);
+  }
+
+  bool setInputText(String text) {
+    final textNative = text.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_message_dialog_set_input_text(nativeHandle, textNative);
+    pkg_ffi.calloc.free(textNative);
+    return result;
+  }
+
+  String? get inputText {
+    final resultPointer = _bindings.native_message_dialog_get_input_text(nativeHandle);
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  bool setCheckbox(String label, bool checked) {
+    final labelNative = label.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_message_dialog_set_checkbox(nativeHandle, labelNative, checked);
+    pkg_ffi.calloc.free(labelNative);
+    return result;
+  }
+
+  bool get isCheckboxChecked {
+    return _bindings.native_message_dialog_is_checkbox_checked(nativeHandle);
+  }
+
+  bool setProgress(double value) {
+    return _bindings.native_message_dialog_set_progress(nativeHandle, value);
   }
 
   set title(String value) {
