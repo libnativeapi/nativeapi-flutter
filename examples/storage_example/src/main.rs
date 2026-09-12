@@ -7,8 +7,8 @@
 use nativeapi::{Preferences, SecureStorage};
 
 fn main() {
-    let prefs = Preferences::with_scope("com.example.codegen-demo")
-        .expect("failed to create preferences");
+    let prefs =
+        Preferences::with_scope("com.example.codegen-demo").expect("failed to create preferences");
 
     println!("Scope: {}", prefs.scope().unwrap_or_default());
 
@@ -42,5 +42,8 @@ fn main() {
     println!("after remove: {} item(s)", prefs.size());
 
     // --- 5. Secure storage ---
-    println!("\nSecureStorage available: {}", SecureStorage::is_available());
+    println!(
+        "\nSecureStorage available: {}",
+        SecureStorage::is_available()
+    );
 }

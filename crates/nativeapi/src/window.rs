@@ -149,7 +149,12 @@ impl Window {
     }
 
     /// Creates a new `Window`; returns `None` if the native side failed.
-    pub fn with_native_window(native_window: *mut std::ffi::c_void) -> Option<Self> {
+    ///
+    /// # Safety
+    /// Raw pointers must reference valid platform objects of the expected type.
+    /// The caller must uphold the native API's thread and lifetime requirements,
+    /// including keeping objects alive while the returned wrapper uses them.
+    pub unsafe fn with_native_window(native_window: *mut std::ffi::c_void) -> Option<Self> {
         unsafe {
             Self::from_raw(cnativeapi::native_window_create_with_native_window(native_window))
         }

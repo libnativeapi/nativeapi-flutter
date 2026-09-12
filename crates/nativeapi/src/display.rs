@@ -79,7 +79,12 @@ impl Display {
     }
 
     /// Creates a new `Display`; returns `None` if the native side failed.
-    pub fn new(display: *mut std::ffi::c_void) -> Option<Self> {
+    ///
+    /// # Safety
+    /// Raw pointers must reference valid platform objects of the expected type.
+    /// The caller must uphold the native API's thread and lifetime requirements,
+    /// including keeping objects alive while the returned wrapper uses them.
+    pub unsafe fn new(display: *mut std::ffi::c_void) -> Option<Self> {
         unsafe {
             Self::from_raw(cnativeapi::native_display_create(display))
         }

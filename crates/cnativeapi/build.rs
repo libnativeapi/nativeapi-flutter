@@ -13,8 +13,7 @@ fn main() {
     // Configure CMake build
     let mut cmake_config = Config::new("cxx_impl");
 
-    // Set build type to Release for better performance
-    cmake_config.define("CMAKE_BUILD_TYPE", "Release");
+    let profile = cmake_config.get_profile().to_owned();
 
     // Platform-specific configurations
     match target_os.as_str() {
@@ -37,10 +36,9 @@ fn main() {
         "linux" => {
             cmake_config.define("CMAKE_SYSTEM_NAME", "Linux");
             // Note: Linux dependencies (GTK, X11, etc.) should be installed on the system
-            println!("cargo:rustc-link-lib=gtk-3");
-            println!("cargo:rustc-link-lib=x11");
-            println!("cargo:rustc-link-lib=xi");
-            println!("cargo:rustc-link-lib=ayatana-appindicator3");
+            for library in ["gtk+-3.0", "x11", "xi"] {
+                pkg_config::Config::new().probe(library).unwrap();
+            }
             println!("cargo:rustc-link-lib=pthread");
         }
         "windows" => {
@@ -49,6 +47,9 @@ fn main() {
             println!("cargo:rustc-link-lib=dwmapi");
             println!("cargo:rustc-link-lib=gdiplus");
             println!("cargo:rustc-link-lib=crypt32");
+            for library in ["comctl32", "advapi32", "version", "ole32", "uuid", "gdi32"] {
+                println!("cargo:rustc-link-lib={library}");
+            }
         }
         "android" => {
             cmake_config.define("ANDROID", "ON");
@@ -69,6 +70,11 @@ fn main() {
     let src_dir = build_dir.join("src");
 
     println!("cargo:rustc-link-search=native={}", src_dir.display());
+    // Visual Studio generators put artifacts in Debug/Release below src/.
+    println!(
+        "cargo:rustc-link-search=native={}",
+        src_dir.join(profile).display()
+    );
 
     // Link the static library - note the library is named libnativeapi.a, not libnativeapi.a
     // So we need to link it as "nativeapi" (without the "lib" prefix and ".a" suffix)

@@ -40,7 +40,10 @@ fn main() {
             quit.add_listener(|_| Application::quit(0));
             menu_bar.add_item(Some(&quit));
         }
-        println!("Menu bar installed: {}", Application::set_menu_bar(Some(&menu_bar)));
+        println!(
+            "Menu bar installed: {}",
+            Application::set_menu_bar(Some(&menu_bar))
+        );
     }
 
     // --- 3. Primary window ---

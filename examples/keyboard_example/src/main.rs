@@ -22,7 +22,11 @@ fn main() {
         KeyboardEvent::KeyPressed { keycode } => println!("[key] pressed  {keycode}"),
         KeyboardEvent::KeyReleased { keycode } => println!("[key] released {keycode}"),
         KeyboardEvent::ModifierKeysChanged { modifier_keys, .. } => {
-            println!("[key] modifiers {:#06x} -> {}", modifier_keys, describe(*modifier_keys));
+            println!(
+                "[key] modifiers {:#06x} -> {}",
+                modifier_keys,
+                describe(*modifier_keys)
+            );
         }
     });
 

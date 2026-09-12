@@ -20,10 +20,7 @@ fn main() {
 
     println!("Requesting accessibility permission...");
     AccessibilityManager::enable();
-    println!(
-        "After the request: {}",
-        AccessibilityManager::is_enabled()
-    );
+    println!("After the request: {}", AccessibilityManager::is_enabled());
     println!(
         "Grant the permission in System Settings > Privacy & Security > \
          Accessibility, then run this again."

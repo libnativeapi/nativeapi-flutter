@@ -46,12 +46,17 @@ fn main() {
     // --- 4. Register with a bare callback ---
     let hits = Arc::new(AtomicUsize::new(0));
     let counter = Arc::clone(&hits);
-    let first = ShortcutManager::register_with_accelerator_and_callback("Ctrl+Shift+A", move || {
-        let count = counter.fetch_add(1, Ordering::Relaxed) + 1;
-        println!("Ctrl+Shift+A fired {count} time(s)");
-    });
+    let first =
+        ShortcutManager::register_with_accelerator_and_callback("Ctrl+Shift+A", move || {
+            let count = counter.fetch_add(1, Ordering::Relaxed) + 1;
+            println!("Ctrl+Shift+A fired {count} time(s)");
+        });
     match &first {
-        Some(shortcut) => println!("Registered #{} -> {:?}", shortcut.id(), shortcut.accelerator()),
+        Some(shortcut) => println!(
+            "Registered #{} -> {:?}",
+            shortcut.id(),
+            shortcut.accelerator()
+        ),
         None => println!("Could not register Ctrl+Shift+A"),
     }
 

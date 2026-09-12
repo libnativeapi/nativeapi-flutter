@@ -118,7 +118,10 @@ fn main() {
     WindowManager::set_will_show_hook(Some(Box::new(|id| {
         println!("[hook] window {id} is about to be shown");
     })));
-    println!("has_will_show_hook = {}", WindowManager::has_will_show_hook());
+    println!(
+        "has_will_show_hook = {}",
+        WindowManager::has_will_show_hook()
+    );
     WindowManager::set_will_show_hook(None);
 
     // --- 8. Clean up ---

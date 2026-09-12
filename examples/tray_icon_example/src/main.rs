@@ -45,11 +45,7 @@ fn main() {
 
     match Image::from_base64(PIXEL_PNG) {
         Some(image) => {
-            println!(
-                "Icon: {:?}, size {:?}",
-                image.format(),
-                image.size()
-            );
+            println!("Icon: {:?}, size {:?}", image.format(), image.size());
             tray.set_icon(Some(&image));
         }
         None => println!("Could not decode the embedded icon."),

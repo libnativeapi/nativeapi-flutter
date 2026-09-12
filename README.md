@@ -31,6 +31,25 @@ nativeapi-rust/
 └── README.md
 ```
 
+## Continuous integration
+
+GitHub Actions runs on pushes and pull requests to `main`, and can also be run
+manually. It checks `cargo fmt` and Clippy, then builds the libraries and all
+example binaries and runs unit, native integration, and documentation tests on
+Linux, macOS, and Windows. The preferences integration test loads the real core
+library and checks Unicode strings, collection marshalling, and removal in a
+unique storage scope. Interactive GUI examples are compiled without opening UI.
+
+Local equivalents (after installing the native dependencies below):
+
+```bash
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --locked
+cargo build --workspace --all-targets --release --locked
+cargo test --workspace --all-targets --release --locked
+cargo test --workspace --doc --release --locked
+```
+
 ## Installation and Setup
 
 ### Prerequisites

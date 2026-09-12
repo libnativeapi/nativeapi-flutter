@@ -28,7 +28,10 @@ fn main() {
 
         // --- 4. Open it ---
         let result = UrlOpener::open(&url);
-        println!("Success: {}, error_code: {:?}", result.success, result.error_code);
+        println!(
+            "Success: {}, error_code: {:?}",
+            result.success, result.error_code
+        );
     } else {
         eprintln!("Cannot open URL: {url}");
     }
