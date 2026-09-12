@@ -506,6 +506,20 @@ impl Window {
         }
     }
 
+    pub fn set_title_bar_colors(&self, background: &Color, foreground: &Color) -> bool {
+        let background_raw = background.to_raw();
+        let foreground_raw = foreground.to_raw();
+        unsafe {
+            cnativeapi::native_window_set_title_bar_colors(self.handle, background_raw.raw, foreground_raw.raw)
+        }
+    }
+
+    pub fn reset_title_bar_colors(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_reset_title_bar_colors(self.handle)
+        }
+    }
+
     pub fn set_title_bar_style(&self, style: TitleBarStyle) {
         unsafe {
             cnativeapi::native_window_set_title_bar_style(self.handle, style.to_raw());
