@@ -7,5 +7,5 @@ description = "Rust bindings for nativeapi - providing seamless, unified access 
 license = "MIT"
 
 [dependencies]
-cnativeapi = { path = "../cnativeapi" }
+cnativeapi = { version = "0.0.1", path = "../cnativeapi" }
 thiserror = "2.0"

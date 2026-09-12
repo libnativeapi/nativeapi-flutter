@@ -1,0 +1,73 @@
+name: Release
+# Requires CARGO_REGISTRY_TOKEN with publish access to both crates.
+# Push v<crate version> to publish; manual runs only validate.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate release versions
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          python - <<'PY'
+          import os, pathlib, re, tomllib
+          crates = [tomllib.loads(pathlib.Path(f'crates/{name}/Cargo.toml').read_text()) for name in ('cnativeapi', 'nativeapi')]
+          version = crates[0]['package']['version']
+          assert re.fullmatch(r'\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?', version), version
+          assert crates[1]['package']['version'] == version, 'Crate versions must match'
+          assert crates[1]['dependencies']['cnativeapi']['version'] == version, 'Update the cnativeapi dependency version'
+          tag = os.environ['RELEASE_TAG']
+          assert not tag or tag == f'v{version}', 'Tag does not match crate versions'
+          PY
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libgtk-3-dev libx11-dev libxi-dev
+      - uses: Swatinem/rust-cache@v2
+      - name: Test release sources
+        run: cargo test --workspace --release --locked
+      - name: Verify packaged native sources build outside the checkout
+        run: cargo package -p cnativeapi --locked
+      - name: Publish crates in dependency order
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          test -n "$CARGO_REGISTRY_TOKEN"
+          cargo publish -p cnativeapi --locked
+          cargo publish -p nativeapi --locked
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crates
+          path: target/package/*.crate
+          if-no-files-found: error
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          args=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" target/package/*.crate --verify-tag --generate-notes "${args[@]}"
