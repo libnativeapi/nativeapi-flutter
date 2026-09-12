@@ -1,4 +1,5 @@
 bin/
 obj/
 build/
+TestResults/
 .DS_Store

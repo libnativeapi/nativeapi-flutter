@@ -12,7 +12,10 @@ namespace CNativeAPI;
 /// </summary>
 internal static class NativeLibraryResolver
 {
+    // Library-level initialization is intentional: register before any P/Invoke.
+#pragma warning disable CA2255
     [ModuleInitializer]
+#pragma warning restore CA2255
     internal static void Register()
     {
         NativeLibrary.SetDllImportResolver(typeof(NativeLibraryResolver).Assembly, Resolve);

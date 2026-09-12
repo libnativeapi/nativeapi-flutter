@@ -7,4 +7,7 @@
     <Project Path="src/CNativeAPI/CNativeAPI.csproj" />
     <Project Path="src/NativeAPI/NativeAPI.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NativeAPI.Tests/NativeAPI.Tests.csproj" />
+  </Folder>
 </Solution>

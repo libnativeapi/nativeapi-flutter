@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+
+jobs:
+  lint:
+    name: Format & Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - run: dotnet restore NativeAPI.slnx
+      - name: Check formatting and code style
+        run: dotnet format NativeAPI.slnx --verify-no-changes --no-restore
+      - name: Build with analyzers
+        run: dotnet build NativeAPI.slnx -c Release --no-restore -warnaserror
+
+  build-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            library: build/native/libnativeapi.so
+          - os: macos-latest
+            library: build/native/libnativeapi.dylib
+          - os: windows-latest
+            library: build/native/Release/nativeapi.dll
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libgtk-3-dev libx11-dev libxi-dev
+      - name: Configure native library
+        run: cmake -S src/CNativeAPI/native -B build/native -DCMAKE_BUILD_TYPE=Release
+      - name: Build native library
+        run: cmake --build build/native --config Release --parallel 2
+      - name: Build managed libraries, examples and tests
+        run: dotnet build NativeAPI.slnx -c Release -warnaserror
+      - name: Run native integration tests
+        env:
+          NATIVEAPI_LIBRARY_PATH: ${{ github.workspace }}/${{ matrix.library }}
+        run: dotnet test NativeAPI.slnx -c Release --no-build --logger trx --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: TestResults/*.trx
+          if-no-files-found: ignore
