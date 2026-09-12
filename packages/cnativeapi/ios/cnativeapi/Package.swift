@@ -25,10 +25,7 @@ let package = Package(
             path: "Sources/cnativeapi",
             sources: [
                 "cnativeapi.mm",
-                // The C API translation units (src/capi/*.cpp) need not be
-                // listed here: cnativeapi.mm #includes them into a single unity
-                // translation unit, and their conversion helpers are defined in
-                // the *_c.h that owns each type, so no redefinition errors occur.
+                "generated",
             ],
             publicHeadersPath: "include",
             cxxSettings: [
