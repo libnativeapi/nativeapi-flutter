@@ -112,7 +112,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
         _currentSize = 0;
         return;
       }
-      _currentData = storage.getAll();
+      _currentData = storage.all;
       _currentSize = storage.size;
     });
   }
@@ -257,7 +257,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
       return;
     }
 
-    final data = storage.getAll();
+    final data = storage.all;
 
     _addToHistory('GetAll [$_selectedStorage]: ${data.length} items');
     data.forEach((key, value) {
@@ -319,7 +319,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     _addToHistory('✓ Total keys: ${keys.length}');
 
     // Get all data
-    final data = storage.getAll();
+    final data = storage.all;
     _addToHistory('✓ Retrieved all data: ${data.length} items');
 
     _addToHistory('--- Bulk Operations Test Complete ---');
