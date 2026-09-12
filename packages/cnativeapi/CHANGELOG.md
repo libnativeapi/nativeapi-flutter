@@ -1,3 +1,9 @@
+## 0.2.4
+
+* Windows: compile the C API directly into the plugin DLL to retain exported entry points.
+* Compile Apple core sources as separate translation units to avoid duplicate definitions.
+* Update the embedded core and generated C bindings.
+
 ## 0.2.3
 
 * Add `native_window_set_non_activating` / `native_window_is_non_activating`

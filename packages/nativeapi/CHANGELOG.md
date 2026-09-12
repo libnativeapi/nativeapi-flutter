@@ -1,3 +1,9 @@
+## 0.2.4
+
+* Update to `cnativeapi` 0.2.4 with Windows DLL export and Apple build fixes.
+* Fix storage example initialization and collection access by using the `all` getter.
+* Sync generated Dart bindings with the updated core.
+
 ## 0.2.3
 
 * Add `Window.isNonActivating`. A non-activating window can be shown on top and take
