@@ -10,6 +10,7 @@ jobs:
     name: Publish to pub.dev
     permissions:
       id-token: write # Required for requesting the JWT
+      contents: write # Required for creating the GitHub Release
     runs-on: ubuntu-latest
 
     steps:
@@ -48,3 +49,12 @@ jobs:
       - name: Publish nativeapi
         run: dart pub publish -f
         working-directory: packages/nativeapi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          args=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" --verify-tag --generate-notes "${args[@]}"
