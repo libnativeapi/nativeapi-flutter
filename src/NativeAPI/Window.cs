@@ -489,6 +489,20 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public bool SetTitleBarColors(Color background, Color foreground)
+    {
+        var rawBackground = background.ToRaw();
+        var rawForeground = foreground.ToRaw();
+        var rawResult = Interop.native_window_set_title_bar_colors(NativeHandle, rawBackground, rawForeground);
+        return rawResult;
+    }
+
+    public bool ResetTitleBarColors()
+    {
+        var rawResult = Interop.native_window_reset_title_bar_colors(NativeHandle);
+        return rawResult;
+    }
+
     public void SetTitleBarStyle(TitleBarStyle style)
     {
         Interop.native_window_set_title_bar_style(NativeHandle, (int)style);

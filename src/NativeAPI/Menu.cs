@@ -9,6 +9,12 @@ using CNativeAPI;
 
 namespace NativeAPI;
 
+public enum MenuBackend
+{
+    Native = 0,
+    WinUi3 = 1,
+}
+
 public enum MenuItemType
 {
     Normal = 0,
@@ -322,6 +328,27 @@ public sealed partial class Menu : IDisposable
             var rawResult = Interop.native_menu_get_id(NativeHandle);
             return rawResult;
         }
+    }
+
+    public bool SetBackend(MenuBackend backend)
+    {
+        var rawResult = Interop.native_menu_set_backend(NativeHandle, (int)backend);
+        return rawResult;
+    }
+
+    public MenuBackend Backend
+    {
+        get
+        {
+            var rawResult = Interop.native_menu_get_backend(NativeHandle);
+            return (MenuBackend)rawResult;
+        }
+    }
+
+    public static bool IsBackendSupported(MenuBackend backend)
+    {
+        var rawResult = Interop.native_menu_is_backend_supported((int)backend);
+        return rawResult;
     }
 
     public void AddItem(MenuItem? item)

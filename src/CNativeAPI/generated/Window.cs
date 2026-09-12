@@ -124,6 +124,14 @@ public static partial class Interop
     public static extern bool native_window_is_window_control_buttons_visible(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_window_reset_title_bar_colors(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_window_set_title_bar_colors(ulong self, native_color_t background, native_color_t foreground);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr native_window_get_native_object(ulong handle);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
