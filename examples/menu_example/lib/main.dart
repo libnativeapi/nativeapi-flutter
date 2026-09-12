@@ -72,6 +72,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _loadTestIcon();
     _setupContextMenu();
     _setupPositioningMenu();
+    if (Menu.isBackendSupported(MenuBackend.winUi3)) {
+      _contextMenu.setBackend(MenuBackend.winUi3);
+      _positioningMenu.setBackend(MenuBackend.winUi3);
+    }
     _setupAnimatedIconGenerator();
   }
 
@@ -672,6 +676,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     // This directly reproduces the code from the issue:
     // https://github.com/libnativeapi/nativeapi-flutter/issues/4
     final menu = Menu.create()!;
+    menu.setBackend(_contextMenu.backend);
 
     // Checkable item with Checked state
     final checkableItem = MenuItem.createWithLabelAndType('Checkable', MenuItemType.checkbox)!;
@@ -729,7 +734,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                   (backend) => DropdownMenuItem(
                     value: backend,
                     enabled: Menu.isBackendSupported(backend),
-                    child: Text(backend.name),
+                    child: Text(backend == MenuBackend.winUi3 ? 'WinUI 3' : 'Native'),
                   ),
                 )
                 .toList(),

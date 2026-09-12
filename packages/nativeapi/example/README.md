@@ -11,6 +11,7 @@ From the Flutter repository root (`bindings/flutter` in the workspace):
 ./tools/run_windows_example.ps1 -Example desktop -WinUI3
 ./tools/run_windows_example.ps1 -Example window -WinUI3
 ./tools/run_windows_example.ps1 -Example menu -WinUI3
+./tools/run_windows_example.ps1 -Example tray -WinUI3
 ```
 
 The launcher restores core's pinned build packages and bundles the bootstrap DLL
@@ -26,6 +27,10 @@ launching. The launcher restores the caller's environment variables when it exit
 | `desktop`: notifications | Check initialization, send twice to replace the tag, click the banner/action and inspect the activation argument, remove the tagged notification. OS settings may suppress banners. |
 | `window`: Appearance | Apply indigo/white title-bar colors to the selected window, then reset them. |
 | `menu`: app bar backend selector | Switch native/WinUI 3 and test context and positioning menus, including submenus. Unsupported options are disabled. |
+| `tray`: app bar backend selector | Starts with one tray icon and right-click trigger. Right-click the tray icon or press **Open Menu** on its card; test items and nested submenus. Switching backend applies to existing and newly created tray icons. |
+
+Menu and tray examples select WinUI 3 initially when supported, otherwise Native.
+The menu example's checkbox/disabled-item reproduction also uses the selected backend.
 
 File pickers are currently implemented on Windows. Extended dialogs, notifications
 and title-bar colors require WinUI 3. Unsupported APIs and operation failures are
