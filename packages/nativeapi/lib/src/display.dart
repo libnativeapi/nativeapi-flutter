@@ -32,7 +32,8 @@ enum DisplayOrientation {
     _ => DisplayOrientation.portrait,
   };
 
-  c.native_display_orientation_t get raw => c.native_display_orientation_t.fromValue(value);
+  c.native_display_orientation_t get raw =>
+      c.native_display_orientation_t.fromValue(value);
 }
 
 /// One `DisplayEvent`, in its concrete form.
@@ -42,13 +43,16 @@ sealed class DisplayEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static DisplayEvent? fromNative(c.native_display_event_t raw) {
-    if (raw.type == c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_ADDED.value) {
+    if (raw.type ==
+        c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_ADDED.value) {
       return DisplayAddedEvent(display: Display.borrowed(raw.display));
     }
-    if (raw.type == c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_REMOVED.value) {
+    if (raw.type ==
+        c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_REMOVED.value) {
       return DisplayRemovedEvent(display: Display.borrowed(raw.display));
     }
-    if (raw.type == c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_CHANGED.value) {
+    if (raw.type ==
+        c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_CHANGED.value) {
       return DisplayChangedEvent(display: Display.borrowed(raw.display));
     }
     return null;
@@ -56,19 +60,19 @@ sealed class DisplayEvent {
 }
 
 final class DisplayAddedEvent extends DisplayEvent {
-  const DisplayAddedEvent({required this.display, });
+  const DisplayAddedEvent({required this.display});
 
   final Display display;
 }
 
 final class DisplayRemovedEvent extends DisplayEvent {
-  const DisplayRemovedEvent({required this.display, });
+  const DisplayRemovedEvent({required this.display});
 
   final Display display;
 }
 
 final class DisplayChangedEvent extends DisplayEvent {
-  const DisplayChangedEvent({required this.display, });
+  const DisplayChangedEvent({required this.display});
 
   final Display display;
 }
@@ -154,6 +158,4 @@ class Display {
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
       _bindings.native_display_get_native_object(nativeHandle);
-
 }
-

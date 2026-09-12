@@ -29,7 +29,8 @@ enum TitleBarStyle {
     _ => TitleBarStyle.normal,
   };
 
-  c.native_title_bar_style_t get raw => c.native_title_bar_style_t.fromValue(value);
+  c.native_title_bar_style_t get raw =>
+      c.native_title_bar_style_t.fromValue(value);
 }
 
 enum VisualEffect {
@@ -87,70 +88,89 @@ sealed class WindowEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static WindowEvent? fromNative(c.native_window_event_t raw) {
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_FOCUSED.value) {
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_FOCUSED.value) {
       return WindowFocusedEvent(windowId: raw.window_id);
     }
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_BLURRED.value) {
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_BLURRED.value) {
       return WindowBlurredEvent(windowId: raw.window_id);
     }
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MINIMIZED.value) {
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MINIMIZED.value) {
       return WindowMinimizedEvent(windowId: raw.window_id);
     }
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MAXIMIZED.value) {
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MAXIMIZED.value) {
       return WindowMaximizedEvent(windowId: raw.window_id);
     }
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_RESTORED.value) {
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_RESTORED.value) {
       return WindowRestoredEvent(windowId: raw.window_id);
     }
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MOVED.value) {
-      return WindowMovedEvent(windowId: raw.window_id, newPosition: Offset(raw.data.moved.new_position.x, raw.data.moved.new_position.y));
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MOVED.value) {
+      return WindowMovedEvent(
+        windowId: raw.window_id,
+        newPosition: Offset(
+          raw.data.moved.new_position.x,
+          raw.data.moved.new_position.y,
+        ),
+      );
     }
-    if (raw.type == c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_RESIZED.value) {
-      return WindowResizedEvent(windowId: raw.window_id, newSize: Size(raw.data.resized.new_size.width, raw.data.resized.new_size.height));
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_RESIZED.value) {
+      return WindowResizedEvent(
+        windowId: raw.window_id,
+        newSize: Size(
+          raw.data.resized.new_size.width,
+          raw.data.resized.new_size.height,
+        ),
+      );
     }
     return null;
   }
 }
 
 final class WindowFocusedEvent extends WindowEvent {
-  const WindowFocusedEvent({required this.windowId, });
+  const WindowFocusedEvent({required this.windowId});
 
   final WindowId windowId;
 }
 
 final class WindowBlurredEvent extends WindowEvent {
-  const WindowBlurredEvent({required this.windowId, });
+  const WindowBlurredEvent({required this.windowId});
 
   final WindowId windowId;
 }
 
 final class WindowMinimizedEvent extends WindowEvent {
-  const WindowMinimizedEvent({required this.windowId, });
+  const WindowMinimizedEvent({required this.windowId});
 
   final WindowId windowId;
 }
 
 final class WindowMaximizedEvent extends WindowEvent {
-  const WindowMaximizedEvent({required this.windowId, });
+  const WindowMaximizedEvent({required this.windowId});
 
   final WindowId windowId;
 }
 
 final class WindowRestoredEvent extends WindowEvent {
-  const WindowRestoredEvent({required this.windowId, });
+  const WindowRestoredEvent({required this.windowId});
 
   final WindowId windowId;
 }
 
 final class WindowMovedEvent extends WindowEvent {
-  const WindowMovedEvent({required this.windowId, required this.newPosition, });
+  const WindowMovedEvent({required this.windowId, required this.newPosition});
 
   final WindowId windowId;
   final Offset newPosition;
 }
 
 final class WindowResizedEvent extends WindowEvent {
-  const WindowResizedEvent({required this.windowId, required this.newSize, });
+  const WindowResizedEvent({required this.windowId, required this.newSize});
 
   final WindowId windowId;
   final Size newSize;
@@ -188,7 +208,9 @@ class Window {
 
   /// Creates a new `Window`; returns null if the native side failed.
   static Window? createWithNativeWindow(ffi.Pointer<ffi.Void> nativeWindow) {
-    final handle = _bindings.native_window_create_with_native_window(nativeWindow);
+    final handle = _bindings.native_window_create_with_native_window(
+      nativeWindow,
+    );
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
@@ -396,11 +418,16 @@ class Window {
   }
 
   set isWindowControlButtonsVisible(bool value) {
-    _bindings.native_window_set_window_control_buttons_visible(nativeHandle, value);
+    _bindings.native_window_set_window_control_buttons_visible(
+      nativeHandle,
+      value,
+    );
   }
 
   bool get isWindowControlButtonsVisible {
-    return _bindings.native_window_is_window_control_buttons_visible(nativeHandle);
+    return _bindings.native_window_is_window_control_buttons_visible(
+      nativeHandle,
+    );
   }
 
   set isAlwaysOnTop(bool value) {
@@ -469,7 +496,11 @@ class Window {
     foregroundPointer.ref.g = (foreground.g * 255).round();
     foregroundPointer.ref.b = (foreground.b * 255).round();
     foregroundPointer.ref.a = (foreground.a * 255).round();
-    final result = _bindings.native_window_set_title_bar_colors(nativeHandle, backgroundPointer.ref, foregroundPointer.ref);
+    final result = _bindings.native_window_set_title_bar_colors(
+      nativeHandle,
+      backgroundPointer.ref,
+      foregroundPointer.ref,
+    );
     pkg_ffi.calloc.free(backgroundPointer);
     pkg_ffi.calloc.free(foregroundPointer);
     return result;
@@ -519,7 +550,10 @@ class Window {
     valuePointer.ref.g = (value.g * 255).round();
     valuePointer.ref.b = (value.b * 255).round();
     valuePointer.ref.a = (value.a * 255).round();
-    _bindings.native_window_set_background_color(nativeHandle, valuePointer.ref);
+    _bindings.native_window_set_background_color(
+      nativeHandle,
+      valuePointer.ref,
+    );
     pkg_ffi.calloc.free(valuePointer);
   }
 
@@ -563,6 +597,4 @@ class Window {
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
       _bindings.native_window_get_native_object(nativeHandle);
-
 }
-

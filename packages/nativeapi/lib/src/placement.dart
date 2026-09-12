@@ -44,4 +44,3 @@ enum Placement {
 
   c.native_placement_t get raw => c.native_placement_t.fromValue(value);
 }
-

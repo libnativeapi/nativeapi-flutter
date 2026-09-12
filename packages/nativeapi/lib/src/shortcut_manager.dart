@@ -25,16 +25,24 @@ class ShortcutManager {
     return _bindings.native_shortcut_manager_is_supported();
   }
 
-  Shortcut? registerWithAcceleratorAndCallback(String accelerator, void Function() callback) {
+  Shortcut? registerWithAcceleratorAndCallback(
+    String accelerator,
+    void Function() callback,
+  ) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    final callbackCallable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<ffi.Void> _) {
-        callback();
-      },
-    );
+    final callbackCallable =
+        ffi.NativeCallable<
+          ffi.Void Function(ffi.Pointer<ffi.Void>)
+        >.isolateLocal((ffi.Pointer<ffi.Void> _) {
+          callback();
+        });
     _listeners.add(callbackCallable);
-    final handle = _bindings.native_shortcut_manager_register_with_accelerator_and_callback(acceleratorNative, callbackCallable.nativeFunction, ffi.nullptr);
+    final handle = _bindings
+        .native_shortcut_manager_register_with_accelerator_and_callback(
+          acceleratorNative,
+          callbackCallable.nativeFunction,
+          ffi.nullptr,
+        );
     pkg_ffi.calloc.free(acceleratorNative);
     if (handle == 0) return null;
     return Shortcut.fromHandle(handle);
@@ -42,7 +50,9 @@ class ShortcutManager {
 
   Shortcut? registerWithOptions(ShortcutOptions options) {
     final optionsPointer = options.allocNative();
-    final handle = _bindings.native_shortcut_manager_register_with_options(optionsPointer.ref);
+    final handle = _bindings.native_shortcut_manager_register_with_options(
+      optionsPointer.ref,
+    );
     ShortcutOptions.freeNative(optionsPointer);
     if (handle == 0) return null;
     return Shortcut.fromHandle(handle);
@@ -54,7 +64,8 @@ class ShortcutManager {
 
   bool unregisterWithAccelerator(String accelerator) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_shortcut_manager_unregister_with_accelerator(acceleratorNative);
+    final result = _bindings
+        .native_shortcut_manager_unregister_with_accelerator(acceleratorNative);
     pkg_ffi.calloc.free(acceleratorNative);
     return result;
   }
@@ -71,7 +82,9 @@ class ShortcutManager {
 
   Shortcut? getWithAccelerator(String accelerator) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    final handle = _bindings.native_shortcut_manager_get_with_accelerator(acceleratorNative);
+    final handle = _bindings.native_shortcut_manager_get_with_accelerator(
+      acceleratorNative,
+    );
     pkg_ffi.calloc.free(acceleratorNative);
     if (handle == 0) return null;
     return Shortcut.fromHandle(handle);
@@ -107,14 +120,18 @@ class ShortcutManager {
 
   bool isAvailable(String accelerator) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_shortcut_manager_is_available(acceleratorNative);
+    final result = _bindings.native_shortcut_manager_is_available(
+      acceleratorNative,
+    );
     pkg_ffi.calloc.free(acceleratorNative);
     return result;
   }
 
   bool isValidAccelerator(String accelerator) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_shortcut_manager_is_valid_accelerator(acceleratorNative);
+    final result = _bindings.native_shortcut_manager_is_valid_accelerator(
+      acceleratorNative,
+    );
     pkg_ffi.calloc.free(acceleratorNative);
     return result;
   }
@@ -129,7 +146,10 @@ class ShortcutManager {
 
   void emitShortcutActivated(ShortcutId id, String accelerator) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_shortcut_manager_emit_shortcut_activated(id, acceleratorNative);
+    _bindings.native_shortcut_manager_emit_shortcut_activated(
+      id,
+      acceleratorNative,
+    );
     pkg_ffi.calloc.free(acceleratorNative);
   }
 
@@ -140,16 +160,25 @@ class ShortcutManager {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(ShortcutEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_shortcut_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_shortcut_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = ShortcutEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_shortcut_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_shortcut_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = ShortcutEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_shortcut_manager_add_listener(
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_shortcut_manager_add_listener(callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
@@ -158,6 +187,4 @@ class ShortcutManager {
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

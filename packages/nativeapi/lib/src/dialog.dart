@@ -24,6 +24,6 @@ enum DialogModality {
     _ => DialogModality.none,
   };
 
-  c.native_dialog_modality_t get raw => c.native_dialog_modality_t.fromValue(value);
+  c.native_dialog_modality_t get raw =>
+      c.native_dialog_modality_t.fromValue(value);
 }
-

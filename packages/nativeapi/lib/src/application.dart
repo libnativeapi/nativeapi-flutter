@@ -41,19 +41,39 @@ sealed class ApplicationEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static ApplicationEvent? fromNative(c.native_application_event_t raw) {
-    if (raw.type == c.native_application_event_type_t.NATIVE_APPLICATION_EVENT_TYPE_STARTED.value) {
+    if (raw.type ==
+        c
+            .native_application_event_type_t
+            .NATIVE_APPLICATION_EVENT_TYPE_STARTED
+            .value) {
       return ApplicationStartedEvent();
     }
-    if (raw.type == c.native_application_event_type_t.NATIVE_APPLICATION_EVENT_TYPE_EXITING.value) {
+    if (raw.type ==
+        c
+            .native_application_event_type_t
+            .NATIVE_APPLICATION_EVENT_TYPE_EXITING
+            .value) {
       return ApplicationExitingEvent(exitCode: raw.data.exiting.exit_code);
     }
-    if (raw.type == c.native_application_event_type_t.NATIVE_APPLICATION_EVENT_TYPE_ACTIVATED.value) {
+    if (raw.type ==
+        c
+            .native_application_event_type_t
+            .NATIVE_APPLICATION_EVENT_TYPE_ACTIVATED
+            .value) {
       return ApplicationActivatedEvent();
     }
-    if (raw.type == c.native_application_event_type_t.NATIVE_APPLICATION_EVENT_TYPE_DEACTIVATED.value) {
+    if (raw.type ==
+        c
+            .native_application_event_type_t
+            .NATIVE_APPLICATION_EVENT_TYPE_DEACTIVATED
+            .value) {
       return ApplicationDeactivatedEvent();
     }
-    if (raw.type == c.native_application_event_type_t.NATIVE_APPLICATION_EVENT_TYPE_QUIT_REQUESTED.value) {
+    if (raw.type ==
+        c
+            .native_application_event_type_t
+            .NATIVE_APPLICATION_EVENT_TYPE_QUIT_REQUESTED
+            .value) {
       return ApplicationQuitRequestedEvent();
     }
     return null;
@@ -65,7 +85,7 @@ final class ApplicationStartedEvent extends ApplicationEvent {
 }
 
 final class ApplicationExitingEvent extends ApplicationEvent {
-  const ApplicationExitingEvent({required this.exitCode, });
+  const ApplicationExitingEvent({required this.exitCode});
 
   final int exitCode;
 }
@@ -93,7 +113,9 @@ class Application {
   }
 
   int runWithWindow(Window? window) {
-    return _bindings.native_application_run_with_window(window?.nativeHandle ?? 0);
+    return _bindings.native_application_run_with_window(
+      window?.nativeHandle ?? 0,
+    );
   }
 
   void quit(int exitCode) {
@@ -169,16 +191,25 @@ class Application {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(ApplicationEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_application_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_application_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = ApplicationEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_application_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_application_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = ApplicationEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_application_add_listener(
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_application_add_listener(callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
@@ -187,6 +218,4 @@ class Application {
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

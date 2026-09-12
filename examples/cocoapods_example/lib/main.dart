@@ -65,7 +65,9 @@ class _NativeApiSmokeTestPageState extends State<NativeApiSmokeTestPage> {
       }),
       _check('WindowManager current window', () {
         final current = WindowManager.instance.getCurrent();
-        return current == null ? 'no active native window' : (current.title ?? '');
+        return current == null
+            ? 'no active native window'
+            : (current.title ?? '');
       }),
       _check('Preferences read/write', () {
         final prefs = Preferences.createWithScope('cocoapods_example')!;

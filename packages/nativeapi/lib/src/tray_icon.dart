@@ -36,7 +36,8 @@ enum ContextMenuTrigger {
     _ => ContextMenuTrigger.none,
   };
 
-  c.native_context_menu_trigger_t get raw => c.native_context_menu_trigger_t.fromValue(value);
+  c.native_context_menu_trigger_t get raw =>
+      c.native_context_menu_trigger_t.fromValue(value);
 }
 
 /// One `TrayIconEvent`, in its concrete form.
@@ -46,33 +47,49 @@ sealed class TrayIconEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static TrayIconEvent? fromNative(c.native_tray_icon_event_t raw) {
-    if (raw.type == c.native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED.value) {
+    if (raw.type ==
+        c
+            .native_tray_icon_event_type_t
+            .NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED
+            .value) {
       return TrayIconClickedEvent(trayIconId: raw.data.clicked.tray_icon_id);
     }
-    if (raw.type == c.native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED.value) {
-      return TrayIconRightClickedEvent(trayIconId: raw.data.right_clicked.tray_icon_id);
+    if (raw.type ==
+        c
+            .native_tray_icon_event_type_t
+            .NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED
+            .value) {
+      return TrayIconRightClickedEvent(
+        trayIconId: raw.data.right_clicked.tray_icon_id,
+      );
     }
-    if (raw.type == c.native_tray_icon_event_type_t.NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED.value) {
-      return TrayIconDoubleClickedEvent(trayIconId: raw.data.double_clicked.tray_icon_id);
+    if (raw.type ==
+        c
+            .native_tray_icon_event_type_t
+            .NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED
+            .value) {
+      return TrayIconDoubleClickedEvent(
+        trayIconId: raw.data.double_clicked.tray_icon_id,
+      );
     }
     return null;
   }
 }
 
 final class TrayIconClickedEvent extends TrayIconEvent {
-  const TrayIconClickedEvent({required this.trayIconId, });
+  const TrayIconClickedEvent({required this.trayIconId});
 
   final TrayIconId trayIconId;
 }
 
 final class TrayIconRightClickedEvent extends TrayIconEvent {
-  const TrayIconRightClickedEvent({required this.trayIconId, });
+  const TrayIconRightClickedEvent({required this.trayIconId});
 
   final TrayIconId trayIconId;
 }
 
 final class TrayIconDoubleClickedEvent extends TrayIconEvent {
-  const TrayIconDoubleClickedEvent({required this.trayIconId, });
+  const TrayIconDoubleClickedEvent({required this.trayIconId});
 
   final TrayIconId trayIconId;
 }
@@ -161,7 +178,10 @@ class TrayIcon {
   }
 
   void setContextMenu(Menu? menu) {
-    _bindings.native_tray_icon_set_context_menu(nativeHandle, menu?.nativeHandle ?? 0);
+    _bindings.native_tray_icon_set_context_menu(
+      nativeHandle,
+      menu?.nativeHandle ?? 0,
+    );
   }
 
   Menu? getContextMenu() {
@@ -171,11 +191,16 @@ class TrayIcon {
   }
 
   void setContextMenuTrigger(ContextMenuTrigger trigger) {
-    _bindings.native_tray_icon_set_context_menu_trigger(nativeHandle, trigger.raw);
+    _bindings.native_tray_icon_set_context_menu_trigger(
+      nativeHandle,
+      trigger.raw,
+    );
   }
 
   ContextMenuTrigger getContextMenuTrigger() {
-    final raw = _bindings.native_tray_icon_get_context_menu_trigger(nativeHandle);
+    final raw = _bindings.native_tray_icon_get_context_menu_trigger(
+      nativeHandle,
+    );
     return ContextMenuTrigger.fromValue(raw.value);
   }
 
@@ -211,16 +236,26 @@ class TrayIcon {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(TrayIconEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_tray_icon_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_tray_icon_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = TrayIconEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_tray_icon_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_tray_icon_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = TrayIconEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_tray_icon_add_listener(
+      nativeHandle,
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_tray_icon_add_listener(nativeHandle, callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
@@ -229,6 +264,4 @@ class TrayIcon {
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

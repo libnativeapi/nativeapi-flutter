@@ -44,7 +44,9 @@ class SecureStorage {
   /// Creates a new `SecureStorage`; returns null if the native side failed.
   static SecureStorage? createWithScope(String scope) {
     final scopeNative = scope.toNativeUtf8().cast<ffi.Char>();
-    final handle = _bindings.native_secure_storage_create_with_scope(scopeNative);
+    final handle = _bindings.native_secure_storage_create_with_scope(
+      scopeNative,
+    );
     pkg_ffi.calloc.free(scopeNative);
     if (handle == 0) return null;
     return SecureStorage.fromHandle(handle);
@@ -53,7 +55,11 @@ class SecureStorage {
   bool set(String key, String value) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
     final valueNative = value.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_secure_storage_set(nativeHandle, keyNative, valueNative);
+    final result = _bindings.native_secure_storage_set(
+      nativeHandle,
+      keyNative,
+      valueNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     pkg_ffi.calloc.free(valueNative);
     return result;
@@ -62,7 +68,11 @@ class SecureStorage {
   String? get(String key, String defaultValue) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
     final defaultValueNative = defaultValue.toNativeUtf8().cast<ffi.Char>();
-    final resultPointer = _bindings.native_secure_storage_get(nativeHandle, keyNative, defaultValueNative);
+    final resultPointer = _bindings.native_secure_storage_get(
+      nativeHandle,
+      keyNative,
+      defaultValueNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     pkg_ffi.calloc.free(defaultValueNative);
     if (resultPointer == ffi.nullptr) return null;
@@ -73,7 +83,10 @@ class SecureStorage {
 
   bool remove(String key) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_secure_storage_remove(nativeHandle, keyNative);
+    final result = _bindings.native_secure_storage_remove(
+      nativeHandle,
+      keyNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     return result;
   }
@@ -84,7 +97,10 @@ class SecureStorage {
 
   bool contains(String key) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_secure_storage_contains(nativeHandle, keyNative);
+    final result = _bindings.native_secure_storage_contains(
+      nativeHandle,
+      keyNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     return result;
   }
@@ -127,7 +143,9 @@ class SecureStorage {
   }
 
   String? get scope {
-    final resultPointer = _bindings.native_secure_storage_get_scope(nativeHandle);
+    final resultPointer = _bindings.native_secure_storage_get_scope(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -137,6 +155,4 @@ class SecureStorage {
   static bool isAvailable() {
     return _bindings.native_secure_storage_is_available();
   }
-
 }
-

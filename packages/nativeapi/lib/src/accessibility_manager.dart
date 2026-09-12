@@ -24,6 +24,4 @@ class AccessibilityManager {
   bool isEnabled() {
     return _bindings.native_accessibility_manager_is_enabled();
   }
-
 }
-

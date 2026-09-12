@@ -26,11 +26,18 @@ enum ShortcutScope {
     _ => ShortcutScope.global,
   };
 
-  c.native_shortcut_scope_t get raw => c.native_shortcut_scope_t.fromValue(value);
+  c.native_shortcut_scope_t get raw =>
+      c.native_shortcut_scope_t.fromValue(value);
 }
 
 class ShortcutOptions {
-  const ShortcutOptions({required this.accelerator, this.callback, required this.description, required this.scope, required this.enabled, });
+  const ShortcutOptions({
+    required this.accelerator,
+    this.callback,
+    required this.description,
+    required this.scope,
+    required this.enabled,
+  });
 
   final String? accelerator;
   final void Function()? callback;
@@ -38,12 +45,17 @@ class ShortcutOptions {
   final ShortcutScope scope;
   final bool enabled;
 
-  factory ShortcutOptions.fromNative(c.native_shortcut_options_t raw) => ShortcutOptions(
-    accelerator: raw.accelerator == ffi.nullptr ? null : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
-    description: raw.description == ffi.nullptr ? null : raw.description.cast<pkg_ffi.Utf8>().toDartString(),
-    scope: ShortcutScope.fromValue(raw.scope),
-    enabled: raw.enabled,
-  );
+  factory ShortcutOptions.fromNative(c.native_shortcut_options_t raw) =>
+      ShortcutOptions(
+        accelerator: raw.accelerator == ffi.nullptr
+            ? null
+            : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
+        description: raw.description == ffi.nullptr
+            ? null
+            : raw.description.cast<pkg_ffi.Utf8>().toDartString(),
+        scope: ShortcutScope.fromValue(raw.scope),
+        enabled: raw.enabled,
+      );
 
   /// Allocates the C form; free it with [freeNative].
   ffi.Pointer<c.native_shortcut_options_t> allocNative() {
@@ -78,45 +90,99 @@ sealed class ShortcutEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static ShortcutEvent? fromNative(c.native_shortcut_event_t raw) {
-    if (raw.type == c.native_shortcut_event_type_t.NATIVE_SHORTCUT_EVENT_TYPE_ACTIVATED.value) {
-      return ShortcutActivatedEvent(shortcutId: raw.shortcut_id, accelerator: raw.accelerator == ffi.nullptr ? null : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString());
+    if (raw.type ==
+        c
+            .native_shortcut_event_type_t
+            .NATIVE_SHORTCUT_EVENT_TYPE_ACTIVATED
+            .value) {
+      return ShortcutActivatedEvent(
+        shortcutId: raw.shortcut_id,
+        accelerator: raw.accelerator == ffi.nullptr
+            ? null
+            : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
+      );
     }
-    if (raw.type == c.native_shortcut_event_type_t.NATIVE_SHORTCUT_EVENT_TYPE_REGISTERED.value) {
-      return ShortcutRegisteredEvent(shortcutId: raw.shortcut_id, accelerator: raw.accelerator == ffi.nullptr ? null : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString());
+    if (raw.type ==
+        c
+            .native_shortcut_event_type_t
+            .NATIVE_SHORTCUT_EVENT_TYPE_REGISTERED
+            .value) {
+      return ShortcutRegisteredEvent(
+        shortcutId: raw.shortcut_id,
+        accelerator: raw.accelerator == ffi.nullptr
+            ? null
+            : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
+      );
     }
-    if (raw.type == c.native_shortcut_event_type_t.NATIVE_SHORTCUT_EVENT_TYPE_UNREGISTERED.value) {
-      return ShortcutUnregisteredEvent(shortcutId: raw.shortcut_id, accelerator: raw.accelerator == ffi.nullptr ? null : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString());
+    if (raw.type ==
+        c
+            .native_shortcut_event_type_t
+            .NATIVE_SHORTCUT_EVENT_TYPE_UNREGISTERED
+            .value) {
+      return ShortcutUnregisteredEvent(
+        shortcutId: raw.shortcut_id,
+        accelerator: raw.accelerator == ffi.nullptr
+            ? null
+            : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
+      );
     }
-    if (raw.type == c.native_shortcut_event_type_t.NATIVE_SHORTCUT_EVENT_TYPE_REGISTRATION_FAILED.value) {
-      return ShortcutRegistrationFailedEvent(shortcutId: raw.shortcut_id, accelerator: raw.accelerator == ffi.nullptr ? null : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(), errorMessage: raw.data.registration_failed.error_message == ffi.nullptr ? null : raw.data.registration_failed.error_message.cast<pkg_ffi.Utf8>().toDartString());
+    if (raw.type ==
+        c
+            .native_shortcut_event_type_t
+            .NATIVE_SHORTCUT_EVENT_TYPE_REGISTRATION_FAILED
+            .value) {
+      return ShortcutRegistrationFailedEvent(
+        shortcutId: raw.shortcut_id,
+        accelerator: raw.accelerator == ffi.nullptr
+            ? null
+            : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
+        errorMessage: raw.data.registration_failed.error_message == ffi.nullptr
+            ? null
+            : raw.data.registration_failed.error_message
+                  .cast<pkg_ffi.Utf8>()
+                  .toDartString(),
+      );
     }
     return null;
   }
 }
 
 final class ShortcutActivatedEvent extends ShortcutEvent {
-  const ShortcutActivatedEvent({required this.shortcutId, required this.accelerator, });
+  const ShortcutActivatedEvent({
+    required this.shortcutId,
+    required this.accelerator,
+  });
 
   final ShortcutId shortcutId;
   final String? accelerator;
 }
 
 final class ShortcutRegisteredEvent extends ShortcutEvent {
-  const ShortcutRegisteredEvent({required this.shortcutId, required this.accelerator, });
+  const ShortcutRegisteredEvent({
+    required this.shortcutId,
+    required this.accelerator,
+  });
 
   final ShortcutId shortcutId;
   final String? accelerator;
 }
 
 final class ShortcutUnregisteredEvent extends ShortcutEvent {
-  const ShortcutUnregisteredEvent({required this.shortcutId, required this.accelerator, });
+  const ShortcutUnregisteredEvent({
+    required this.shortcutId,
+    required this.accelerator,
+  });
 
   final ShortcutId shortcutId;
   final String? accelerator;
 }
 
 final class ShortcutRegistrationFailedEvent extends ShortcutEvent {
-  const ShortcutRegistrationFailedEvent({required this.shortcutId, required this.accelerator, required this.errorMessage, });
+  const ShortcutRegistrationFailedEvent({
+    required this.shortcutId,
+    required this.accelerator,
+    required this.errorMessage,
+  });
 
   final ShortcutId shortcutId;
   final String? accelerator;
@@ -147,25 +213,41 @@ class Shortcut {
   }
 
   /// Creates a new `Shortcut`; returns null if the native side failed.
-  static Shortcut? createWithIdAndOptions(ShortcutId id, ShortcutOptions options) {
+  static Shortcut? createWithIdAndOptions(
+    ShortcutId id,
+    ShortcutOptions options,
+  ) {
     final optionsPointer = options.allocNative();
-    final handle = _bindings.native_shortcut_create_with_id_and_options(id, optionsPointer.ref);
+    final handle = _bindings.native_shortcut_create_with_id_and_options(
+      id,
+      optionsPointer.ref,
+    );
     ShortcutOptions.freeNative(optionsPointer);
     if (handle == 0) return null;
     return Shortcut.fromHandle(handle);
   }
 
   /// Creates a new `Shortcut`; returns null if the native side failed.
-  static Shortcut? createWithIdAndAcceleratorAndCallback(ShortcutId id, String accelerator, void Function() callback) {
+  static Shortcut? createWithIdAndAcceleratorAndCallback(
+    ShortcutId id,
+    String accelerator,
+    void Function() callback,
+  ) {
     final acceleratorNative = accelerator.toNativeUtf8().cast<ffi.Char>();
-    final callbackCallable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<ffi.Void> _) {
-        callback();
-      },
-    );
+    final callbackCallable =
+        ffi.NativeCallable<
+          ffi.Void Function(ffi.Pointer<ffi.Void>)
+        >.isolateLocal((ffi.Pointer<ffi.Void> _) {
+          callback();
+        });
     _listeners.add(callbackCallable);
-    final handle = _bindings.native_shortcut_create_with_id_and_accelerator_and_callback(id, acceleratorNative, callbackCallable.nativeFunction, ffi.nullptr);
+    final handle = _bindings
+        .native_shortcut_create_with_id_and_accelerator_and_callback(
+          id,
+          acceleratorNative,
+          callbackCallable.nativeFunction,
+          ffi.nullptr,
+        );
     pkg_ffi.calloc.free(acceleratorNative);
     if (handle == 0) return null;
     return Shortcut.fromHandle(handle);
@@ -176,7 +258,9 @@ class Shortcut {
   }
 
   String? get accelerator {
-    final resultPointer = _bindings.native_shortcut_get_accelerator(nativeHandle);
+    final resultPointer = _bindings.native_shortcut_get_accelerator(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -184,7 +268,9 @@ class Shortcut {
   }
 
   String? get description {
-    final resultPointer = _bindings.native_shortcut_get_description(nativeHandle);
+    final resultPointer = _bindings.native_shortcut_get_description(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -215,18 +301,20 @@ class Shortcut {
   }
 
   void setCallback(void Function() callback) {
-    final callbackCallable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<ffi.Void> _) {
-        callback();
-      },
-    );
+    final callbackCallable =
+        ffi.NativeCallable<
+          ffi.Void Function(ffi.Pointer<ffi.Void>)
+        >.isolateLocal((ffi.Pointer<ffi.Void> _) {
+          callback();
+        });
     _listeners.add(callbackCallable);
-    _bindings.native_shortcut_set_callback(nativeHandle, callbackCallable.nativeFunction, ffi.nullptr);
+    _bindings.native_shortcut_set_callback(
+      nativeHandle,
+      callbackCallable.nativeFunction,
+      ffi.nullptr,
+    );
   }
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

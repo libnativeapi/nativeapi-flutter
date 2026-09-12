@@ -72,6 +72,4 @@ class DeviceInfo {
     _bindings.free_c_str(resultPointer);
     return result;
   }
-
 }
-

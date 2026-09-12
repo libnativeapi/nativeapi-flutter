@@ -53,7 +53,11 @@ class Preferences {
   bool set(String key, String value) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
     final valueNative = value.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_preferences_set(nativeHandle, keyNative, valueNative);
+    final result = _bindings.native_preferences_set(
+      nativeHandle,
+      keyNative,
+      valueNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     pkg_ffi.calloc.free(valueNative);
     return result;
@@ -62,7 +66,11 @@ class Preferences {
   String? get(String key, String defaultValue) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
     final defaultValueNative = defaultValue.toNativeUtf8().cast<ffi.Char>();
-    final resultPointer = _bindings.native_preferences_get(nativeHandle, keyNative, defaultValueNative);
+    final resultPointer = _bindings.native_preferences_get(
+      nativeHandle,
+      keyNative,
+      defaultValueNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     pkg_ffi.calloc.free(defaultValueNative);
     if (resultPointer == ffi.nullptr) return null;
@@ -84,7 +92,10 @@ class Preferences {
 
   bool contains(String key) {
     final keyNative = key.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_preferences_contains(nativeHandle, keyNative);
+    final result = _bindings.native_preferences_contains(
+      nativeHandle,
+      keyNative,
+    );
     pkg_ffi.calloc.free(keyNative);
     return result;
   }
@@ -133,6 +144,4 @@ class Preferences {
     _bindings.free_c_str(resultPointer);
     return result;
   }
-
 }
-

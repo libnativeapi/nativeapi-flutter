@@ -40,15 +40,18 @@ enum ModifierKey {
 }
 
 class KeyboardAccelerator {
-  const KeyboardAccelerator({required this.modifiers, required this.key, });
+  const KeyboardAccelerator({required this.modifiers, required this.key});
 
   final ModifierKey modifiers;
   final String? key;
 
-  factory KeyboardAccelerator.fromNative(c.native_keyboard_accelerator_t raw) => KeyboardAccelerator(
-    modifiers: ModifierKey.fromValue(raw.modifiers),
-    key: raw.key == ffi.nullptr ? null : raw.key.cast<pkg_ffi.Utf8>().toDartString(),
-  );
+  factory KeyboardAccelerator.fromNative(c.native_keyboard_accelerator_t raw) =>
+      KeyboardAccelerator(
+        modifiers: ModifierKey.fromValue(raw.modifiers),
+        key: raw.key == ffi.nullptr
+            ? null
+            : raw.key.cast<pkg_ffi.Utf8>().toDartString(),
+      );
 
   /// Allocates the C form; free it with [freeNative].
   ffi.Pointer<c.native_keyboard_accelerator_t> allocNative() {
@@ -75,35 +78,52 @@ sealed class KeyboardEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static KeyboardEvent? fromNative(c.native_keyboard_event_t raw) {
-    if (raw.type == c.native_keyboard_event_type_t.NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED.value) {
+    if (raw.type ==
+        c
+            .native_keyboard_event_type_t
+            .NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED
+            .value) {
       return KeyboardKeyPressedEvent(keycode: raw.keycode);
     }
-    if (raw.type == c.native_keyboard_event_type_t.NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED.value) {
+    if (raw.type ==
+        c
+            .native_keyboard_event_type_t
+            .NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED
+            .value) {
       return KeyboardKeyReleasedEvent(keycode: raw.keycode);
     }
-    if (raw.type == c.native_keyboard_event_type_t.NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED.value) {
-      return KeyboardModifierKeysChangedEvent(keycode: raw.keycode, modifierKeys: raw.data.modifier_keys_changed.modifier_keys);
+    if (raw.type ==
+        c
+            .native_keyboard_event_type_t
+            .NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED
+            .value) {
+      return KeyboardModifierKeysChangedEvent(
+        keycode: raw.keycode,
+        modifierKeys: raw.data.modifier_keys_changed.modifier_keys,
+      );
     }
     return null;
   }
 }
 
 final class KeyboardKeyPressedEvent extends KeyboardEvent {
-  const KeyboardKeyPressedEvent({required this.keycode, });
+  const KeyboardKeyPressedEvent({required this.keycode});
 
   final int keycode;
 }
 
 final class KeyboardKeyReleasedEvent extends KeyboardEvent {
-  const KeyboardKeyReleasedEvent({required this.keycode, });
+  const KeyboardKeyReleasedEvent({required this.keycode});
 
   final int keycode;
 }
 
 final class KeyboardModifierKeysChangedEvent extends KeyboardEvent {
-  const KeyboardModifierKeysChangedEvent({required this.keycode, required this.modifierKeys, });
+  const KeyboardModifierKeysChangedEvent({
+    required this.keycode,
+    required this.modifierKeys,
+  });
 
   final int keycode;
   final int modifierKeys;
 }
-

@@ -42,6 +42,4 @@ class TrayManager {
     pkg_ffi.calloc.free(listPointer);
     return items;
   }
-
 }
-

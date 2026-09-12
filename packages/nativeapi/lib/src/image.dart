@@ -75,7 +75,10 @@ class Image {
 
   bool saveToFile(String filePath) {
     final filePathNative = filePath.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_image_save_to_file(nativeHandle, filePathNative);
+    final result = _bindings.native_image_save_to_file(
+      nativeHandle,
+      filePathNative,
+    );
     pkg_ffi.calloc.free(filePathNative);
     return result;
   }
@@ -83,6 +86,4 @@ class Image {
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
       _bindings.native_image_get_native_object(nativeHandle);
-
 }
-

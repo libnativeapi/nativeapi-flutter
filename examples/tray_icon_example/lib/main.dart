@@ -132,7 +132,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
 
       // Set up event listeners
       trayIcon.addListener((event) {
-      if (event is! TrayIconClickedEvent) return;
+        if (event is! TrayIconClickedEvent) return;
         setState(() {
           trayIconData.clickCount++;
         });
@@ -142,7 +142,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       });
 
       trayIcon.addListener((event) {
-      if (event is! TrayIconRightClickedEvent) return;
+        if (event is! TrayIconRightClickedEvent) return;
         setState(() {
           trayIconData.rightClickCount++;
         });
@@ -152,7 +152,7 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       });
 
       trayIcon.addListener((event) {
-      if (event is! TrayIconDoubleClickedEvent) return;
+        if (event is! TrayIconDoubleClickedEvent) return;
         setState(() {
           trayIconData.doubleClickCount++;
         });
@@ -192,27 +192,58 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     });
 
     // Add menu items
-    final showItem = MenuItem.createWithLabelAndType('Show Window', MenuItemType.normal)!;
-    final hideItem = MenuItem.createWithLabelAndType('Hide Window', MenuItemType.normal)!;
-    final separatorItem = MenuItem.createWithLabelAndType('', MenuItemType.separator)!;
-    final toggleItem = MenuItem.createWithLabelAndType('Toggle Visibility', MenuItemType.normal)!;
-    final separatorItem2 = MenuItem.createWithLabelAndType('', MenuItemType.separator)!;
-    final checkItem = MenuItem.createWithLabelAndType('Checked item', MenuItemType.checkbox)!;
+    final showItem = MenuItem.createWithLabelAndType(
+      'Show Window',
+      MenuItemType.normal,
+    )!;
+    final hideItem = MenuItem.createWithLabelAndType(
+      'Hide Window',
+      MenuItemType.normal,
+    )!;
+    final separatorItem = MenuItem.createWithLabelAndType(
+      '',
+      MenuItemType.separator,
+    )!;
+    final toggleItem = MenuItem.createWithLabelAndType(
+      'Toggle Visibility',
+      MenuItemType.normal,
+    )!;
+    final separatorItem2 = MenuItem.createWithLabelAndType(
+      '',
+      MenuItemType.separator,
+    )!;
+    final checkItem = MenuItem.createWithLabelAndType(
+      'Checked item',
+      MenuItemType.checkbox,
+    )!;
     checkItem.state = MenuItemState.checked;
     checkItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       checkItem.state = checkItem.state == MenuItemState.checked
-          ? MenuItemState.unchecked : MenuItemState.checked;
+          ? MenuItemState.unchecked
+          : MenuItemState.checked;
       _addToHistory('Tray checkbox: ${checkItem.state.name}');
     });
-    final disabledItem = MenuItem.createWithLabelAndType('Disabled item', MenuItemType.normal)!;
+    final disabledItem = MenuItem.createWithLabelAndType(
+      'Disabled item',
+      MenuItemType.normal,
+    )!;
     disabledItem.isEnabled = false;
 
     // Create submenu
     final submenuMenu = Menu.create()!;
-    final submenuItem1 = MenuItem.createWithLabelAndType('Submenu Item 1', MenuItemType.normal)!;
-    final submenuItem2 = MenuItem.createWithLabelAndType('Submenu Item 2', MenuItemType.normal)!;
-    final submenuItem3 = MenuItem.createWithLabelAndType('Submenu Item 3', MenuItemType.normal)!;
+    final submenuItem1 = MenuItem.createWithLabelAndType(
+      'Submenu Item 1',
+      MenuItemType.normal,
+    )!;
+    final submenuItem2 = MenuItem.createWithLabelAndType(
+      'Submenu Item 2',
+      MenuItemType.normal,
+    )!;
+    final submenuItem3 = MenuItem.createWithLabelAndType(
+      'Submenu Item 3',
+      MenuItemType.normal,
+    )!;
 
     // Add submenu items
     submenuMenu.addItem(submenuItem1);
@@ -220,7 +251,10 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
     submenuMenu.addItem(submenuItem3);
 
     // Create submenu menu item
-    final submenuMenuItem = MenuItem.createWithLabelAndType('More Options', MenuItemType.submenu)!;
+    final submenuMenuItem = MenuItem.createWithLabelAndType(
+      'More Options',
+      MenuItemType.submenu,
+    )!;
     submenuMenuItem.submenu = submenuMenu;
 
     // Listen to submenu open/close events
@@ -250,9 +284,18 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       _addToHistory('Submenu Item 3 clicked for tray icon ${trayIcon.getId()}');
     });
 
-    final separatorItem3 = MenuItem.createWithLabelAndType('', MenuItemType.separator)!;
-    final aboutItem = MenuItem.createWithLabelAndType('About', MenuItemType.normal)!;
-    final quitItem = MenuItem.createWithLabelAndType('Quit', MenuItemType.normal)!;
+    final separatorItem3 = MenuItem.createWithLabelAndType(
+      '',
+      MenuItemType.separator,
+    )!;
+    final aboutItem = MenuItem.createWithLabelAndType(
+      'About',
+      MenuItemType.normal,
+    )!;
+    final quitItem = MenuItem.createWithLabelAndType(
+      'Quit',
+      MenuItemType.normal,
+    )!;
 
     // Add event listeners for menu items
     showItem.addListener((event) {
@@ -388,7 +431,9 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
       orElse: () => throw Exception('Tray icon not found'),
     );
     final opened = trayIconData.trayIcon.openContextMenu();
-    _addToHistory('Open tray menu $id (${trayIconData.contextMenu.backend.name}): $opened');
+    _addToHistory(
+      'Open tray menu $id (${trayIconData.contextMenu.backend.name}): $opened',
+    );
   }
 
   void _setMenuBackend(MenuBackend backend) {
@@ -635,11 +680,17 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
         actions: [
           DropdownButton<MenuBackend>(
             value: _menuBackend,
-            items: MenuBackend.values.map((backend) => DropdownMenuItem(
-              value: backend,
-              enabled: Menu.isBackendSupported(backend),
-              child: Text(backend == MenuBackend.winUi3 ? 'WinUI 3' : 'Native'),
-            )).toList(),
+            items: MenuBackend.values
+                .map(
+                  (backend) => DropdownMenuItem(
+                    value: backend,
+                    enabled: Menu.isBackendSupported(backend),
+                    child: Text(
+                      backend == MenuBackend.winUi3 ? 'WinUI 3' : 'Native',
+                    ),
+                  ),
+                )
+                .toList(),
             onChanged: (backend) {
               if (backend != null) _setMenuBackend(backend);
             },
@@ -663,8 +714,10 @@ class _TrayIconExamplePageState extends State<TrayIconExamplePage> {
                 children: [
                   // Tray Icon Overview Section
                   _buildSectionCard('Tray Icon Overview', [
-                    const Text('Right-click the tray icon, or use Open Menu below. '
-                        'The backend selector applies to existing and new tray menus.'),
+                    const Text(
+                      'Right-click the tray icon, or use Open Menu below. '
+                      'The backend selector applies to existing and new tray menus.',
+                    ),
                     Row(
                       children: [
                         Expanded(

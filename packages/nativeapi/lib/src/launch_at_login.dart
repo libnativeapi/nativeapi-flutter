@@ -51,10 +51,17 @@ class LaunchAtLogin {
   }
 
   /// Creates a new `LaunchAtLogin`; returns null if the native side failed.
-  static LaunchAtLogin? createWithIdAndDisplayName(String id, String displayName) {
+  static LaunchAtLogin? createWithIdAndDisplayName(
+    String id,
+    String displayName,
+  ) {
     final idNative = id.toNativeUtf8().cast<ffi.Char>();
     final displayNameNative = displayName.toNativeUtf8().cast<ffi.Char>();
-    final handle = _bindings.native_launch_at_login_create_with_id_and_display_name(idNative, displayNameNative);
+    final handle = _bindings
+        .native_launch_at_login_create_with_id_and_display_name(
+          idNative,
+          displayNameNative,
+        );
     pkg_ffi.calloc.free(idNative);
     pkg_ffi.calloc.free(displayNameNative);
     if (handle == 0) return null;
@@ -74,7 +81,9 @@ class LaunchAtLogin {
   }
 
   String? get displayName {
-    final resultPointer = _bindings.native_launch_at_login_get_display_name(nativeHandle);
+    final resultPointer = _bindings.native_launch_at_login_get_display_name(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -83,21 +92,30 @@ class LaunchAtLogin {
 
   bool setDisplayName(String displayName) {
     final displayNameNative = displayName.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_launch_at_login_set_display_name(nativeHandle, displayNameNative);
+    final result = _bindings.native_launch_at_login_set_display_name(
+      nativeHandle,
+      displayNameNative,
+    );
     pkg_ffi.calloc.free(displayNameNative);
     return result;
   }
 
   bool setProgram(String executablePath, List<String> arguments) {
     final executablePathNative = executablePath.toNativeUtf8().cast<ffi.Char>();
-    final argumentsItems = pkg_ffi.calloc<ffi.Pointer<ffi.Char>>(arguments.length);
+    final argumentsItems = pkg_ffi.calloc<ffi.Pointer<ffi.Char>>(
+      arguments.length,
+    );
     for (var i = 0; i < arguments.length; i++) {
       argumentsItems[i] = arguments[i].toNativeUtf8().cast<ffi.Char>();
     }
     final argumentsList = pkg_ffi.calloc<c.native_string_list_t>();
     argumentsList.ref.items = argumentsItems;
     argumentsList.ref.count = arguments.length;
-    final result = _bindings.native_launch_at_login_set_program(nativeHandle, executablePathNative, argumentsList.ref);
+    final result = _bindings.native_launch_at_login_set_program(
+      nativeHandle,
+      executablePathNative,
+      argumentsList.ref,
+    );
     pkg_ffi.calloc.free(executablePathNative);
     for (var i = 0; i < arguments.length; i++) {
       pkg_ffi.calloc.free(argumentsItems[i]);
@@ -108,7 +126,9 @@ class LaunchAtLogin {
   }
 
   String? get executablePath {
-    final resultPointer = _bindings.native_launch_at_login_get_executable_path(nativeHandle);
+    final resultPointer = _bindings.native_launch_at_login_get_executable_path(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -141,6 +161,4 @@ class LaunchAtLogin {
   bool get isEnabled {
     return _bindings.native_launch_at_login_is_enabled(nativeHandle);
   }
-
 }
-

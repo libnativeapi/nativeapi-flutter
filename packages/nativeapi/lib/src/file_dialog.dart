@@ -31,7 +31,8 @@ enum FileDialogMode {
     _ => FileDialogMode.openFile,
   };
 
-  c.native_file_dialog_mode_t get raw => c.native_file_dialog_mode_t.fromValue(value);
+  c.native_file_dialog_mode_t get raw =>
+      c.native_file_dialog_mode_t.fromValue(value);
 }
 
 enum FileDialogResult {
@@ -51,7 +52,8 @@ enum FileDialogResult {
     _ => FileDialogResult.none,
   };
 
-  c.native_file_dialog_result_t get raw => c.native_file_dialog_result_t.fromValue(value);
+  c.native_file_dialog_result_t get raw =>
+      c.native_file_dialog_result_t.fromValue(value);
 }
 
 class FileDialog {
@@ -89,18 +91,26 @@ class FileDialog {
   }
 
   bool setParentWindow(Window? window) {
-    return _bindings.native_file_dialog_set_parent_window(nativeHandle, window?.nativeHandle ?? 0);
+    return _bindings.native_file_dialog_set_parent_window(
+      nativeHandle,
+      window?.nativeHandle ?? 0,
+    );
   }
 
   bool setFileTypes(List<String> extensions) {
-    final extensionsItems = pkg_ffi.calloc<ffi.Pointer<ffi.Char>>(extensions.length);
+    final extensionsItems = pkg_ffi.calloc<ffi.Pointer<ffi.Char>>(
+      extensions.length,
+    );
     for (var i = 0; i < extensions.length; i++) {
       extensionsItems[i] = extensions[i].toNativeUtf8().cast<ffi.Char>();
     }
     final extensionsList = pkg_ffi.calloc<c.native_string_list_t>();
     extensionsList.ref.items = extensionsItems;
     extensionsList.ref.count = extensions.length;
-    final result = _bindings.native_file_dialog_set_file_types(nativeHandle, extensionsList.ref);
+    final result = _bindings.native_file_dialog_set_file_types(
+      nativeHandle,
+      extensionsList.ref,
+    );
     for (var i = 0; i < extensions.length; i++) {
       pkg_ffi.calloc.free(extensionsItems[i]);
     }
@@ -111,7 +121,10 @@ class FileDialog {
 
   bool setSuggestedFileName(String name) {
     final nameNative = name.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_file_dialog_set_suggested_file_name(nativeHandle, nameNative);
+    final result = _bindings.native_file_dialog_set_suggested_file_name(
+      nativeHandle,
+      nameNative,
+    );
     pkg_ffi.calloc.free(nameNative);
     return result;
   }
@@ -154,12 +167,12 @@ class FileDialog {
   }
 
   String? get lastError {
-    final resultPointer = _bindings.native_file_dialog_get_last_error(nativeHandle);
+    final resultPointer = _bindings.native_file_dialog_get_last_error(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
     return result;
   }
-
 }
-

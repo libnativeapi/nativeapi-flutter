@@ -31,7 +31,8 @@ enum MessageDialogResult {
     _ => MessageDialogResult.none,
   };
 
-  c.native_message_dialog_result_t get raw => c.native_message_dialog_result_t.fromValue(value);
+  c.native_message_dialog_result_t get raw =>
+      c.native_message_dialog_result_t.fromValue(value);
 }
 
 class MessageDialog {
@@ -61,7 +62,10 @@ class MessageDialog {
   static MessageDialog? create(String title, String message) {
     final titleNative = title.toNativeUtf8().cast<ffi.Char>();
     final messageNative = message.toNativeUtf8().cast<ffi.Char>();
-    final handle = _bindings.native_message_dialog_create(titleNative, messageNative);
+    final handle = _bindings.native_message_dialog_create(
+      titleNative,
+      messageNative,
+    );
     pkg_ffi.calloc.free(titleNative);
     pkg_ffi.calloc.free(messageNative);
     if (handle == 0) return null;
@@ -76,7 +80,12 @@ class MessageDialog {
     final primaryNative = primary.toNativeUtf8().cast<ffi.Char>();
     final secondaryNative = secondary.toNativeUtf8().cast<ffi.Char>();
     final closeNative = close.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_message_dialog_set_buttons(nativeHandle, primaryNative, secondaryNative, closeNative);
+    final result = _bindings.native_message_dialog_set_buttons(
+      nativeHandle,
+      primaryNative,
+      secondaryNative,
+      closeNative,
+    );
     pkg_ffi.calloc.free(primaryNative);
     pkg_ffi.calloc.free(secondaryNative);
     pkg_ffi.calloc.free(closeNative);
@@ -84,11 +93,17 @@ class MessageDialog {
   }
 
   bool setDefaultButton(MessageDialogResult button) {
-    return _bindings.native_message_dialog_set_default_button(nativeHandle, button.raw);
+    return _bindings.native_message_dialog_set_default_button(
+      nativeHandle,
+      button.raw,
+    );
   }
 
   bool setParentWindow(Window? window) {
-    return _bindings.native_message_dialog_set_parent_window(nativeHandle, window?.nativeHandle ?? 0);
+    return _bindings.native_message_dialog_set_parent_window(
+      nativeHandle,
+      window?.nativeHandle ?? 0,
+    );
   }
 
   MessageDialogResult get result {
@@ -101,18 +116,26 @@ class MessageDialog {
   }
 
   bool setInputEnabled(bool enabled) {
-    return _bindings.native_message_dialog_set_input_enabled(nativeHandle, enabled);
+    return _bindings.native_message_dialog_set_input_enabled(
+      nativeHandle,
+      enabled,
+    );
   }
 
   bool setInputText(String text) {
     final textNative = text.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_message_dialog_set_input_text(nativeHandle, textNative);
+    final result = _bindings.native_message_dialog_set_input_text(
+      nativeHandle,
+      textNative,
+    );
     pkg_ffi.calloc.free(textNative);
     return result;
   }
 
   String? get inputText {
-    final resultPointer = _bindings.native_message_dialog_get_input_text(nativeHandle);
+    final resultPointer = _bindings.native_message_dialog_get_input_text(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -121,7 +144,11 @@ class MessageDialog {
 
   bool setCheckbox(String label, bool checked) {
     final labelNative = label.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_message_dialog_set_checkbox(nativeHandle, labelNative, checked);
+    final result = _bindings.native_message_dialog_set_checkbox(
+      nativeHandle,
+      labelNative,
+      checked,
+    );
     pkg_ffi.calloc.free(labelNative);
     return result;
   }
@@ -141,7 +168,9 @@ class MessageDialog {
   }
 
   String? get title {
-    final resultPointer = _bindings.native_message_dialog_get_title(nativeHandle);
+    final resultPointer = _bindings.native_message_dialog_get_title(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -155,7 +184,9 @@ class MessageDialog {
   }
 
   String? get message {
-    final resultPointer = _bindings.native_message_dialog_get_message(nativeHandle);
+    final resultPointer = _bindings.native_message_dialog_get_message(
+      nativeHandle,
+    );
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
     _bindings.free_c_str(resultPointer);
@@ -178,6 +209,4 @@ class MessageDialog {
   bool close() {
     return _bindings.native_message_dialog_close(nativeHandle);
   }
-
 }
-

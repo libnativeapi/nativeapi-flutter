@@ -48,6 +48,4 @@ class AppInfo {
     _bindings.free_c_str(resultPointer);
     return result;
   }
-
 }
-

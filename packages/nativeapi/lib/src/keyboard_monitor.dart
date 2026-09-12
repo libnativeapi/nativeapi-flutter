@@ -64,24 +64,32 @@ class KeyboardMonitor {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(KeyboardEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_keyboard_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_keyboard_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = KeyboardEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_keyboard_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_keyboard_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = KeyboardEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_keyboard_monitor_add_listener(
+      nativeHandle,
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_keyboard_monitor_add_listener(nativeHandle, callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
-  bool removeListener(ListenerId listenerId) =>
-      _bindings.native_keyboard_monitor_remove_listener(nativeHandle, listenerId);
+  bool removeListener(ListenerId listenerId) => _bindings
+      .native_keyboard_monitor_remove_listener(nativeHandle, listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

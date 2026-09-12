@@ -32,21 +32,29 @@ enum UrlOpenErrorCode {
     _ => UrlOpenErrorCode.none,
   };
 
-  c.native_url_open_error_code_t get raw => c.native_url_open_error_code_t.fromValue(value);
+  c.native_url_open_error_code_t get raw =>
+      c.native_url_open_error_code_t.fromValue(value);
 }
 
 class UrlOpenResult {
-  const UrlOpenResult({required this.success, required this.errorCode, required this.errorMessage, });
+  const UrlOpenResult({
+    required this.success,
+    required this.errorCode,
+    required this.errorMessage,
+  });
 
   final bool success;
   final UrlOpenErrorCode errorCode;
   final String? errorMessage;
 
-  factory UrlOpenResult.fromNative(c.native_url_open_result_t raw) => UrlOpenResult(
-    success: raw.success,
-    errorCode: UrlOpenErrorCode.fromValue(raw.error_code),
-    errorMessage: raw.error_message == ffi.nullptr ? null : raw.error_message.cast<pkg_ffi.Utf8>().toDartString(),
-  );
+  factory UrlOpenResult.fromNative(c.native_url_open_result_t raw) =>
+      UrlOpenResult(
+        success: raw.success,
+        errorCode: UrlOpenErrorCode.fromValue(raw.error_code),
+        errorMessage: raw.error_message == ffi.nullptr
+            ? null
+            : raw.error_message.cast<pkg_ffi.Utf8>().toDartString(),
+      );
 
   /// Allocates the C form; free it with [freeNative].
   ffi.Pointer<c.native_url_open_result_t> allocNative() {
@@ -95,6 +103,4 @@ class UrlOpener {
     pkg_ffi.calloc.free(rawPointer);
     return result;
   }
-
 }
-

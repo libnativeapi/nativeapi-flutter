@@ -29,7 +29,8 @@ enum PositioningStrategyType {
     _ => PositioningStrategyType.absolute,
   };
 
-  c.native_positioning_strategy_type_t get raw => c.native_positioning_strategy_type_t.fromValue(value);
+  c.native_positioning_strategy_type_t get raw =>
+      c.native_positioning_strategy_type_t.fromValue(value);
 }
 
 class PositioningStrategy {
@@ -59,7 +60,9 @@ class PositioningStrategy {
     final pointPointer = pkg_ffi.calloc<c.native_point_t>();
     pointPointer.ref.x = point.dx;
     pointPointer.ref.y = point.dy;
-    final handle = _bindings.native_positioning_strategy_absolute(pointPointer.ref);
+    final handle = _bindings.native_positioning_strategy_absolute(
+      pointPointer.ref,
+    );
     pkg_ffi.calloc.free(pointPointer);
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
@@ -71,7 +74,10 @@ class PositioningStrategy {
     return PositioningStrategy.fromHandle(handle);
   }
 
-  static PositioningStrategy? relativeWithRectAndOffset(Rect rect, Offset offset) {
+  static PositioningStrategy? relativeWithRectAndOffset(
+    Rect rect,
+    Offset offset,
+  ) {
     final rectPointer = pkg_ffi.calloc<c.native_rectangle_t>();
     rectPointer.ref.x = rect.left;
     rectPointer.ref.y = rect.top;
@@ -80,18 +86,29 @@ class PositioningStrategy {
     final offsetPointer = pkg_ffi.calloc<c.native_point_t>();
     offsetPointer.ref.x = offset.dx;
     offsetPointer.ref.y = offset.dy;
-    final handle = _bindings.native_positioning_strategy_relative_with_rect_and_offset(rectPointer.ref, offsetPointer.ref);
+    final handle = _bindings
+        .native_positioning_strategy_relative_with_rect_and_offset(
+          rectPointer.ref,
+          offsetPointer.ref,
+        );
     pkg_ffi.calloc.free(rectPointer);
     pkg_ffi.calloc.free(offsetPointer);
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
   }
 
-  static PositioningStrategy? relativeWithWindowAndOffset(Window window, Offset offset) {
+  static PositioningStrategy? relativeWithWindowAndOffset(
+    Window window,
+    Offset offset,
+  ) {
     final offsetPointer = pkg_ffi.calloc<c.native_point_t>();
     offsetPointer.ref.x = offset.dx;
     offsetPointer.ref.y = offset.dy;
-    final handle = _bindings.native_positioning_strategy_relative_with_window_and_offset(window.nativeHandle, offsetPointer.ref);
+    final handle = _bindings
+        .native_positioning_strategy_relative_with_window_and_offset(
+          window.nativeHandle,
+          offsetPointer.ref,
+        );
     pkg_ffi.calloc.free(offsetPointer);
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
@@ -103,19 +120,23 @@ class PositioningStrategy {
   }
 
   Offset get absolutePosition {
-    final raw = _bindings.native_positioning_strategy_get_absolute_position(nativeHandle);
+    final raw = _bindings.native_positioning_strategy_get_absolute_position(
+      nativeHandle,
+    );
     return Offset(raw.x, raw.y);
   }
 
   Rect get relativeRectangle {
-    final raw = _bindings.native_positioning_strategy_get_relative_rectangle(nativeHandle);
+    final raw = _bindings.native_positioning_strategy_get_relative_rectangle(
+      nativeHandle,
+    );
     return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
   }
 
   Offset get relativeOffset {
-    final raw = _bindings.native_positioning_strategy_get_relative_offset(nativeHandle);
+    final raw = _bindings.native_positioning_strategy_get_relative_offset(
+      nativeHandle,
+    );
     return Offset(raw.x, raw.y);
   }
-
 }
-

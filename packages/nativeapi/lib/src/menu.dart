@@ -57,7 +57,8 @@ enum MenuItemType {
     _ => MenuItemType.normal,
   };
 
-  c.native_menu_item_type_t get raw => c.native_menu_item_type_t.fromValue(value);
+  c.native_menu_item_type_t get raw =>
+      c.native_menu_item_type_t.fromValue(value);
 }
 
 enum MenuItemState {
@@ -75,7 +76,8 @@ enum MenuItemState {
     _ => MenuItemState.unchecked,
   };
 
-  c.native_menu_item_state_t get raw => c.native_menu_item_state_t.fromValue(value);
+  c.native_menu_item_state_t get raw =>
+      c.native_menu_item_state_t.fromValue(value);
 }
 
 /// One `MenuEvent`, in its concrete form.
@@ -85,51 +87,66 @@ sealed class MenuEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static MenuEvent? fromNative(c.native_menu_event_t raw) {
-    if (raw.type == c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_OPENED.value) {
+    if (raw.type ==
+        c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_OPENED.value) {
       return MenuOpenedEvent(menuId: raw.data.opened.menu_id);
     }
-    if (raw.type == c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_CLOSED.value) {
+    if (raw.type ==
+        c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_CLOSED.value) {
       return MenuClosedEvent(menuId: raw.data.closed.menu_id);
     }
-    if (raw.type == c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED.value) {
+    if (raw.type ==
+        c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED.value) {
       return MenuItemClickedEvent(itemId: raw.data.item_clicked.item_id);
     }
-    if (raw.type == c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_OPENED.value) {
-      return MenuItemSubmenuOpenedEvent(itemId: raw.data.item_submenu_opened.item_id);
+    if (raw.type ==
+        c
+            .native_menu_event_type_t
+            .NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_OPENED
+            .value) {
+      return MenuItemSubmenuOpenedEvent(
+        itemId: raw.data.item_submenu_opened.item_id,
+      );
     }
-    if (raw.type == c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_CLOSED.value) {
-      return MenuItemSubmenuClosedEvent(itemId: raw.data.item_submenu_closed.item_id);
+    if (raw.type ==
+        c
+            .native_menu_event_type_t
+            .NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_CLOSED
+            .value) {
+      return MenuItemSubmenuClosedEvent(
+        itemId: raw.data.item_submenu_closed.item_id,
+      );
     }
     return null;
   }
 }
 
 final class MenuOpenedEvent extends MenuEvent {
-  const MenuOpenedEvent({required this.menuId, });
+  const MenuOpenedEvent({required this.menuId});
 
   final MenuId menuId;
 }
 
 final class MenuClosedEvent extends MenuEvent {
-  const MenuClosedEvent({required this.menuId, });
+  const MenuClosedEvent({required this.menuId});
 
   final MenuId menuId;
 }
 
 final class MenuItemClickedEvent extends MenuEvent {
-  const MenuItemClickedEvent({required this.itemId, });
+  const MenuItemClickedEvent({required this.itemId});
 
   final MenuItemId itemId;
 }
 
 final class MenuItemSubmenuOpenedEvent extends MenuEvent {
-  const MenuItemSubmenuOpenedEvent({required this.itemId, });
+  const MenuItemSubmenuOpenedEvent({required this.itemId});
 
   final MenuItemId itemId;
 }
 
 final class MenuItemSubmenuClosedEvent extends MenuEvent {
-  const MenuItemSubmenuClosedEvent({required this.itemId, });
+  const MenuItemSubmenuClosedEvent({required this.itemId});
 
   final MenuItemId itemId;
 }
@@ -160,7 +177,10 @@ class MenuItem {
   /// Creates a new `MenuItem`; returns null if the native side failed.
   static MenuItem? createWithLabelAndType(String label, MenuItemType type) {
     final labelNative = label.toNativeUtf8().cast<ffi.Char>();
-    final handle = _bindings.native_menu_item_create_with_label_and_type(labelNative, type.raw);
+    final handle = _bindings.native_menu_item_create_with_label_and_type(
+      labelNative,
+      type.raw,
+    );
     pkg_ffi.calloc.free(labelNative);
     if (handle == 0) return null;
     return MenuItem.fromHandle(handle);
@@ -168,7 +188,9 @@ class MenuItem {
 
   /// Creates a new `MenuItem`; returns null if the native side failed.
   static MenuItem? createWithNativeItem(ffi.Pointer<ffi.Void> nativeItem) {
-    final handle = _bindings.native_menu_item_create_with_native_item(nativeItem);
+    final handle = _bindings.native_menu_item_create_with_native_item(
+      nativeItem,
+    );
     if (handle == 0) return null;
     return MenuItem.fromHandle(handle);
   }
@@ -226,7 +248,10 @@ class MenuItem {
 
   set accelerator(KeyboardAccelerator? value) {
     final valuePointer = value?.allocNative() ?? ffi.nullptr;
-    _bindings.native_menu_item_set_accelerator(nativeHandle, valuePointer.cast());
+    _bindings.native_menu_item_set_accelerator(
+      nativeHandle,
+      valuePointer.cast(),
+    );
     if (valuePointer != ffi.nullptr) {
       KeyboardAccelerator.freeNative(valuePointer.cast());
     }
@@ -263,7 +288,10 @@ class MenuItem {
   }
 
   set submenu(Menu? value) {
-    _bindings.native_menu_item_set_submenu(nativeHandle, value?.nativeHandle ?? 0);
+    _bindings.native_menu_item_set_submenu(
+      nativeHandle,
+      value?.nativeHandle ?? 0,
+    );
   }
 
   Menu? get submenu {
@@ -283,16 +311,26 @@ class MenuItem {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(MenuEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_menu_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_menu_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = MenuEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_menu_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_menu_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = MenuEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_menu_item_add_listener(
+      nativeHandle,
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_menu_item_add_listener(nativeHandle, callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
@@ -301,7 +339,6 @@ class MenuItem {
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
 
 class Menu {
@@ -363,11 +400,18 @@ class Menu {
   }
 
   void insertItem(int index, MenuItem? item) {
-    _bindings.native_menu_insert_item(nativeHandle, index, item?.nativeHandle ?? 0);
+    _bindings.native_menu_insert_item(
+      nativeHandle,
+      index,
+      item?.nativeHandle ?? 0,
+    );
   }
 
   bool removeItem(MenuItem? item) {
-    return _bindings.native_menu_remove_item(nativeHandle, item?.nativeHandle ?? 0);
+    return _bindings.native_menu_remove_item(
+      nativeHandle,
+      item?.nativeHandle ?? 0,
+    );
   }
 
   bool removeItemById(MenuItemId itemId) {
@@ -421,7 +465,11 @@ class Menu {
   }
 
   bool open(PositioningStrategy strategy, Placement placement) {
-    return _bindings.native_menu_open(nativeHandle, strategy.nativeHandle, placement.raw);
+    return _bindings.native_menu_open(
+      nativeHandle,
+      strategy.nativeHandle,
+      placement.raw,
+    );
   }
 
   bool close() {
@@ -439,16 +487,26 @@ class Menu {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(MenuEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_menu_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_menu_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = MenuEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_menu_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_menu_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = MenuEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_menu_add_listener(
+      nativeHandle,
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_menu_add_listener(nativeHandle, callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
@@ -457,6 +515,4 @@ class Menu {
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

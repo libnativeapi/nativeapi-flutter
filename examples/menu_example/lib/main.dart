@@ -158,7 +158,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     });
 
     // 1. Normal menu item
-    final normalItem = MenuItem.createWithLabelAndType('Normal Menu Item', MenuItemType.normal)!;
+    final normalItem = MenuItem.createWithLabelAndType(
+      'Normal Menu Item',
+      MenuItemType.normal,
+    )!;
     normalItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Normal item clicked (ID: ${event.itemId})');
@@ -170,7 +173,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 3. Checkbox menu item
-    _checkboxItem = MenuItem.createWithLabelAndType('Checkbox Item', MenuItemType.checkbox)!;
+    _checkboxItem = MenuItem.createWithLabelAndType(
+      'Checkbox Item',
+      MenuItemType.checkbox,
+    )!;
     _checkboxItem.state = MenuItemState.unchecked;
     _checkboxItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
@@ -188,7 +194,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _menuItems.add(_checkboxItem);
 
     // 4. Radio menu items (grouped together)
-    _radio1 = MenuItem.createWithLabelAndType('Radio Option 1', MenuItemType.radio)!;
+    _radio1 = MenuItem.createWithLabelAndType(
+      'Radio Option 1',
+      MenuItemType.radio,
+    )!;
     _radio1.radioGroup = 1; // Set radio group ID
     _radio1.state = MenuItemState.checked; // Default selection
     _radio1.addListener((event) {
@@ -204,7 +213,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(_radio1);
     _menuItems.add(_radio1);
 
-    _radio2 = MenuItem.createWithLabelAndType('Radio Option 2', MenuItemType.radio)!;
+    _radio2 = MenuItem.createWithLabelAndType(
+      'Radio Option 2',
+      MenuItemType.radio,
+    )!;
     _radio2.radioGroup = 1; // Same radio group
     _radio2.state = MenuItemState.unchecked;
     _radio2.addListener((event) {
@@ -220,7 +232,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(_radio2);
     _menuItems.add(_radio2);
 
-    _radio3 = MenuItem.createWithLabelAndType('Radio Option 3', MenuItemType.radio)!;
+    _radio3 = MenuItem.createWithLabelAndType(
+      'Radio Option 3',
+      MenuItemType.radio,
+    )!;
     _radio3.radioGroup = 1; // Same radio group
     _radio3.state = MenuItemState.unchecked;
     _radio3.addListener((event) {
@@ -237,7 +252,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _menuItems.add(_radio3);
 
     // 5. Disabled menu items
-    _disabledItem = MenuItem.createWithLabelAndType('Disabled Item', MenuItemType.normal)!;
+    _disabledItem = MenuItem.createWithLabelAndType(
+      'Disabled Item',
+      MenuItemType.normal,
+    )!;
     _disabledItem.isEnabled = false;
     _disabledItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
@@ -246,7 +264,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addItem(_disabledItem);
     _menuItems.add(_disabledItem);
 
-    _disabledCheckbox = MenuItem.createWithLabelAndType('Disabled Checkbox', MenuItemType.checkbox)!;
+    _disabledCheckbox = MenuItem.createWithLabelAndType(
+      'Disabled Checkbox',
+      MenuItemType.checkbox,
+    )!;
     _disabledCheckbox.state = MenuItemState.checked;
     _disabledCheckbox.isEnabled = false;
     _disabledCheckbox.addListener((event) {
@@ -260,8 +281,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 8. Menu item with dynamic label
-    final dynamicLabelItem =
-        MenuItem.createWithLabelAndType(_currentLabel, MenuItemType.normal)!;
+    final dynamicLabelItem = MenuItem.createWithLabelAndType(
+      _currentLabel,
+      MenuItemType.normal,
+    )!;
     dynamicLabelItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Dynamic label item clicked (ID: ${event.itemId})');
@@ -270,7 +293,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _menuItems.add(dynamicLabelItem);
 
     // 9. Menu item with tooltip
-    final tooltipItem = MenuItem.createWithLabelAndType('Item with Tooltip', MenuItemType.normal)!;
+    final tooltipItem = MenuItem.createWithLabelAndType(
+      'Item with Tooltip',
+      MenuItemType.normal,
+    )!;
     tooltipItem.tooltip = 'This is a helpful tooltip message';
     tooltipItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
@@ -284,7 +310,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
     // 11. Submenu
     _submenu = Menu.create()!;
-    _submenuItem = MenuItem.createWithLabelAndType('Submenu', MenuItemType.submenu)!;
+    _submenuItem = MenuItem.createWithLabelAndType(
+      'Submenu',
+      MenuItemType.submenu,
+    )!;
 
     _submenuItem.addListener((event) {
       if (event is! MenuItemSubmenuOpenedEvent) return;
@@ -296,14 +325,20 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     });
 
     // Add items to submenu
-    final subItem1 = MenuItem.createWithLabelAndType('Submenu Item 1', MenuItemType.normal)!;
+    final subItem1 = MenuItem.createWithLabelAndType(
+      'Submenu Item 1',
+      MenuItemType.normal,
+    )!;
     subItem1.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Submenu Item 1 clicked (ID: ${event.itemId})');
     });
     _submenu.addItem(subItem1);
 
-    final subItem2 = MenuItem.createWithLabelAndType('Submenu Item 2', MenuItemType.normal)!;
+    final subItem2 = MenuItem.createWithLabelAndType(
+      'Submenu Item 2',
+      MenuItemType.normal,
+    )!;
     subItem2.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Submenu Item 2 clicked (ID: ${event.itemId})');
@@ -312,7 +347,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
     _submenu.addSeparator();
 
-    final subItem3 = MenuItem.createWithLabelAndType('Submenu Item 3', MenuItemType.normal)!;
+    final subItem3 = MenuItem.createWithLabelAndType(
+      'Submenu Item 3',
+      MenuItemType.normal,
+    )!;
     subItem3.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Submenu Item 3 clicked (ID: ${event.itemId})');
@@ -329,7 +367,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     _contextMenu.addSeparator();
 
     // 13. Menu items with special characters
-    final specialCharsItem = MenuItem.createWithLabelAndType('Special: 中文 日本語 🎉 @#\$%', MenuItemType.normal)!;
+    final specialCharsItem = MenuItem.createWithLabelAndType(
+      'Special: 中文 日本語 🎉 @#\$%',
+      MenuItemType.normal,
+    )!;
     specialCharsItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Special chars item clicked (ID: ${event.itemId})');
@@ -352,14 +393,20 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
       _addToHistory('Positioning menu closed');
     });
 
-    final item1 = MenuItem.createWithLabelAndType('Positioning Menu Item 1', MenuItemType.normal)!;
+    final item1 = MenuItem.createWithLabelAndType(
+      'Positioning Menu Item 1',
+      MenuItemType.normal,
+    )!;
     item1.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Positioning menu item 1 clicked');
     });
     _positioningMenu.addItem(item1);
 
-    final item2 = MenuItem.createWithLabelAndType('Positioning Menu Item 2', MenuItemType.normal)!;
+    final item2 = MenuItem.createWithLabelAndType(
+      'Positioning Menu Item 2',
+      MenuItemType.normal,
+    )!;
     item2.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Positioning menu item 2 clicked');
@@ -435,7 +482,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _addNewMenuItem() {
-    final newItem = MenuItem.createWithLabelAndType('New Item ${_menuItems.length + 1}', MenuItemType.normal)!;
+    final newItem = MenuItem.createWithLabelAndType(
+      'New Item ${_menuItems.length + 1}',
+      MenuItemType.normal,
+    )!;
     newItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('New item ${_menuItems.length} clicked');
@@ -447,7 +497,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _insertMenuItemAtPosition() {
-    final insertItem = MenuItem.createWithLabelAndType('Inserted Item', MenuItemType.normal)!;
+    final insertItem = MenuItem.createWithLabelAndType(
+      'Inserted Item',
+      MenuItemType.normal,
+    )!;
     insertItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       _addToHistory('Inserted item clicked');
@@ -662,12 +715,18 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   void _showMenuAtAbsolutePosition(Offset position) {
-    _positioningMenu.open(PositioningStrategy.absolute(position)!, Placement.bottomStart);
+    _positioningMenu.open(
+      PositioningStrategy.absolute(position)!,
+      Placement.bottomStart,
+    );
     _addToHistory('Opened menu at absolute position: $position');
   }
 
   void _showMenuAtCursorPosition() {
-    _positioningMenu.open(PositioningStrategy.cursorPosition()!, Placement.bottomStart);
+    _positioningMenu.open(
+      PositioningStrategy.cursorPosition()!,
+      Placement.bottomStart,
+    );
     _addToHistory('Opened menu at cursor position');
   }
 
@@ -679,7 +738,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     menu.setBackend(_contextMenu.backend);
 
     // Checkable item with Checked state
-    final checkableItem = MenuItem.createWithLabelAndType('Checkable', MenuItemType.checkbox)!;
+    final checkableItem = MenuItem.createWithLabelAndType(
+      'Checkable',
+      MenuItemType.checkbox,
+    )!;
     checkableItem.state = MenuItemState.checked;
     checkableItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
@@ -688,7 +750,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     menu.addItem(checkableItem);
 
     // Disabled item
-    final disabledItem = MenuItem.createWithLabelAndType('Disabled', MenuItemType.normal)!;
+    final disabledItem = MenuItem.createWithLabelAndType(
+      'Disabled',
+      MenuItemType.normal,
+    )!;
     disabledItem.isEnabled = false;
     disabledItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
@@ -698,7 +763,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
     // Add a few more items for context
     menu.addSeparator();
-    final exitItem = MenuItem.createWithLabelAndType('Close Menu', MenuItemType.normal)!;
+    final exitItem = MenuItem.createWithLabelAndType(
+      'Close Menu',
+      MenuItemType.normal,
+    )!;
     exitItem.addListener((event) {
       if (event is! MenuItemClickedEvent) return;
       menu.close();
@@ -734,7 +802,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                   (backend) => DropdownMenuItem(
                     value: backend,
                     enabled: Menu.isBackendSupported(backend),
-                    child: Text(backend == MenuBackend.winUi3 ? 'WinUI 3' : 'Native'),
+                    child: Text(
+                      backend == MenuBackend.winUi3 ? 'WinUI 3' : 'Native',
+                    ),
                   ),
                 )
                 .toList(),

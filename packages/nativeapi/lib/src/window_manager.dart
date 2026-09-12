@@ -48,25 +48,33 @@ class WindowManager {
   }
 
   void setWillShowHook(void Function(int)? hook) {
-    final hookCallable = hook == null ? null : ffi.NativeCallable<
-        ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (int arg0, ffi.Pointer<ffi.Void> _) {
-        hook(arg0);
-      },
-    );
+    final hookCallable = hook == null
+        ? null
+        : ffi.NativeCallable<
+            ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Void>)
+          >.isolateLocal((int arg0, ffi.Pointer<ffi.Void> _) {
+            hook(arg0);
+          });
     if (hookCallable != null) _listeners.add(hookCallable);
-    _bindings.native_window_manager_set_will_show_hook(hookCallable?.nativeFunction ?? ffi.nullptr, ffi.nullptr);
+    _bindings.native_window_manager_set_will_show_hook(
+      hookCallable?.nativeFunction ?? ffi.nullptr,
+      ffi.nullptr,
+    );
   }
 
   void setWillHideHook(void Function(int)? hook) {
-    final hookCallable = hook == null ? null : ffi.NativeCallable<
-        ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (int arg0, ffi.Pointer<ffi.Void> _) {
-        hook(arg0);
-      },
-    );
+    final hookCallable = hook == null
+        ? null
+        : ffi.NativeCallable<
+            ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Void>)
+          >.isolateLocal((int arg0, ffi.Pointer<ffi.Void> _) {
+            hook(arg0);
+          });
     if (hookCallable != null) _listeners.add(hookCallable);
-    _bindings.native_window_manager_set_will_hide_hook(hookCallable?.nativeFunction ?? ffi.nullptr, ffi.nullptr);
+    _bindings.native_window_manager_set_will_hide_hook(
+      hookCallable?.nativeFunction ?? ffi.nullptr,
+      ffi.nullptr,
+    );
   }
 
   bool hasWillShowHook() {
@@ -100,16 +108,25 @@ class WindowManager {
   /// returns. That thread must therefore be this isolate's own; see the
   /// package README for what that means under Flutter.
   ListenerId addListener(void Function(WindowEvent) callback) {
-    final callable = ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<c.native_window_event_t>, ffi.Pointer<ffi.Void>)>.isolateLocal(
-      (ffi.Pointer<c.native_window_event_t> event, ffi.Pointer<ffi.Void> _) {
-        if (event == ffi.nullptr) return;
-        final value = WindowEvent.fromNative(event.ref);
-        if (value != null) callback(value);
-      },
+    final callable =
+        ffi.NativeCallable<
+          ffi.Void Function(
+            ffi.Pointer<c.native_window_event_t>,
+            ffi.Pointer<ffi.Void>,
+          )
+        >.isolateLocal((
+          ffi.Pointer<c.native_window_event_t> event,
+          ffi.Pointer<ffi.Void> _,
+        ) {
+          if (event == ffi.nullptr) return;
+          final value = WindowEvent.fromNative(event.ref);
+          if (value != null) callback(value);
+        });
+    _listeners.add(callable); // keeps the trampoline alive
+    return _bindings.native_window_manager_add_listener(
+      callable.nativeFunction,
+      ffi.nullptr,
     );
-    _listeners.add(callable);  // keeps the trampoline alive
-    return _bindings.native_window_manager_add_listener(callable.nativeFunction, ffi.nullptr);
   }
 
   /// Unregisters a listener. Returns false if unknown.
@@ -118,6 +135,4 @@ class WindowManager {
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
-
 }
-

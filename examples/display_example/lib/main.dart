@@ -610,7 +610,9 @@ class DisplayCanvas extends StatelessWidget {
                     SizedBox(width: (4 * scale).clamp(2.0, 4.0)),
                     Expanded(
                       child: Text(
-                        (window.title?.isNotEmpty ?? false) ? window.title! : 'Window',
+                        (window.title?.isNotEmpty ?? false)
+                            ? window.title!
+                            : 'Window',
                         style: TextStyle(
                           fontSize: (10 * scale).clamp(6.0, 10.0),
                           color: Colors.orange[900],
@@ -798,7 +800,7 @@ class DisplayDetails extends StatelessWidget {
   List<Widget> _buildDetailSections() {
     return [
       _buildSection('Basic Information', [
-        _DetailItem(Icons.badge, 'ID', display.id ?? ''),
+        _DetailItem(Icons.badge, 'ID', display.id.toString()),
         _DetailItem(Icons.label, 'Name', display.name ?? ''),
         _DetailItem(Icons.star, 'Primary', display.isPrimary ? 'Yes' : 'No'),
       ]),
