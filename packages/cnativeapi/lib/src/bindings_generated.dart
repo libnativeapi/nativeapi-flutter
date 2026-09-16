@@ -5028,6 +5028,164 @@ class CNativeApiBindings {
   late final _native_url_opener_open = _native_url_opener_openPtr
       .asFunction<native_url_open_result_t Function(ffi.Pointer<ffi.Char>)>();
 
+  /// Creates a WindowDragSession instance; release it with native_window_drag_session_free().
+  int native_window_drag_session_create() {
+    return _native_window_drag_session_create();
+  }
+
+  late final _native_window_drag_session_createPtr =
+      _lookup<ffi.NativeFunction<native_window_drag_session_t Function()>>(
+        'native_window_drag_session_create',
+      );
+  late final _native_window_drag_session_create =
+      _native_window_drag_session_createPtr.asFunction<int Function()>();
+
+  bool native_window_drag_session_start(
+    int window_drag_session,
+    int window,
+    native_point_t anchor,
+  ) {
+    return _native_window_drag_session_start(
+      window_drag_session,
+      window,
+      anchor,
+    );
+  }
+
+  late final _native_window_drag_session_startPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_window_drag_session_t,
+            native_window_t,
+            native_point_t,
+          )
+        >
+      >('native_window_drag_session_start');
+  late final _native_window_drag_session_start =
+      _native_window_drag_session_startPtr
+          .asFunction<bool Function(int, int, native_point_t)>();
+
+  void native_window_drag_session_cancel(int window_drag_session) {
+    return _native_window_drag_session_cancel(window_drag_session);
+  }
+
+  late final _native_window_drag_session_cancelPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_drag_session_t)>
+      >('native_window_drag_session_cancel');
+  late final _native_window_drag_session_cancel =
+      _native_window_drag_session_cancelPtr.asFunction<void Function(int)>();
+
+  bool native_window_drag_session_is_active(int window_drag_session) {
+    return _native_window_drag_session_is_active(window_drag_session);
+  }
+
+  late final _native_window_drag_session_is_activePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_window_drag_session_t)>
+      >('native_window_drag_session_is_active');
+  late final _native_window_drag_session_is_active =
+      _native_window_drag_session_is_activePtr.asFunction<bool Function(int)>();
+
+  int native_window_drag_session_get_window_id(int window_drag_session) {
+    return _native_window_drag_session_get_window_id(window_drag_session);
+  }
+
+  late final _native_window_drag_session_get_window_idPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_window_id_t Function(native_window_drag_session_t)
+        >
+      >('native_window_drag_session_get_window_id');
+  late final _native_window_drag_session_get_window_id =
+      _native_window_drag_session_get_window_idPtr
+          .asFunction<int Function(int)>();
+
+  native_point_t native_window_drag_session_get_anchor(
+    int window_drag_session,
+  ) {
+    return _native_window_drag_session_get_anchor(window_drag_session);
+  }
+
+  late final _native_window_drag_session_get_anchorPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_point_t Function(native_window_drag_session_t)
+        >
+      >('native_window_drag_session_get_anchor');
+  late final _native_window_drag_session_get_anchor =
+      _native_window_drag_session_get_anchorPtr
+          .asFunction<native_point_t Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_drag_session_free(int window_drag_session) {
+    return _native_window_drag_session_free(window_drag_session);
+  }
+
+  late final _native_window_drag_session_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_drag_session_t)>
+      >('native_window_drag_session_free');
+  late final _native_window_drag_session_free =
+      _native_window_drag_session_freePtr.asFunction<void Function(int)>();
+
+  /// Registers @p callback for every WindowDragEvent this WindowDragSession emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_window_drag_session_add_listener(
+    int window_drag_session,
+    native_window_drag_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_window_drag_session_add_listener(
+      window_drag_session,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_window_drag_session_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_window_drag_session_t,
+            native_window_drag_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_drag_session_add_listener');
+  late final _native_window_drag_session_add_listener =
+      _native_window_drag_session_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_window_drag_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_window_drag_session_remove_listener(
+    int window_drag_session,
+    int listener_id,
+  ) {
+    return _native_window_drag_session_remove_listener(
+      window_drag_session,
+      listener_id,
+    );
+  }
+
+  late final _native_window_drag_session_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_drag_session_t, native_listener_id_t)
+        >
+      >('native_window_drag_session_remove_listener');
+  late final _native_window_drag_session_remove_listener =
+      _native_window_drag_session_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
   /// Caller owns the returned handle; release it with native_window_free().
   int native_window_manager_get(int id) {
     return _native_window_manager_get(id);
@@ -5062,6 +5220,27 @@ class CNativeApiBindings {
       );
   late final _native_window_manager_get_current =
       _native_window_manager_get_currentPtr.asFunction<int Function()>();
+
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_window_manager_get_window_at_point(
+    native_point_t point,
+    int excluded_window_id,
+  ) {
+    return _native_window_manager_get_window_at_point(
+      point,
+      excluded_window_id,
+    );
+  }
+
+  late final _native_window_manager_get_window_at_pointPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_window_t Function(native_point_t, native_window_id_t)
+        >
+      >('native_window_manager_get_window_at_point');
+  late final _native_window_manager_get_window_at_point =
+      _native_window_manager_get_window_at_pointPtr
+          .asFunction<int Function(native_point_t, int)>();
 
   void native_window_manager_set_will_show_hook(
     native_window_manager_set_will_show_hook_callback_t hook,
@@ -6381,6 +6560,62 @@ final class native_url_open_result_t extends ffi.Struct {
   external ffi.Pointer<ffi.Char> error_message;
 }
 
+/// Which concrete WindowDragEvent arrived.
+enum native_window_drag_event_type_t {
+  NATIVE_WINDOW_DRAG_EVENT_TYPE_MOVED(0),
+  NATIVE_WINDOW_DRAG_EVENT_TYPE_ENDED(1),
+  NATIVE_WINDOW_DRAG_EVENT_TYPE_CANCELLED(2);
+
+  final int value;
+  const native_window_drag_event_type_t(this.value);
+
+  static native_window_drag_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_WINDOW_DRAG_EVENT_TYPE_MOVED,
+        1 => NATIVE_WINDOW_DRAG_EVENT_TYPE_ENDED,
+        2 => NATIVE_WINDOW_DRAG_EVENT_TYPE_CANCELLED,
+        _ => throw ArgumentError(
+          "Unknown value for native_window_drag_event_type_t: $value",
+        ),
+      };
+}
+
+/// One WindowDragEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_window_drag_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external native_point_t cursor_position;
+}
+
+/// Opaque WindowDragSession handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW_DRAG_SESSION rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_drag_session_t = ffi.Uint64;
+typedef Dartnative_window_drag_session_t = int;
+typedef native_window_drag_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_window_drag_event_callback_tFunction>
+    >;
+typedef native_window_drag_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_window_drag_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_window_drag_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_window_drag_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
 typedef native_window_manager_set_will_show_hook_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<
@@ -6443,3 +6678,5 @@ const int NATIVE_INVALID_SECURE_STORAGE = 0;
 const int NATIVE_INVALID_SHORTCUT = 0;
 
 const int NATIVE_INVALID_TRAY_ICON = 0;
+
+const int NATIVE_INVALID_WINDOW_DRAG_SESSION = 0;

@@ -9,6 +9,7 @@ import 'dart:ui';
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
+import 'foundation/geometry.dart';
 import 'window.dart';
 
 import 'support.dart';
@@ -43,6 +44,19 @@ class WindowManager {
 
   Window? getCurrent() {
     final handle = _bindings.native_window_manager_get_current();
+    if (handle == 0) return null;
+    return Window.fromHandle(handle);
+  }
+
+  Window? getWindowAtPoint(Offset point, WindowId excludedWindowId) {
+    final pointPointer = pkg_ffi.calloc<c.native_point_t>();
+    pointPointer.ref.x = point.dx;
+    pointPointer.ref.y = point.dy;
+    final handle = _bindings.native_window_manager_get_window_at_point(
+      pointPointer.ref,
+      excludedWindowId,
+    );
+    pkg_ffi.calloc.free(pointPointer);
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }

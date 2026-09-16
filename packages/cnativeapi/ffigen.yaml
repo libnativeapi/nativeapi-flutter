@@ -37,6 +37,7 @@ headers:
     - "cxx_impl/src/capi/tray_manager_c.h"
     - "cxx_impl/src/capi/url_opener_c.h"
     - "cxx_impl/src/capi/window_c.h"
+    - "cxx_impl/src/capi/window_drag_session_c.h"
     - "cxx_impl/src/capi/window_manager_c.h"
 
   include-directives:
@@ -69,6 +70,7 @@ headers:
     - "cxx_impl/src/capi/tray_manager_c.h"
     - "cxx_impl/src/capi/url_opener_c.h"
     - "cxx_impl/src/capi/window_c.h"
+    - "cxx_impl/src/capi/window_drag_session_c.h"
     - "cxx_impl/src/capi/window_manager_c.h"
 
 preamble: |

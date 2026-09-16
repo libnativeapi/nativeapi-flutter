@@ -40,6 +40,7 @@
 #include "../../../../../cxx_impl/src/tray_manager.h"
 #include "../../../../../cxx_impl/src/url_opener.h"
 #include "../../../../../cxx_impl/src/window.h"
+#include "../../../../../cxx_impl/src/window_drag_session.h"
 #include "../../../../../cxx_impl/src/window_manager.h"
 #include "../../../../../cxx_impl/src/window_registry.h"
 #endif
@@ -74,4 +75,5 @@
 #include "../../../../../cxx_impl/src/capi/tray_manager_c.h"
 #include "../../../../../cxx_impl/src/capi/url_opener_c.h"
 #include "../../../../../cxx_impl/src/capi/window_c.h"
+#include "../../../../../cxx_impl/src/capi/window_drag_session_c.h"
 #include "../../../../../cxx_impl/src/capi/window_manager_c.h"
