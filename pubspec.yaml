@@ -5,6 +5,7 @@ environment:
 
 workspace:
   - examples/cocoapods_example
+  - examples/detachable_window_example
   - examples/launch_at_login_example
   - examples/display_example
   - examples/menu_example
@@ -34,6 +35,9 @@ melos:
     - "**/.dart_tool/**"
     - "**/.symlinks/**"
     - "**/Pods/**"
+    # Uses Flutter's experimental multi-window API, which exists only on the
+    # main channel with `flutter config --enable-windowing`; CI runs stable.
+    - examples/detachable_window_example
 
   command:
     bootstrap:
