@@ -2,7 +2,7 @@
 
 > 状态：已实施（事件归属模型尚未统一，见 DESIGN_REVIEW.md D1）
 > 适用范围：`core/src/foundation/event.h`、`event_emitter.h`、`dispatcher.h`
->   及 8 个 `EventEmitter` 派生类
+>   及 9 个 `EventEmitter` 派生类
 > 核实基准：2026-08-25
 
 本规范回答：**事件类怎么定义、怎么发、怎么收、什么时候在哪个线程跑。**
@@ -28,8 +28,8 @@ class MyEvent : public Event {
 
 1. `GetTypeName()` 是 `= 0`，漏写是编译错误而非运行期缺陷，不必额外检查。
 2. **按领域建层级，不要直接继承 `Event`。** 每个领域先有一个基类
-   （`WindowEvent`、`DisplayEvent`、`TrayIconEvent`、`MenuEvent`、`ShortcutEvent`、
-   `KeyboardEvent`、`ApplicationEvent`），具体事件再继承它。七个基类里六个定义在
+   （`WindowEvent`、`WindowDragEvent`、`DisplayEvent`、`TrayIconEvent`、`MenuEvent`、`ShortcutEvent`、
+   `KeyboardEvent`、`ApplicationEvent`），具体事件再继承它。八个基类里七个定义在
    `src/<模块>.h`，只有 `KeyboardEvent` 在 `foundation/keyboard.h`——foundation 层
    本不该有领域事件，找不到时按这里查。派发靠
    `dynamic_cast` 匹配，层级就是「监听基类可收到全部子类事件」这一能力的来源。
@@ -38,7 +38,7 @@ class MyEvent : public Event {
 
 ## 2. `EventEmitter<Base>`
 
-发事件的类继承 `EventEmitter<领域基类>`。当前 8 个：`WindowManager`、
+发事件的类继承 `EventEmitter<领域基类>`。当前 9 个：`WindowManager`、`WindowDragSession`、
 `DisplayManager`、`ShortcutManager`、`KeyboardMonitor`、`Application`、
 `TrayIcon`、`Menu`、`MenuItem`。
 
