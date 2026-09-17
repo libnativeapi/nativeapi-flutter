@@ -1,130 +1,74 @@
-# nativeapi
+# nativeapi-flutter
 
-Flutter bindings for [nativeapi](https://github.com/libnativeapi/libnativeapi) - providing seamless, unified access to native system APIs.
-
-🚧 **Work in Progress**: This package is currently under active development.
-
-## Platform Support
+Flutter bindings for [nativeapi](https://github.com/libnativeapi/nativeapi) — unified access to native system APIs: windows, tray icons, menus, displays, keyboard, dialogs, storage and more.
 
 | Android | iOS | Linux | macOS | Windows |
 |:-------:|:---:|:-----:|:-----:|:-------:|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-## Features
+🚧 **Work in Progress**: this package is under active development.
 
-- **Window Management** — create, show, hide, center windows; control title bar style, visual effects, and control buttons
-- **Tray Icon** — system tray icon with menu and context menu trigger support
-- **Display Management** — enumerate and query multi-screen display info
-- **Menu** — native menu system with event callbacks
-- **Dialogs** — message dialogs and native dialog APIs
-- **Accessibility** — accessibility manager API
-- **Preferences** — persistent key-value storage
-- **Secure Storage** — encrypted key-value storage
-- **URL Opener** — open URLs with the system default browser/handler
-- **Positioning** — flexible window positioning strategies and placement support
-- **Widgets** — `ContextMenuRegion` for context menu integration
+English | [简体中文](./README-ZH.md)
 
-## Getting Started
-
-Add `nativeapi` to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  nativeapi: ^0.1.1
-```
-
-Then run:
+## Installation
 
 ```bash
-flutter pub get
+flutter pub add nativeapi
 ```
 
-## Usage
+## Quick Start
 
 ```dart
 import 'package:nativeapi/nativeapi.dart';
 
-// Window management - get the current window and manipulate it
-final windowManager = WindowManager.instance;
-final window = windowManager.getCurrent();
-window?.show();
-window?.center();
-window?.titleBarStyle = TitleBarStyle.hidden;
-
-// Listen to window events
-windowManager.addCallbackListener<WindowFocusedEvent>((event) {
-  print('Window focused: ${event.windowId}');
-});
-
-// Tray icon
-final trayIcon = TrayIcon();
-trayIcon.icon = Image.fromAsset('assets/tray_icon.png');
-trayIcon.contextMenu = Menu();
-trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
-trayIcon.on<TrayIconClickedEvent>((event) {
-  print('Tray icon clicked');
-});
-
-// URL opener (synchronous)
-final result = UrlOpener.instance.open('https://example.com');
-print('Opened: ${result.success}');
-
-// Preferences (synchronous, dispose when done)
-final prefs = Preferences();
-prefs.set('theme', 'dark');
-final theme = prefs.get('theme', 'light'); // second arg is default value
-prefs.dispose();
+for (final display in DisplayManager.instance.getAll()) {
+  print('${display.name ?? ''}: ${display.size.width}x${display.size.height}');
+}
 ```
 
-> 📖 More detailed documentation and examples are coming soon. See the [`examples/`](https://github.com/libnativeapi/nativeapi-flutter/tree/main/examples) directory for working sample apps.
+### Custom window chrome
 
-## Development
+Wrap a custom title bar in `DragToMoveArea` to move the window by dragging (double tap to maximize/restore), and the window content in `DragToResizeArea` to resize from its edges and corners:
 
-### Prerequisites
-
-- Flutter (>=3.35.0)
-- Dart SDK (>=3.9.0)
-
-### Setup
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/libnativeapi/nativeapi-flutter.git
-cd nativeapi-flutter
+```dart
+DragToResizeArea(
+  resizeEdgeSize: 8,
+  child: Column(
+    children: [
+      DragToMoveArea(
+        child: SizedBox(height: 40, child: Center(child: Text('My window'))),
+      ),
+      Expanded(child: MyContent()),
+    ],
+  ),
+)
 ```
 
-2. Initialize submodules:
+Both widgets use `WindowManager.instance.getCurrent()` unless a `window` is passed. Moving via `DragToMoveArea` is not yet implemented on Linux.
+
+## Examples
+
+See [`examples/`](examples). Each directory is a Flutter app for one module:
 
 ```bash
-git submodule update --init --recursive
-```
-
-3. Install dependencies:
-
-```bash
-melos bootstrap
-```
-
-4. Run an example app:
-
-```bash
+flutter pub get
 cd examples/display_example
 flutter run
 ```
 
-### FFI Bindings
+## Contributing
 
-This project uses ffigen to generate Dart FFI bindings from C headers. To regenerate the bindings:
+This repository is developed from the [workspace](https://github.com/libnativeapi/workspace), which checks out the core library, every binding and the code generator together:
 
 ```bash
-cd packages/cnativeapi
-dart run ffigen --config ffigen.yaml
+git clone --recursive https://github.com/libnativeapi/workspace.git
 ```
 
-The ffigen configuration is defined in `packages/cnativeapi/ffigen.yaml`. You typically need to regenerate bindings when:
-- The native C library ([libnativeapi/nativeapi](https://github.com/libnativeapi/nativeapi)) is updated
-- The ffigen configuration is modified
+Files marked `AUTO-GENERATED. DO NOT EDIT.` are generated from the C++ headers in [nativeapi](https://github.com/libnativeapi/nativeapi). To change the API, send a pull request there; maintainers regenerate the bindings.
+
+- API requests and native behavior bugs → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
+- Bugs specific to one binding → that binding's repository
+- Not sure → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
 
 ## License
 

@@ -1,130 +1,74 @@
-# nativeapi
+# nativeapi-flutter
 
-[nativeapi](https://github.com/libnativeapi/libnativeapi) 的 Flutter 绑定 - 提供无缝、统一的原生系统 API 访问。
-
-🚧 **开发中**: 此包目前正在积极开发中。
-
-## 平台支持
+[nativeapi](https://github.com/libnativeapi/nativeapi) 的 Flutter 绑定，统一访问原生系统 API：窗口、托盘图标、菜单、显示器、键盘、对话框、存储等。
 
 | Android | iOS | Linux | macOS | Windows |
 |:-------:|:---:|:-----:|:-----:|:-------:|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-## 功能特性
+🚧 **开发中**：此包正在积极开发中。
 
-- **窗口管理** — 创建、显示、隐藏、居中窗口；控制标题栏样式、视觉效果和控制按钮
-- **托盘图标** — 系统托盘图标，支持菜单和右键菜单触发
-- **多屏幕管理** — 枚举和查询多屏幕显示信息
-- **菜单** — 原生菜单系统，支持事件回调
-- **对话框** — 消息对话框及原生对话框 API
-- **辅助功能** — 无障碍管理器 API
-- **偏好设置** — 持久化键值存储
-- **安全存储** — 加密键值存储
-- **URL 打开器** — 使用系统默认浏览器/处理程序打开 URL
-- **定位策略** — 灵活的窗口定位策略和位置支持
-- **Widget** — `ContextMenuRegion` 右键菜单集成组件
+[English](./README.md) | 简体中文
 
-## 快速开始
-
-在 `pubspec.yaml` 中添加 `nativeapi`:
-
-```yaml
-dependencies:
-  nativeapi: ^0.1.1
-```
-
-然后运行:
+## 安装
 
 ```bash
-flutter pub get
+flutter pub add nativeapi
 ```
 
-## 使用方法
+## 快速开始
 
 ```dart
 import 'package:nativeapi/nativeapi.dart';
 
-// 窗口管理 - 获取当前窗口并进行操作
-final windowManager = WindowManager.instance;
-final window = windowManager.getCurrent();
-window?.show();
-window?.center();
-window?.titleBarStyle = TitleBarStyle.hidden;
-
-// 监听窗口事件
-windowManager.addCallbackListener<WindowFocusedEvent>((event) {
-  print('窗口获得焦点: ${event.windowId}');
-});
-
-// 托盘图标
-final trayIcon = TrayIcon();
-trayIcon.icon = Image.fromAsset('assets/tray_icon.png');
-trayIcon.contextMenu = Menu();
-trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
-trayIcon.on<TrayIconClickedEvent>((event) {
-  print('托盘图标被点击');
-});
-
-// URL 打开器（同步调用）
-final result = UrlOpener.instance.open('https://example.com');
-print('打开结果: ${result.success}');
-
-// 偏好设置（同步调用，使用完记得 dispose）
-final prefs = Preferences();
-prefs.set('theme', 'dark');
-final theme = prefs.get('theme', 'light'); // 第二个参数为默认值
-prefs.dispose();
+for (final display in DisplayManager.instance.getAll()) {
+  print('${display.name ?? ''}: ${display.size.width}x${display.size.height}');
+}
 ```
 
-> 📖 更详细的文档和示例即将推出。请查看 [`examples/`](https://github.com/libnativeapi/nativeapi-flutter/tree/main/examples) 目录中的示例应用。
+### 自定义窗口标题栏
 
-## 开发
+用 `DragToMoveArea` 包裹自定义标题栏即可拖动窗口（双击最大化/还原），用 `DragToResizeArea` 包裹窗口内容即可从边缘和四角调整大小：
 
-### 前置要求
-
-- Flutter (>=3.35.0)
-- Dart SDK (>=3.9.0)
-
-### 设置
-
-1. 克隆仓库:
-
-```bash
-git clone https://github.com/libnativeapi/nativeapi-flutter.git
-cd nativeapi-flutter
+```dart
+DragToResizeArea(
+  resizeEdgeSize: 8,
+  child: Column(
+    children: [
+      DragToMoveArea(
+        child: SizedBox(height: 40, child: Center(child: Text('My window'))),
+      ),
+      Expanded(child: MyContent()),
+    ],
+  ),
+)
 ```
 
-2. 初始化子模块:
+两个组件未传入 `window` 时使用 `WindowManager.instance.getCurrent()`。Linux 上暂不支持通过 `DragToMoveArea` 移动窗口。
+
+## 示例
+
+见 [`examples/`](examples)，每个目录是对应一个模块的 Flutter 应用：
 
 ```bash
-git submodule update --init --recursive
-```
-
-3. 安装依赖:
-
-```bash
-melos bootstrap
-```
-
-4. 运行示例应用:
-
-```bash
+flutter pub get
 cd examples/display_example
 flutter run
 ```
 
-### FFI 绑定
+## 参与贡献
 
-本项目使用 ffigen 从 C 头文件生成 Dart FFI 绑定。要重新生成绑定:
+本仓库在 [workspace](https://github.com/libnativeapi/workspace) 中开发，它把核心库、所有绑定和代码生成器放在一起：
 
 ```bash
-cd packages/cnativeapi
-dart run ffigen --config ffigen.yaml
+git clone --recursive https://github.com/libnativeapi/workspace.git
 ```
 
-ffigen 配置定义在 `packages/cnativeapi/ffigen.yaml` 中。通常在以下情况下需要重新生成绑定：
-- 原生 C 库 ([libnativeapi/nativeapi](https://github.com/libnativeapi/nativeapi)) 更新时
-- ffigen 配置被修改时
+标有 `AUTO-GENERATED. DO NOT EDIT.` 的文件由 [nativeapi](https://github.com/libnativeapi/nativeapi) 的 C++ 头文件生成。如需修改 API，请向该仓库提交 PR，绑定由维护者重新生成。
+
+- API 需求、原生行为问题 → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
+- 仅影响某个绑定的问题 → 对应绑定的仓库
+- 不确定 → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
 
 ## 许可证
 
