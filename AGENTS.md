@@ -11,6 +11,7 @@ bindings/
 ├── rust/           # submodule: nativeapi-rust
 └── csharp/         # submodule: nativeapi-csharp
 tools/codegen/      # in-repo Rust workspace: the code generator
+tools/gui/          # GUI tests and demo scenarios for the examples (built on the skills)
 codegen             # Python entry point orchestrating the generators
 .agents/skills/     # agent skills: GUI testing and demo recording (see below)
 ```
@@ -72,10 +73,12 @@ work on a real desktop. Read the relevant `SKILL.md` before doing any of this by
 | Skill | Use it to |
 | --- | --- |
 | `flutter-ui-probe` | find where texts/widgets are in a running debug Flutter app (VM service) |
-| `gui-input` | post guarded synthetic mouse input on macOS / Windows — read its safety rules first |
-| `gui-test` | end-to-end test an example: launch, drive, assert on real window geometry and state |
-| `windows-remote` | build and run on the Windows machine over SSH (SSH session vs. logged-on desktop) |
-| `record-demo` | record and cut an X-ready demo video of the examples |
+| `gui-test` | end-to-end test an app: launch, drive with guarded synthetic mouse input (read its safety rules first), assert on real window geometry and state |
+| `remote-hosts` | build and run on another machine over SSH — Windows today, Linux/macOS prepared (SSH session vs. logged-on desktop) |
+| `record-demo` | record a scripted demo of an app and cut it into an X-ready MP4 |
+
+Skills hold only generic harnesses, recorders, and templates. The GUI tests and demo
+scenarios for *this project's* examples live in [tools/gui/](tools/gui/README.md).
 
 ## Conventions
 
