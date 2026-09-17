@@ -1,65 +1,45 @@
 # nativeapi-csharp
 
-C# bindings for [libnativeapi](https://github.com/libnativeapi/nativeapi).
+C# bindings for [nativeapi](https://github.com/libnativeapi/nativeapi) — unified access to native system APIs: windows, tray icons, menus, displays, keyboard, dialogs, storage and more.
 
-## Layout
+| Linux | macOS | Windows |
+|:-----:|:-----:|:-------:|
+| ✅ | ✅ | ✅ |
 
-```
-src/
-├── CNativeAPI/          # raw interop layer (assembly CNativeAPI)
-│   ├── cxx_impl/        # the core C++ library, as a git submodule
-│   ├── native/          # CMake wrapper building cxx_impl into the shared
-│   │                    #   library (libnativeapi.dylib / .so / nativeapi.dll)
-│   ├── generated/       # [generated] C struct mirrors, delegates, DllImports
-│   └── NativeLibraryResolver.cs
-└── NativeAPI/           # public API layer (assembly NativeAPI)
-    └── *.cs             # [generated] idiomatic C# wrappers
-examples/
-├── DisplayExample/
-└── PreferencesExample/
-```
+🚧 **Work in Progress**: not yet published to NuGet.
 
-Files starting with `// AUTO-GENERATED. DO NOT EDIT.` are produced by the
-workspace code generator (`./codegen` in the workspace repo); edit the C++
-headers and regenerate instead of editing them. `CNativeAPI` mirrors the C ABI
-one-to-one (C naming included, like Rust's `bindings.rs`); everything idiomatic
-lives in `NativeAPI`.
+## Installation
 
-## Build
+Clone with submodules, build the native library (CMake 3.24+; on Linux also `libgtk-3-dev libx11-dev libxi-dev`), and reference `src/NativeAPI/NativeAPI.csproj` from your project:
 
 ```bash
-# Managed assemblies + examples
-dotnet build NativeAPI.slnx
-
-# Native shared library (requires CMake >= 3.24)
+git clone --recursive https://github.com/libnativeapi/nativeapi-csharp.git
+cd nativeapi-csharp
 cmake -S src/CNativeAPI/native -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native
+dotnet build NativeAPI.slnx
 ```
 
-## Continuous integration
+At runtime, set `NATIVEAPI_LIBRARY_PATH` to the built library if it is not on the standard probing paths.
 
-GitHub Actions runs on pushes and pull requests to `main`, with manual dispatch
-available. It checks formatting and builds with .NET analyzers, then builds the
-native library, managed libraries, examples, and xUnit tests on Linux, macOS, and
-Windows. Tests load the actual native library via `NATIVEAPI_LIBRARY_PATH` and
-verify Unicode preferences, collection marshalling, and handle disposal. Tests
-use an isolated storage scope and do not open desktop windows.
+## Quick Start
 
-The workflow installs the .NET 9 SDK for `.slnx` support and the .NET 8 runtime for
-the current `net8.0` projects. Linux native builds require `libgtk-3-dev`,
-`libx11-dev`, `libxi-dev`, CMake, and pkg-config.
+```csharp
+using System;
+using NativeAPI;
 
-```bash
-dotnet format NativeAPI.slnx --verify-no-changes
-dotnet build NativeAPI.slnx -c Release -warnaserror
-# Set NATIVEAPI_LIBRARY_PATH to the built shared library before running tests.
-dotnet test NativeAPI.slnx -c Release --no-build
+foreach (var display in DisplayManager.Shared.GetAll())
+{
+    using (display)
+    {
+        Console.WriteLine($"{display.Name}: {display.Size.Width}x{display.Size.Height}");
+    }
+}
 ```
 
-## Run the examples
+## Examples
 
-At runtime the binding resolves the native library through the standard .NET
-probing paths; set `NATIVEAPI_LIBRARY_PATH` to point at an explicit build:
+See [`examples/`](examples):
 
 ```bash
 export NATIVEAPI_LIBRARY_PATH=$PWD/build/native/libnativeapi.dylib
@@ -67,11 +47,20 @@ dotnet run --project examples/DisplayExample
 dotnet run --project examples/PreferencesExample
 ```
 
-```csharp
-using NativeAPI;
+## Contributing
 
-foreach (var display in DisplayManager.Shared.GetAll())
-{
-    Console.WriteLine($"{display.Name}: {display.Size.Width}x{display.Size.Height}");
-}
+This repository is developed from the [workspace](https://github.com/libnativeapi/workspace), which checks out the core library, every binding and the code generator together:
+
+```bash
+git clone --recursive https://github.com/libnativeapi/workspace.git
 ```
+
+Files marked `AUTO-GENERATED. DO NOT EDIT.` are generated from the C++ headers in [nativeapi](https://github.com/libnativeapi/nativeapi). To change the API, send a pull request there; maintainers regenerate the bindings.
+
+- API requests and native behavior bugs → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
+- Bugs specific to one binding → that binding's repository
+- Not sure → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
+
+## License
+
+MIT
