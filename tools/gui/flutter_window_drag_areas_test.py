@@ -6,12 +6,14 @@ and lets the pointer through in the middle.
 
     tools/gui/flutter_window_drag_areas_test.py [--build] [--keep-open]
 
-Built on the gui-test skill (.agents/skills). It takes over the mouse for ~75 s.
+Built on the gui-test skill (.agents/skills). It takes over the mouse for ~35 s.
 """
 
 import sys
 
 from common import build_example, example
+import time
+
 from guiapp import Abort, Checks, assert_idle, pause
 
 NAME = 'window_drag_areas_example'
@@ -58,8 +60,20 @@ def main():
     app.launch(min_windows=1)
     try:
         def look():
-            """(frame, view) as they are now; never reuse them across a gesture."""
-            return app.window(TITLE), next(v for v in app.views() if v.has(BAR))
+            """(frame, view) once the window has stopped changing; never reuse them across a
+            gesture. Polling the frame beats a fixed pause: most gestures settle at once, a
+            maximize animates for a while."""
+            frame, still, deadline = app.window(TITLE), 0, time.time() + 3
+            while still < 2 and time.time() < deadline:
+                pause(0.1)
+                last, frame = frame, app.window(TITLE)
+                still = still + 1 if frame == last else 0
+            for _ in range(10):  # the 'Size:' text follows a frame or two later
+                view = next(v for v in app.views() if v.has(BAR))
+                if tuple(round(v) for v in view.size) == tuple(frame[2:]):
+                    break
+                pause(0.1)
+            return frame, view
 
         def handle_point(frame, view, where):
             w, h = view.size
@@ -69,9 +83,8 @@ def main():
 
         def drag_by(start, dx, dy):
             """Two legs: a short one past the drag threshold, then the rest."""
-            app.drag(start, (start[0] + dx / 4, start[1] + dy / 4, 350),
-                     (start[0] + dx, start[1] + dy, 700))
-            pause(1.2)
+            app.drag(start, (start[0] + dx / 4, start[1] + dy / 4, 120),
+                     (start[0] + dx, start[1] + dy, 250), approach_ms=250)
 
         def shows_size(view, frame):
             return view.has(f'Size: {frame[2]} x {frame[3]}')
@@ -83,15 +96,16 @@ def main():
 
         # 1. The middle of the resize area lets the pointer through to the child.
         for _ in range(2):
-            app.click(app.to_screen(frame, view, view.center('+1')), 350)
-            pause(0.4)
+            app.click(app.to_screen(frame, view, view.center('+1')), 200)
+            pause(0.15)
         frame, view = look()
         checks.check('clicks reach the child through the resize area', view.has('Clicks: 2'),
                      [t for t, _ in view.texts if t.startswith('Clicks')])
 
         # 2. Every handle resizes its own edge(s) and nothing else.
+        after = frame
         for name, (where, travel, moving) in HANDLES.items():
-            before, view = look()
+            before = after  # nothing happened since the look after the previous gesture
             drag_by(handle_point(before, view, where), *travel)
             after, view = look()
             was, now = edges(before), edges(after)
@@ -105,7 +119,7 @@ def main():
                          [t for t, _ in view.texts if t.startswith('Size')])
 
         # 3. The minimum size stops the resize, and the anchored edge still does not move.
-        before, view = look()
+        before = after
         drag_by(handle_point(before, view, HANDLES['right'][0]), -(before[2] - MIN_SIZE[0] + 150), 0)
         after, view = look()
         checks.near('right: stops at the minimum width', after, (*before[:2], MIN_SIZE[0], before[3]), 1)
@@ -114,8 +128,8 @@ def main():
         checks.near('right: grows back from the minimum', after, (*before[:2], MIN_SIZE[0] + 240, before[3]), SLOP)
 
         # 4. enableResizeEdges: a disabled handle is gone, an enabled one still works.
-        app.click(app.to_screen(after, view, view.center('Edges: all')), 400)
-        pause(0.6)
+        app.click(app.to_screen(after, view, view.center('Edges: all')), 250)
+        pause(0.2)
         before, view = look()
         checks.check('edge list switched', view.has('Edges: right and bottom'))
         drag_by(handle_point(before, view, HANDLES['left'][0]), -60, 0)
@@ -128,7 +142,7 @@ def main():
                     (before[0], before[1], before[2] + 40, before[3] + 30), SLOP)
 
         # 5. DragToMoveArea: the window follows the mouse, its size untouched.
-        before, view = look()
+        before = after
         start = app.to_screen(before, view, view.center(BAR))
         travel = (120, -80)
         drag_by(start, *travel)
@@ -141,26 +155,25 @@ def main():
                     (start[0] + travel[0], start[1] + travel[1]), SLOP)
 
         # 6. A plain click must not start a drag: move away afterwards without a button.
-        before, view = look()
+        before = after
         bar = app.to_screen(before, view, view.center(BAR))
-        app.click(bar)
-        pause(0.8)  # past the double-tap window, so the next test starts from scratch
-        app.move((bar[0] + 140, bar[1] + 90), 600)
-        pause(0.8)
+        app.click(bar, 250)
+        pause(0.5)  # past the double-tap window, so the next test starts from scratch
+        app.move((bar[0] + 140, bar[1] + 90), 300)
         after, view = look()
         checks.near('click: window does not move or stick to the cursor', after, before, 0)
 
         # 7. A double click maximizes; another one restores the frame it had.
-        before, view = look()
-        app.double_click(app.to_screen(before, view, view.center(BAR)))
-        pause(1.5)  # zoom animation
+        before = after
+        app.double_click(app.to_screen(before, view, view.center(BAR)), 250)
+        pause(0.3)  # let the zoom animation start; look() waits for it to end
         zoomed, view = look()
         checks.check('double click: maximized', zoomed[2] > before[2] and zoomed[3] > before[3],
                      f'{before} -> {zoomed}')
         checks.check('double click: Flutter relaid out at the new size', shows_size(view, zoomed),
                      [t for t, _ in view.texts if t.startswith('Size')])
-        app.double_click(app.to_screen(zoomed, view, view.center(BAR)))
-        pause(1.5)
+        app.double_click(app.to_screen(zoomed, view, view.center(BAR)), 250)
+        pause(0.3)
         after, view = look()
         checks.near('double click again: restored', after, before, 1)
 

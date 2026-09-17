@@ -1,8 +1,8 @@
 # GUI test (Windows) of window_drag_areas_example: DragToMoveArea moves the window and toggles
 # maximization on a double click; DragToResizeArea resizes from all eight handles, keeps the
 # other edges anchored, respects the minimum size and the enabled-edge list, and lets the
-# pointer through in the middle. Built on the gui-test skill; takes over the mouse for ~90 s.
-# Run (remote-hosts skill):  remote.sh <host> setup; remote.sh <host> desktop tools/gui/flutter_window_drag_areas_test.ps1 200
+# pointer through in the middle. Built on the gui-test skill; takes over the mouse for ~45 s.
+# Run (remote-hosts skill):  remote.sh <host> setup; remote.sh <host> desktop tools/gui/flutter_window_drag_areas_test.ps1 150
 # ASCII only.
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\env.ps1"; . "$PSScriptRoot\winput.ps1"; . "$PSScriptRoot\guiapp.ps1"
@@ -26,11 +26,24 @@ $Handles = @(
   @("topLeft", 0, 0, 30, 20, "lt"), @("topRight", 1, 0, -30, 20, "rt"),
   @("bottomLeft", 0, 1, 30, -20, "lb"), @("bottomRight", 1, 1, -30, -20, "rb"))
 
-# The window and its view as they are now; never reuse them across a gesture.
+# The window and its view once the window has stopped changing; never reuse them across a
+# gesture. Polling the rect beats a fixed pause: most gestures settle at once, a maximize
+# animates for a while.
 function Look($app) {
-  $win = Get-Win $app "*Drag areas"
-  if (-not $win) { throw "the example's window is gone" }
-  @{ Win = $win; View = Find-View (Get-Views $app) $Bar
+  $win = $null; $still = 0; $deadline = (Get-Date).AddSeconds(3)
+  do {
+    $last = $win; $win = Get-Win $app "*Drag areas"
+    if (-not $win) { throw "the example's window is gone" }
+    $same = $last -and $last.Left -eq $win.Left -and $last.Top -eq $win.Top -and $last.Right -eq $win.Right -and $last.Bottom -eq $win.Bottom
+    $still = if ($same) { $still + 1 } else { 0 }
+    if ($still -lt 2) { Pause 0.1 }
+  } until ($still -ge 2 -or (Get-Date) -gt $deadline)
+  foreach ($try in 1..10) {  # Flutter lays out at the new size a frame or two later
+    $view = Find-View (Get-Views $app) $Bar
+    if ($view -and [math]::Abs($view.size[0] - $win.ClientW / $win.Scale) -le 1 -and [math]::Abs($view.size[1] - $win.ClientH / $win.Scale) -le 1) { break }
+    Pause 0.1
+  }
+  @{ Win = $win; View = $view
      Edges = @{ l = $win.Left; t = $win.Top; r = $win.Right; b = $win.Bottom } }
 }
 function Get-HandlePoint($look, [double]$fx, [double]$fy) {
@@ -40,8 +53,7 @@ function Get-HandlePoint($look, [double]$fx, [double]$fy) {
 # Two legs: a short one past the drag threshold, then the rest. Travel is in logical px.
 function Invoke-DragBy($app, $look, $start, [double]$dx, [double]$dy) {
   $s = $look.Win.Scale
-  Invoke-Drag $app $start @(@(($start[0] + $dx * $s / 4), ($start[1] + $dy * $s / 4), 350), @(($start[0] + $dx * $s), ($start[1] + $dy * $s), 700))
-  Pause 1.2
+  Invoke-Drag $app $start @(@(($start[0] + $dx * $s / 4), ($start[1] + $dy * $s / 4), 120), @(($start[0] + $dx * $s), ($start[1] + $dy * $s), 250)) 250
 }
 function Check-Near([string]$what, [double]$actual, [double]$expected, [double]$tolerance) {
   Check $what ([math]::Abs($actual - $expected) -le $tolerance) "got $actual, expected $expected +-$tolerance"
@@ -71,14 +83,15 @@ try {
 
   # 1. The middle of the resize area lets the pointer through to the child.
   $plus = ConvertTo-Screen $now.Win (Get-TextCenter $now.View "+1")
-  1..2 | % { Invoke-Click $app $plus 350; Pause 0.4 }
+  1..2 | % { Invoke-Click $app $plus 200; Pause 0.15 }
   $clicks = @(Get-ViewTexts (Get-Views $app) "^Clicks")
   Check "clicks reach the child through the resize area" ($clicks -contains "Clicks: 2") ($clicks -join " | ")
 
   # 2. Every handle resizes its own edge(s) and nothing else.
+  $after = Look $app
   foreach ($h in $Handles) {
     $name = $h[0]; $travel = @{ l = $h[3]; r = $h[3]; t = $h[4]; b = $h[4] }
-    $before = Look $app
+    $before = $after  # nothing happened since the look after the previous gesture
     Invoke-DragBy $app $before (Get-HandlePoint $before $h[1] $h[2]) $h[3] $h[4]
     $after = Look $app
     foreach ($e in "l", "t", "r", "b") {
@@ -92,7 +105,7 @@ try {
   }
 
   # 3. The minimum size stops the resize, and the anchored edge still does not move.
-  $before = Look $app
+  $before = $after
   $width = ($before.Win.Right - $before.Win.Left) / $s
   Invoke-DragBy $app $before (Get-HandlePoint $before 1 0.5) (-($width - $MinWidth + 150)) 0
   $after = Look $app
@@ -104,8 +117,8 @@ try {
   Check-Near "right: grows back from the minimum" $after.Edges.r ($before.Edges.r + 240 * $s) ($Slop * $s)
 
   # 4. enableResizeEdges: a disabled handle is gone, an enabled one still works.
-  Invoke-Click $app (ConvertTo-Screen $after.Win (Get-TextCenter $after.View "Edges: all")) 400
-  Pause 0.6
+  Invoke-Click $app (ConvertTo-Screen $after.Win (Get-TextCenter $after.View "Edges: all")) 250
+  Pause 0.2
   $before = Look $app
   Check "edge list switched" (Test-ViewText $before.View "Edges: right and bottom")
   Invoke-DragBy $app $before (Get-HandlePoint $before 0 0.5) (-60) 0
@@ -120,7 +133,7 @@ try {
   Check-Near "bottomRight (still enabled): t edge stays put" $after.Edges.t $before.Edges.t 1
 
   # 5. DragToMoveArea: the window follows the mouse, its size untouched.
-  $before = Look $app
+  $before = $after
   $start = ConvertTo-Screen $before.Win (Get-TextCenter $before.View $Bar)
   Invoke-DragBy $app $before $start 120 (-80)
   $after = Look $app
@@ -134,29 +147,29 @@ try {
   # 6. A plain click must not start a drag: move away afterwards without a button. (A pan
   # recognizer can fire onPanStart after the button is up; a move loop entered then would
   # glue the window to the cursor.)
-  $before = Look $app
+  $before = $after
   $point = ConvertTo-Screen $before.Win (Get-TextCenter $before.View $Bar)
-  Invoke-Click $app $point
-  Pause 0.8  # past the double-tap window, so the next test starts from scratch
-  Move-Cursor @(($point[0] + 140 * $s), ($point[1] + 90 * $s)) 600
-  Pause 0.8
+  Invoke-Click $app $point 250
+  Pause 0.5  # past the double-tap window, so the next test starts from scratch
+  Move-Cursor @(($point[0] + 140 * $s), ($point[1] + 90 * $s)) 300
   $after = Look $app
   Check-SameFrame "click: window does not move or stick to the cursor" $before $after
   if ((@("l", "t", "r", "b") | ? { $after.Edges[$_] -ne $before.Edges[$_] }).Count -gt 0) {
     # Let go of a stuck move loop before going on: a click inside the window ends it.
     Invoke-Click $app (ConvertTo-Screen $after.Win (Get-TextCenter $after.View "Clicks: 2"))
-    Pause 0.8
+    Pause 0.5
+    $after = Look $app
   }
 
   # 7. A double click maximizes; another one restores the frame it had.
-  $before = Look $app
-  Invoke-DoubleClick $app (ConvertTo-Screen $before.Win (Get-TextCenter $before.View $Bar))
-  Pause 1.5
+  $before = $after
+  Invoke-DoubleClick $app (ConvertTo-Screen $before.Win (Get-TextCenter $before.View $Bar)) 250
+  Pause 0.3  # let the maximize animation start; Look waits for it to end
   $zoomed = Look $app
   Check "double click: maximized" ((($zoomed.Edges.r - $zoomed.Edges.l) -gt ($before.Edges.r - $before.Edges.l)) -and (($zoomed.Edges.b - $zoomed.Edges.t) -gt ($before.Edges.b - $before.Edges.t))) "$($before.Win.Left),$($before.Win.Top),$($before.Win.Right),$($before.Win.Bottom) -> $($zoomed.Win.Left),$($zoomed.Win.Top),$($zoomed.Win.Right),$($zoomed.Win.Bottom)"
   Check-ShowsSize "double click: Flutter relaid out at the new size" $zoomed
-  Invoke-DoubleClick $app (ConvertTo-Screen $zoomed.Win (Get-TextCenter $zoomed.View $Bar))
-  Pause 1.5
+  Invoke-DoubleClick $app (ConvertTo-Screen $zoomed.Win (Get-TextCenter $zoomed.View $Bar)) 250
+  Pause 0.3
   $after = Look $app
   Check-SameFrame "double click again: restored" $before $after
 
