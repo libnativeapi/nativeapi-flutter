@@ -6,6 +6,7 @@
 use cnativeapi;
 use std::ffi::{CStr, CString};
 
+use crate::geometry::Point;
 use crate::window::{Window, WindowEvent, WindowId};
 
 /// Identifies one registered event listener.
@@ -40,6 +41,13 @@ impl WindowManager {
     pub fn get_current() -> Option<Window> {
         unsafe {
             Window::from_raw(cnativeapi::native_window_manager_get_current())
+        }
+    }
+
+    pub fn get_window_at_point(point: &Point, excluded_window_id: WindowId) -> Option<Window> {
+        let point_raw = point.to_raw();
+        unsafe {
+            Window::from_raw(cnativeapi::native_window_manager_get_window_at_point(point_raw.raw, excluded_window_id))
         }
     }
 

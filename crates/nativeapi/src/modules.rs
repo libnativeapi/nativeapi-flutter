@@ -11,6 +11,8 @@ pub mod device_info;
 pub mod dialog;
 pub mod display;
 pub mod display_manager;
+pub mod drag_source;
+pub mod drop_target;
 pub mod file_dialog;
 pub mod geometry;
 pub mod image;
@@ -30,6 +32,7 @@ pub mod tray_icon;
 pub mod tray_manager;
 pub mod url_opener;
 pub mod window;
+pub mod window_drag_session;
 pub mod window_manager;
 
 // Flat re-exports, so `use nativeapi::Display;` works alongside
@@ -42,6 +45,8 @@ pub use device_info::{DeviceInfo};
 pub use dialog::{DialogModality};
 pub use display::{DisplayId, DisplayOrientation, DisplayEvent, Display, DisplayRef};
 pub use display_manager::{DisplayManager};
+pub use drag_source::{DragOperation, DragSourceEvent, DragSource, DragSourceRef};
+pub use drop_target::{DropTargetEvent, DropTarget, DropTargetRef};
 pub use file_dialog::{FileDialogMode, FileDialogResult, FileDialog, FileDialogRef};
 pub use geometry::{Point, Size, Rectangle};
 pub use image::{Image, ImageRef};
@@ -61,4 +66,5 @@ pub use tray_icon::{TrayIconId, ContextMenuTrigger, TrayIconEvent, TrayIcon, Tra
 pub use tray_manager::{TrayManager};
 pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
 pub use window::{WindowId, TitleBarStyle, VisualEffect, ResizeEdge, WindowEvent, Window, WindowRef};
+pub use window_drag_session::{WindowDragEvent, WindowDragSession, WindowDragSessionRef};
 pub use window_manager::{WindowManager};
