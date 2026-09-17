@@ -1,8 +1,9 @@
 ## Unreleased
 
+* Add drag and drop: `DropTarget` / `DragSource` bindings, and the `DropRegion` and `DragOutArea` widgets for dropping files and text onto a window and dragging them out of it.
 * Add `DragToMoveArea` and `DragToResizeArea` widgets for custom window chrome, with optional target windows and configurable resize handles.
 * Fix `Window.startDragging` not moving the window on Windows, and on macOS the gesture after a `startDragging` / `startResizing` being ignored.
-* Add `window_drag_areas_example`.
+* Add `window_drag_areas_example` and `drag_drop_example`.
 
 ## 0.2.4
 

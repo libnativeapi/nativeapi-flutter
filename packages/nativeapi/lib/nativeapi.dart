@@ -9,3 +9,5 @@ export 'src/widgets/context_menu_region.dart';
 export 'src/widgets/image_asset.dart';
 export 'src/widgets/drag_to_move_area.dart';
 export 'src/widgets/drag_to_resize_area.dart';
+export 'src/widgets/drag_out_area.dart';
+export 'src/widgets/drop_region.dart';
