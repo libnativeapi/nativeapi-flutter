@@ -1,6 +1,9 @@
+// ignore_for_file: invalid_use_of_internal_member, implementation_imports
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter_test/flutter_test.dart';
 
 // The example keeps a panel's state across windows by building it under the
@@ -86,6 +89,11 @@ class _PanelState extends State<_Panel> with SingleTickerProviderStateMixin {
 }
 
 void main() {
+  // No native windows here. With the windowing flag on, the test binding would
+  // otherwise create the platform's windowing owner, which on Windows binds to
+  // engine symbols the test host does not have and fails before the test loads.
+  isWindowingEnabled = false;
+
   testWidgets('a GlobalKey subtree keeps its state when moved between views', (
     tester,
   ) async {
