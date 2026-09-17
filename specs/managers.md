@@ -1,7 +1,6 @@
 # 单例与注册表规范
 
-> 状态：已实施（单例写法已统一为 Meyer's；能力型 API 形态与注册语义未决，
->   见 DESIGN_REVIEW.md D4–D7）
+> 状态：已实施（单例写法已统一为 Meyer's；能力型 API 形态与注册语义未决，见 §5）
 > 适用范围：`core/src/` 全部 `GetInstance()` 类型
 > 核实基准：2026-08-25，11 个单例全部为 Meyer's
 
@@ -85,10 +84,10 @@ Manager 该做的：
 
 Manager 不该做的：
 
-- 不承载与自身领域无关的能力（`DisplayManager::GetCursorPosition()` 属于越界，
-  见 DESIGN_REVIEW D7）。
+- 不承载与自身领域无关的能力（`DisplayManager::GetCursorPosition()` 属于越界——
+  它该属于未来的 Cursor / Mouse API）。
 - 不把平台内部机制开成公共方法（`WindowManager` 的 swizzle 钩子已被 codegen 原样
-  导出成 8 个 C 函数，同 D7）。
+  导出成 8 个 C 函数；这组钩子正在退役，见 [api-style.md](api-style.md) §8）。
 
 ## 4. 三张表的分工
 
@@ -118,11 +117,27 @@ Manager 不该做的：
 `WM_NCDESTROY`、GTK `destroy`）。这项尚未在各平台接齐，进度见
 [handle-ownership.md](handle-ownership.md) §2.4。
 
-## 5. 检查单
+## 5. 未决
+
+- **能力型 API 形态分裂**：`UrlOpener` 是单例，`LaunchAtLogin` 是多实例，
+  `AccessibilityManager` 是单例但只有两个方法（有 `Enable()` 无 `Disable()`，
+  `IsEnabled()` 只读本地 flag 而不查系统授权状态）。无状态能力型 API 该统一成 static
+  函数集还是保留单例，尚未选定；新模块先跟最近的 `AppInfo` / `DeviceInfo`（单例）。
+- **对象创建 / 注册模式不统一**：`Window()` 构造即隐式注册进 `WindowRegistry`；
+  `TrayIcon` 文档要求直接 `make_shared`，`TrayManager` 却又维护 `trays_` 映射，注册路径
+  不明；`Shortcut` 必须走 `ShortcutManager::Register`；`Image` 只能走静态工厂。
+  `WindowManager::Create(options)` 在多处文档示例里出现但**并不存在**——补上它还是清掉
+  示例，二选一。
+- **ID 计数器双轨**：`TrayManager::next_tray_id_`、`ShortcutManager::next_shortcut_id_`
+  与 `IdAllocator` 并存，应统一走后者；`ShortcutId` 在 `shortcut.h` 与
+  `shortcut_manager.h` 重复定义。
+- 能力探测的命名与形态见 [api-style.md](api-style.md) §1.4。
+
+## 6. 检查单
 
 - [ ] 新单例用 Meyer's：函数内 `static`、私有构造、四件套 `delete`、返回引用。
 - [ ] 析构函数不触碰其他单例。
 - [ ] 平台监控走 `Start`/`StopEventListening`，不在构造函数里开。
 - [ ] 需要按 ID 查找：先看能否复用 `ObjectRegistry`。
-- [ ] 想加公共方法前，先确认它属于这个 manager 的领域（D7）。
+- [ ] 想加公共方法前，先确认它属于这个 manager 的领域（§3）。
 - [ ] 真的需要单例吗——多实例类型（如 `KeyboardMonitor`）不要塞进这套模式。

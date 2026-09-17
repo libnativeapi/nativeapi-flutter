@@ -12,6 +12,7 @@ bindings/
 └── csharp/         # submodule: nativeapi-csharp
 tools/codegen/      # in-repo Rust workspace: the code generator
 codegen             # Python entry point orchestrating the generators
+.agents/skills/     # agent skills: GUI testing and demo recording (see below)
 ```
 
 ## Architecture
@@ -23,12 +24,19 @@ codegen             # Python entry point orchestrating the generators
 ## Design specs
 
 `specs/` holds the settled design rules for `core/` — layering, the identity/value object
-model, the platform seam, the event system, managers, and the C ABI. Start at
-[specs/README.md](specs/README.md); read the relevant spec before adding or reshaping
-public API in `core/src/`.
+model, the public API style, the platform seam, the event system, managers, and the C ABI.
+Start at [specs/README.md](specs/README.md); read the relevant spec before adding or
+reshaping public API in `core/src/`.
 
-`DESIGN_REVIEW.md` is the companion: it tracks the *unresolved* inconsistencies found in the
-2026-08-22 review. Specs point at its item numbers wherever something is still open.
+Any diff that touches a public header in `core/src/` must pass the checklist at the end of
+[specs/api-style.md](specs/api-style.md) — naming vocabulary, parameter and return types,
+failure reporting, platform-availability notes, and the codegen constraints. When existing
+headers disagree with each other, follow the spec, not the nearest neighbour: it records
+which side of each split is the rule and which is legacy.
+
+There is no separate issue list: each spec carries the open questions and known legacy
+gaps of its own area inline (an "未决" section, or a "存量缺口" note next to the rule it
+breaks). When one is resolved, edit the spec text itself.
 
 ## Code generation
 
@@ -55,6 +63,19 @@ Manual follow-ups sync cannot do (details in tools/codegen/README.md):
 
 - New handle types need an `IdTypeTag<T>` entry in `core/src/foundation/id_allocator.h` (append only; a miss is a compile error, not silent).
 - New Rust modules need a `pub mod` declaration in `bindings/rust/crates/nativeapi/src/lib.rs`.
+
+## Agent skills
+
+`.agents/skills/` holds skills (a `SKILL.md` plus scripts each) for verifying windowing
+work on a real desktop. Read the relevant `SKILL.md` before doing any of this by hand:
+
+| Skill | Use it to |
+| --- | --- |
+| `flutter-ui-probe` | find where texts/widgets are in a running debug Flutter app (VM service) |
+| `gui-input` | post guarded synthetic mouse input on macOS / Windows — read its safety rules first |
+| `gui-test` | end-to-end test an example: launch, drive, assert on real window geometry and state |
+| `windows-remote` | build and run on the Windows machine over SSH (SSH session vs. logged-on desktop) |
+| `record-demo` | record and cut an X-ready demo video of the examples |
 
 ## Conventions
 

@@ -1,6 +1,6 @@
 # 事件系统规范
 
-> 状态：已实施（事件归属模型尚未统一，见 DESIGN_REVIEW.md D1）
+> 状态：已实施（事件归属模型尚未统一，见 §6）
 > 适用范围：`core/src/foundation/event.h`、`event_emitter.h`、`dispatcher.h`
 >   及 9 个 `EventEmitter` 派生类
 > 核实基准：2026-08-25
@@ -154,7 +154,26 @@ class TrayIcon : public EventEmitter<TrayIconEvent>, public NativeObjectProvider
   能用 lambda 就用 lambda 重载。
 - 在持有 id 的对象析构时退订（RAII）。
 
-## 6. 检查单
+## 6. 未决：事件归属模型
+
+同一库里并存四种事件 / 回调模型，新代码按「目标」一列做，存量不要照抄：
+
+| 类 | 现状 | 目标 |
+|---|---|---|
+| `Window` | 不是 `EventEmitter`，`WindowEvent` 由 `WindowManager` 集中发 | 对象级事件挂对象：`Window` 自己可 `AddListener` |
+| `TrayIcon` / `Menu` / `MenuItem` | 各自继承 `EventEmitter`，对象自己发 | 已符合 |
+| `Shortcut` | 双轨：`ShortcutOptions::callback` 的 `std::function` + `ShortcutManager` 的 `ShortcutActivatedEvent` | 收敛为事件模型 |
+| `KeyboardMonitor` | 手动 `Start()` / `Stop()`，不走惰性监听；公开了 `GetInternalEventEmitter()` | 改用 `Start`/`StopEventListening`，移除该公开方法 |
+
+规则：**对象级事件挂对象，系统级事件（增删、全局监控）挂 manager。** 它会传导到
+C ABI——`native_tray_icon_add_listener` 挂在对象上，window 事件却只有
+`native_window_manager_add_listener`。
+
+事件类结构上的存量缺口：`WindowEvent` 基类存 id，而 `TrayIconEvent` / `MenuEvent` 基类
+为空、各子类重复一份 id 字段（C 侧后果是 id 在每个 union 分支里重复）；Menu 缺
+`MenuItemEvent` 中间基类，`MenuId` 与 `MenuItemId` 事件混在同层。新领域一律「基类存 id」。
+
+## 7. 检查单
 
 - [ ] 新事件继承的是**领域基类**，不是 `Event`。
 - [ ] `GetTypeName()` 已实现。

@@ -65,7 +65,7 @@ manager 集合，因此不定义 `XxxId` 别名、不调用 `IdAllocator::Alloca
 
 `Image` 是这组里目前唯一的违规者：静态工厂返回 `shared_ptr` 没问题，但它同时
 公开了深拷贝构造（`Image(const Image&)` 深拷贝 pimpl）和移动构造，与本节规则
-直接矛盾。修复方向是删掉这两个构造（DESIGN_REVIEW C10）。
+直接矛盾。修复方向是删掉这两个构造。
 
 ## 3. 值对象（value object）
 
@@ -82,7 +82,7 @@ manager 集合，因此不定义 `XxxId` 别名、不调用 `IdAllocator::Alloca
 - 几何与外观：`Point`、`Size`、`Rectangle`、`Color`
 - 输入描述：`KeyboardAccelerator`
 - options 类：`ShortcutOptions`（目前唯一——文档示例里出现的 `WindowOptions`
-  并不存在，属 DESIGN_REVIEW 第四节的文档腐烂）
+  并不存在，是待清理的文档腐烂）
 - 全部 Event 类（见第 5 节）
 
 ### 3.1 例外：经句柄跨 ABI 的值对象
@@ -92,13 +92,14 @@ manager 集合，因此不定义 `XxxId` 别名、不调用 `IdAllocator::Alloca
 因此也登记了 `IdTypeTag`（tag 12）。这是「值对象不进 handle 表」目前唯一的例外；
 新类型遇到同样处境（带工厂 API / 私有状态的纯数据）按此先例处理，不再各开新形态。
 注意它的 `Relative(const Window&)` 内部存裸指针，C 侧跨调用持有 strategy 句柄会
-放大悬垂风险（DESIGN_REVIEW C10）。
+放大悬垂风险——已知缺陷，修复方向是改收 `std::shared_ptr<Window>`。
 
 ### 3.2 不参与归类的抽象基类
 
 `Storage`（`Preferences` / `SecureStorage` 的公共接口）与 `Dialog`
 （`MessageDialog` 的基类）是纯接口，自身从不实例化，归类落在具体派生类上。
-`Dialog` 基类无 Id、非 EventEmitter 的方向问题见 DESIGN_REVIEW C10。
+`Dialog` 基类无 Id、也不是 `EventEmitter`，与 `Window` / `TrayIcon` 的方向不一致；
+这一点未决，再加 dialog 派生类之前先定下来。
 
 ## 4. 案例：Display 的归属
 

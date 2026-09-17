@@ -1,6 +1,6 @@
 # 平台接缝规范：跨平台代码与平台代码的边界
 
-> 状态：已实施（两种接缝形态并存，收敛计划见 DESIGN_REVIEW.md C8）
+> 状态：已实施（存量缺口见 §4.4）
 > 适用范围：`core/src/*.h`、`core/src/platform/**`
 > 核实基准：2026-08-25，25 个公共头中 14 个用 PIMPL
 
@@ -118,6 +118,18 @@ TrayIcon::TrayIcon(void* tray) {
 平台对象可能已经销毁（窗口被关、显示器被拔）。每个转发方法开头判空后早返回；
 getter 在句柄为空时返回类型默认值。这条是 [object-model.md](object-model.md)
 「属性活读」规则在平台层的落点。
+
+### 4.4 存量缺口
+
+- **状态成员裸露在公共头**（应全部下沉 `Impl`）：`Application`（`initialized_` /
+  `running_` / `exit_code_` / `primary_window_`）、`TrayManager`（`trays_` /
+  `next_tray_id_` / `mutex_`）、`ShortcutManager`（两个 map + mutex + `enabled_`）、
+  `MessageDialog`（`modality_`）、`WindowDragSession`（5 个状态成员）、
+  `AccessibilityManager`（`enabled_`，文档声称线程安全但无任何同步）。
+- **public 抽象 `Impl`**：`ShortcutManager`、`UrlOpener`、`AppInfo`、`DeviceInfo` 把纯虚
+  `Impl` 开在 public 区，由平台工厂返回派生类。它不属于本篇任何一种形态，实现接口因此
+  漏进公共头。新模块不要复制；要么收敛回私有 PIMPL，要么在这里正式立为第四种形态。
+- `KeyboardMonitor` 的成员叫 `impl_`（见 4.1）。
 
 ## 5. 反方向：`NativeObjectProvider`
 

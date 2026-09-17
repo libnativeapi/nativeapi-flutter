@@ -1,6 +1,6 @@
 # C ABI 句柄所有权规则
 
-状态：**已决策，实施中**（DESIGN_REVIEW.md P0-3 / P0-4，TASKS.md T4）
+状态：**已决策，实施中**
 核实基准：2026-08-31 —— `g_windows` 已确认消灭；`window_windows.cpp:200`、
 `window_manager_macos.mm:169` 两处行号引用仍准确
 
@@ -61,7 +61,7 @@ typedef uint64_t native_handle_t;
 
 ### 2.3 澄清：句柄表不取代 `WindowRegistry`
 
-DESIGN_REVIEW 初稿说「三套账本合并为句柄表这一个真相来源」。实际读代码后这是不准确的，记录在此以免后续照做：
+早期审查稿说「三套账本合并为句柄表这一个真相来源」。实际读代码后这是不准确的，记录在此以免后续照做：
 
 - **句柄表**：`handle → shared_ptr<T>`，服务 C ABI，管的是**跨语言引用的生命周期**。
 - **`WindowRegistry`**：`WindowId → shared_ptr<Window>`，服务 C++ 侧，管的是**按 ID 查找窗口**。事件负载里带的是 `WindowId`，`WindowManager::Get(id)` 也依赖它。这个查找无法由句柄表替代。
@@ -113,6 +113,6 @@ DESIGN_REVIEW 初稿说「三套账本合并为句柄表这一个真相来源」
 
 - 已生成的 16 个 capi 文件要从值拷贝改为活引用；`DisplayManager` 内部需持有 `shared_ptr<Display>`，生成器同步修改。
 - 手写模块迁移到句柄表，但**只做机械的句柄封装替换**——签名改造（错误码化）通过 codegen 重新生成落地，不手工编辑即将被删除的文件。
-- ~~`native_*_id_t` 目前是 `long`~~ —— 已收敛为 `unsigned int`（与 `IdAllocator::IdType` 同宽）。列表结构体里的 `count` 仍是 `long`，宽度不可移植的问题未清完，见 DESIGN_REVIEW A1。
+- ~~`native_*_id_t` 目前是 `long`~~ —— 已收敛为 `unsigned int`（与 `IdAllocator::IdType` 同宽）。列表结构体里的 `count` 仍是 `long`，宽度不可移植的问题未清完，见 [c-abi.md](c-abi.md) §7。
 
 **执行顺序上的硬约束**：本文的 2.1 必须在扩大 codegen 覆盖率之前落地。否则每迁移一个模块，就是把「值拷贝 vs 活引用」的分裂复制到下游一次。

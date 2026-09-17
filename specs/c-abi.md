@@ -1,6 +1,6 @@
 # C ABI 规范：生成管线与类型映射
 
-> 状态：生成管线已实施；错误模型与整数宽度未决（DESIGN_REVIEW.md D2 / A1）
+> 状态：生成管线已实施；错误模型与整数宽度未决（见 §7）
 > 适用范围：`core/src/capi/`、`tools/codegen/`
 > 核实基准：2026-08-25，28 个 capi 头中 27 个、27 个实现中 26 个为生成产物
 
@@ -94,7 +94,7 @@ typedef struct {
 ```
 
 > `count` 目前是 `long`——Windows 上 32 位、其余平台 64 位，同一个 ABI 宽度不一致。
-> 这是 DESIGN_REVIEW A1，待收敛为固定宽度整数。新写生成器代码时不要沿用 `long`。
+> 待收敛为固定宽度整数（§7）。新写生成器代码时不要沿用 `long`。
 
 ## 6. 事件与回调
 
@@ -111,13 +111,18 @@ struct，C++ 侧的 `dynamic_cast` 层级在 C 侧摊平成 tag + 联合字段�
 
 写生成器或改 ABI 前先看这几条，避免把问题复制到下游：
 
-| 编号 | 问题 |
-|---|---|
-| DESIGN_REVIEW D2 | 错误处理五种并存，C ABI 没有统一错误码 |
-| DESIGN_REVIEW A1 | 整数宽度不可移植（`long count`、`native_*_id_t`） |
-| DESIGN_REVIEW A3 | 回调 typedef 生成质量 |
-| DESIGN_REVIEW A4 | 内部 API 泄漏进 ABI（`WindowManager` 的平台钩子被导出成 8 个 C 函数） |
-| DESIGN_REVIEW A5 | C++ 重载 → C 命名策略 |
+| 问题 | 说明 | 方向 |
+|---|---|---|
+| 没有统一错误模型 | 无 `native_get_last_error` 之类的通道；无效句柄静默返回默认值，调用方分不清「成功返回默认值」与「句柄已失效」。C++ 一侧的现行做法见 [api-style.md](api-style.md) §4 | 在 IR 层统一：状态码 + out 参数，或 thread-local last error |
+| 整数宽度不可移植 | `native_*_id_t` 是 `unsigned int` 而非 `uint32_t`；list 的 `count` 是 `long`、`get_size` 返回 `unsigned long`——Windows LLP64 下 32 位、其余平台 64 位，而 Dart / C# / Rust 的 FFI 各自硬编码宽度 | 统一映射为 `<stdint.h>` 定宽类型 |
+| 空串与缺失折叠 | `to_c_str` 对空字符串返回 `nullptr`，`optional<string>` 的「未设置」与 `""` 在 ABI 上不可区分，`get_title` 无法往返 | 空串返回合法的 `""` 分配，`nullptr` 只表示无值 |
+| 回调 typedef 生成质量 | 同一个 `std::function<void()>` 生成三个名字；`set_will_show_hook` 的回调参数名漏成 `arg0`、类型退化为 `unsigned int` | 相同签名共享 typedef；IR 保留参数名与语义类型 |
+| 内部 API 泄漏进 ABI | `native_shortcut_create_with_id_*`、`native_shortcut_manager_emit_shortcut_activated`、`native_window_manager_handle_will_show/hide` 与 `call_original_*`、`native_display_create()` | 给 IR 加 internal / exclude 标注；C++ 一侧的预防见 [api-style.md](api-style.md) §3.3 |
+| 重载的 C 命名 | `register_with_accelerator_and_callback`、`get_with_accelerator` 这类机械后缀可读性差 | 在 C++ 层拆名（[api-style.md](api-style.md) §1.6），生成名自然变好 |
+| `void*` 包装构造被导出 | `native_window_create_with_native_window` 等接管原生对象，所有权语义在 C 文档里缺失 | 补所有权说明，或随 internal 标注摘除 |
+| 导出宏 | `FFI_PLUGIN_EXPORT` 在每个头重复定义；`#if _WIN32` 应为 `#ifdef`；没有 dllimport 分支 | 收敛到统一 export 头 |
+| 生成的文档模板 | 所有 `get_native_object` 的注释都是 display 的（「NSScreen*, HMONITOR…」被复用到 window / tray / image） | 修生成器模板 |
+| 枚举魔数 | `NATIVE_DISPLAY_ORIENTATION_LANDSCAPE = 90` 继承自 C++ | 修 C++ 枚举（[api-style.md](api-style.md) §3.1） |
 
 ## 8. 检查单
 
