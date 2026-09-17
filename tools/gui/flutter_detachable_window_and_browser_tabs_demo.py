@@ -23,15 +23,38 @@ import sys
 import time
 
 from common import build_example, example, output_path
-from guiapp import Abort, assert_idle, pause
+from guiapp import Abort, GuiApp, assert_idle, pause
 from recorder import Recorder
 
 KEEP_OPEN = False
 LAST_LOG = None
+# Speed of the whole scenario (--pace): 1.0 is the original, slow pacing. Mouse motions
+# and pauses are scaled by it; pauses that let windows appear keep a floor.
+PACE = 0.5
+
+
+def scaled(ms, floor=120):
+    return max(floor, int(ms * PACE))
+
+
+def beat(seconds):
+    pause(max(seconds * PACE, 0.7 if seconds >= 1 else 0.2))
+
+
+class PacedApp(GuiApp):
+    def move(self, point, ms=600):
+        super().move(point, scaled(ms))
+
+    def click(self, point, ms=450):
+        super().click(point, scaled(ms))
+
+    def drag(self, start, *legs, approach_ms=500):
+        super().drag(start, *[(x, y, scaled(ms, 150)) for x, y, ms in legs],
+                     approach_ms=scaled(approach_ms))
 
 
 def launchable(name):
-    app = example(name)
+    app = PacedApp(example(name).executable)
     app.keep_open = KEEP_OPEN
     return app
 
@@ -62,27 +85,27 @@ def detachable():
 
         wins, va, vb, _ = state()
         fa, fb = wins['nativeapi · Window A'], wins['nativeapi · Window B']
-        pause(1.0)
+        beat(1.0)
 
         # Give the panels some state worth keeping.
         plus = at(fa, va, '+1')
         for _ in range(3):
             ex.click(plus, 350)
-            pause(0.25)
+            beat(0.25)
         ex.scroll(at(fa, va, 'Layer 1'), 3)
-        pause(0.5)
+        beat(0.5)
         lap = at(fa, va, 'Lap')
         for _ in range(2):
             ex.click(lap, 400)
-            pause(0.5)
-        pause(0.8)
+            beat(0.5)
+        beat(0.8)
 
         # Tear the Inspector off and drop it over the workspace: it stays a window.
         start = at(fa, va, 'Inspector')
         ex.drag(start,
                 (start[0] + 60, start[1] + 40, 350),
                 (fa[0] + 470, fa[1] + 160, 900))
-        pause(1.2)
+        beat(1.2)
 
         # Dock it into Window B's wide sidebar.
         wins, va, vb, floating = state()
@@ -92,7 +115,7 @@ def detachable():
         ex.drag(start,
                 (start[0] + 250, start[1] + 60, 700),
                 (target[0], target[1], 900))
-        pause(1.5)
+        beat(1.5)
 
         # Move the Stopwatch from Window A's bottom panel to Window B's top strip.
         wins, va, vb, _ = state()
@@ -101,7 +124,7 @@ def detachable():
         ex.drag(start,
                 (start[0] + 40, start[1] - 80, 400),
                 (target[0], target[1], 1100))
-        pause(1.5)
+        beat(1.5)
 
         # And back again, swapping places.
         wins, va, vb, _ = state()
@@ -110,19 +133,19 @@ def detachable():
         ex.drag(start,
                 (start[0] - 120, start[1] + 60, 500),
                 (target[0], target[1], 1100))
-        pause(1.3)
+        beat(1.3)
         wins, va, vb, _ = state()
         start = at(fb, vb, 'Stopwatch')
         target = at(fa, va, 'Sidebar')
         ex.drag(start,
                 (start[0] - 200, start[1] + 120, 500),
                 (target[0], target[1], 1100))
-        pause(2.0)
+        beat(2.0)
 
         # Same state all along: clicks, laps, scroll position.
         wins, va, vb, _ = state()
         ex.move(at(fa, va, 'Inspector'), 700)
-        pause(2.5)
+        beat(2.5)
     finally:
         finish(ex)
 
@@ -161,23 +184,23 @@ def browser_tabs():
         def on_page(view, text, prefix=False):
             return ex.to_screen(frame_of[view.name], view, view.center(text, prefix))
 
-        pause(1.0)
+        beat(1.0)
 
         # Open Tab 4 and give its page some state.
         ex.click(tab(first, 'Tab 4'))
-        pause(0.6)
+        beat(0.6)
         views = refresh()
         first = views[first.name]
         like = on_page(first, 'Like', prefix=True)
         for _ in range(3):
             ex.click(like, 350)
-            pause(0.25)
-        pause(0.8)
+            beat(0.25)
+        beat(0.8)
 
         # Reorder: Tab 1 slides past its neighbours.
         start = tab(first, 'Tab 1')
         ex.drag(start, (start[0] + 330, start[1] + 2, 1400))
-        pause(1.0)
+        beat(1.0)
 
         # Tear Tab 4 off into its own window.
         views = refresh()
@@ -186,7 +209,7 @@ def browser_tabs():
         ex.drag(start,
                 (start[0] - 40, start[1] + 120, 500),
                 (start[0] - 160, start[1] + 330, 800))
-        pause(1.4)
+        beat(1.4)
 
         # Drag that window by its tab onto the other window's strip: it merges
         # while still dragging, and can be positioned between the tabs.
@@ -199,7 +222,7 @@ def browser_tabs():
                 (start[0] + 200, start[1] - 150, 700),
                 (t5[0] + 60, t5[1], 900),
                 (t5[0] + 150, t5[1], 700))
-        pause(1.4)
+        beat(1.4)
 
         # Pull Tab 6 out of that window and straight into the first one.
         views = refresh()
@@ -210,7 +233,7 @@ def browser_tabs():
                 (start[0], start[1] + 180, 600),
                 (t1[0] + 80, t1[1] + 60, 1000),
                 (t1[0] + 40, t1[1], 500))
-        pause(1.4)
+        beat(1.4)
 
         # Move a window by the empty part of its strip.
         views = refresh()
@@ -218,18 +241,19 @@ def browser_tabs():
         grip = (fx + fw - 80, fy + 20)
         ex.drag(grip, (grip[0] - 60, grip[1] + 50, 800))
         frame_of[second.name] = (fx - 60, fy + 50, fw, frame_of[second.name][3])
-        pause(1.0)
+        beat(1.0)
 
         # Tab 4's page kept its likes through both moves.
         views = refresh()
         second = views[second.name]
         ex.click(tab(second, 'Tab 4'))
-        pause(2.5)
+        beat(2.5)
     finally:
         finish(ex)
 
 
 def main():
+    global KEEP_OPEN, PACE
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--record', metavar='OUT.mp4', nargs='?', const='',
@@ -237,12 +261,14 @@ def main():
                              '<script name>-macos.mp4)')
     parser.add_argument('--build', action='store_true', help='build the examples first')
     parser.add_argument('--countdown', type=int, default=5)
+    parser.add_argument('--pace', type=float, default=PACE,
+                        help=f'speed factor for motions and pauses (1.0 = slow original; default {PACE})')
     parser.add_argument('--only', choices=['detachable', 'tabs'])
     parser.add_argument('--keep-open', action='store_true',
                         help='leave the example running at the end (with --only)')
     args = parser.parse_args()
-    global KEEP_OPEN
     KEEP_OPEN = args.keep_open and args.only is not None
+    PACE = args.pace
 
     scenarios = [('detachable', detachable), ('tabs', browser_tabs)]
     if args.only:
@@ -267,10 +293,10 @@ def main():
     try:
         for index, (name, run) in enumerate(scenarios):
             if index:
-                pause(1.5)
+                beat(1.5)
             print(f'▶ {name}', flush=True)
             run()
-        pause(1.0)
+        beat(1.0)
     except Abort as e:
         raise SystemExit(f'Stopped: {e}')
     finally:

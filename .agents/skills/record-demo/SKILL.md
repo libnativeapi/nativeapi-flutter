@@ -103,9 +103,13 @@ What makes a scenario watchable:
 - **Tell one story per app**: give the UI some visible state → show the feature →
   end on proof (the state survived, the window landed where it was dropped).
   45–60 s per app.
-- **Pace for a viewer, not a test**: 400–700 ms eased approaches, drags in 2–3 legs of
-  350–1100 ms with a short first leg, 1.2–1.5 s rest after each drop, 2.5 s hold on
-  the final frame.
+- **Pace for a viewer, but brisk** — the user found a relaxed pace (400–700 ms
+  approaches, 350–1100 ms drag legs, 1.2–1.5 s rests) too slow. Aim for about half
+  that: 200–350 ms approaches, drags in 2–3 legs of 150–550 ms with a short first leg,
+  ~0.7 s after each drop (enough for new windows to appear before the next probe),
+  1.2 s hold on the final frame. Keep one speed factor in the scenario (`--pace` /
+  `$Pace`) that scales every motion and pause, with floors for the pauses that wait
+  for windows, so the tempo can be tuned in one place.
 - **Keep dead time out at the source**, since nothing is trimmed later: start the
   recorder right before the first app launches, and stop it right after the last one
   quits.

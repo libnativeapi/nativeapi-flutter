@@ -37,13 +37,14 @@ def main():
         panel = next(f for t, f in frames.items() if t.startswith('Panel'))
 
         # The example treats a focus change as the press: focus the dock first.
-        app.click(center(dock))
-        pause(1.0)
+        app.click(center(dock), 200)
+        pause(0.5)
 
         # 1. Drag the panel (pressed inside its content) onto the dock.
         start = center(panel)
-        app.drag(start, (start[0] - 100, start[1] + 20, 400), (*center(dock), 900))
-        pause(1.5)
+        app.drag(start, (start[0] - 100, start[1] + 20, 200), (*center(dock), 400),
+                 approach_ms=200)
+        pause(0.8)
         titles = [t for t, _ in app.windows()]
         checks.check('1 panel window is gone once docked',
                      not any(t.startswith('Panel') for t in titles), titles)
@@ -55,12 +56,13 @@ def main():
         start = (dock[0] + dock[2] / 3, center(dock)[1])
         end = (dock[0] + 300, max(60, dock[1] - 120))
         try:
-            app.drag(start, (start[0] + 150, start[1] + 30, 500), (*end, 900))
+            app.drag(start, (start[0] + 150, start[1] + 30, 250), (*end, 400),
+                     approach_ms=200)
         except Abort as e:
             print(f'SKIP 2 tear-off: {e}', flush=True)
             skipped = True
         if not skipped:
-            pause(1.5)
+            pause(0.8)
             panel = next((f for t, f in app.windows() if t.startswith('Panel')), None)
             checks.check('2 panel is a window again', panel is not None)
             if panel:

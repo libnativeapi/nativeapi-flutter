@@ -21,13 +21,13 @@ try {
 
   # State that has to survive the moves.
   $plus = ConvertTo-Screen $wa (Get-TextCenter $v.A "+1")
-  1..3 | % { Invoke-Click $app $plus 350; Pause 0.25 }
+  1..3 | % { Invoke-Click $app $plus 150; Pause 0.15 }
 
   # 1. Tear the Inspector off; drop it over the workspace so it stays a window.
   $start = ConvertTo-Screen $wa (Get-TextCenter $v.A "Inspector")
   $drop = @(($wa.ClientX + [int](470 * $wa.Scale)), ($wa.ClientY + [int](160 * $wa.Scale)))
-  Invoke-Drag $app $start @(@(($start[0] + 60), ($start[1] + 40), 350), @($drop[0], $drop[1], 900))
-  Pause 1.5
+  Invoke-Drag $app $start @(@(($start[0] + 60), ($start[1] + 40), 150), @($drop[0], $drop[1], 400)) 200
+  Pause 0.8
   $wi = Get-Win $app "Inspector"
   Check "Inspector became its own window" ($null -ne $wi) ((Get-Wins $app | % { $_.Title }) -join ", ")
   $v = Look $app
@@ -43,8 +43,8 @@ try {
 
     # 2. Dock it into Window B's wide sidebar.
     $target = ConvertTo-Screen $wb (Get-TextCenter $v.B "Wide sidebar")
-    Invoke-Drag $app $grabbed @(@(($grabbed[0] + 200), ($grabbed[1] + 60), 700), @($target[0], $target[1], 900))
-    Pause 1.5
+    Invoke-Drag $app $grabbed @(@(($grabbed[0] + 200), ($grabbed[1] + 60), 300), @($target[0], $target[1], 400)) 200
+    Pause 0.8
     Check "floating window is gone after docking" ($null -eq (Get-Win $app "Inspector"))
     $v = Look $app
     Check "Inspector now lives in Window B" (Test-ViewText $v.B "Inspector")

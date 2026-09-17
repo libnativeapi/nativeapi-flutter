@@ -25,13 +25,13 @@ try {
 
   # The example treats a focus change as the press: focus the dock first.
   $d = @(($dock.ClientX + [int]($dock.ClientW / 2)), ($dock.ClientY + [int]($dock.ClientH / 2)))
-  Invoke-Click $app $d
-  Pause 1
+  Invoke-Click $app $d 200
+  Pause 0.5
 
   # 1. Drag the panel (pressed inside its client area) onto the dock.
   $p = @(($panel.ClientX + [int]($panel.ClientW / 2)), ($panel.ClientY + [int]($panel.ClientH / 2)))
-  Invoke-Drag $app $p @(@(($p[0] - 100), ($p[1] + 20), 400), @($d[0], $d[1], 900))
-  Pause 1.5
+  Invoke-Drag $app $p @(@(($p[0] - 100), ($p[1] + 20), 200), @($d[0], $d[1], 400)) 200
+  Pause 0.8
   Check "1 panel window is gone once docked" ($null -eq (Get-Win $app "Panel*")) ((Get-Wins $app | % { $_.Title }) -join ", ")
   Check "1 dock says it holds the panel" ($null -ne (Get-Win $app "Dock*docked*")) ((Get-Wins $app | % { $_.Title }) -join ", ")
 
@@ -41,8 +41,8 @@ try {
   $dock = Get-Win $app "Dock*"
   $s = @(($dock.ClientX + [int]($dock.ClientW / 3)), ($dock.ClientY + [int]($dock.ClientH / 2)))
   $e = @(($dock.Left + 300), ($dock.Top - 200))
-  Invoke-Drag $app $s @(@(($s[0] + 150), ($s[1] + 30), 500), @($e[0], $e[1], 900))
-  Pause 1.5
+  Invoke-Drag $app $s @(@(($s[0] + 150), ($s[1] + 30), 250), @($e[0], $e[1], 400)) 200
+  Pause 0.8
   $panel = Get-Win $app "Panel*"
   Check "2 panel is a window again" ($null -ne $panel)
   if ($panel) {

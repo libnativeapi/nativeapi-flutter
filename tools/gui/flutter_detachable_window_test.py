@@ -36,15 +36,15 @@ def main():
         # State that has to survive the moves.
         plus = app.to_screen(frame_a, view_a, view_a.center('+1'))
         for _ in range(3):
-            app.click(plus, 350)
-            pause(0.25)
+            app.click(plus, 150)
+            pause(0.15)
 
         # 1. Tear the Inspector off; drop it over the workspace so it stays a window.
         slot = view_a.find('Inspector')
         start = app.to_screen(frame_a, view_a, view_a.center('Inspector'))
         drop = (frame_a[0] + 470, frame_a[1] + 160)
-        app.drag(start, (start[0] + 60, start[1] + 40, 350), (*drop, 900))
-        pause(1.5)
+        app.drag(start, (start[0] + 60, start[1] + 40, 150), (*drop, 400), approach_ms=200)
+        pause(0.8)
         titles = [t for t, _ in app.windows()]
         checks.check('Inspector became its own window', 'Inspector' in titles, titles)
         view_a, view_b, floating = look()
@@ -59,8 +59,9 @@ def main():
 
             # 2. Dock it into Window B's wide sidebar.
             target = app.to_screen(frame_b, view_b, view_b.center('Wide sidebar'))
-            app.drag(grabbed, (grabbed[0] + 200, grabbed[1] + 60, 700), (*target, 900))
-            pause(1.5)
+            app.drag(grabbed, (grabbed[0] + 200, grabbed[1] + 60, 300), (*target, 400),
+                     approach_ms=200)
+            pause(0.8)
             titles = [t for t, _ in app.windows()]
             checks.check('floating window is gone after docking', 'Inspector' not in titles, titles)
             view_a, view_b, floating = look()
