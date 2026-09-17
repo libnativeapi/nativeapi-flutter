@@ -103,6 +103,12 @@ function Invoke-Click($App, $Point, [int]$ApproachMs = 450) {
   [WInput]::Click([int]$Point[0], [int]$Point[1])
 }
 
+function Invoke-DoubleClick($App, $Point, [int]$ApproachMs = 450) {
+  Move-Cursor $Point $ApproachMs
+  Assert-Owner $App.Proc.Id $Point[0] $Point[1]
+  [WInput]::DoubleClick([int]$Point[0], [int]$Point[1])
+}
+
 # $Legs: @(x, y, ms) arrays. A single leg needs the unary comma: @(,@(x, y, ms)).
 function Invoke-Drag($App, $Start, [object[]]$Legs, [int]$ApproachMs = 500) {
   Move-Cursor $Start $ApproachMs

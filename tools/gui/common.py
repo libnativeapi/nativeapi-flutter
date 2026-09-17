@@ -17,9 +17,9 @@ import subprocess  # noqa: E402
 from guiapp import GuiApp, build_flutter, flutter_executable  # noqa: E402
 
 
-def example(name):
+def example(name, args=()):
     """A GuiApp for a Flutter example of bindings/flutter."""
-    return GuiApp(flutter_executable(os.path.join(EXAMPLES, name)))
+    return GuiApp(flutter_executable(os.path.join(EXAMPLES, name)), args=args)
 
 
 def build_example(name):

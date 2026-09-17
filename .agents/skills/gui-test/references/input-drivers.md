@@ -23,6 +23,7 @@ $I pos                      # cursor position
 $I idle [ms]                # exit 1 if the cursor moved during ms (default 1500)
 $I move <x> <y> <ms>        # eased move
 $I click <x> <y>
+$I dblclick <x> <y>         # click state 1 then 2, as a real double click
 $I drag <x> <y> [<x> <y> <ms>]…   # press at the first point, glide through each leg, release
 $I scroll <x> <y> <lines>
 ```
@@ -44,6 +45,7 @@ $w = Get-AppWindows $proc.Id      # Hwnd, Title, Left/Top/Right/Bottom, ClientX/
 Assert-Owner $proc.Id $x $y
 [WInput]::Glide($x, $y, 600)      # eased move
 [WInput]::Click($x, $y)
+[WInput]::DoubleClick($x, $y)
 [WInput]::Drag([int[]]@($x0, $y0,  $x1, $y1, 400,  $x2, $y2, 900))   # x0,y0 then x,y,ms legs
 [WInput]::Wheel(3)                # at the current cursor position; positive scrolls down
 [WInput]::Move($hwnd, $x, $y)     # reposition a window without input

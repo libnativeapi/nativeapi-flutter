@@ -171,6 +171,11 @@ class GuiApp:
         self._check(*point)
         inp('click', int(point[0]), int(point[1]))
 
+    def double_click(self, point, ms=450):
+        self.move(point, ms)
+        self._check(*point)
+        inp('dblclick', int(point[0]), int(point[1]))
+
     def drag(self, start, *legs, approach_ms=500):
         """legs: (x, y, ms) tuples, glided through with the button held."""
         self.move(start, approach_ms)

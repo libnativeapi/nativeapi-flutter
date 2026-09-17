@@ -122,6 +122,13 @@ public static class WInput {
     Button(0x0002); Thread.Sleep(70); Button(0x0004);
   }
 
+  // Two clicks well inside the system double-click time (500 ms by default).
+  public static void DoubleClick(int x, int y) {
+    Click(x, y);
+    Thread.Sleep(90);
+    Button(0x0002); Thread.Sleep(60); Button(0x0004);
+  }
+
   public static void Wheel(int lines) {
     for (int i = 0; i < Math.Abs(lines) * 4; i++) {
       var inp = new INPUT[1]; inp[0].type = 0; inp[0].mi.flags = 0x0800;

@@ -11,6 +11,7 @@
 //   input idle [ms]                     exit 1 if the cursor moves within ms (default 1500)
 //   input move <x> <y> <ms>             eased move, no buttons
 //   input click <x> <y>
+//   input dblclick <x> <y>              two clicks the system counts as a double click
 //   input drag <x> <y> [<x> <y> <ms>]…  press at the first point, glide through the rest
 //   input scroll <x> <y> <lines>
 //
@@ -142,6 +143,20 @@ int main(int argc, char** argv) {
       Post(kCGEventLeftMouseDown, p);
       usleep(70000);
       Post(kCGEventLeftMouseUp, p);
+      return 0;
+    }
+    if ([cmd isEqual:@"dblclick"]) {
+      CGPoint p = CGPointMake(atof(argv[2]), atof(argv[3]));
+      for (int64_t n = 1; n <= 2; n++) {
+        for (int up = 0; up < 2; up++) {
+          CGEventRef e = CGEventCreateMouseEvent(
+              NULL, up ? kCGEventLeftMouseUp : kCGEventLeftMouseDown, p, kCGMouseButtonLeft);
+          CGEventSetIntegerValueField(e, kCGMouseEventClickState, n);  // NSEvent.clickCount
+          CGEventPost(kCGHIDEventTap, e);
+          CFRelease(e);
+          usleep(up ? 90000 : 60000);
+        }
+      }
       return 0;
     }
     if ([cmd isEqual:@"drag"]) {

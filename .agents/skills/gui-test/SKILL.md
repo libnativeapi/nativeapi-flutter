@@ -22,7 +22,7 @@ a drag once ran with empty coordinates and pressed near the menu bar. So:
    moves on its own, a person is using the machine — stop, do not fight them for the
    mouse. When the user is actively working on the same machine, ask before running,
    or have them run the script themselves.
-2. **Check the owner of every press point** (the harness does it in every `click`/`drag`/`scroll`; raw: `input owner x y` / `Assert-Owner pid x y`)
+2. **Check the owner of every press point** (the harness does it in every `click`/`double_click`/`drag`/`scroll`; raw: `input owner x y` / `Assert-Owner pid x y`)
    and abort if the pixel does not belong to the app under test. Do this right before
    the press, after the approach move — windows move.
 3. **Never press outside the app's own windows.** The one exception is
@@ -62,7 +62,7 @@ there.
    executables without a Dart VM: `launch(flutter=False)` / `Start-ConsoleApp`.
 3. **Look**: window frames from the OS, views from the probe. Identify a window's view
    by a text only it shows, not by index.
-4. **Act**: one gesture (`click`, multi-leg `drag`, `scroll`), owner-checked.
+4. **Act**: one gesture (`click`, `double_click`, multi-leg `drag`, `scroll`), owner-checked.
 5. **Settle** 1–1.5 s, then **look again** — never reuse coordinates from before the
    gesture.
 6. **Assert** (below), collecting PASS/FAIL so one failure does not hide the rest.
