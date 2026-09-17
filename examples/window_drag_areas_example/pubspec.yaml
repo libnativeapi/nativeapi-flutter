@@ -1,0 +1,22 @@
+name: window_drag_areas_example
+description: "A custom title bar and resize handles built with DragToMoveArea and DragToResizeArea."
+publish_to: "none"
+version: 1.0.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nativeapi:
+    path: ../../packages/nativeapi
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

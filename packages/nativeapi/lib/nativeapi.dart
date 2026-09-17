@@ -7,3 +7,5 @@ export 'src/generated.dart';
 // Hand-written additions that sit on top of the generated bindings.
 export 'src/widgets/context_menu_region.dart';
 export 'src/widgets/image_asset.dart';
+export 'src/widgets/drag_to_move_area.dart';
+export 'src/widgets/drag_to_resize_area.dart';

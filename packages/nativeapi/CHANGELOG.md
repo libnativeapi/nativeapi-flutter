@@ -1,3 +1,9 @@
+## Unreleased
+
+* Add `DragToMoveArea` and `DragToResizeArea` widgets for custom window chrome, with optional target windows and configurable resize handles.
+* Fix `Window.startDragging` not moving the window on Windows, and on macOS the gesture after a `startDragging` / `startResizing` being ignored.
+* Add `window_drag_areas_example`.
+
 ## 0.2.4
 
 * Update to `cnativeapi` 0.2.4 with Windows DLL export and Apple build fixes.
