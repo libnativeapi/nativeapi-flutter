@@ -2743,6 +2743,361 @@ class CNativeApiBindings {
   late final _native_string_map_free = _native_string_map_freePtr
       .asFunction<void Function(ffi.Pointer<native_string_map_t>)>();
 
+  /// Creates a DragSource instance; release it with native_drag_source_free().
+  int native_drag_source_create() {
+    return _native_drag_source_create();
+  }
+
+  late final _native_drag_source_createPtr =
+      _lookup<ffi.NativeFunction<native_drag_source_t Function()>>(
+        'native_drag_source_create',
+      );
+  late final _native_drag_source_create = _native_drag_source_createPtr
+      .asFunction<int Function()>();
+
+  bool native_drag_source_is_supported() {
+    return _native_drag_source_is_supported();
+  }
+
+  late final _native_drag_source_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_drag_source_is_supported',
+      );
+  late final _native_drag_source_is_supported =
+      _native_drag_source_is_supportedPtr.asFunction<bool Function()>();
+
+  void native_drag_source_set_file_paths(
+    int drag_source,
+    native_string_list_t file_paths,
+  ) {
+    return _native_drag_source_set_file_paths(drag_source, file_paths);
+  }
+
+  late final _native_drag_source_set_file_pathsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, native_string_list_t)
+        >
+      >('native_drag_source_set_file_paths');
+  late final _native_drag_source_set_file_paths =
+      _native_drag_source_set_file_pathsPtr
+          .asFunction<void Function(int, native_string_list_t)>();
+
+  native_string_list_t native_drag_source_get_file_paths(int drag_source) {
+    return _native_drag_source_get_file_paths(drag_source);
+  }
+
+  late final _native_drag_source_get_file_pathsPtr =
+      _lookup<
+        ffi.NativeFunction<native_string_list_t Function(native_drag_source_t)>
+      >('native_drag_source_get_file_paths');
+  late final _native_drag_source_get_file_paths =
+      _native_drag_source_get_file_pathsPtr
+          .asFunction<native_string_list_t Function(int)>();
+
+  void native_drag_source_set_text(
+    int drag_source,
+    ffi.Pointer<ffi.Char> text,
+  ) {
+    return _native_drag_source_set_text(drag_source, text);
+  }
+
+  late final _native_drag_source_set_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_drag_source_set_text');
+  late final _native_drag_source_set_text = _native_drag_source_set_textPtr
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_drag_source_get_text(int drag_source) {
+    return _native_drag_source_get_text(drag_source);
+  }
+
+  late final _native_drag_source_get_textPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_drag_source_t)>
+      >('native_drag_source_get_text');
+  late final _native_drag_source_get_text = _native_drag_source_get_textPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  void native_drag_source_set_image(int drag_source, int image) {
+    return _native_drag_source_set_image(drag_source, image);
+  }
+
+  late final _native_drag_source_set_imagePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, native_image_t)
+        >
+      >('native_drag_source_set_image');
+  late final _native_drag_source_set_image = _native_drag_source_set_imagePtr
+      .asFunction<void Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_image_free().
+  int native_drag_source_get_image(int drag_source) {
+    return _native_drag_source_get_image(drag_source);
+  }
+
+  late final _native_drag_source_get_imagePtr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(native_drag_source_t)>
+      >('native_drag_source_get_image');
+  late final _native_drag_source_get_image = _native_drag_source_get_imagePtr
+      .asFunction<int Function(int)>();
+
+  void native_drag_source_set_drag_operation(
+    Dartnative_drag_source_t drag_source,
+    native_drag_operation_t operation,
+  ) {
+    return _native_drag_source_set_drag_operation(drag_source, operation.value);
+  }
+
+  late final _native_drag_source_set_drag_operationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, ffi.UnsignedInt)
+        >
+      >('native_drag_source_set_drag_operation');
+  late final _native_drag_source_set_drag_operation =
+      _native_drag_source_set_drag_operationPtr
+          .asFunction<void Function(int, int)>();
+
+  native_drag_operation_t native_drag_source_get_drag_operation(
+    Dartnative_drag_source_t drag_source,
+  ) {
+    return native_drag_operation_t.fromValue(
+      _native_drag_source_get_drag_operation(drag_source),
+    );
+  }
+
+  late final _native_drag_source_get_drag_operationPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_drag_source_t)>
+      >('native_drag_source_get_drag_operation');
+  late final _native_drag_source_get_drag_operation =
+      _native_drag_source_get_drag_operationPtr.asFunction<int Function(int)>();
+
+  bool native_drag_source_start_dragging(int drag_source, int window) {
+    return _native_drag_source_start_dragging(drag_source, window);
+  }
+
+  late final _native_drag_source_start_draggingPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_drag_source_t, native_window_t)
+        >
+      >('native_drag_source_start_dragging');
+  late final _native_drag_source_start_dragging =
+      _native_drag_source_start_draggingPtr
+          .asFunction<bool Function(int, int)>();
+
+  bool native_drag_source_is_dragging(int drag_source) {
+    return _native_drag_source_is_dragging(drag_source);
+  }
+
+  late final _native_drag_source_is_draggingPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_drag_source_t)>>(
+        'native_drag_source_is_dragging',
+      );
+  late final _native_drag_source_is_dragging =
+      _native_drag_source_is_draggingPtr.asFunction<bool Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_drag_source_free(int drag_source) {
+    return _native_drag_source_free(drag_source);
+  }
+
+  late final _native_drag_source_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_drag_source_t)>>(
+        'native_drag_source_free',
+      );
+  late final _native_drag_source_free = _native_drag_source_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Registers @p callback for every DragSourceEvent this DragSource emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_drag_source_add_listener(
+    int drag_source,
+    native_drag_source_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_drag_source_add_listener(drag_source, callback, user_data);
+  }
+
+  late final _native_drag_source_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_drag_source_t,
+            native_drag_source_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_drag_source_add_listener');
+  late final _native_drag_source_add_listener =
+      _native_drag_source_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_drag_source_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_drag_source_remove_listener(int drag_source, int listener_id) {
+    return _native_drag_source_remove_listener(drag_source, listener_id);
+  }
+
+  late final _native_drag_source_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_drag_source_t, native_listener_id_t)
+        >
+      >('native_drag_source_remove_listener');
+  late final _native_drag_source_remove_listener =
+      _native_drag_source_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
+  /// Creates a DropTarget instance; release it with native_drop_target_free().
+  int native_drop_target_create(int window) {
+    return _native_drop_target_create(window);
+  }
+
+  late final _native_drop_target_createPtr =
+      _lookup<
+        ffi.NativeFunction<native_drop_target_t Function(native_window_t)>
+      >('native_drop_target_create');
+  late final _native_drop_target_create = _native_drop_target_createPtr
+      .asFunction<int Function(int)>();
+
+  bool native_drop_target_is_supported() {
+    return _native_drop_target_is_supported();
+  }
+
+  late final _native_drop_target_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_drop_target_is_supported',
+      );
+  late final _native_drop_target_is_supported =
+      _native_drop_target_is_supportedPtr.asFunction<bool Function()>();
+
+  int native_drop_target_get_window_id(int drop_target) {
+    return _native_drop_target_get_window_id(drop_target);
+  }
+
+  late final _native_drop_target_get_window_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_window_id_t Function(native_drop_target_t)>
+      >('native_drop_target_get_window_id');
+  late final _native_drop_target_get_window_id =
+      _native_drop_target_get_window_idPtr.asFunction<int Function(int)>();
+
+  void native_drop_target_set_drop_operation(
+    Dartnative_drop_target_t drop_target,
+    native_drag_operation_t operation,
+  ) {
+    return _native_drop_target_set_drop_operation(drop_target, operation.value);
+  }
+
+  late final _native_drop_target_set_drop_operationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drop_target_t, ffi.UnsignedInt)
+        >
+      >('native_drop_target_set_drop_operation');
+  late final _native_drop_target_set_drop_operation =
+      _native_drop_target_set_drop_operationPtr
+          .asFunction<void Function(int, int)>();
+
+  native_drag_operation_t native_drop_target_get_drop_operation(
+    Dartnative_drop_target_t drop_target,
+  ) {
+    return native_drag_operation_t.fromValue(
+      _native_drop_target_get_drop_operation(drop_target),
+    );
+  }
+
+  late final _native_drop_target_get_drop_operationPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_drop_target_t)>
+      >('native_drop_target_get_drop_operation');
+  late final _native_drop_target_get_drop_operation =
+      _native_drop_target_get_drop_operationPtr.asFunction<int Function(int)>();
+
+  bool native_drop_target_is_active(int drop_target) {
+    return _native_drop_target_is_active(drop_target);
+  }
+
+  late final _native_drop_target_is_activePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_drop_target_t)>>(
+        'native_drop_target_is_active',
+      );
+  late final _native_drop_target_is_active = _native_drop_target_is_activePtr
+      .asFunction<bool Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_drop_target_free(int drop_target) {
+    return _native_drop_target_free(drop_target);
+  }
+
+  late final _native_drop_target_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_drop_target_t)>>(
+        'native_drop_target_free',
+      );
+  late final _native_drop_target_free = _native_drop_target_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Registers @p callback for every DropTargetEvent this DropTarget emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_drop_target_add_listener(
+    int drop_target,
+    native_drop_target_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_drop_target_add_listener(drop_target, callback, user_data);
+  }
+
+  late final _native_drop_target_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_drop_target_t,
+            native_drop_target_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_drop_target_add_listener');
+  late final _native_drop_target_add_listener =
+      _native_drop_target_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_drop_target_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_drop_target_remove_listener(int drop_target, int listener_id) {
+    return _native_drop_target_remove_listener(drop_target, listener_id);
+  }
+
+  late final _native_drop_target_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_drop_target_t, native_listener_id_t)
+        >
+      >('native_drop_target_remove_listener');
+  late final _native_drop_target_remove_listener =
+      _native_drop_target_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
   /// Creates a FileDialog instance; release it with native_file_dialog_free().
   Dartnative_file_dialog_t native_file_dialog_create(
     native_file_dialog_mode_t mode,
@@ -6103,6 +6458,161 @@ final class native_string_map_t extends ffi.Struct {
   external int count;
 }
 
+enum native_drag_operation_t {
+  NATIVE_DRAG_OPERATION_NONE(0),
+  NATIVE_DRAG_OPERATION_COPY(1),
+  NATIVE_DRAG_OPERATION_MOVE(2),
+  NATIVE_DRAG_OPERATION_LINK(3);
+
+  final int value;
+  const native_drag_operation_t(this.value);
+
+  static native_drag_operation_t fromValue(int value) => switch (value) {
+    0 => NATIVE_DRAG_OPERATION_NONE,
+    1 => NATIVE_DRAG_OPERATION_COPY,
+    2 => NATIVE_DRAG_OPERATION_MOVE,
+    3 => NATIVE_DRAG_OPERATION_LINK,
+    _ => throw ArgumentError(
+      "Unknown value for native_drag_operation_t: $value",
+    ),
+  };
+}
+
+/// Which concrete DragSourceEvent arrived.
+enum native_drag_source_event_type_t {
+  NATIVE_DRAG_SOURCE_EVENT_TYPE_ENDED(0);
+
+  final int value;
+  const native_drag_source_event_type_t(this.value);
+
+  static native_drag_source_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_DRAG_SOURCE_EVENT_TYPE_ENDED,
+        _ => throw ArgumentError(
+          "Unknown value for native_drag_source_event_type_t: $value",
+        ),
+      };
+}
+
+/// One DragSourceEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_drag_source_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external native_point_t position;
+
+  external UnnamedUnion5 data;
+}
+
+final class UnnamedUnion5 extends ffi.Union {
+  external UnnamedStruct10 ended;
+}
+
+final class UnnamedStruct10 extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int operation;
+}
+
+/// Opaque DragSource handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_DRAG_SOURCE rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_drag_source_t = ffi.Uint64;
+typedef Dartnative_drag_source_t = int;
+typedef native_drag_source_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_drag_source_event_callback_tFunction>
+    >;
+typedef native_drag_source_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_drag_source_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_drag_source_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_drag_source_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
+/// Which concrete DropTargetEvent arrived.
+enum native_drop_target_event_type_t {
+  NATIVE_DROP_TARGET_EVENT_TYPE_ENTERED(0),
+  NATIVE_DROP_TARGET_EVENT_TYPE_MOVED(1),
+  NATIVE_DROP_TARGET_EVENT_TYPE_EXITED(2),
+  NATIVE_DROP_TARGET_EVENT_TYPE_DROPPED(3);
+
+  final int value;
+  const native_drop_target_event_type_t(this.value);
+
+  static native_drop_target_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_DROP_TARGET_EVENT_TYPE_ENTERED,
+        1 => NATIVE_DROP_TARGET_EVENT_TYPE_MOVED,
+        2 => NATIVE_DROP_TARGET_EVENT_TYPE_EXITED,
+        3 => NATIVE_DROP_TARGET_EVENT_TYPE_DROPPED,
+        _ => throw ArgumentError(
+          "Unknown value for native_drop_target_event_type_t: $value",
+        ),
+      };
+}
+
+/// One DropTargetEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_drop_target_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external native_point_t position;
+
+  external UnnamedUnion6 data;
+}
+
+final class UnnamedUnion6 extends ffi.Union {
+  external UnnamedStruct11 dropped;
+}
+
+final class UnnamedStruct11 extends ffi.Struct {
+  external native_string_list_t file_paths;
+
+  external ffi.Pointer<ffi.Char> text;
+}
+
+/// Opaque DropTarget handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_DROP_TARGET rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_drop_target_t = ffi.Uint64;
+typedef Dartnative_drop_target_t = int;
+typedef native_drop_target_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_drop_target_event_callback_tFunction>
+    >;
+typedef native_drop_target_event_callback_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<native_drop_target_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef Dartnative_drop_target_event_callback_tFunction =
+    void Function(
+      ffi.Pointer<native_drop_target_event_t> event,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
 enum native_file_dialog_mode_t {
   NATIVE_FILE_DIALOG_MODE_OPEN_FILE(0),
   NATIVE_FILE_DIALOG_MODE_OPEN_FILES(1),
@@ -6235,14 +6745,14 @@ final class native_notification_event_t extends ffi.Struct {
   @ffi.UnsignedInt()
   external int type;
 
-  external UnnamedUnion5 data;
+  external UnnamedUnion7 data;
 }
 
-final class UnnamedUnion5 extends ffi.Union {
-  external UnnamedStruct10 activated;
+final class UnnamedUnion7 extends ffi.Union {
+  external UnnamedStruct12 activated;
 }
 
-final class UnnamedStruct10 extends ffi.Struct {
+final class UnnamedStruct12 extends ffi.Struct {
   external ffi.Pointer<ffi.Char> argument;
 }
 
@@ -6369,17 +6879,17 @@ final class native_shortcut_event_t extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> accelerator;
 
-  external UnnamedUnion6 data;
+  external UnnamedUnion8 data;
 }
 
 typedef native_shortcut_id_t = ffi.UnsignedInt;
 typedef Dartnative_shortcut_id_t = int;
 
-final class UnnamedUnion6 extends ffi.Union {
-  external UnnamedStruct11 registration_failed;
+final class UnnamedUnion8 extends ffi.Union {
+  external UnnamedStruct13 registration_failed;
 }
 
-final class UnnamedStruct11 extends ffi.Struct {
+final class UnnamedStruct13 extends ffi.Struct {
   external ffi.Pointer<ffi.Char> error_message;
 }
 
@@ -6484,18 +6994,18 @@ final class native_tray_icon_event_t extends ffi.Struct {
   @ffi.UnsignedInt()
   external int type;
 
-  external UnnamedUnion7 data;
+  external UnnamedUnion9 data;
 }
 
-final class UnnamedUnion7 extends ffi.Union {
-  external UnnamedStruct12 clicked;
+final class UnnamedUnion9 extends ffi.Union {
+  external UnnamedStruct14 clicked;
 
-  external UnnamedStruct13 right_clicked;
+  external UnnamedStruct15 right_clicked;
 
-  external UnnamedStruct14 double_clicked;
+  external UnnamedStruct16 double_clicked;
 }
 
-final class UnnamedStruct12 extends ffi.Struct {
+final class UnnamedStruct14 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
@@ -6503,12 +7013,12 @@ final class UnnamedStruct12 extends ffi.Struct {
 typedef native_tray_icon_id_t = ffi.UnsignedInt;
 typedef Dartnative_tray_icon_id_t = int;
 
-final class UnnamedStruct13 extends ffi.Struct {
+final class UnnamedStruct15 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
 
-final class UnnamedStruct14 extends ffi.Struct {
+final class UnnamedStruct16 extends ffi.Struct {
   @native_tray_icon_id_t()
   external int tray_icon_id;
 }
@@ -6662,6 +7172,10 @@ const int NATIVE_INVALID_MENU_ITEM = 0;
 const int NATIVE_INVALID_MENU = 0;
 
 const int NATIVE_INVALID_DISPLAY = 0;
+
+const int NATIVE_INVALID_DRAG_SOURCE = 0;
+
+const int NATIVE_INVALID_DROP_TARGET = 0;
 
 const int NATIVE_INVALID_FILE_DIALOG = 0;
 

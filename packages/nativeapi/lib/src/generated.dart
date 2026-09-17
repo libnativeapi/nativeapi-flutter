@@ -8,6 +8,8 @@ export 'device_info.dart';
 export 'dialog.dart';
 export 'display.dart';
 export 'display_manager.dart';
+export 'drag_source.dart';
+export 'drop_target.dart';
 export 'file_dialog.dart';
 export 'foundation/color.dart';
 export 'foundation/geometry.dart';
