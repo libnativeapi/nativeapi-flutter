@@ -49,6 +49,9 @@ public static partial class Interop
     public static extern ulong native_window_manager_get_current();
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong native_window_manager_get_window_at_point(native_point_t point, uint excludedWindowId);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_window_manager_handle_will_hide(uint id);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]

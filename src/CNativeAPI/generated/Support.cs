@@ -77,6 +77,14 @@ public static partial class Interop
     /// <summary>Reads an owned C string list and frees it.</summary>
     public static string[] ConsumeStringList(ref native_string_list_t list)
     {
+        var items = ReadStringList(in list);
+        native_string_list_free(ref list);
+        return items;
+    }
+
+    /// <summary>Copies a borrowed C string list, leaving it to its owner.</summary>
+    public static string[] ReadStringList(in native_string_list_t list)
+    {
         var count = list.items == IntPtr.Zero ? 0 : checked((int)list.count.Value);
         var items = new string[count];
         for (var i = 0; i < count; i++)
@@ -84,7 +92,6 @@ public static partial class Interop
             var ptr = Marshal.ReadIntPtr(list.items, i * IntPtr.Size);
             items[i] = ptr == IntPtr.Zero ? string.Empty : Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
         }
-        native_string_list_free(ref list);
         return items;
     }
 

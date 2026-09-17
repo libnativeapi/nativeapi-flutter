@@ -42,6 +42,13 @@ public sealed partial class WindowManager
         return rawResult == 0 ? null : new Window(rawResult);
     }
 
+    public Window? GetWindowAtPoint(Point point, uint excludedWindowId)
+    {
+        var rawPoint = point.ToRaw();
+        var rawResult = Interop.native_window_manager_get_window_at_point(rawPoint, excludedWindowId);
+        return rawResult == 0 ? null : new Window(rawResult);
+    }
+
     public void SetWillShowHook(Action<uint>? hook)
     {
         WindowManagerSetWillShowHookHookNativeCallback? nativeHook = null;
