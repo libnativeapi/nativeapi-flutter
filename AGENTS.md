@@ -13,7 +13,8 @@ bindings/
 tools/codegen/      # in-repo Rust workspace: the code generator
 tools/gui/          # GUI tests and demo scenarios for the examples (built on the skills)
 codegen             # Python entry point orchestrating the generators
-.agents/skills/     # agent skills: GUI testing and demo recording (see below)
+.agents/skills/     # agent skills: core API changes, GUI testing, demo recording (see below)
+.claude/skills      # symlink → ../.agents/skills, so Claude Code discovers the same skills
 ```
 
 ## Architecture
@@ -64,7 +65,9 @@ It regenerates everything, updates each binding's embedded core submodule (fetch
 Manual follow-ups sync cannot do (details in tools/codegen/README.md):
 
 - New handle types need an `IdTypeTag<T>` entry in `core/src/foundation/id_allocator.h` (append only; a miss is a compile error, not silent).
-- New Rust modules need a `pub mod` declaration in `bindings/rust/crates/nativeapi/src/lib.rs`.
+- Hand-written files in the bindings (exports, re-exports, changelogs, examples) are never touched by the generators. Rust's `pub mod` list is generated (`modules.rs`); Flutter's `lib/nativeapi.dart` exports are not.
+
+The `core-api-change` skill walks the whole flow, including what to check before `sync` commits.
 
 ## Agent skills
 
@@ -73,6 +76,7 @@ work on a real desktop. Read the relevant `SKILL.md` before doing any of this by
 
 | Skill | Use it to |
 | --- | --- |
+| `core-api-change` | carry a public API change from `core/src/*.h` through codegen, the three bindings and the four-repo commit — including the pre-flight before `./codegen sync` |
 | `flutter-ui-probe` | find where texts/widgets are in a running debug Flutter app (VM service) |
 | `gui-test` | end-to-end test an app: launch, drive with guarded synthetic mouse input (read its safety rules first), assert on real window geometry and state |
 | `remote-hosts` | build and run on another machine over SSH — Windows today, Linux/macOS prepared (SSH session vs. logged-on desktop) |
