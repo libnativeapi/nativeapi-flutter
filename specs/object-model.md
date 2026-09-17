@@ -59,7 +59,7 @@
 ### 无集合 ID 的身份对象
 
 `Preferences`、`SecureStorage`、`LaunchAtLogin`、`KeyboardMonitor`、
-`WindowDragSession`、`MessageDialog`、`Image`：同样禁拷贝、以 handle 跨 ABI，但不进入任何
+`WindowDragSession`、`DragSource`、`DropTarget`、`MessageDialog`、`Image`：同样禁拷贝、以 handle 跨 ABI，但不进入任何
 manager 集合，因此不定义 `XxxId` 别名、不调用 `IdAllocator::Allocate`。
 它们仍需要 `IdTypeTag` 登记——那只服务于 handle 表的类型校验。
 

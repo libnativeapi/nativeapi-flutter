@@ -211,6 +211,14 @@ public static partial class Interop
     /// <summary>Reads an owned C string list and frees it.</summary>
     public static string[] ConsumeStringList(ref native_string_list_t list)
     {{
+        var items = ReadStringList(in list);
+        {STRING_LIST_FREE_FN}(ref list);
+        return items;
+    }}
+
+    /// <summary>Copies a borrowed C string list, leaving it to its owner.</summary>
+    public static string[] ReadStringList(in native_string_list_t list)
+    {{
         var count = list.items == IntPtr.Zero ? 0 : checked((int)list.count.Value);
         var items = new string[count];
         for (var i = 0; i < count; i++)
@@ -218,7 +226,6 @@ public static partial class Interop
             var ptr = Marshal.ReadIntPtr(list.items, i * IntPtr.Size);
             items[i] = ptr == IntPtr.Zero ? string.Empty : Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
         }}
-        {STRING_LIST_FREE_FN}(ref list);
         return items;
     }}
 
@@ -658,6 +665,10 @@ fn generate_event(ctx: &mut Ctx, group: &EventGroup, prefix: &str) {
 fn cs_event_field_expr(ty: &TypeRef, access: &str) -> String {
     match ty.unwrap_optional() {
         TypeRef::String | TypeRef::CString => format!("Marshal.PtrToStringUTF8({access})"),
+        // Copied out: the C side frees the list when the callback returns.
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
+            format!("Interop.ReadStringList(in {access})")
+        }
         TypeRef::Enum { name, .. } => format!("({name}){access}"),
         TypeRef::Struct { name, .. } => format!("{name}.FromRaw(in {access})"),
         TypeRef::Object { name, .. } => format!("new {name}({access}, ownsHandle: false)"),
@@ -1133,6 +1144,10 @@ fn trampoline_lambda(args: &[TypeRef], body: &str) -> String {
 fn cs_callback_arg_expr(ty: &TypeRef, access: &str) -> String {
     match ty {
         TypeRef::String | TypeRef::CString => format!("Marshal.PtrToStringUTF8({access})"),
+        // Copied out: the C side frees the list when the callback returns.
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
+            format!("Interop.ReadStringList(in {access})")
+        }
         TypeRef::Enum { name, .. } => format!("({name}){access}"),
         TypeRef::Struct { name, .. } => format!("{name}.FromRaw(in {access})"),
         TypeRef::Object { name, .. } => {
@@ -1672,6 +1687,9 @@ fn cs_raw_field_type(ty: &TypeRef, prefix: &str) -> String {
         TypeRef::Struct { name, .. } => c_type_name(prefix, name),
         TypeRef::Object { .. } => "ulong".to_string(),
         TypeRef::Alias { underlying, .. } => cs_raw_field_type(underlying, prefix),
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
+            "native_string_list_t".to_string()
+        }
         TypeRef::RawPointer => "IntPtr".to_string(),
         _ => "IntPtr".to_string(),
     }

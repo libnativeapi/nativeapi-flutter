@@ -553,6 +553,10 @@ fn raw_field_expr(ty: &TypeRef, access: &str) -> String {
         TypeRef::String | TypeRef::CString => format!(
             "if {access}.is_null() {{ None }} else {{ Some(CStr::from_ptr({access}).to_string_lossy().into_owned()) }}"
         ),
+        // Borrowed: the C side frees the list when the callback returns.
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => format!(
+            "if {access}.items.is_null() {{ Vec::new() }} else {{ (0..{access}.count as usize).filter_map(|index| {{ let ptr = *{access}.items.add(index); if ptr.is_null() {{ None }} else {{ Some(CStr::from_ptr(ptr).to_string_lossy().into_owned()) }} }}).collect() }}"
+        ),
         TypeRef::Enum { name, .. } => format!("{name}::from_raw({access})"),
         TypeRef::Struct { name, .. } => format!("{name}::from_raw(&{access})"),
         // Borrowed for the duration of the callback only; see `XRef`.

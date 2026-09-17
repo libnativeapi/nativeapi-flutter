@@ -1508,6 +1508,10 @@ fn dart_from_native(ty: &TypeRef, access: &str) -> String {
         TypeRef::String | TypeRef::CString => format!(
             "{access} == ffi.nullptr ? null : {access}.cast<pkg_ffi.Utf8>().toDartString()"
         ),
+        // Copied out: the C side frees the list when the callback returns.
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => format!(
+            "[for (var i = 0; i < {access}.count; i++) if ({access}.items[i] != ffi.nullptr) {access}.items[i].cast<pkg_ffi.Utf8>().toDartString()]"
+        ),
         // In a struct, ffigen types a C enum as a plain int; only parameters and
         // returns get the generated Dart enum.
         TypeRef::Enum { name, .. } => format!("{name}.fromValue({access})"),

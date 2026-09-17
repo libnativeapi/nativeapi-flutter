@@ -77,7 +77,7 @@ src/
 `shortcut_manager`、`preferences`、`secure_storage`、`launch_at_login`、
 `message_dialog`、`url_opener`、`app_info`、`device_info`、`application`、
 `accessibility_manager`、`image`、`dispatcher`，以及 2026-09-16 加入的
-`window_drag_session`）。
+`window_drag_session`，以及 2026-09-17 加入的 `drag_source`、`drop_target`）。
 
 **新增一个跨平台模块，就是新增六个文件。** 少一个，那个平台链接失败——这是编译期
 错误而非静默降级，不必额外防护，但要在提交前意识到工作量。

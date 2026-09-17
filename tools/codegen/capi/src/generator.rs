@@ -13,7 +13,8 @@ use codegen_shared::naming::{
     c_params, c_remove_listener_symbol, c_return_type, c_self_param, c_type_name, cpp_argument_expr,
     cpp_event_converter, cpp_event_releaser, foreign_types, header_dependencies, is_callback,
     listed_classes, relative_include, struct_has_owned_fields, TypeOrigins, COMMON_HEADER,
-    LISTENER_ID_TYPE, STRING_DUP_FN, STRING_FREE_FN, STRING_LIST_DUP_FN, STRING_LIST_TYPE,
+    LISTENER_ID_TYPE, STRING_DUP_FN, STRING_FREE_FN, STRING_LIST_DUP_FN, STRING_LIST_FREE_FN,
+    STRING_LIST_TYPE,
     STRING_MAP_DUP_FN, STRING_MAP_TYPE,
 };
 use codegen_shared::GeneratedFile;
@@ -2077,6 +2078,9 @@ fn render_event_field_assign(
         TypeRef::String => {
             writeln!(out, "{indent}{target}{name} = {STRING_DUP_FN}({getter});").unwrap();
         }
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
+            writeln!(out, "{indent}{target}{name} = {STRING_LIST_DUP_FN}({getter});").unwrap();
+        }
         TypeRef::Enum { name: type_name, .. } | TypeRef::Struct { name: type_name, .. } => {
             writeln!(
                 out,
@@ -2116,6 +2120,9 @@ fn render_event_field_release(out: &mut String, target: &str, field: &Field, ind
             writeln!(out, "{indent}{STRING_FREE_FN}({target}{name});").unwrap();
             writeln!(out, "{indent}{target}{name} = nullptr;").unwrap();
         }
+        TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
+            writeln!(out, "{indent}{STRING_LIST_FREE_FN}(&{target}{name});").unwrap();
+        }
         TypeRef::Object { .. } => {
             writeln!(
                 out,
@@ -2129,7 +2136,11 @@ fn render_event_field_release(out: &mut String, target: &str, field: &Field, ind
 }
 
 fn event_field_owns(field: &Field) -> bool {
-    matches!(field.ty, TypeRef::String | TypeRef::Object { .. })
+    match &field.ty {
+        TypeRef::String | TypeRef::Object { .. } => true,
+        TypeRef::Vector { element } => matches!(element.as_ref(), TypeRef::String),
+        _ => false,
+    }
 }
 
 /// Returns true if any signature uses the shared string containers.
