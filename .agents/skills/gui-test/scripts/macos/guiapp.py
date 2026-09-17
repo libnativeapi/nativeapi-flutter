@@ -30,6 +30,34 @@ sys.path[:0] = [HERE, os.path.join(SKILLS, 'flutter-ui-probe', 'scripts')]
 from uiprobe import App as Probe  # noqa: E402
 
 
+class MenuItem:
+    """An item of an open native menu, as Accessibility reports it."""
+
+    def __init__(self, line):
+        # The driver's output is stripped, so the last line may lose its empty mark.
+        depth, title, frame, flags, mark = (line.split('\t') + [''])[:5]
+        self.depth = int(depth)  # 0 = the menu itself, 1 = an open submenu, …
+        self.title = title
+        self.frame = tuple(int(v) for v in frame.split())  # x y w h, screen points
+        self.enabled = 'e' in flags
+        self.has_submenu = 's' in flags
+        self.separator = '-' in flags
+        self.is_menu = 'M' in flags  # the menu window's own frame, not an item
+        self.mark = mark  # '✓' checked, '-' mixed, '' unchecked
+
+    @property
+    def checked(self):
+        return self.mark not in ('', '-')
+
+    @property
+    def center(self):
+        x, y, w, h = self.frame
+        return x + w / 2, y + h / 2
+
+    def __repr__(self):
+        return f'MenuItem({self.title!r}, {self.frame}, enabled={self.enabled}, mark={self.mark!r})'
+
+
 class Abort(Exception):
     """The script must not go on: wrong window under the cursor, machine in use, …"""
 
@@ -125,6 +153,11 @@ class GuiApp:
         if int(inp('front')) == self.proc.pid:
             raise Abort('could not take the focus away from the app')
 
+    def set_frame(self, x, y, w, h):
+        """Moves and resizes the app's first window (no input involved)."""
+        inp('setframe', self.proc.pid, int(x), int(y), int(w), int(h))
+        pause(0.8)
+
     def output(self):
         """Everything the app has printed so far."""
         return open(self.log_path).read()
@@ -151,6 +184,42 @@ class GuiApp:
         return self.probe.views()
 
     @staticmethod
+    def visible_frame(point):
+        """(x, y, w, h) of the screen at a point without the menu bar and the Dock: where
+        AppKit keeps windows and menus."""
+        return tuple(int(v) for v in inp('visible', int(point[0]), int(point[1])).split())
+
+    def menu_items(self):
+        """[MenuItem] of the app's open native menus (context menus, pop-ups), open
+        submenus included; [] when none is open. Safe while a menu is tracking — unlike
+        `views()`, which may stall until the menu closes."""
+        return [i for i in self._menu_lines() if not i.is_menu]
+
+    def _menu_lines(self):
+        return [MenuItem(line) for line in inp('menus', self.proc.pid).splitlines() if line]
+
+    def menu_frames(self):
+        """{depth: (x, y, w, h)} of the open menu windows (padding and rounded corners
+        included) — what a placement is measured against."""
+        return {i.depth: i.frame for i in self._menu_lines() if i.is_menu}
+
+    def menu_item(self, title, depth=None):
+        for item in self.menu_items():
+            if item.title == title and (depth is None or item.depth == depth):
+                return item
+        raise LookupError(f'no open menu item {title!r}: '
+                          f'{[i.title for i in self.menu_items() if not i.separator]}')
+
+    def wait_menu(self, is_open=True, timeout=5, depth=0):
+        """Waits until a menu (or a submenu, depth=1) is open — or closed with is_open=False."""
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            if any(i.depth >= depth for i in self.menu_items()) == is_open:
+                return True
+            time.sleep(0.15)
+        return False
+
+    @staticmethod
     def to_screen(frame, view, point):
         """A view point to the screen; the content sits at the bottom of the frame."""
         x, y, w, h = frame
@@ -163,6 +232,13 @@ class GuiApp:
         if owner != self.proc.pid:
             raise Abort(f'({x:.0f}, {y:.0f}) belongs to pid {owner}, not {self.name}; stopping')
 
+    def _check_menu_item(self, item, x, y):
+        owner = int(inp('owner', int(x), int(y), 'menus'))
+        fx, fy, fw, fh = item.frame
+        if owner != self.proc.pid or not (fx <= x < fx + fw and fy <= y < fy + fh):
+            raise Abort(f'({x:.0f}, {y:.0f}) is not on menu item {item.title!r} of '
+                        f'{self.name} (owner pid {owner}); stopping')
+
     def move(self, point, ms=600):
         inp('move', int(point[0]), int(point[1]), ms)
 
@@ -170,6 +246,27 @@ class GuiApp:
         self.move(point, ms)
         self._check(*point)
         inp('click', int(point[0]), int(point[1]))
+
+    def right_click(self, point, ms=450):
+        self.move(point, ms)
+        self._check(*point)
+        inp('rclick', int(point[0]), int(point[1]))
+
+    def hover_menu_item(self, title, depth=None, ms=400):
+        """Moves onto an open menu item (opens its submenu); returns the item."""
+        item = self.menu_item(title, depth)
+        self.move(item.center, ms)
+        # Re-read after the move: menus scroll and submenus open under the cursor.
+        item = self.menu_item(title, depth)
+        self._check_menu_item(item, *item.center)
+        return item
+
+    def click_menu_item(self, title, depth=None, ms=400):
+        """Clicks an item of an open native menu, checking the press lands on that item
+        of this app's menu window."""
+        item = self.hover_menu_item(title, depth, ms)
+        inp('click', *map(int, item.center))
+        return item
 
     def double_click(self, point, ms=450):
         self.move(point, ms)

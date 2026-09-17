@@ -135,3 +135,133 @@ function Invoke-Activate($App, $Win, [int]$ClientY = -1) {
   Invoke-Click $App @($x, $y) 500
   Pause 0.3
 }
+
+# -- native menus (UI Automation) -----------------------------------------------
+# Open context menus are read through UI Automation, which covers both Win32 popup menus
+# (#32768 windows) and WinUI 3 MenuFlyouts (hosted in their own popup windows). Rects are
+# physical pixels. Never probe the Flutter UI while a menu is open: the menu's modal loop
+# can stall the VM service.
+
+Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+$script:UIA = [System.Windows.Automation.AutomationElement]
+
+function ConvertTo-UiaRect($r) { @([int]$r.X, [int]$r.Y, [int]$r.Width, [int]$r.Height) }
+
+function Get-UiaPatternValue($El, $Pattern, [scriptblock]$Read) {
+  $p = $null
+  if ($El.TryGetCurrentPattern($Pattern, [ref]$p)) { return & $Read $p }
+  return $null
+}
+
+# One object per open menu, submenus included:
+#   Depth (0 = the menu, 1 = its open submenu, ...), Rect, Items
+# Items: Title, Rect, Enabled, Checked, Mixed, HasSubmenu, Expanded. Separators are left out.
+function Get-OpenMenus($App) {
+  $menus = @()
+  $menuType = [System.Windows.Automation.ControlType]::Menu
+  $itemType = [System.Windows.Automation.ControlType]::MenuItem
+  $isMenu = New-Object System.Windows.Automation.PropertyCondition($script:UIA::ControlTypeProperty, $menuType)
+  # Every menu level is its own window: #32768 for Win32, a PopupWindowSiteBridge for a
+  # WinUI 3 flyout (a submenu is a separate popup, not nested in the parent's UIA tree).
+  # EnumWindows lists the newest (deepest) first, so the depth comes from that order.
+  $wins = @(Get-AppWindows $App.Proc.Id | % { $_ | Add-Member -PassThru Class ([WInput]::ClassOf($_.Hwnd)) })
+  $popups = @($wins | ? { $_.Class -eq "#32768" -or $_.Class -eq "Microsoft.UI.Content.PopupWindowSiteBridge" })
+  if (-not $popups.Count) {
+    # The popup may not be enumerable yet; core's host window still holds the flyout.
+    $popups = @($wins | ? { $_.Title -eq "nativeapi WinUI menu" })
+  }
+  $level = $popups.Count
+  foreach ($w in $popups) {
+    $level--
+    if ($w.Class -eq "#32768") {
+      # Win32 popup menu: read it with the menu API (the managed UIA client has no MSAA pattern for check marks).
+      $items = @()
+      foreach ($line in [WInput]::MenuItems($w.Hwnd)) {
+        $f = $line.Split("|")
+        if ($f[2] -like "*-*" -or -not $f[0]) { continue }
+        $items += [pscustomobject]@{
+          Title = $f[0]; Rect = @($f[1].Split(" ") | % { [int]$_ })
+          Enabled = $f[2] -like "*e*"; Checked = $f[2] -like "*c*"; Mixed = $false
+          HasSubmenu = $f[2] -like "*s*"; Expanded = $false
+        }
+      }
+      $menus += [pscustomobject]@{ Depth = $level; Rect = @($w.Left, $w.Top, ($w.Right - $w.Left), ($w.Bottom - $w.Top)); Items = $items }
+      continue
+    }
+    # WinUI 3 flyout. A closing flyout tears these windows down under our feet: skip what vanished.
+    try {
+      $found = @($script:UIA::FromHandle([IntPtr]$w.Hwnd).FindAll([System.Windows.Automation.TreeScope]::Descendants, $isMenu))
+      foreach ($el in $found) {
+        $items = @()
+        $kids = $el.FindAll([System.Windows.Automation.TreeScope]::Children, [System.Windows.Automation.Condition]::TrueCondition)
+        foreach ($e in $kids) {
+          $c = $e.Current
+          if ($c.ControlType -ne $itemType -or (-not $c.Name)) { continue }
+          $toggle = Get-UiaPatternValue $e ([System.Windows.Automation.TogglePattern]::Pattern) { param($p) $p.Current.ToggleState.ToString() }
+          $expand = Get-UiaPatternValue $e ([System.Windows.Automation.ExpandCollapsePattern]::Pattern) { param($p) $p.Current.ExpandCollapseState.ToString() }
+          $items += [pscustomobject]@{
+            Title = $c.Name
+            Rect = ConvertTo-UiaRect $c.BoundingRectangle
+            Enabled = $c.IsEnabled
+            Checked = $toggle -eq "On"
+            Mixed = $toggle -eq "Indeterminate"
+            HasSubmenu = [bool]$expand
+            Expanded = $expand -eq "Expanded"
+          }
+        }
+        # The host window can list several flyouts; nest them by their order there.
+        $depth = if ($w.Class -eq "Static") { [array]::IndexOf($found, $el) } else { $level }
+        $menus += [pscustomobject]@{ Depth = $depth; Rect = (ConvertTo-UiaRect $el.Current.BoundingRectangle); Items = $items }
+      }
+    } catch { continue }
+  }
+  $menus | Sort-Object Depth
+}
+
+function Get-MenuItem($App, [string]$Title, [int]$Depth = -1) {
+  foreach ($m in @(Get-OpenMenus $App)) {
+    if ($Depth -ge 0 -and $m.Depth -ne $Depth) { continue }
+    foreach ($i in $m.Items) { if ($i.Title -eq $Title) { return $i } }
+  }
+  throw "no open menu item '$Title'"
+}
+
+# Waits until a menu at depth >= $Depth is open (or, with -Closed, until none is).
+function Wait-Menu($App, [int]$Depth = 0, [switch]$Closed, [double]$TimeoutSeconds = 5) {
+  $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+  do {
+    $open = @(Get-OpenMenus $App | ? { $_.Depth -ge $Depth -and $_.Items.Count -gt 0 }).Count -gt 0
+    if ($open -ne [bool]$Closed) { return $true }
+    Pause 0.15
+  } until ((Get-Date) -gt $deadline)
+  return $false
+}
+
+function Get-RectCenter($r) { @([int]($r[0] + $r[2] / 2), [int]($r[1] + $r[3] / 2)) }
+
+function Invoke-RightClick($App, $Point, [int]$ApproachMs = 450) {
+  Move-Cursor $Point $ApproachMs
+  Assert-Owner $App.Proc.Id $Point[0] $Point[1]
+  [WInput]::RightClick([int]$Point[0], [int]$Point[1])
+}
+
+# Moves onto an open menu item (opening its submenu) and returns it, re-read after the move.
+function Invoke-HoverMenuItem($App, [string]$Title, [int]$Depth = -1, [int]$Ms = 400) {
+  $item = Get-MenuItem $App $Title $Depth
+  Move-Cursor (Get-RectCenter $item.Rect) $Ms
+  Pause 0.2
+  $item = Get-MenuItem $App $Title $Depth
+  $pt = Get-RectCenter $item.Rect
+  $r = $item.Rect
+  if ($pt[0] -lt $r[0] -or $pt[0] -ge $r[0] + $r[2] -or $pt[1] -lt $r[1] -or $pt[1] -ge $r[1] + $r[3]) { throw "menu item '$Title' has an empty rect" }
+  Assert-Owner $App.Proc.Id $pt[0] $pt[1]
+  return $item
+}
+
+# Clicks an item of an open menu; the press is checked to land on the app's menu window.
+function Invoke-MenuItem($App, [string]$Title, [int]$Depth = -1, [int]$Ms = 400) {
+  $item = Invoke-HoverMenuItem $App $Title $Depth $Ms
+  $pt = Get-RectCenter $item.Rect
+  [WInput]::Click($pt[0], $pt[1])
+  return $item
+}

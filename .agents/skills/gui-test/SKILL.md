@@ -84,6 +84,13 @@ Assert on things the OS or the render tree report, in numbers:
 - **State preservation**: counters, timers, scroll positions survive reparenting. It
   helps when the app shows an instance label ("State #1") — a rebuilt widget would show
   `#2` or a reset counter.
+- **Native menus** (context menus, pop-ups): they are not Flutter, so read them from the
+  OS — `app.menu_items()` / `menu_frames()` (macOS, Accessibility) and `Get-OpenMenus`
+  (Windows, UI Automation) give titles, frames, enabled/checked state and open
+  submenus; `right_click` / `Invoke-RightClick` open them, `click_menu_item` /
+  `Invoke-MenuItem` press an item after checking the point is on that item. Do not
+  probe the Flutter UI while a menu is open (its modal loop can stall the VM service);
+  close it first by clicking the app's own window clear of every menu — no keys.
 - **App output**: for native examples assert on the event lines they print
   (`app.output()` / the lines `Stop-GuiApp` returns).
 - **Negative paths**: release right after the press (a click must not start a drag or

@@ -67,6 +67,49 @@ public static class WInput {
 
   [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder s, int n);
 
+  public static string ClassOf(long hwnd) {
+    var sb = new StringBuilder(128); GetClassName(new IntPtr(hwnd), sb, 128);
+    return sb.ToString();
+  }
+
+  [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)] struct MENUITEMINFO {
+    public int cbSize; public uint fMask, fType, fState, wID; public IntPtr hSubMenu, hbmpChecked, hbmpUnchecked, dwItemData;
+    public string dwTypeData; public uint cch; public IntPtr hbmpItem;
+  }
+  [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr h, uint msg, IntPtr w, IntPtr l);
+  [DllImport("user32.dll")] static extern int GetMenuItemCount(IntPtr m);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern bool GetMenuItemInfo(IntPtr m, uint item, bool byPos, ref MENUITEMINFO mii);
+  [DllImport("user32.dll")] static extern bool GetMenuItemRect(IntPtr h, IntPtr m, uint item, out RECT r);
+
+  // Items of the popup menu shown by a #32768 window: "title|l t w h|flags", flags:
+  // e enabled, c checked, s submenu, - separator. The title drops a "\t<accelerator>" suffix.
+  public static string[] MenuItems(long hwnd) {
+    var list = new List<string>();
+    IntPtr menu = SendMessage(new IntPtr(hwnd), 0x01E1 /* MN_GETHMENU */, IntPtr.Zero, IntPtr.Zero);
+    if (menu == IntPtr.Zero) return list.ToArray();
+    int n = GetMenuItemCount(menu);
+    for (uint i = 0; i < n; i++) {
+      var mii = new MENUITEMINFO();
+      mii.cbSize = Marshal.SizeOf(typeof(MENUITEMINFO));
+      mii.fMask = 0x0001 | 0x0004 | 0x0100 | 0x0040;  // STATE | SUBMENU | FTYPE | STRING
+      mii.dwTypeData = new string('\0', 512); mii.cch = 511;
+      string title = "";
+      if (GetMenuItemInfo(menu, i, true, ref mii) && mii.dwTypeData != null) {
+        title = mii.dwTypeData;
+        int nul = title.IndexOf('\0'); if (nul >= 0) title = title.Substring(0, nul);
+        int tab = title.IndexOf('\t'); if (tab >= 0) title = title.Substring(0, tab);
+      }
+      RECT r; GetMenuItemRect(IntPtr.Zero, menu, i, out r);
+      string flags = "";
+      if ((mii.fState & 0x0003) == 0) flags += "e";  // not MFS_DISABLED / MFS_GRAYED
+      if ((mii.fState & 0x0008) != 0) flags += "c";  // MFS_CHECKED
+      if (mii.hSubMenu != IntPtr.Zero) flags += "s";
+      if ((mii.fType & 0x0800) != 0) flags += "-";   // MFT_SEPARATOR
+      list.Add(title + "|" + r.L + " " + r.T + " " + (r.R - r.L) + " " + (r.B - r.T) + "|" + flags);
+    }
+    return list.ToArray();
+  }
+
   public static string RootClass(int x, int y) {
     var p = new POINT { X = x, Y = y };
     IntPtr h = GetAncestor(WindowFromPoint(p), 2);
@@ -83,6 +126,10 @@ public static class WInput {
 
   public static void Move(long hwnd, int x, int y) {
     SetWindowPos(new IntPtr(hwnd), IntPtr.Zero, x, y, 0, 0, 0x0015 /* NOSIZE|NOZORDER|NOACTIVATE */);
+  }
+
+  public static void SetBounds(long hwnd, int x, int y, int w, int h) {
+    SetWindowPos(new IntPtr(hwnd), IntPtr.Zero, x, y, w, h, 0x0014 /* NOZORDER|NOACTIVATE */);
   }
 
   // Brings a window to the top of the z-order without activating it.
@@ -120,6 +167,14 @@ public static class WInput {
     Button(0x0001);  // deliver the move before the press
     Thread.Sleep(150);
     Button(0x0002); Thread.Sleep(70); Button(0x0004);
+  }
+
+  // Secondary (right) button click.
+  public static void RightClick(int x, int y) {
+    SetCursorPos(x, y);
+    Button(0x0001);
+    Thread.Sleep(150);
+    Button(0x0008); Thread.Sleep(70); Button(0x0010);
   }
 
   // Two clicks well inside the system double-click time (500 ms by default).
