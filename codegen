@@ -8,6 +8,7 @@ Orchestrates the Rust generators in tools/codegen against the workspace layout:
     ./codegen bindings           # bindings only (parses headers, writes no C ABI)
     ./codegen bindings --lang rust,swift
     ./codegen check              # verify everything is up to date (CI mode)
+    ./codegen readme             # copy the shared README sections into every repo
     ./codegen sync               # after a core change: regenerate everything,
                                  #   update every binding's embedded core
                                  #   submodule, rerun bindgen/ffigen, and commit
@@ -21,6 +22,7 @@ is not initialized are skipped automatically.
 """
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
@@ -85,6 +87,61 @@ def run_bindings(ir: Path, langs: list[str], check: bool) -> None:
     if check:
         extra.append("--check")
     run("codegen-bindings", *extra)
+
+
+# ---------------------------------------------------------------------------
+# readme: keep the shared README sections identical in every repo
+# ---------------------------------------------------------------------------
+
+README_SNIPPETS = WORKSPACE / "tools" / "readme"
+
+# snippet file -> READMEs (relative to the workspace) carrying that section.
+# A snippet starts with its own `## Heading` line; the section with the same
+# heading in each README is replaced wholesale, the rest is hand-written.
+README_SECTIONS = {
+    "contributing.md": [
+        "core/README.md",
+        "bindings/flutter/README.md",
+        "bindings/rust/README.md",
+        "bindings/csharp/README.md",
+    ],
+    "contributing.zh.md": [
+        "bindings/flutter/README-ZH.md",
+    ],
+}
+
+
+def sync_readmes(check: bool) -> bool:
+    """Returns True when every README already matched its snippets."""
+    clean = True
+    for snippet_name, readmes in README_SECTIONS.items():
+        snippet = (README_SNIPPETS / snippet_name).read_text().rstrip("\n") + "\n"
+        heading = snippet.split("\n", 1)[0]
+        section = re.compile(rf"^{re.escape(heading)}\n.*?(?=^## |\Z)", re.S | re.M)
+        for rel in readmes:
+            path = WORKSPACE / rel
+            if not path.exists():
+                print(f"  {rel:<32} (skipped, not checked out)", file=sys.stderr)
+                continue
+            text = path.read_text()
+            if not section.search(text):
+                print(f"error: {rel} has no `{heading}` section", file=sys.stderr)
+                clean = False
+                continue
+            # Keep a blank line before the next heading, none at end of file.
+            updated = section.sub(
+                lambda m: snippet if m.end() == len(text) else snippet + "\n",
+                text, count=1)
+            if updated == text:
+                continue
+            clean = False
+            if check:
+                print(f"stale: {rel} (`{heading}`); run ./codegen readme",
+                      file=sys.stderr)
+            else:
+                path.write_text(updated)
+                print(f"  updated {rel}")
+    return clean
 
 
 # ---------------------------------------------------------------------------
@@ -221,6 +278,8 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
     run_capi(ir, check=False)
     run_bindings(ir, langs, check=False)
 
+    sync_readmes(check=False)
+
     print("==> committing core")
     committed = []
     if commit_if_dirty(CORE, args.message):
@@ -278,7 +337,7 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
 def main() -> None:
     cli = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     cli.add_argument("command", nargs="?", default="all",
-                     choices=["all", "capi", "bindings", "check", "sync"])
+                     choices=["all", "capi", "bindings", "check", "readme", "sync"])
     cli.add_argument("--lang", default=",".join(BINDINGS),
                      help="comma-separated subset of: " + ",".join(BINDINGS))
     cli.add_argument("--dump-ir", type=Path, metavar="PATH",
@@ -298,8 +357,13 @@ def main() -> None:
     check = args.command == "check"
 
     if args.command in ("all", "check"):
+        readmes_clean = sync_readmes(check)
         run_capi(ir, check)
         run_bindings(ir, langs, check)
+        if check and not readmes_clean:
+            sys.exit(1)
+    elif args.command == "readme":
+        sync_readmes(check=False)
     elif args.command == "capi":
         run_capi(ir, check=False)
     elif args.command == "bindings":

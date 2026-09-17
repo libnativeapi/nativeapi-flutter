@@ -46,6 +46,7 @@ Always drive the generators through `./codegen` at the workspace root:
 - `./codegen` — full run: C ABI, then all bindings
 - `./codegen capi` / `./codegen bindings [--lang rust,dart,csharp]`
 - `./codegen check` — read-only verification, non-zero exit when stale (CI mode)
+- `./codegen readme` — copy the shared README sections (`tools/readme/*.md`, e.g. Contributing) into core and every binding; `check` flags drift, `sync` runs it. Edit the snippet, never the copies.
 - `./codegen sync [-m "msg"] [--push]` — full downstream propagation, see below
 
 Generated files start with `// AUTO-GENERATED. DO NOT EDIT.` — change the C++ headers in `core/src/` and regenerate instead of editing outputs. Files without that banner are hand-written and never overwritten. The header list (`API_HEADERS`) lives in `tools/codegen/shared/src/lib.rs`.
