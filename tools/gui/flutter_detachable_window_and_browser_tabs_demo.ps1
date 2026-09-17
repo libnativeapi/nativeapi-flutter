@@ -1,12 +1,13 @@
 # Plays the detachable window and browser tabs examples while recording the screen (Windows).
-# Run from the Mac:  tools/gui/record_remote.sh <host> tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1
-#   -> tools/gui/output/flutter_detachable_window_and_browser_tabs_demo-windows.full.mp4
-# Frames go to $RemoteScratch\<this script's name>.frames.
+# Run from the Mac:
+#   .agents/skills/record-demo/scripts/record_remote.sh <host> tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1 tools/gui/output
+#   -> tools/gui/output/flutter_detachable_window_and_browser_tabs_demo-windows.mp4
+# The MP4 is encoded on the Windows host as $RemoteScratch\<this script's name>-windows.mp4.
 # No keyboard input, no audio. ASCII only.
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\env.ps1"; . "$PSScriptRoot\winput.ps1"; . "$PSScriptRoot\guiapp.ps1"; . "$PSScriptRoot\recorder.ps1"
-Start-Result "$RemoteScratch\flutter_detachable_window_and_browser_tabs_demo.result.txt"
-$frames = "$RemoteScratch\flutter_detachable_window_and_browser_tabs_demo.frames"
+$name = [IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+Start-Result "$RemoteScratch\$name.result.txt"
 
 # Short names for the scenario scripts below.
 function Probe($app) { Get-Views $app }
@@ -164,16 +165,17 @@ function Tabs {
 
 try {
   Assert-Idle
-  [ScreenRecorder]::Start($frames, 30)
+  Start-Recording "$RemoteScratch\$name-windows.mp4"
   Say "recording"
-  Pause 1.5
-  Detachable
-  Pause 1
-  Tabs
-  Pause 1
+  try {
+    Pause 1.5
+    Detachable
+    Pause 1
+    Tabs
+    Pause 1
+  } finally {
+    Say "saved $(Stop-Recording)"
+  }
 } catch {
   Say "ERROR: $_"
-} finally {
-  [ScreenRecorder]::Stop()
-  Say "stopped after $([ScreenRecorder]::Frames) frames"
 }

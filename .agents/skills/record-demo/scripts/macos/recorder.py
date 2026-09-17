@@ -17,6 +17,7 @@ then ffmpeg, falling back to avconvert.
 """
 
 import os
+import signal
 import subprocess
 import time
 
@@ -53,14 +54,11 @@ class Recorder:
         if not self.proc:
             return
         if self.proc.poll() is None:
-            # screencapture stops on any key typed on its stdin.
-            self.proc.stdin.write(b'q\n')
-            self.proc.stdin.flush()
-            try:
-                self.proc.wait(30)
-            except subprocess.TimeoutExpired:
-                self.proc.send_signal(2)
-                self.proc.wait(30)
+            # SIGINT ends the movie at once and finalizes it. (Typing a key on stdin, as
+            # the man page suggests, is ignored when stdin is a pipe: the recording then
+            # runs on until a timeout and the video ends in half a minute of dead screen.)
+            self.proc.send_signal(signal.SIGINT)
+            self.proc.wait(30)
         if not os.path.exists(self.movie) or os.path.getsize(self.movie) == 0:
             raise SystemExit(PERMISSION_HINT)
 

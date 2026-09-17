@@ -1,5 +1,11 @@
-# Dot-source after winput.ps1. Captures the primary screen to JPEG frames on
-# a background thread, with the cursor and a click highlight drawn in.
+# Dot-source after winput.ps1. Records the primary screen to an MP4:
+#
+#   Start-Recording "$RemoteScratch\name-windows.mp4"
+#   try { ...scenario... } finally { Stop-Recording }   # encodes, then deletes the frames
+#
+# Frames are grabbed on a background thread (cursor and a click highlight drawn in),
+# saved as JPEGs next to the output, and encoded with ffmpeg on this machine when the
+# recording stops, keeping their real timing. Needs ffmpeg on this machine.
 Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @"
 using System;
 using System.Collections.Concurrent;
@@ -94,3 +100,59 @@ public static class ScreenRecorder {
   }
 }
 "@
+
+function Get-Ffmpeg {
+  $cmd = Get-Command ffmpeg -ErrorAction SilentlyContinue
+  if ($cmd) { return $cmd.Source }
+  # A scheduled task may start with a PATH from before ffmpeg was installed.
+  foreach ($p in "$env:LOCALAPPDATA\Programs\ffmpeg\bin\ffmpeg.exe", "$env:USERPROFILE\scoop\shims\ffmpeg.exe",
+                 "$env:LOCALAPPDATA\Microsoft\WinGet\Links\ffmpeg.exe", "C:\ProgramData\chocolatey\bin\ffmpeg.exe") {
+    if (Test-Path $p) { return $p }
+  }
+  throw "ffmpeg not found; install it on this machine (see the record-demo skill)"
+}
+
+$script:RecordingOutput = $null
+
+function Start-Recording([string]$Output, [int]$Fps = 30) {
+  $null = Get-Ffmpeg  # fail before the scenario, not after it
+  $script:RecordingOutput = $Output
+  [ScreenRecorder]::Start("$Output.frames", $Fps)
+}
+
+# Stops capturing and encodes the frames to the MP4 given to Start-Recording:
+# H.264 High, yuv420p, 30 fps, fitted into 1920x1200, no audio. Returns its path.
+function Stop-Recording([int]$Fps = 30, [string]$MaxSize = "1920x1200") {
+  [ScreenRecorder]::Stop()
+  $out = $script:RecordingOutput
+  $dir = "$out.frames"
+  $rows = @(Get-Content "$dir\times.txt" | ? { $_ } | % { $f = $_.Split(" "); @{ I = [int]$f[0]; T = [long]$f[1] } } |
+            ? { Test-Path ("$dir\{0:D6}.jpg" -f $_.I) })
+  if ($rows.Count -lt 2) { throw "only $($rows.Count) frames captured" }
+  # The concat demuxer keeps each frame for its real duration; it ignores the last duration.
+  $list = New-Object System.Text.StringBuilder
+  for ($k = 0; $k -lt $rows.Count - 1; $k++) {
+    [void]$list.AppendLine(("file '{0:D6}.jpg'" -f $rows[$k].I))
+    [void]$list.AppendLine(("duration {0:F3}" -f (($rows[$k + 1].T - $rows[$k].T) / 1000.0)).Replace(",", "."))
+  }
+  $last = "file '{0:D6}.jpg'" -f $rows[-1].I
+  [void]$list.AppendLine($last); [void]$list.AppendLine("duration 0.040"); [void]$list.AppendLine($last)
+  [IO.File]::WriteAllText("$dir\list.txt", $list.ToString(), (New-Object System.Text.UTF8Encoding $false))
+
+  $w, $h = $MaxSize.Split("x")
+  # JPEG frames are full range; converting to yuv420p (tv range) keeps players from washing them out.
+  $vf = "fps=$Fps,scale=w=${w}:h=${h}:force_original_aspect_ratio=decrease:flags=lanczos,scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p"
+  $ffArgs = @("-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", "`"$dir\list.txt`"",
+            "-vf", "`"$vf`"", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-profile:v", "high",
+            "-pix_fmt", "yuv420p", "-color_range", "tv", "-movflags", "+faststart", "-an", "`"$out`"")
+  # Start-Process: ffmpeg writes to stderr, which PowerShell 5.1 turns into terminating errors.
+  $p = Start-Process (Get-Ffmpeg) -ArgumentList $ffArgs -NoNewWindow -Wait -PassThru -RedirectStandardError "$out.ffmpeg.log"
+  if ($p.ExitCode -ne 0 -or -not (Test-Path $out)) {
+    throw "ffmpeg failed ($($p.ExitCode)): $(Get-Content "$out.ffmpeg.log" -Raw)"
+  }
+  $seconds = ($rows[-1].T - $rows[0].T) / 1000.0
+  Remove-Item $dir -Recurse -Force
+  Remove-Item "$out.ffmpeg.log" -ErrorAction SilentlyContinue
+  "{0}: {1} frames over {2:F1}s ({3:F1} fps captured)" -f $out, $rows.Count, $seconds, ($rows.Count / $seconds) | Write-Host
+  return $out
+}

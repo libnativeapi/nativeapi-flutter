@@ -4,8 +4,8 @@ Real-desktop GUI tests and demo-recording scenarios for the examples. They launc
 built example, drive it with synthetic mouse input, and check real window geometry and
 on-screen state — things unit and widget tests cannot see.
 
-The generic machinery (UI probe, input drivers, app harness, screen recorders, video
-tools, Windows remote runner) lives in [`.agents/skills/`](../../.agents/skills); read
+The generic machinery (UI probe, input drivers, app harness, screen recorders, remote
+runner) lives in [`.agents/skills/`](../../.agents/skills); read
 `gui-test/SKILL.md` there first — especially the safety rules. This directory only holds what is specific to our examples.
 
 | Script | Example | Platform | Covers |
@@ -34,7 +34,7 @@ R=.agents/skills/remote-hosts/scripts/remote.sh
 $R win setup                       # "win" = the host name in remote-hosts/hosts/win.env
 $R win desktop tools/gui/flutter_detachable_window_test.ps1 150
 $R win desktop tools/gui/core_window_drag_session_test.ps1 120
-tools/gui/record_remote.sh win tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1   # play, pull frames, encode
+.agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1 tools/gui/output
 ```
 
 Each test prints `PASS`/`FAIL` lines and exits with the number of failures. A `SKIP`
@@ -42,17 +42,18 @@ means the desktop did not allow a step (for example no bare desktop visible to c
 
 ## Recordings
 
-Videos go to `tools/gui/output/` (git-ignored), named after the script that made them:
+Videos go to `tools/gui/output/` (git-ignored), named after the script that made them,
+as recorded — nothing is trimmed or re-encoded afterwards. A new take overwrites the
+previous one.
 
 | File | What |
 | --- | --- |
-| `<script name>-<os>.full.mp4` | the raw take (`--record` on macOS, `record_remote.sh` for a remote host) |
-| `<script name>-<os>.mp4` | the trimmed, deliverable cut (made with the record-demo skill's `video.py cut`) |
-| `<script name>-<only>-<os>.mp4` | a single scenario recorded with `--only` |
+| `<script name>-<os>.mp4` | the recording (`--record` on macOS, the record-demo skill's `record_remote.sh` for a remote host) |
+| `<script name>-<only>-<os>.mp4` | a single scenario recorded with `--only` (macOS) |
 | `<script name>-<os>.log` | the scenario log of a remote take |
 
-A Windows scenario records frames into `$RemoteScratch\<script name>.frames`;
-`record_remote.sh` pulls them, encodes, and deletes them on both sides.
+A Windows host encodes the MP4 itself (ffmpeg must be installed there);
+`record_remote.sh` copies it to the output directory and removes it from the host.
 
 ## Naming
 
