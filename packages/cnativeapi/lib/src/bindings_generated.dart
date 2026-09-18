@@ -1198,6 +1198,32 @@ class CNativeApiBindings {
       _native_window_is_visible_on_all_workspacesPtr
           .asFunction<bool Function(int)>();
 
+  void native_window_set_visible_in_taskbar(
+    int window,
+    bool is_visible_in_taskbar,
+  ) {
+    return _native_window_set_visible_in_taskbar(window, is_visible_in_taskbar);
+  }
+
+  late final _native_window_set_visible_in_taskbarPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_visible_in_taskbar',
+      );
+  late final _native_window_set_visible_in_taskbar =
+      _native_window_set_visible_in_taskbarPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_window_is_visible_in_taskbar(int window) {
+    return _native_window_is_visible_in_taskbar(window);
+  }
+
+  late final _native_window_is_visible_in_taskbarPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_visible_in_taskbar',
+      );
+  late final _native_window_is_visible_in_taskbar =
+      _native_window_is_visible_in_taskbarPtr.asFunction<bool Function(int)>();
+
   void native_window_set_ignore_mouse_events(
     int window,
     bool is_ignore_mouse_events,

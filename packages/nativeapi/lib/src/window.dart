@@ -570,6 +570,14 @@ class Window {
     return _bindings.native_window_is_visible_on_all_workspaces(nativeHandle);
   }
 
+  set isVisibleInTaskbar(bool value) {
+    _bindings.native_window_set_visible_in_taskbar(nativeHandle, value);
+  }
+
+  bool get isVisibleInTaskbar {
+    return _bindings.native_window_is_visible_in_taskbar(nativeHandle);
+  }
+
   set isIgnoreMouseEvents(bool value) {
     _bindings.native_window_set_ignore_mouse_events(nativeHandle, value);
   }
