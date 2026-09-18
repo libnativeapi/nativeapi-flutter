@@ -14,10 +14,24 @@ case "$script" in
   *)    cmd=(bash "$script") ;;
 esac
 if [ "$os" = linux ]; then
-  export DISPLAY="${REMOTE_DISPLAY:-:0}"
+  # The desktop session imports its environment into the systemd user manager (GNOME,
+  # KDE and most others do): take the Wayland socket, X display and cookie from there.
+  while IFS= read -r kv; do
+    case "$kv" in
+      DISPLAY=*|XAUTHORITY=*|WAYLAND_DISPLAY=*|XDG_SESSION_TYPE=*|XDG_CURRENT_DESKTOP=*|XDG_RUNTIME_DIR=*|DBUS_SESSION_BUS_ADDRESS=*)
+        export "$kv" ;;
+    esac
+  done < <(systemctl --user show-environment 2>/dev/null)
+  export DISPLAY="${DISPLAY:-${REMOTE_DISPLAY:-:0}}"
   export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
   export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
-  [ -n "${XAUTHORITY:-}" ] || { [ -f "$HOME/.Xauthority" ] && export XAUTHORITY="$HOME/.Xauthority"; }
+  # The cookie is wherever the display manager put it (GDM Xorg: /run/user/<uid>/gdm/Xauthority,
+  # GNOME Wayland's Xwayland: /run/user/<uid>/.mutter-Xwaylandauth.*): read it off the X server.
+  if [ -z "${XAUTHORITY:-}" ]; then
+    auth=$(pgrep -a -u "$(id -u)" -f "X(org|wayland) $DISPLAY( |$)" | sed -n 's/.* -auth \([^ ]*\).*/\1/p' | head -n1)
+    [ -n "$auth" ] || { [ -f "$HOME/.Xauthority" ] && auth="$HOME/.Xauthority"; }
+    [ -z "$auth" ] || export XAUTHORITY="$auth"
+  fi
 elif [ "$os" = macos ]; then
   cmd=(launchctl asuser "$(id -u)" "${cmd[@]}")
 fi

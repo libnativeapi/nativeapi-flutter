@@ -48,7 +48,7 @@ push() { scp -q "${ssh_opts[@]}" "$@" "$scp_dir/"; }
 # It all lands flat in the scratch dir, so scripts find each other next to themselves.
 kit_files() {
   local dirs=("$HOST_OS"); [ "$HOST_OS" = windows ] || dirs+=(posix)
-  for d in "${dirs[@]}"; do find "$skills"/*/scripts/"$d" -maxdepth 1 -type f 2>/dev/null; done
+  for d in "${dirs[@]}"; do find "$skills"/*/scripts/"$d" -maxdepth 1 -type f 2>/dev/null || true; done
   find "$skills"/*/scripts -maxdepth 1 -type f -name '*.py'
 }
 
