@@ -1,5 +1,14 @@
 ## Unreleased
 
+* Add `Window.isVisibleInTaskbar` for keeping a window out of the taskbar — the
+  `skipTaskbar` counterpart, inverted so it reads like the other flags. Windows adds and
+  removes the taskbar button (and keeps it away across hide/show), Linux sets the window
+  manager's skip-taskbar hint, macOS drops the window from the app's Window menu.
+* Fix `Window.hasShadow` doing nothing on Windows: turning it off now removes the
+  window's drop shadow, which is what a frameless window usually wants.
+* Fix `Window.titleBarStyle` on Windows: hiding the title bar now takes effect straight
+  away instead of only after a fullscreen round trip, the content fills the space the
+  title bar left, and the top edge stays resizable.
 * Add drag and drop: `DropTarget` / `DragSource` bindings, and the `DropRegion` and `DragOutArea` widgets for dropping files and text onto a window and dragging them out of it.
 * Add `DragToMoveArea` and `DragToResizeArea` widgets for custom window chrome, with optional target windows and configurable resize handles.
 * Fix `Window.startDragging` not moving the window on Windows, and on macOS the gesture after a `startDragging` / `startResizing` being ignored.

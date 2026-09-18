@@ -1103,6 +1103,11 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               (v) => window.isVisibleOnAllWorkspaces = v,
             ),
             _toggleBtn(
+              'Visible in Taskbar',
+              window.isVisibleInTaskbar,
+              (v) => window.isVisibleInTaskbar = v,
+            ),
+            _toggleBtn(
               'Ignore Mouse Events',
               window.isIgnoreMouseEvents,
               (v) => window.isIgnoreMouseEvents = v,
