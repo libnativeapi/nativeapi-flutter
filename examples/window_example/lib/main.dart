@@ -31,8 +31,9 @@ class _LogEntry {
   final DateTime timestamp = DateTime.now();
   final String message;
   final Color color;
+  final String? replaceTag;
 
-  _LogEntry(this.message, {this.color = Colors.black87});
+  _LogEntry(this.message, {this.color = Colors.black87, this.replaceTag});
 
   String get formattedTime {
     final m = timestamp.minute.toString().padLeft(2, '0');
@@ -113,9 +114,23 @@ class _WindowManagerPageState extends State<WindowManagerPage>
 
   Color _feedbackColor = Colors.green;
 
-  void _addLog(String message, {Color color = Colors.black87}) {
+  /// [replaceTag] keeps a stream of events (a window being dragged or resized)
+  /// on one line: an entry replaces the newest one when it carries the same tag.
+  void _addLog(
+    String message, {
+    Color color = Colors.black87,
+    String? replaceTag,
+  }) {
     setState(() {
-      _eventLog.insert(0, _LogEntry(message, color: color));
+      if (replaceTag != null &&
+          _eventLog.isNotEmpty &&
+          _eventLog.first.replaceTag == replaceTag) {
+        _eventLog.removeAt(0);
+      }
+      _eventLog.insert(
+        0,
+        _LogEntry(message, color: color, replaceTag: replaceTag),
+      );
       if (_eventLog.length > _maxLogEntries) {
         _eventLog.removeLast();
       }
@@ -151,6 +166,22 @@ class _WindowManagerPageState extends State<WindowManagerPage>
         if (event is WindowRestoredEvent) {
           _addLog('Window #${event.windowId} restored');
           _updateWindows();
+        }
+        if (event is WindowMovedEvent) {
+          final p = event.newPosition;
+          _addLog(
+            'Window #${event.windowId} moved to '
+            '${p.dx.round()}, ${p.dy.round()}',
+            replaceTag: 'moved-${event.windowId}',
+          );
+        }
+        if (event is WindowResizedEvent) {
+          final s = event.newSize;
+          _addLog(
+            'Window #${event.windowId} resized to '
+            '${s.width.round()} x ${s.height.round()}',
+            replaceTag: 'resized-${event.windowId}',
+          );
         }
       }),
     );
