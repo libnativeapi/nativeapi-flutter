@@ -117,6 +117,10 @@ public static partial class Interop
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_window_is_visible_in_taskbar(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool native_window_is_visible_on_all_workspaces(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
@@ -283,6 +287,9 @@ public static partial class Interop
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_window_set_title_bar_style(ulong self, int style);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void native_window_set_visible_in_taskbar(ulong self, [MarshalAs(UnmanagedType.I1)] bool isVisibleInTaskbar);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_window_set_visible_on_all_workspaces(ulong self, [MarshalAs(UnmanagedType.I1)] bool isVisibleOnAllWorkspaces);

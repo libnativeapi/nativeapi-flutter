@@ -588,6 +588,20 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public void SetVisibleInTaskbar(bool isVisibleInTaskbar)
+    {
+        Interop.native_window_set_visible_in_taskbar(NativeHandle, isVisibleInTaskbar);
+    }
+
+    public bool IsVisibleInTaskbar
+    {
+        get
+        {
+            var rawResult = Interop.native_window_is_visible_in_taskbar(NativeHandle);
+            return rawResult;
+        }
+    }
+
     public void SetIgnoreMouseEvents(bool isIgnoreMouseEvents)
     {
         Interop.native_window_set_ignore_mouse_events(NativeHandle, isIgnoreMouseEvents);
