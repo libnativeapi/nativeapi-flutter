@@ -599,6 +599,18 @@ impl Window {
         }
     }
 
+    pub fn set_visible_in_taskbar(&self, is_visible_in_taskbar: bool) {
+        unsafe {
+            cnativeapi::native_window_set_visible_in_taskbar(self.handle, is_visible_in_taskbar);
+        }
+    }
+
+    pub fn is_visible_in_taskbar(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_visible_in_taskbar(self.handle)
+        }
+    }
+
     pub fn set_ignore_mouse_events(&self, is_ignore_mouse_events: bool) {
         unsafe {
             cnativeapi::native_window_set_ignore_mouse_events(self.handle, is_ignore_mouse_events);

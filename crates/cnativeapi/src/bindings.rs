@@ -560,6 +560,15 @@ unsafe extern "C" {
     pub fn native_window_is_visible_on_all_workspaces(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
+    pub fn native_window_set_visible_in_taskbar(
+        window: native_window_t,
+        is_visible_in_taskbar: bool,
+    );
+}
+unsafe extern "C" {
+    pub fn native_window_is_visible_in_taskbar(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
     pub fn native_window_set_ignore_mouse_events(
         window: native_window_t,
         is_ignore_mouse_events: bool,
