@@ -1,18 +1,38 @@
-## Unreleased
+## 0.2.5
 
+* Add drag and drop: `DropTarget` / `DragSource` bindings, and the `DropRegion` and
+  `DragOutArea` widgets for dropping files and text onto a window and dragging them out
+  of it.
+* Add `DragToMoveArea` and `DragToResizeArea` widgets for custom window chrome, with
+  optional target windows and configurable resize handles.
+* Add `WindowDragSession` and `WindowManager.getWindowAtPoint` for tear-off windows that
+  follow the cursor and can dock back into another window.
 * Add `Window.isVisibleInTaskbar` for keeping a window out of the taskbar — the
   `skipTaskbar` counterpart, inverted so it reads like the other flags. Windows adds and
   removes the taskbar button (and keeps it away across hide/show), Linux sets the window
   manager's skip-taskbar hint, macOS drops the window from the app's Window menu.
+* Window events now actually fire. `WindowResizedEvent`, `WindowMovedEvent`,
+  `WindowMinimizedEvent`, `WindowMaximizedEvent` and `WindowRestoredEvent` existed all
+  the way through the bindings but were never emitted — only focused and blurred worked.
+  Wayland cannot report moves or minimization to a client, so those stay silent there.
 * Fix `Window.hasShadow` doing nothing on Windows: turning it off now removes the
   window's drop shadow, which is what a frameless window usually wants.
 * Fix `Window.titleBarStyle` on Windows: hiding the title bar now takes effect straight
   away instead of only after a fullscreen round trip, the content fills the space the
   title bar left, and the top edge stays resizable.
-* Add drag and drop: `DropTarget` / `DragSource` bindings, and the `DropRegion` and `DragOutArea` widgets for dropping files and text onto a window and dragging them out of it.
-* Add `DragToMoveArea` and `DragToResizeArea` widgets for custom window chrome, with optional target windows and configurable resize handles.
-* Fix `Window.startDragging` not moving the window on Windows, and on macOS the gesture after a `startDragging` / `startResizing` being ignored.
-* Add `window_drag_areas_example` and `drag_drop_example`.
+* Fix `Window.isFullScreen` on Windows being answered from the window's rectangle, so
+  moving or centering a full screen window left it stuck in full screen for good. Also
+  fix `Window.isMinimized` always being false there, which made `restore()` a no-op.
+* Fix `Window.startDragging` not moving the window on Windows, and on macOS the gesture
+  after a `startDragging` / `startResizing` being ignored; implement it on Linux.
+* Linux fixes: `WindowManager.getCurrent()` and `Window.isFocused` now find the focused
+  window, an app no longer exits immediately instead of running, opening a context menu
+  relative to a window no longer crashes, and the display getters survive monitors being
+  replaced or the screen blanking.
+* Windows fixes: window hit testing and late drag starts, submenu detach/reattach, and
+  Top End menu placement.
+* Add `window_drag_areas_example`, `drag_drop_example`, `detachable_window_example` and
+  `browser_tabs_example`.
 
 ## 0.2.4
 

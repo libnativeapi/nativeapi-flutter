@@ -1,3 +1,21 @@
+## 0.2.5
+
+* Update the embedded core and regenerate the C bindings.
+* Add `native_drag_source_*`, `native_drop_target_*` and `native_window_drag_session_*`
+  for dragging files and text in and out of windows and for tear-off window drags, plus
+  `native_window_manager_get_window_at_point`.
+* Add `native_window_set_visible_in_taskbar` / `native_window_is_visible_in_taskbar`.
+* Emit the window resized, moved, minimized, maximized and restored events, which the
+  ABI declared the whole way through but never dispatched.
+* Windows: track full screen as window state instead of comparing rectangles, fix
+  `native_window_set_has_shadow`, the hidden title bar style, `native_window_is_minimized`,
+  window hit testing and late drag starts, submenu detach/reattach and Top End placement.
+* Linux: fix `native_window_manager_get_current` and `native_window_is_focused`,
+  implement `native_window_start_dragging`, keep the application running instead of
+  exiting at once, stop crashing on window-relative context menus, and survive monitors
+  being replaced.
+* macOS: keep the mouse gesture after a native window drag or resize starts.
+
 ## 0.2.4
 
 * Windows: compile the C API directly into the plugin DLL to retain exported entry points.
