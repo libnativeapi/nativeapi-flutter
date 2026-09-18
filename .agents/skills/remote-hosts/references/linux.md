@@ -1,7 +1,8 @@
 # Linux hosts
 
-**Status: `setup`, `exec` and `desktop` verified on Ubuntu 24.04 (GNOME) on 2026-09-17;
-no build or GUI test has run there yet.** Verify each further step the first time and
+**Status: `setup`, `exec` and `desktop` verified on Ubuntu 24.04 (GNOME) on 2026-09-17.
+On 2026-09-18 `flutter build linux --debug` in the SSH session and launching the bundle
+from `desktop` both worked (menu_example); no GUI test with synthetic input has run yet.** Verify each further step the first time and
 update this file with what you learn — the Windows notes were all learned the hard way.
 
 ## Two places a script can run
@@ -42,7 +43,10 @@ Scripts start with:
     `gui-test` Linux driver with the usual vocabulary (`move`, `click`, `drag`,
     `scroll`, `idle`).
   - **Capture**: `org.gnome.Mutter.ScreenCast` + PipeWire (`gst-launch-1.0` and `pw-cli`
-    are installed; `ydotool`/`wtype` are not, and `/dev/uinput` is root-only).
+    are installed; `ydotool`/`wtype` are not, and `/dev/uinput` is root-only). The easy
+    routes are both closed (checked 2026-09-18): `gnome-screenshot` is not installed, and
+    `org.gnome.Shell.Screenshot.Screenshot` answers `AccessDenied: Screenshot is not
+    allowed` — GNOME 46 only lets its own UI call it. ScreenCast is the only way in.
   - **Window geometry / owner**: nothing out of the box — `org.gnome.Shell.Eval` returns
     `(false, '')` (unsafe mode off). Needs a small GNOME Shell extension exposing
     `global.get_window_actors()` over D-Bus, or asserting from inside the app

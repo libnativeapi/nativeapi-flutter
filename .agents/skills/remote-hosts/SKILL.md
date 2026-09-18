@@ -44,7 +44,9 @@ already work (`ssh -o BatchMode=yes <target> echo ok`).
   (Windows: one-shot scheduled task; Linux: the X session's environment; macOS:
   `launchctl asuser`), captures everything it prints, waits, and ends with
   `[desktop] finished after Ns, exit C`. It needs the user logged on at the console
-  and cannot unlock a screen. On `TIMEOUT` the job may still be running — check
+  and cannot unlock a screen. Output goes through one shared `job.log` in the scratch
+  dir, so two sessions driving the same host at once read each other's output — check
+  `ls -lt` in the scratch dir for fresh files before assuming a host is yours alone. On `TIMEOUT` the job may still be running — check
   before starting another, since both would fight over the mouse. For long jobs write
   progress to a file in the scratch dir and poll it with `exec`.
 
