@@ -130,7 +130,10 @@ function Invoke-Wheel($App, $Point, [int]$Lines) {
 function Invoke-Activate($App, $Win, [int]$ClientY = -1) {
   [WInput]::Raise($Win.Hwnd)
   Pause 0.3
-  $x = $Win.Left + [int](($Win.Right - $Win.Left) * 0.7)
+  # 70% across, but clear of the caption buttons: on a narrow window (400 px) that spot is
+  # the Minimize button, and the "activation" click makes the window disappear.
+  $width = $Win.Right - $Win.Left
+  $x = $Win.Left + [int][math]::Min($width * 0.7, [math]::Max($width - 200 * $Win.Scale, $width * 0.3))
   $y = if ($ClientY -ge 0) { $Win.ClientY + [int]($ClientY * $Win.Scale) } else { $Win.Top + [int](($Win.ClientY - $Win.Top) / 2) }
   Invoke-Click $App @($x, $y) 500
   Pause 0.3

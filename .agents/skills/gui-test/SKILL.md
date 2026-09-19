@@ -125,6 +125,9 @@ Screenshots are for *you* to understand a failure, not for assertions.
   Windows section of [references/input-drivers.md](references/input-drivers.md).
   `Invoke-Activate` already lifts and activates a window; when a press is refused or
   ignored, run `desktop_survey.ps1 -X <x> -Y <y>` to see what is stacked there.
+- `Invoke-Activate` clicks the title bar to activate a window. It keeps 200 px clear of the
+  right edge, because on a narrow window (400 px) "70% across" was the Minimize button and
+  the window vanished right after launch (`Get-Win` then finds nothing: client 0x0).
 - Physical vs logical pixels: probe coordinates × `Scale`; window rects are already
   physical. Mixing them up produces errors proportional to the distance from the
   client origin — a telltale sign.
