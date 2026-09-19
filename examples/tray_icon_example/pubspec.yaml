@@ -1,5 +1,5 @@
 name: tray_icon_example
-description: "A new Flutter project."
+description: "TrayIcon playground: animated icons, every property, and an acceptance checklist."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -32,9 +32,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
 
   # Native API package for tray icon functionality
   nativeapi:
@@ -56,6 +53,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  uses-material-design: true
+  uses-material-design: false
   assets:
     - images/
