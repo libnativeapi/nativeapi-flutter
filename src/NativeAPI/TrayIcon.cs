@@ -17,6 +17,12 @@ public enum ContextMenuTrigger
     DoubleClicked = 3,
 }
 
+public enum TrayIconPosition
+{
+    Left = 0,
+    Right = 1,
+}
+
 /// <summary>One TrayIconEvent, in its concrete form.</summary>
 public abstract record TrayIconEvent
 {
@@ -98,6 +104,49 @@ public sealed partial class TrayIcon : IDisposable
         {
             var rawResult = Interop.native_tray_icon_get_icon(NativeHandle);
             return rawResult == 0 ? null : new Image(rawResult);
+        }
+    }
+
+    public void SetIconTemplate(bool isIconTemplate)
+    {
+        Interop.native_tray_icon_set_icon_template(NativeHandle, isIconTemplate);
+    }
+
+    public bool IsIconTemplate
+    {
+        get
+        {
+            var rawResult = Interop.native_tray_icon_is_icon_template(NativeHandle);
+            return rawResult;
+        }
+    }
+
+    public void SetIconSize(Size size)
+    {
+        var rawSize = size.ToRaw();
+        Interop.native_tray_icon_set_icon_size(NativeHandle, rawSize);
+    }
+
+    public Size IconSize
+    {
+        get
+        {
+            var rawResult = Interop.native_tray_icon_get_icon_size(NativeHandle);
+            return Size.FromRaw(in rawResult);
+        }
+    }
+
+    public void SetIconPosition(TrayIconPosition position)
+    {
+        Interop.native_tray_icon_set_icon_position(NativeHandle, (int)position);
+    }
+
+    public TrayIconPosition IconPosition
+    {
+        get
+        {
+            var rawResult = Interop.native_tray_icon_get_icon_position(NativeHandle);
+            return (TrayIconPosition)rawResult;
         }
     }
 

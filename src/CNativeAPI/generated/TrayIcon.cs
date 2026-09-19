@@ -59,6 +59,10 @@ public static partial class Interop
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool native_tray_icon_is_icon_template(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool native_tray_icon_is_visible(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
@@ -86,7 +90,13 @@ public static partial class Interop
     public static extern int native_tray_icon_get_context_menu_trigger(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int native_tray_icon_get_icon_position(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern native_rectangle_t native_tray_icon_get_bounds(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern native_size_t native_tray_icon_get_icon_size(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern uint native_tray_icon_get_id(ulong self);
@@ -120,6 +130,15 @@ public static partial class Interop
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_tray_icon_set_icon(ulong self, ulong image);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void native_tray_icon_set_icon_position(ulong self, int position);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void native_tray_icon_set_icon_size(ulong self, native_size_t size);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void native_tray_icon_set_icon_template(ulong self, [MarshalAs(UnmanagedType.I1)] bool isIconTemplate);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_tray_icon_set_title(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? title);
