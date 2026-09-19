@@ -46,6 +46,29 @@ DragToResizeArea(
 
 两个组件未传入 `window` 时使用 `WindowManager.instance.getCurrent()`。Linux 上暂不支持通过 `DragToMoveArea` 移动窗口。
 
+### 用 Flutter 渲染的第二个窗口
+
+`Window.create()` 打开的是一个不含 Flutter 视图的原生空窗口。要在第二个窗口里渲染 widget，请用 Flutter 的多窗口 API 创建窗口，再把 controller 交给 nativeapi：
+
+```dart
+import 'package:flutter/src/widgets/_window.dart' as fw;
+import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi/windowing.dart';
+
+final controller = fw.WindowController(
+  size: const Size(320, 48),
+  title: 'Toolbar',
+);
+
+// 在 widget 树中：fw.Window(controller: controller, child: ...)
+
+final window = controller.nativeWindow; // nativeapi 的 Window，与 WindowManager 返回的 id 相同
+window?.titleBarStyle = TitleBarStyle.hidden;
+window?.isAlwaysOnTop = true;
+```
+
+所有窗口共用一个 engine 和一个 isolate，窗口之间直接通过普通 Dart 对象通信——不需要改 runner，也不需要消息通道。Flutter 的多窗口 API 仍是实验性的：需要 **main** channel 并执行 `flutter config --enable-windowing`，因此这个桥接单独放在 `package:nativeapi/windowing.dart` 里。参见 [`browser_tabs_example`](examples/browser_tabs_example) 和 [`detachable_window_example`](examples/detachable_window_example)。
+
 ## 示例
 
 见 [`examples/`](examples)，每个目录是对应一个模块的 Flutter 应用：

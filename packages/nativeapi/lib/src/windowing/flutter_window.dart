@@ -7,16 +7,20 @@ import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:flutter/src/widgets/_window_linux.dart' as fw_linux;
 import 'package:flutter/src/widgets/_window_macos.dart' as fw_macos;
 import 'package:flutter/src/widgets/_window_win32.dart' as fw_win32;
-import 'package:nativeapi/nativeapi.dart' as na;
+
+import '../window.dart';
 
 /// The native window behind a Flutter window controller, as a nativeapi
-/// [na.Window].
+/// [Window].
 ///
 /// Flutter hands out an `NSWindow*` on macOS, an `HWND` on Windows, and a
 /// `GtkWindow*` on Linux; these are exactly the handles nativeapi wraps, and
 /// wrapping reuses the ID already attached to the native window, so the result
-/// compares equal (by [na.Window.id]) to what `WindowManager` returns.
-na.Window? nativeWindowOf(fw.BaseWindowController controller) {
+/// compares equal (by [Window.id]) to what `WindowManager` returns.
+///
+/// Returns null once the controller is destroyed, or on a platform whose
+/// controller does not expose a window handle.
+Window? nativeWindowOf(fw.BaseWindowController controller) {
   if (controller.isDestroyed) return null;
   final ffi.Pointer<ffi.Void> handle = switch (controller) {
     final fw_macos.BaseWindowControllerMacOS c => c.windowHandle,
@@ -25,10 +29,15 @@ na.Window? nativeWindowOf(fw.BaseWindowController controller) {
     _ => ffi.nullptr,
   };
   if (handle == ffi.nullptr) return null;
-  return na.Window.createWithNativeWindow(handle);
+  return Window.createWithNativeWindow(handle);
 }
 
-extension NativeWindowGeometry on na.Window {
+extension FlutterWindowControllerNativeWindow on fw.BaseWindowController {
+  /// Shorthand for [nativeWindowOf].
+  Window? get nativeWindow => nativeWindowOf(this);
+}
+
+extension NativeWindowGeometry on Window {
   /// Offset from the window's outer frame to its content area (title bar and
   /// left border), in logical pixels.
   ///

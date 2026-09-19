@@ -1,3 +1,11 @@
+## Unreleased
+
+* Add `package:nativeapi/windowing.dart`: `controller.nativeWindow` / `nativeWindowOf()`
+  turn a window created with Flutter's experimental multi-window API into a nativeapi
+  `Window`, so Flutter-rendered secondary windows can be styled, positioned and observed
+  from Dart alone. Kept out of the main library because it needs the Flutter main channel
+  with `--enable-windowing`.
+
 ## 0.2.5
 
 * Add drag and drop: `DropTarget` / `DragSource` bindings, and the `DropRegion` and

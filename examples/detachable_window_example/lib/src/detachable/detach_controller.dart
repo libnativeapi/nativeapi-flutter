@@ -7,7 +7,7 @@ import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/nativeapi.dart' as na;
 
-import 'native_windows.dart';
+import 'package:nativeapi/windowing.dart';
 
 /// A piece of UI that can live docked in a [DockSlot] or float in a window of
 /// its own.

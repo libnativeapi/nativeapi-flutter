@@ -46,6 +46,29 @@ DragToResizeArea(
 
 Both widgets use `WindowManager.instance.getCurrent()` unless a `window` is passed. Moving via `DragToMoveArea` is not yet implemented on Linux.
 
+### Flutter-rendered secondary windows
+
+`Window.create()` opens a bare native window with no Flutter view in it. To render widgets in a second window, create it with Flutter's multi-window API and hand the controller to nativeapi:
+
+```dart
+import 'package:flutter/src/widgets/_window.dart' as fw;
+import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi/windowing.dart';
+
+final controller = fw.WindowController(
+  size: const Size(320, 48),
+  title: 'Toolbar',
+);
+
+// In the widget tree: fw.Window(controller: controller, child: ...)
+
+final window = controller.nativeWindow; // a nativeapi Window, same id as WindowManager's
+window?.titleBarStyle = TitleBarStyle.hidden;
+window?.isAlwaysOnTop = true;
+```
+
+All windows share one engine and one isolate, so they talk to each other through ordinary Dart objects — no runner changes, no message channels. Flutter's multi-window API is experimental: it needs the **main** channel and `flutter config --enable-windowing`, which is why the bridge lives in its own library, `package:nativeapi/windowing.dart`. See [`browser_tabs_example`](examples/browser_tabs_example) and [`detachable_window_example`](examples/detachable_window_example).
+
 ## Examples
 
 See [`examples/`](examples). Each directory is a Flutter app for one module:
