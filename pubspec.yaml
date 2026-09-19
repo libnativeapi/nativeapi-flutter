@@ -8,6 +8,7 @@ workspace:
   - examples/cocoapods_example
   - examples/detachable_window_example
   - examples/drag_drop_example
+  - examples/floating_toolbar_example
   - examples/launch_at_login_example
   - examples/display_example
   - examples/menu_example
@@ -43,6 +44,7 @@ melos:
     # stable.
     - examples/browser_tabs_example
     - examples/detachable_window_example
+    - examples/floating_toolbar_example
 
   command:
     bootstrap:

@@ -67,7 +67,7 @@ window?.titleBarStyle = TitleBarStyle.hidden;
 window?.isAlwaysOnTop = true;
 ```
 
-所有窗口共用一个 engine 和一个 isolate，窗口之间直接通过普通 Dart 对象通信——不需要改 runner，也不需要消息通道。Flutter 的多窗口 API 仍是实验性的：需要 **main** channel 并执行 `flutter config --enable-windowing`，因此这个桥接单独放在 `package:nativeapi/windowing.dart` 里。参见 [`browser_tabs_example`](examples/browser_tabs_example) 和 [`detachable_window_example`](examples/detachable_window_example)。
+所有窗口共用一个 engine 和一个 isolate，窗口之间直接通过普通 Dart 对象通信——不需要改 runner，也不需要消息通道。Flutter 的多窗口 API 仍是实验性的：需要 **main** channel 并执行 `flutter config --enable-windowing`，因此这个桥接单独放在 `package:nativeapi/windowing.dart` 里。子窗口的完整例子见 [`floating_toolbar_example`](examples/floating_toolbar_example)，另见 [`browser_tabs_example`](examples/browser_tabs_example) 和 [`detachable_window_example`](examples/detachable_window_example)。
 
 ## 示例
 

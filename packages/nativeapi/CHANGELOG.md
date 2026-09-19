@@ -13,6 +13,12 @@
   toolbars, palettes, inspectors. A child stays above its parent and hides when the parent
   is minimized. On macOS it also moves with its parent; on Windows and Linux follow the
   parent's `WindowMovedEvent` for that. On Windows a child is destroyed with its parent.
+* `WindowEvent` and the other event base classes now expose what every variant carries
+  (`event.windowId`, …), so reading it no longer needs a match on the concrete type.
+* macOS: a `Window.backgroundColor` with alpha now really makes the window see-through —
+  the window is marked non-opaque, and a Flutter view in it drops its black backing.
+* Add `floating_toolbar_example`: a transparent, frameless Flutter window attached to the
+  main window, from Dart alone.
 * Add `TrayIcon.isIconTemplate`, `iconSize` and `iconPosition` (with `TrayIconPosition`).
   **Behaviour change on macOS:** an icon is no longer forced to be a template image, so
   coloured icons keep their colours — set `isIconTemplate = true` for a monochrome glyph

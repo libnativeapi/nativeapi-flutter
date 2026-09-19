@@ -67,7 +67,7 @@ window?.titleBarStyle = TitleBarStyle.hidden;
 window?.isAlwaysOnTop = true;
 ```
 
-All windows share one engine and one isolate, so they talk to each other through ordinary Dart objects — no runner changes, no message channels. Flutter's multi-window API is experimental: it needs the **main** channel and `flutter config --enable-windowing`, which is why the bridge lives in its own library, `package:nativeapi/windowing.dart`. See [`browser_tabs_example`](examples/browser_tabs_example) and [`detachable_window_example`](examples/detachable_window_example).
+All windows share one engine and one isolate, so they talk to each other through ordinary Dart objects — no runner changes, no message channels. Flutter's multi-window API is experimental: it needs the **main** channel and `flutter config --enable-windowing`, which is why the bridge lives in its own library, `package:nativeapi/windowing.dart`. See [`floating_toolbar_example`](examples/floating_toolbar_example) for a child window built this way, and [`browser_tabs_example`](examples/browser_tabs_example) and [`detachable_window_example`](examples/detachable_window_example).
 
 ## Examples
 
