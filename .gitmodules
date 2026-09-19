@@ -5,3 +5,7 @@
 	path = packages/tray_manager
 	url = https://github.com/leanflutter/tray_manager
 	branch = dev
+[submodule "packages/hotkey_manager"]
+	path = packages/hotkey_manager
+	url = https://github.com/leanflutter/hotkey_manager
+	branch = dev
