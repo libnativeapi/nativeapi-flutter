@@ -1,3 +1,7 @@
 [submodule "packages/cnativeapi/cxx_impl"]
 	path = packages/cnativeapi/cxx_impl
 	url = https://github.com/libnativeapi/nativeapi.git
+[submodule "packages/tray_manager"]
+	path = packages/tray_manager
+	url = https://github.com/leanflutter/tray_manager
+	branch = dev
