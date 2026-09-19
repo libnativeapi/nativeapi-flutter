@@ -153,9 +153,11 @@ class GuiApp:
         if int(inp('front')) == self.proc.pid:
             raise Abort('could not take the focus away from the app')
 
-    def set_frame(self, x, y, w, h):
-        """Moves and resizes the app's first window (no input involved)."""
-        inp('setframe', self.proc.pid, int(x), int(y), int(w), int(h))
+    def set_frame(self, x, y, w, h, title=None):
+        """Moves and resizes the app's first window, or the one with this title (no input
+        involved)."""
+        args = ['setframe', self.proc.pid, int(x), int(y), int(w), int(h)]
+        inp(*args, *([title] if title is not None else []))
         pause(0.8)
 
     def output(self):

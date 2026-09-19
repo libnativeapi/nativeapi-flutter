@@ -10,7 +10,7 @@
 //                                       M = not an item: the frame of the menu window itself
 //   input activate <pid> [soft]         bring the app and all its windows forward; soft: just make
 //                                       it the active app, without raising its windows
-//   input setframe <pid> <x> <y> <w> <h>  move and resize the app's first window (AX)
+//   input setframe <pid> <x> <y> <w> <h> [title]  move and resize the app's first window, or the one titled so (AX)
 //   input raise <pid>                   raise the app's windows above other apps' without activating it
 //   input visible <x> <y>               visible frame (no menu bar, no Dock) of the screen at a point
 //   input front                         pid of the frontmost application
@@ -203,7 +203,20 @@ int main(int argc, char** argv) {
       AXUIElementRef ax = AXUIElementCreateApplication(atoi(argv[2]));
       NSArray* windows = Attr(ax, kAXWindowsAttribute);
       if (!windows.count) return 1;
-      AXUIElementRef w = (__bridge AXUIElementRef)windows[0];
+      id target = windows[0];
+      if (argc > 7) {
+        // An app with several windows: the one with this title, not whichever is first
+        target = nil;
+        NSString* wanted = [NSString stringWithUTF8String:argv[7]];
+        for (id candidate in windows) {
+          if ([Attr((__bridge AXUIElementRef)candidate, kAXTitleAttribute) isEqual:wanted]) {
+            target = candidate;
+            break;
+          }
+        }
+        if (!target) return 1;
+      }
+      AXUIElementRef w = (__bridge AXUIElementRef)target;
       CGPoint p = CGPointMake(atof(argv[3]), atof(argv[4]));
       CGSize s = CGSizeMake(atof(argv[5]), atof(argv[6]));
       AXValueRef pos = AXValueCreate(kAXValueTypeCGPoint, &p);
