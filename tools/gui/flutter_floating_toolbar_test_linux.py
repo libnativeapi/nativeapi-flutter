@@ -84,14 +84,10 @@ def main():
         print('view sizes:', [tuple(round(s) for s in v.size) for v in views])
         toolbar = next((v for v in views if v.has('Stamp') and not v.has('Stamps: 0')), None)
         if toolbar is not None:
-            # KNOWN GAP (2026-09-19): once core hides the title bar of an engine-created
-            # window on Wayland, its view is 52 px short in both directions (GTK's shadow
-            # margin): 328 x 12. Reported, not counted, until core's Linux geometry is fixed.
-            size = [round(s) for s in toolbar.size]
-            if size == [380, 64]:
-                checks.check('the toolbar view has the size it was asked to have', True)
-            else:
-                print(f'KNOWN GAP the toolbar view is {size[0]} x {size[1]}, not 380 x 64')
+            # It was 328 x 12 while core un-decorated the window instead of hiding its
+            # header bar: GTK then takes its shadow margin out of the content.
+            checks.check('the toolbar view has the size it was asked to have',
+                         [round(s) for s in toolbar.size] == [380, 64], toolbar.size)
         time.sleep(5)
         checks.check('still running five seconds later', proc.poll() is None,
                      output()[-600:] if proc.poll() is not None else '')
