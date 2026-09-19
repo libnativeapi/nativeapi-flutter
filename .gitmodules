@@ -17,3 +17,7 @@
 	path = packages/screen_retriever
 	url = https://github.com/leanflutter/screen_retriever
 	branch = dev
+[submodule "packages/clipboard_watcher"]
+	path = packages/clipboard_watcher
+	url = https://github.com/leanflutter/clipboard_watcher
+	branch = main
