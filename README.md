@@ -51,16 +51,21 @@ Both widgets use `WindowManager.instance.getCurrent()` unless a `window` is pass
 `Window.create()` opens a bare native window with no Flutter view in it. To render widgets in a second window, create it with Flutter's multi-window API and hand the controller to nativeapi:
 
 ```dart
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:nativeapi/nativeapi.dart';
 import 'package:nativeapi/windowing.dart';
 
-final controller = fw.WindowController(
+// Before WidgetsFlutterBinding.ensureInitialized(): stable has no
+// `flutter config --enable-windowing`, so the app switches the API on itself.
+isWindowingEnabled = true;
+
+final controller = fw.RegularWindowController(
   size: const Size(320, 48),
   title: 'Toolbar',
 );
 
-// In the widget tree: fw.Window(controller: controller, child: ...)
+// In the widget tree: fw.RegularWindow(controller: controller, child: ...)
 
 final window = controller.nativeWindow; // a nativeapi Window, same id as WindowManager's
 window?.titleBarStyle = TitleBarStyle.hidden;

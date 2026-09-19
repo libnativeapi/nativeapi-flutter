@@ -1,8 +1,13 @@
-## Unreleased
+## 0.3.0
 
+* **Breaking:** requires Flutter 3.47 / Dart 3.13.
 * Linux: building no longer asks for `libayatana-appindicator3-dev`. The tray icon has been a
   StatusNotifierItem over D-Bus for a while; only the plugin's CMake file still required
   and linked the library.
+* Update the embedded core: a translucent window background is see-through on Windows and
+  Linux, `native_window_set_has_shadow` works on Linux, Linux hides GTK's header bar for
+  `titleBarStyle = hidden` instead of un-decorating the window, and a Linux window's
+  content size is measured without the shadow margin.
 
 ## 0.2.7
 

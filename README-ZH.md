@@ -51,16 +51,21 @@ DragToResizeArea(
 `Window.create()` 打开的是一个不含 Flutter 视图的原生空窗口。要在第二个窗口里渲染 widget，请用 Flutter 的多窗口 API 创建窗口，再把 controller 交给 nativeapi：
 
 ```dart
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:nativeapi/nativeapi.dart';
 import 'package:nativeapi/windowing.dart';
 
-final controller = fw.WindowController(
+// 在 WidgetsFlutterBinding.ensureInitialized() 之前：stable 没有
+// `flutter config --enable-windowing`，所以由应用自己打开这个开关。
+isWindowingEnabled = true;
+
+final controller = fw.RegularWindowController(
   size: const Size(320, 48),
   title: 'Toolbar',
 );
 
-// 在 widget 树中：fw.Window(controller: controller, child: ...)
+// 在 widget 树中：fw.RegularWindow(controller: controller, child: ...)
 
 final window = controller.nativeWindow; // nativeapi 的 Window，与 WindowManager 返回的 id 相同
 window?.titleBarStyle = TitleBarStyle.hidden;

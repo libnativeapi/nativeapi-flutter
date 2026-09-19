@@ -1,12 +1,28 @@
-## Unreleased
+## 0.3.0
 
+* **Breaking:** requires Flutter 3.47 / Dart 3.13.
 * Add `package:nativeapi/windowing.dart`: `controller.nativeWindow` / `nativeWindowOf()`
   turn a window created with Flutter's experimental multi-window API into a nativeapi
   `Window`, so Flutter-rendered secondary windows can be styled, positioned and observed
-  from Dart alone. Kept out of the main library because it imports Flutter's internal
-  windowing libraries. It follows the stable channel (checked with Flutter 3.47.5), where an
-  app turns the API on by setting `isWindowingEnabled` before its binding starts.
-  Not part of the pub.dev package yet: use a git dependency for it.
+  from Dart alone. It is a separate library because it imports Flutter's internal
+  windowing libraries, whose names change between releases; it follows the stable channel.
+  Stable has no `flutter config --enable-windowing`, so an app switches the API on itself
+  with `isWindowingEnabled = true` before its binding starts. See
+  `floating_toolbar_example`, `browser_tabs_example` and `detachable_window_example`.
+* Windows: a `Window.backgroundColor` with alpha now really makes the window see-through —
+  the alpha was ignored before; the compositor draws the color. (macOS since 0.2.7.)
+* Linux: a `Window.backgroundColor` with alpha makes a Flutter window see-through there
+  too (the Flutter view's black backing takes the color), and `Window.setParentWindow`
+  now reaches a Wayland compositor when the child happens to be shown before its parent.
+* Linux: `Window.titleBarStyle = hidden` on a window that is not shown yet no longer
+  leaves its content 52 px short in both directions on Wayland (it now hides GTK's own
+  header bar instead of un-decorating the window).
+* Linux: `Window.hasShadow = false` works on windows with client-side decorations — every
+  toplevel on Wayland, and windows with a header bar on X11. A window the window manager
+  decorates keeps its shadow, and `hasShadow` keeps saying so. `contentSize` of a window
+  created by this library is no longer measured with the shadow margin and the title bar
+  included on Wayland.
+* Linux: building no longer asks for `libayatana-appindicator3-dev` (see cnativeapi).
 
 ## 0.2.7
 
@@ -20,15 +36,8 @@
   parent's `WindowMovedEvent` for that. On Windows a child is destroyed with its parent.
 * `WindowEvent` and the other event base classes now expose what every variant carries
   (`event.windowId`, …), so reading it no longer needs a match on the concrete type.
-* macOS and Windows: a `Window.backgroundColor` with alpha now really makes the window
-  see-through. macOS marks the window non-opaque and drops the Flutter view's black
-  backing; Windows, which ignored the alpha, has the compositor draw the color.
-* Linux: `Window.titleBarStyle = hidden` on a window that is not shown yet no longer
-  leaves its content 52 px short in both directions on Wayland (it now hides GTK's own
-  header bar instead of un-decorating the window).
-* Linux: a `Window.backgroundColor` with alpha makes a Flutter window see-through there
-  too (the Flutter view's black backing takes the color), and `Window.setParentWindow`
-  now reaches a Wayland compositor when the child happens to be shown before its parent.
+* macOS: a `Window.backgroundColor` with alpha now really makes the window see-through —
+  the window is marked non-opaque, and a Flutter view in it drops its black backing.
 * Add `floating_toolbar_example`: a transparent, frameless Flutter window attached to the
   main window, from Dart alone.
 * Add `TrayIcon.isIconTemplate`, `iconSize` and `iconPosition` (with `TrayIconPosition`).
