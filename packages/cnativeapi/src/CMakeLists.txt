@@ -88,6 +88,9 @@ endif ()
 # Link required frameworks and libraries
 if(ANDROID)
     target_link_libraries(cnativeapi PUBLIC log android)
+    # Android 15 runs on devices with 16 KB memory pages; a shared library whose
+    # segments are aligned to 4 KB does not load there.
+    target_link_options(cnativeapi PRIVATE "-Wl,-z,max-page-size=16384")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(cnativeapi PUBLIC
             PkgConfig::GTK

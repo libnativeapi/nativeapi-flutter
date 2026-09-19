@@ -1,6 +1,8 @@
 ## 0.3.0
 
 * **Breaking:** requires Flutter 3.47 / Dart 3.13.
+* Android: the shared library is linked with 16 KB page alignment, so it loads on the
+  Android 15 devices that use 16 KB memory pages.
 * Linux: building no longer asks for `libayatana-appindicator3-dev`. The tray icon has been a
   StatusNotifierItem over D-Bus for a while; only the plugin's CMake file still required
   and linked the library.
