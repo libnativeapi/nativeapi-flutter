@@ -55,10 +55,8 @@ flutter run -d macos   # or windows, linux
 | Windows | through step 5 (an owned window does not move with its owner) | yes |
 | Linux | through step 5 on X11; on Wayland a client cannot position its windows, so the toolbar is placed by the compositor | stays above; minimizing with the parent is up to the window manager |
 
-Known gaps (2026-09-19), both in the core library rather than in this example:
+Known gap (2026-09-19), in the core library rather than in this example:
 
-- **Windows**: the toolbar window is not see-through yet - `Window.backgroundColor` ignores
-  alpha there, so the pill sits on a black rectangle. Everything else works.
 - **Linux (Wayland)**: once the toolbar's title bar is hidden its view comes out 52 px
   short in both directions (GTK's shadow margin), which leaves a sliver. The window
   relationship itself is established and the app runs.

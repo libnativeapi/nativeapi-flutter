@@ -20,8 +20,9 @@
   parent's `WindowMovedEvent` for that. On Windows a child is destroyed with its parent.
 * `WindowEvent` and the other event base classes now expose what every variant carries
   (`event.windowId`, …), so reading it no longer needs a match on the concrete type.
-* macOS: a `Window.backgroundColor` with alpha now really makes the window see-through —
-  the window is marked non-opaque, and a Flutter view in it drops its black backing.
+* macOS and Windows: a `Window.backgroundColor` with alpha now really makes the window
+  see-through. macOS marks the window non-opaque and drops the Flutter view's black
+  backing; Windows, which ignored the alpha, has the compositor draw the color.
 * Add `floating_toolbar_example`: a transparent, frameless Flutter window attached to the
   main window, from Dart alone.
 * Add `TrayIcon.isIconTemplate`, `iconSize` and `iconPosition` (with `TrayIconPosition`).
