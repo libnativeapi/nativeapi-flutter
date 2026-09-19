@@ -13,3 +13,7 @@
 	path = packages/window_manager
 	url = https://github.com/leanflutter/window_manager
 	branch = dev
+[submodule "packages/screen_retriever"]
+	path = packages/screen_retriever
+	url = https://github.com/leanflutter/screen_retriever
+	branch = dev
