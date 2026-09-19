@@ -25,3 +25,7 @@
 	path = packages/launch_at_startup
 	url = https://github.com/leanflutter/launch_at_startup
 	branch = main
+[submodule "packages/protocol_handler"]
+	path = packages/protocol_handler
+	url = https://github.com/leanflutter/protocol_handler
+	branch = main
