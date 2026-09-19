@@ -9,3 +9,7 @@
 	path = packages/hotkey_manager
 	url = https://github.com/leanflutter/hotkey_manager
 	branch = dev
+[submodule "packages/window_manager"]
+	path = packages/window_manager
+	url = https://github.com/leanflutter/window_manager
+	branch = dev
