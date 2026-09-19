@@ -1,3 +1,17 @@
+## 0.3.1
+
+* `LaunchAtLogin` on Windows: an app running from an MSIX package gets a shortcut in the
+  user's Startup folder, because the `Run` registry key an MSIX container writes is
+  virtualized and never read. `IsEnabled()` also reads Explorer's `StartupApproved\Run`
+  flag and `Enable()` clears it, so an entry the user switched off in Task Manager is not
+  reported as enabled and enabling it again really enables it. The registry is written
+  through the wide API, so a non-ASCII identifier or path survives.
+* `LaunchAtLogin` on macOS: `setProgram()` naming the running application registers that
+  application whatever the identifier says, instead of failing because the identifier does
+  not name a bundled login item helper. Arguments are recorded but never delivered —
+  `SMAppService` starts the app bundle, nothing else — where before any argument made
+  `enable()` fail.
+
 ## 0.3.0
 
 * **Breaking:** requires Flutter 3.47 / Dart 3.13.
