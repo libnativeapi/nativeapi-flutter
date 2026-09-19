@@ -488,6 +488,16 @@ unsafe extern "C" {
     pub fn native_window_is_always_on_bottom(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
+    pub fn native_window_set_parent_window(
+        window: native_window_t,
+        parent: native_window_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_window_free()."]
+    pub fn native_window_get_parent_window(window: native_window_t) -> native_window_t;
+}
+unsafe extern "C" {
     pub fn native_window_set_non_activating(window: native_window_t, is_non_activating: bool);
 }
 unsafe extern "C" {

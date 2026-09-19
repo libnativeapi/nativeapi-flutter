@@ -464,6 +464,18 @@ impl Window {
         }
     }
 
+    pub fn set_parent_window(&self, parent: Option<&Window>) -> bool {
+        unsafe {
+            cnativeapi::native_window_set_parent_window(self.handle, parent.map_or(0, |value| value.as_raw()))
+        }
+    }
+
+    pub fn parent_window(&self) -> Option<Window> {
+        unsafe {
+            Window::from_raw(cnativeapi::native_window_get_parent_window(self.handle))
+        }
+    }
+
     pub fn set_non_activating(&self, is_non_activating: bool) {
         unsafe {
             cnativeapi::native_window_set_non_activating(self.handle, is_non_activating);
