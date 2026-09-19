@@ -20,16 +20,16 @@
 [submodule "packages/clipboard_watcher"]
 	path = packages/clipboard_watcher
 	url = https://github.com/leanflutter/clipboard_watcher
-	branch = main
+	branch = dev
 [submodule "packages/launch_at_startup"]
 	path = packages/launch_at_startup
 	url = https://github.com/leanflutter/launch_at_startup
-	branch = main
+	branch = dev
 [submodule "packages/protocol_handler"]
 	path = packages/protocol_handler
 	url = https://github.com/leanflutter/protocol_handler
-	branch = main
+	branch = dev
 [submodule "packages/local_notifier"]
 	path = packages/local_notifier
 	url = https://github.com/leanflutter/local_notifier
-	branch = main
+	branch = dev
