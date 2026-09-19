@@ -51,7 +51,13 @@ $ErrorActionPreference = "Stop"
 - Tooling: VS 2022 (generator `"Visual Studio 17 2022" -A x64`; there is no ninja),
   CMake, Python 3, Flutter via fvm. The `fvm\default` junction does not resolve over
   SSH — point `HOST_PATH_PREPEND` at a concrete `fvm\versions\<channel>\bin`. The
-  multi-window examples need the `main` channel with `flutter config --enable-windowing`.
+  project follows the `stable` channel, multi-window examples included (they switch the
+  windowing API on in `main()`; stable has no `flutter config --enable-windowing`).
+  `fvm install <channel>` clones all of Flutter from GitHub at ~60 KiB/s there: build the
+  version from one that is installed instead — `git clone --no-checkout versions\main
+  versions\stable`, fetch the branch from a `git bundle` made on the Mac
+  (`git bundle create b stable ^$(git merge-base stable main)`), check it out, add the
+  version tag. The Dart SDK and engine downloads are fast.
 - Put CMake build trees in the scratch dir (`-B $RemoteScratch\core-build`), not in the
   checkout.
 - `core.autocrlf` makes `git status` noisy and `flutter pub get` rewrites
