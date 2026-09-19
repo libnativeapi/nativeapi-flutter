@@ -21,6 +21,7 @@ over the mouse for ~80 s.
 
 import os
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # the flat kit on a remote host
@@ -38,6 +39,18 @@ def executable():
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     return flutter_executable(
         os.path.join(workspace, 'bindings', 'flutter', 'examples', NAME))
+
+
+def registered_items(pid):
+    """The app's icons as the shell's StatusNotifierWatcher lists them. core names each
+    item org.kde.StatusNotifierItem-<pid>-<n>."""
+    out = subprocess.run(
+        ['gdbus', 'call', '--session', '--dest', 'org.kde.StatusNotifierWatcher',
+         '--object-path', '/StatusNotifierWatcher',
+         '--method', 'org.freedesktop.DBus.Properties.Get',
+         'org.kde.StatusNotifierWatcher', 'RegisteredStatusNotifierItems'],
+        capture_output=True, text=True, timeout=10).stdout
+    return sorted(set(re.findall(rf'org\.kde\.StatusNotifierItem-{pid}-\d+', out)))
 
 
 def main():
@@ -95,6 +108,9 @@ def main():
                     status[m.group(1)] = (m.group(2), m.group(3))
             return status
 
+        items = registered_items(app.proc.pid)
+        checks.check('the shell lists the icon', len(items) == 1, f'{items}')
+
         size = tuple(map(round, view().size))
         checks.check('window content is 400 x 640', size == (400, 640), f'{size}')
         checks.check('starts on the asset icon', text('Asset icon') == 'Asset icon · still')
@@ -145,6 +161,10 @@ def main():
         press('Three icons', settle=2.0)
         chips = texts()
         checks.check('three icons exist', all(c in chips for c in ('#1', '#2', '#3')))
+        # Each icon needs a D-Bus connection of its own: a watcher given a bus name looks
+        # at the fixed path /StatusNotifierItem, which a connection can export only once.
+        items = registered_items(app.proc.pid)
+        checks.check('the shell lists all three icons', len(items) == 3, f'{items}')
         running = []
         for number in ('#1', '#2', '#3'):
             press(number, settle=1.2)
@@ -155,6 +175,8 @@ def main():
         press('Remove #3', settle=0.6)
         press('Remove #2', settle=0.6)
         checks.check('removing leaves one icon', '#2' not in texts() and '#1' in texts())
+        items = registered_items(app.proc.pid)
+        checks.check('the shell drops the removed icons', len(items) == 1, f'{items}')
         press('Stop', settle=1.0)
         checks.check('Stop returns to the asset icon', text('Asset icon') is not None)
         for kind in ('Drawn', 'Base64', 'Asset'):
@@ -196,19 +218,8 @@ def main():
         checks.check('"Window to icon" is disabled and leaves the window alone',
                      app.window(title) == before, f'{before} → {app.window(title)}')
 
-        # -- known gap in core: one StatusNotifierItem per process ---------------
-        # Every icon registers the same D-Bus object path on the shared session
-        # connection, so the second and third icon of "Three icons" never reach the tray.
-        log = app.output()
-        # An icon's registration error is printed before its own "create" line.
-        first_create = log.find('[checklist] create pass')
-        failed = log.count('TrayIcon: D-Bus initialisation failed')
-        checks.check('the first icon registers with the tray',
-                     first_create >= 0 and 'D-Bus initialisation failed' not in log[:first_create])
-        if failed:
-            print(f'KNOWN GAP {failed} further icon(s) failed to register: core exports every '
-                  'StatusNotifierItem at /StatusNotifierItem, only one fits on a connection',
-                  flush=True)
+        checks.check('no icon failed to register on D-Bus',
+                     'D-Bus initialisation failed' not in app.output())
 
         # -- the example's own checklist ----------------------------------------
         status = checklist()
