@@ -13,7 +13,7 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `flutter_detachable_window_test.py` / `.ps1` | `detachable_window_example` | macOS / Windows | tear a panel off, exact content size, header stays under the cursor, dock into the other window, `State` preserved |
 | `flutter_window_drag_areas_test.py` / `.ps1` | `window_drag_areas_example` | macOS / Windows | `DragToMoveArea`: window follows the mouse, a click does not move it, double click maximizes and restores; `DragToResizeArea`: all eight handles, the other edges stay anchored, minimum size, `enableResizeEdges`, clicks pass through the middle |
 | `flutter_menu_test.py` / `.ps1` | `menu_example` | macOS / Windows (WinUI 3 and Native backends) | context menu opens at the click point; placement Top End (also after the menu changed); item types and states (checkbox, radio group, disabled, submenu, special characters); click / open / close / submenu events; dismissing fires no click; label change, added item and detached submenu show on the next open; absolute and cursor positioning |
-| `flutter_floating_toolbar_test.py` | `floating_toolbar_example` | macOS | `Window.setParentWindow` with two Flutter windows: the toolbar window starts centred above the main one, follows a move and re-centres after a resize (through Accessibility, `--no-input` stops here); follows a real drag of the title bar; a press in the toolbar counts up in the main window; detached it stays put, attached it comes back; hidden it is not brought back by moving its parent |
+| `flutter_floating_toolbar_test.py` / `.ps1` / `_linux.py` | `floating_toolbar_example` | macOS / Windows / Linux (inside only) | `Window.setParentWindow` with two Flutter windows: the toolbar window starts centred above the main one, follows a move and re-centres after a resize (through Accessibility, `--no-input` stops here); follows a real drag of the title bar; a press in the toolbar counts up in the main window; detached it stays put, attached it comes back; hidden it is not brought back by moving its parent. Windows runs the same steps (moves through `SetWindowPos`); its see-through check is a KNOWN GAP line, core ignores alpha there. Linux: multi-window Flutter only runs as a Wayland client, which cannot be measured or pressed from outside, so the twin only checks from the inside that both views render, `setParentWindow` succeeded and the app keeps running; the toolbar view's size is a KNOWN GAP line (52 px short once the title bar is hidden) |
 | `flutter_window_events_test.py` | `window_example` | macOS | `WindowManager.addListener` really is called: focused on activation, moved and resized when the frame changes (through Accessibility, one click only), payloads equal to the frame the OS reports |
 | `core_window_drag_session_test.py` / `.ps1` / `_linux.py` | core `window_drag_session_example` (C++) | macOS / Windows / Linux | dock by dragging onto another window, tear off anchored under the cursor, event output; the Linux twin also checks that the panel follows the cursor while carried |
 | `core_menu_lifetime_test.ps1` | core `tests/menu_lifetime_test.cpp` | Windows | issue 54: a `Menu` destroyed from a listener that runs inside the window procedure does not kill the process, and a menu created after every other menu was destroyed still gets its events. No input, but it needs a desktop session |
@@ -58,6 +58,7 @@ $R win desktop tools/gui/core_window_drag_session_test.ps1 120
 $R win desktop tools/gui/core_drag_drop_test.ps1 120
 $R win desktop tools/gui/flutter_drag_drop_test.ps1 150
 $R win desktop tools/gui/flutter_tray_icon_test.ps1 400
+$R win desktop tools/gui/flutter_floating_toolbar_test.ps1 240
 .agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1 tools/gui/output
 
 # Linux, from the Mac (GNOME; "linux" = the host name in remote-hosts/hosts/linux.env)
@@ -65,6 +66,7 @@ R=.agents/skills/remote-hosts/scripts/remote.sh
 $R linux setup
 $R linux run tools/gui/build_core_example_linux.sh window_drag_session_example
 $R linux desktop tools/gui/core_window_drag_session_test_linux.py 180
+$R linux desktop tools/gui/flutter_floating_toolbar_test_linux.py 120   # no input; Wayland client
 $R linux desktop tools/gui/flutter_tray_icon_test_linux.py 300   # example built in the host's checkout
 ```
 
