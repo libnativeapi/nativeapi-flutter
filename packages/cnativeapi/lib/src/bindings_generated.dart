@@ -5059,6 +5059,88 @@ class CNativeApiBindings {
   late final _native_tray_icon_get_icon = _native_tray_icon_get_iconPtr
       .asFunction<int Function(int)>();
 
+  void native_tray_icon_set_icon_template(
+    int tray_icon,
+    bool is_icon_template,
+  ) {
+    return _native_tray_icon_set_icon_template(tray_icon, is_icon_template);
+  }
+
+  late final _native_tray_icon_set_icon_templatePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_tray_icon_t, ffi.Bool)>
+      >('native_tray_icon_set_icon_template');
+  late final _native_tray_icon_set_icon_template =
+      _native_tray_icon_set_icon_templatePtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_tray_icon_is_icon_template(int tray_icon) {
+    return _native_tray_icon_is_icon_template(tray_icon);
+  }
+
+  late final _native_tray_icon_is_icon_templatePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_is_icon_template',
+      );
+  late final _native_tray_icon_is_icon_template =
+      _native_tray_icon_is_icon_templatePtr.asFunction<bool Function(int)>();
+
+  void native_tray_icon_set_icon_size(int tray_icon, native_size_t size) {
+    return _native_tray_icon_set_icon_size(tray_icon, size);
+  }
+
+  late final _native_tray_icon_set_icon_sizePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_tray_icon_t, native_size_t)>
+      >('native_tray_icon_set_icon_size');
+  late final _native_tray_icon_set_icon_size =
+      _native_tray_icon_set_icon_sizePtr
+          .asFunction<void Function(int, native_size_t)>();
+
+  native_size_t native_tray_icon_get_icon_size(int tray_icon) {
+    return _native_tray_icon_get_icon_size(tray_icon);
+  }
+
+  late final _native_tray_icon_get_icon_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_icon_size',
+      );
+  late final _native_tray_icon_get_icon_size =
+      _native_tray_icon_get_icon_sizePtr
+          .asFunction<native_size_t Function(int)>();
+
+  void native_tray_icon_set_icon_position(
+    Dartnative_tray_icon_t tray_icon,
+    native_tray_icon_position_t position,
+  ) {
+    return _native_tray_icon_set_icon_position(tray_icon, position.value);
+  }
+
+  late final _native_tray_icon_set_icon_positionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_tray_icon_t, ffi.UnsignedInt)
+        >
+      >('native_tray_icon_set_icon_position');
+  late final _native_tray_icon_set_icon_position =
+      _native_tray_icon_set_icon_positionPtr
+          .asFunction<void Function(int, int)>();
+
+  native_tray_icon_position_t native_tray_icon_get_icon_position(
+    Dartnative_tray_icon_t tray_icon,
+  ) {
+    return native_tray_icon_position_t.fromValue(
+      _native_tray_icon_get_icon_position(tray_icon),
+    );
+  }
+
+  late final _native_tray_icon_get_icon_positionPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_icon_position',
+      );
+  late final _native_tray_icon_get_icon_position =
+      _native_tray_icon_get_icon_positionPtr.asFunction<int Function(int)>();
+
   void native_tray_icon_set_title(int tray_icon, ffi.Pointer<ffi.Char> title) {
     return _native_tray_icon_set_title(tray_icon, title);
   }
@@ -6972,6 +7054,22 @@ enum native_context_menu_trigger_t {
     3 => NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED,
     _ => throw ArgumentError(
       "Unknown value for native_context_menu_trigger_t: $value",
+    ),
+  };
+}
+
+enum native_tray_icon_position_t {
+  NATIVE_TRAY_ICON_POSITION_LEFT(0),
+  NATIVE_TRAY_ICON_POSITION_RIGHT(1);
+
+  final int value;
+  const native_tray_icon_position_t(this.value);
+
+  static native_tray_icon_position_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TRAY_ICON_POSITION_LEFT,
+    1 => NATIVE_TRAY_ICON_POSITION_RIGHT,
+    _ => throw ArgumentError(
+      "Unknown value for native_tray_icon_position_t: $value",
     ),
   };
 }

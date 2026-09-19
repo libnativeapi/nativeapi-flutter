@@ -99,8 +99,8 @@ class TrayController extends ChangeNotifier {
   static bool get boundsSupported => !Platform.isLinux;
   static bool get openMenuSupported => !Platform.isLinux;
 
-  /// Icon colour when the user picks "Auto". macOS ignores colour anyway (the
-  /// image is used as a template); elsewhere the tray is usually dark.
+  /// Icon colour when the user picks "Auto". On macOS that means a template
+  /// image, which the menu bar tints itself; elsewhere the tray is usually dark.
   static Color get autoColor =>
       Platform.isMacOS ? const Color(0xFF000000) : const Color(0xFFFFFFFF);
 
@@ -115,6 +115,7 @@ class TrayController extends ChangeNotifier {
       _log('TrayIcon.create() returned null');
       return null;
     }
+    trayIcon.isIconTemplate = Platform.isMacOS;
     final entry = TrayEntry(_nextNumber++, trayIcon);
     entry.animator = IconAnimator(
       onFrame: (image) => trayIcon.icon = image,
@@ -333,6 +334,8 @@ class TrayController extends ChangeNotifier {
   void setColor(Color color) {
     final entry = _selected;
     if (entry == null) return;
+    // A picked colour only shows on macOS once the icon stops being a template.
+    entry.trayIcon.isIconTemplate = Platform.isMacOS && color == autoColor;
     entry.animator.setColor(color);
     final still = entry.still;
     if (still != null) setStill(still, entry, true);

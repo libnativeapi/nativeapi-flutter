@@ -5,6 +5,13 @@
   `Window`, so Flutter-rendered secondary windows can be styled, positioned and observed
   from Dart alone. Kept out of the main library because it needs the Flutter main channel
   with `--enable-windowing`.
+* Add `TrayIcon.isIconTemplate`, `iconSize` and `iconPosition` (with `TrayIconPosition`).
+  **Behaviour change on macOS:** an icon is no longer forced to be a template image, so
+  coloured icons keep their colours — set `isIconTemplate = true` for a monochrome glyph
+  that should follow the menu bar. The default size is still 18 x 18 points; a zero size
+  draws the image at its own size. The `Image` given to `icon` is no longer modified.
+  Windows and Linux record the three values without using them.
+* Windows: tray icons come back after Explorer restarts instead of disappearing for good.
 
 ## 0.2.5
 

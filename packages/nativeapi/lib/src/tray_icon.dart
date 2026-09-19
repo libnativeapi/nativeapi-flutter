@@ -40,6 +40,23 @@ enum ContextMenuTrigger {
       c.native_context_menu_trigger_t.fromValue(value);
 }
 
+enum TrayIconPosition {
+  left(0),
+  right(1);
+
+  const TrayIconPosition(this.value);
+  final int value;
+
+  static TrayIconPosition fromValue(int value) => switch (value) {
+    0 => TrayIconPosition.left,
+    1 => TrayIconPosition.right,
+    _ => TrayIconPosition.left,
+  };
+
+  c.native_tray_icon_position_t get raw =>
+      c.native_tray_icon_position_t.fromValue(value);
+}
+
 /// One `TrayIconEvent`, in its concrete form.
 sealed class TrayIconEvent {
   const TrayIconEvent();
@@ -143,6 +160,36 @@ class TrayIcon {
     final handle = _bindings.native_tray_icon_get_icon(nativeHandle);
     if (handle == 0) return null;
     return Image.fromHandle(handle);
+  }
+
+  set isIconTemplate(bool value) {
+    _bindings.native_tray_icon_set_icon_template(nativeHandle, value);
+  }
+
+  bool get isIconTemplate {
+    return _bindings.native_tray_icon_is_icon_template(nativeHandle);
+  }
+
+  set iconSize(Size value) {
+    final valuePointer = pkg_ffi.calloc<c.native_size_t>();
+    valuePointer.ref.width = value.width;
+    valuePointer.ref.height = value.height;
+    _bindings.native_tray_icon_set_icon_size(nativeHandle, valuePointer.ref);
+    pkg_ffi.calloc.free(valuePointer);
+  }
+
+  Size get iconSize {
+    final raw = _bindings.native_tray_icon_get_icon_size(nativeHandle);
+    return Size(raw.width, raw.height);
+  }
+
+  set iconPosition(TrayIconPosition value) {
+    _bindings.native_tray_icon_set_icon_position(nativeHandle, value.raw);
+  }
+
+  TrayIconPosition get iconPosition {
+    final raw = _bindings.native_tray_icon_get_icon_position(nativeHandle);
+    return TrayIconPosition.fromValue(raw.value);
   }
 
   void setTitle(String? title) {
