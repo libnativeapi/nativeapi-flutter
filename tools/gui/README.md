@@ -22,6 +22,7 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `flutter_drag_drop_test.py` / `.ps1` | `drag_drop_example` | macOS / Windows | `DragOutArea` → `DropRegion` in one window: a file and a text drop arrive, the source sees `copy`, the highlight clears, a second drag works after the first |
 | `flutter_tray_icon_test.py` / `.ps1` / `_linux.py` | `tray_icon_example` | macOS / Windows (WinUI 3 and Native menu backends) / Linux | animated tray icons: frames really are rendered and pushed (counter, 30 and 60 fps, no dropped frames, Pause / Step / Resume, 3x resolution), a live widget captured into frames, the Download scene driving the title, three icons animating at once; title / tooltip / visibility / trigger / bounds read back from the native getters; the menu opened from code shows its items and states, an item click arrives, `closeContextMenu` closes it; "Window to icon" puts the window below the icon on macOS and above it on Windows, centred on it; the example's own checklist has no unexpected failures. Windows tray icons have no title, so the title checks become one no-op check there. On Linux the icon is a StatusNotifierItem: no bounds and no menu opened from code, so the test checks the example does not offer them; the frame pipeline is asserted at 10 fps (what 30 fps gives on the host is printed), and the icons are counted where the shell counts them: `RegisteredStatusNotifierItems` lists one, then three, then one again after two are removed. Not covered: clicks on the tray icon itself — the input driver refuses the menu-bar layer, those stay manual items of the example's Checklist tab |
 | `flutter_detachable_window_and_browser_tabs_demo.py` / `.ps1` | both Flutter examples | macOS / Windows | the demo video scenarios; also the only coverage of `browser_tabs_example` (reorder, tear off, merge, move by the strip; its log ends with the preserved page state, no PASS/FAIL checks) |
+| `flutter_floating_toolbar_demo.py` / `.ps1` | `floating_toolbar_example` | macOS / Windows | the floating toolbar demo video: the pill drives the main window (colours, Stamp), follows it when it is dragged by the title bar and resized from its corner, stays behind when detached and snaps back when attached, is hidden and shown again; ends on the counter and the log. `DEMO_DRY_RUN=1` on the Windows host plays it without recording; without `--record` the macOS script does the same |
 | `flutter_tray_icon_demo.py` | `tray_icon_example` | macOS | the tray demo video: the example moves its window next to its tray icon ("Window to icon") so the real icon and the magnified preview are in one picture; gallery, widget capture, 10 → 60 fps, Pause / Step, scenes, three icons at once, menu opened and closed from code, checklist |
 
 `common.py` points the macOS scripts at the skills' harness and at
@@ -47,6 +48,7 @@ tools/gui/flutter_drag_drop_test.py
 tools/gui/flutter_tray_icon_test.py
 tools/gui/flutter_detachable_window_and_browser_tabs_demo.py --record   # --only detachable|tabs, --keep-open
 tools/gui/flutter_tray_icon_demo.py --record
+tools/gui/flutter_floating_toolbar_demo.py --record
 
 # Windows, from the Mac (examples built there in debug; see the remote-hosts skill)
 R=.agents/skills/remote-hosts/scripts/remote.sh
@@ -60,6 +62,7 @@ $R win desktop tools/gui/flutter_drag_drop_test.ps1 150
 $R win desktop tools/gui/flutter_tray_icon_test.ps1 400
 $R win desktop tools/gui/flutter_floating_toolbar_test.ps1 240
 .agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1 tools/gui/output
+.agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_floating_toolbar_demo.ps1 tools/gui/output
 
 # Linux, from the Mac (GNOME; "linux" = the host name in remote-hosts/hosts/linux.env)
 R=.agents/skills/remote-hosts/scripts/remote.sh
