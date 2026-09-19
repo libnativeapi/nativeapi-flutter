@@ -93,6 +93,12 @@ class TrayController extends ChangeNotifier {
   /// GetTitle returns nothing, so the title is left out of the read-back check.
   static bool get titleSupported => !Platform.isWindows;
 
+  /// Linux tray icons are StatusNotifierItems: the shell owns the icon, so
+  /// there is no geometry to ask for and nothing the app can pop up itself —
+  /// core's GetBounds is empty and OpenContextMenu returns false there.
+  static bool get boundsSupported => !Platform.isLinux;
+  static bool get openMenuSupported => !Platform.isLinux;
+
   /// Icon colour when the user picks "Auto". macOS ignores colour anyway (the
   /// image is used as a template); elsewhere the tray is usually dark.
   static Color get autoColor =>
@@ -205,7 +211,9 @@ class TrayController extends ChangeNotifier {
     final entry = _selected;
     if (entry != null) {
       final bounds = entry.trayIcon.getBounds();
-      if (bounds.isEmpty) {
+      if (!boundsSupported) {
+        // Nothing to judge.
+      } else if (bounds.isEmpty) {
         checklist.fail(Checklist.bounds, 'empty');
       } else {
         checklist.pass(
@@ -619,13 +627,15 @@ class TrayController extends ChangeNotifier {
     // Credit the trigger that is configured, if its event just happened.
     final now = DateTime.now();
     bool recent(DateTime at) => now.difference(at).inMilliseconds < 1500;
+    // Where the app cannot open the menu itself, "none" has no way to pass.
+    final total = openMenuSupported ? 4 : 3;
     final trigger = entry.trayIcon.getContextMenuTrigger();
     if (trigger == ContextMenuTrigger.none) {
       if (recent(_lastOpenCallAt)) {
-        checklist.part(Checklist.triggers, trigger.name, 4);
+        checklist.part(Checklist.triggers, trigger.name, total);
       }
     } else if (trigger == _lastTrayEvent && recent(_lastTrayEventAt)) {
-      checklist.part(Checklist.triggers, trigger.name, 4);
+      checklist.part(Checklist.triggers, trigger.name, total);
     }
   }
 

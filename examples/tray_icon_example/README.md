@@ -38,8 +38,13 @@ dropped, so the numbers in the preview are the real cost of animating a tray ico
 - Scenes pair an animation with a title that follows it (*Download*: `42%`,
   *Recording*: `00:12`); *Three icons* animates three icons together.
 
-Windows tray icons have no title (`setTitle` is a no-op there, `getTitle` returns null),
-so the title row and the title checks step aside on Windows.
+What a platform cannot do is not offered, and its checklist items step aside:
+
+- Windows tray icons have no title (`setTitle` is a no-op, `getTitle` returns null).
+- A Linux tray icon is a StatusNotifierItem drawn by the shell: `getBounds` is empty and
+  `openContextMenu` returns false, so there is no *Window to icon* and no *Open menu*.
+  Frames also cost far more there (GPU read-back, PNG, D-Bus): the preview's numbers
+  tell what rate a machine really holds.
 
 macOS shows tray images as 18 pt templates, so there the colour row only changes the
 preview's alpha shape and the menu bar picks the tint; resolution still matters (1x / 2x

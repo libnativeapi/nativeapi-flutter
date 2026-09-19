@@ -50,15 +50,23 @@ class Checklist extends ChangeNotifier {
     CheckItem(doubleClicked, 'Double clicked event'),
     CheckItem(menuOpenClose, 'Menu opened and closed'),
     CheckItem(menuItems, 'Menu item, checkbox, submenu'),
-    CheckItem(triggers, 'All four triggers open the menu'),
-    CheckItem(openMenu, 'openContextMenu returns true'),
-    CheckItem(closeMenu, 'closeContextMenu closes it'),
+    CheckItem(
+      triggers,
+      Platform.isLinux
+          ? 'Left, right and double click open the menu'
+          : 'All four triggers open the menu',
+    ),
+    // A StatusNotifierItem (Linux) cannot pop its menu up or be located.
+    if (!Platform.isLinux) ...[
+      CheckItem(openMenu, 'openContextMenu returns true'),
+      CheckItem(closeMenu, 'closeContextMenu closes it'),
+    ],
     CheckItem(visible, 'setVisible round trip'),
     CheckItem(
       readBack,
       Platform.isWindows ? 'Tooltip reads back' : 'Title and tooltip read back',
     ),
-    CheckItem(bounds, 'getBounds is not empty'),
+    if (!Platform.isLinux) CheckItem(bounds, 'getBounds is not empty'),
     CheckItem(frames, '100 frames at the target rate'),
     CheckItem('m.still', 'Icon swaps: asset, drawn, base64', manual: true),
     CheckItem('m.animation', 'Tray animation matches preview', manual: true),
@@ -90,7 +98,8 @@ class Checklist extends ChangeNotifier {
 
   /// Updates the detail of an item that is still open.
   void note(String id, String detail) {
-    final item = this[id];
+    final item = _find(id);
+    if (item == null) return;
     if (item.status != CheckStatus.open || item.detail == detail) return;
     item.detail = detail;
     notifyListeners();
@@ -127,8 +136,13 @@ class Checklist extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Items a platform cannot offer are left out of [items]; settling one is
+  // then simply ignored.
+  CheckItem? _find(String id) => items.where((i) => i.id == id).firstOrNull;
+
   void _set(String id, CheckStatus status, String detail) {
-    final item = this[id];
+    final item = _find(id);
+    if (item == null) return;
     if (item.status == status && item.detail == detail) return;
     item.status = status;
     item.detail = detail;

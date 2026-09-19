@@ -120,12 +120,15 @@ class PropertiesTab extends StatelessWidget {
         OptionRow(
           label: 'Menu',
           children: [
-            OptionChip(label: 'Open menu', onTap: controller.openMenu),
-            OptionChip(
-              label: 'Open, close in 2 s',
-              onTap: () =>
-                  controller.openMenu(closeAfter: const Duration(seconds: 2)),
-            ),
+            if (TrayController.openMenuSupported) ...[
+              OptionChip(label: 'Open menu', onTap: controller.openMenu),
+              OptionChip(
+                label: 'Open, close in 2 s',
+                onTap: () =>
+                    controller.openMenu(closeAfter: const Duration(seconds: 2)),
+              ),
+            ] else
+              const Hint('only the shell opens it on Linux'),
           ],
         ),
         // Only Windows has a second menu backend to choose.
@@ -181,7 +184,9 @@ class _StateBlock extends StatelessWidget {
               ),
               OptionChip(
                 label: 'Window to icon',
-                onTap: controller.moveWindowToIcon,
+                onTap: TrayController.boundsSupported
+                    ? controller.moveWindowToIcon
+                    : null,
               ),
               const SizedBox(width: 5),
               OptionChip(label: 'Refresh', onTap: controller.refresh),

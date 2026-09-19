@@ -63,10 +63,18 @@ class _ShellState extends State<Shell> {
   @override
   void initState() {
     super.initState();
-    // The layout is made for exactly this content size. The runners only get
-    // close: their default size includes the title bar on Windows and Linux.
+    // The layout is made for exactly this content size. The runners' default
+    // size does not always give it (on Windows it includes the title bar), so
+    // correct it — but only when it is off: where the view already is right
+    // (macOS, Linux) the window is left alone.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      WindowManager.instance.getCurrent()?.contentSize = const Size(400, 640);
+      if (!mounted) return;
+      const wanted = Size(400, 640);
+      final view = MediaQuery.sizeOf(context);
+      if ((view.width - wanted.width).abs() > 0.5 ||
+          (view.height - wanted.height).abs() > 0.5) {
+        WindowManager.instance.getCurrent()?.contentSize = wanted;
+      }
     });
   }
 
