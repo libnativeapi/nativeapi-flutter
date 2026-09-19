@@ -21,3 +21,7 @@
 	path = packages/clipboard_watcher
 	url = https://github.com/leanflutter/clipboard_watcher
 	branch = main
+[submodule "packages/launch_at_startup"]
+	path = packages/launch_at_startup
+	url = https://github.com/leanflutter/launch_at_startup
+	branch = main
