@@ -128,6 +128,14 @@ sealed class WindowEvent {
         ),
       );
     }
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_CREATED.value) {
+      return WindowCreatedEvent(windowId: raw.window_id);
+    }
+    if (raw.type ==
+        c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_CLOSED.value) {
+      return WindowClosedEvent(windowId: raw.window_id);
+    }
     return null;
   }
 }
@@ -174,6 +182,18 @@ final class WindowResizedEvent extends WindowEvent {
 
   final WindowId windowId;
   final Size newSize;
+}
+
+final class WindowCreatedEvent extends WindowEvent {
+  const WindowCreatedEvent({required this.windowId});
+
+  final WindowId windowId;
+}
+
+final class WindowClosedEvent extends WindowEvent {
+  const WindowClosedEvent({required this.windowId});
+
+  final WindowId windowId;
 }
 
 class Window {
