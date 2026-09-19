@@ -2337,6 +2337,9 @@ pub const NATIVE_CONTEXT_MENU_TRIGGER_CLICKED: native_context_menu_trigger_t = 1
 pub const NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED: native_context_menu_trigger_t = 2;
 pub const NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED: native_context_menu_trigger_t = 3;
 pub type native_context_menu_trigger_t = ::std::os::raw::c_uint;
+pub const NATIVE_TRAY_ICON_POSITION_LEFT: native_tray_icon_position_t = 0;
+pub const NATIVE_TRAY_ICON_POSITION_RIGHT: native_tray_icon_position_t = 1;
+pub type native_tray_icon_position_t = ::std::os::raw::c_uint;
 #[doc = " Opaque TrayIcon handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_TRAY_ICON rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
 pub type native_tray_icon_t = u64;
 #[doc = " Owning list of TrayIcon handles."]
@@ -2432,6 +2435,32 @@ unsafe extern "C" {
 unsafe extern "C" {
     #[doc = " Caller owns the returned handle; release it with native_image_free()."]
     pub fn native_tray_icon_get_icon(tray_icon: native_tray_icon_t) -> native_image_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_icon_template(
+        tray_icon: native_tray_icon_t,
+        is_icon_template: bool,
+    );
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_is_icon_template(tray_icon: native_tray_icon_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_icon_size(tray_icon: native_tray_icon_t, size: native_size_t);
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_get_icon_size(tray_icon: native_tray_icon_t) -> native_size_t;
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_set_icon_position(
+        tray_icon: native_tray_icon_t,
+        position: native_tray_icon_position_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_tray_icon_get_icon_position(
+        tray_icon: native_tray_icon_t,
+    ) -> native_tray_icon_position_t;
 }
 unsafe extern "C" {
     pub fn native_tray_icon_set_title(

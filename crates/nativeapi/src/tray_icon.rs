@@ -6,7 +6,7 @@
 use cnativeapi;
 use std::ffi::{CStr, CString};
 
-use crate::geometry::Rectangle;
+use crate::geometry::{Rectangle, Size};
 use crate::image::Image;
 use crate::menu::Menu;
 
@@ -37,6 +37,27 @@ impl ContextMenuTrigger {
 
     pub(crate) fn to_raw(self) -> cnativeapi::native_context_menu_trigger_t {
         self as cnativeapi::native_context_menu_trigger_t
+    }
+}
+
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum TrayIconPosition {
+    Left = 0,
+    Right = 1,
+}
+
+impl TrayIconPosition {
+    pub(crate) fn from_raw(raw: cnativeapi::native_tray_icon_position_t) -> Self {
+        match raw {
+            cnativeapi::NATIVE_TRAY_ICON_POSITION_LEFT => Self::Left,
+            cnativeapi::NATIVE_TRAY_ICON_POSITION_RIGHT => Self::Right,
+            _ => Self::Left,
+        }
+    }
+
+    pub(crate) fn to_raw(self) -> cnativeapi::native_tray_icon_position_t {
+        self as cnativeapi::native_tray_icon_position_t
     }
 }
 
@@ -117,6 +138,44 @@ impl TrayIcon {
     pub fn icon(&self) -> Option<Image> {
         unsafe {
             Image::from_raw(cnativeapi::native_tray_icon_get_icon(self.handle))
+        }
+    }
+
+    pub fn set_icon_template(&self, is_icon_template: bool) {
+        unsafe {
+            cnativeapi::native_tray_icon_set_icon_template(self.handle, is_icon_template);
+        }
+    }
+
+    pub fn is_icon_template(&self) -> bool {
+        unsafe {
+            cnativeapi::native_tray_icon_is_icon_template(self.handle)
+        }
+    }
+
+    pub fn set_icon_size(&self, size: &Size) {
+        let size_raw = size.to_raw();
+        unsafe {
+            cnativeapi::native_tray_icon_set_icon_size(self.handle, size_raw.raw);
+        }
+    }
+
+    pub fn icon_size(&self) -> Size {
+        unsafe {
+            let raw = cnativeapi::native_tray_icon_get_icon_size(self.handle);
+            Size::from_raw(&raw)
+        }
+    }
+
+    pub fn set_icon_position(&self, position: TrayIconPosition) {
+        unsafe {
+            cnativeapi::native_tray_icon_set_icon_position(self.handle, position.to_raw());
+        }
+    }
+
+    pub fn icon_position(&self) -> TrayIconPosition {
+        unsafe {
+            TrayIconPosition::from_raw(cnativeapi::native_tray_icon_get_icon_position(self.handle))
         }
     }
 

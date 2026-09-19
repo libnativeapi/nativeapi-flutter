@@ -62,7 +62,7 @@ pub use preferences::{Preferences, PreferencesRef};
 pub use secure_storage::{SecureStorage, SecureStorageRef};
 pub use shortcut::{ShortcutId, ShortcutScope, ShortcutOptions, ShortcutEvent, Shortcut, ShortcutRef};
 pub use shortcut_manager::{ShortcutManager};
-pub use tray_icon::{TrayIconId, ContextMenuTrigger, TrayIconEvent, TrayIcon, TrayIconRef};
+pub use tray_icon::{TrayIconId, ContextMenuTrigger, TrayIconPosition, TrayIconEvent, TrayIcon, TrayIconRef};
 pub use tray_manager::{TrayManager};
 pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
 pub use window::{WindowId, TitleBarStyle, VisualEffect, ResizeEdge, WindowEvent, Window, WindowRef};
