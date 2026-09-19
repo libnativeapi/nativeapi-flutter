@@ -472,6 +472,19 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
     writeln!(out, "sealed class {} {{", group.name).unwrap();
     writeln!(out, "  const {}();", group.name).unwrap();
     writeln!(out).unwrap();
+    // What every variant carries can be read without matching the variant.
+    for field in &group.common {
+        writeln!(
+            out,
+            "  {} get {};",
+            dart_event_field_type(&field.ty),
+            field.name.to_lower_camel_case()
+        )
+        .unwrap();
+    }
+    if !group.common.is_empty() {
+        writeln!(out).unwrap();
+    }
     writeln!(
         out,
         "  /// Reads the event out of its C form. Returns null for a variant this"
@@ -536,7 +549,10 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
         if !fields.is_empty() {
             writeln!(out).unwrap();
         }
-        for field in &fields {
+        for (index, field) in fields.iter().enumerate() {
+            if index < group.common.len() {
+                writeln!(out, "  @override").unwrap();
+            }
             writeln!(
                 out,
                 "  final {} {};",
