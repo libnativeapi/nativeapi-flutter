@@ -1,15 +1,20 @@
 // ignore_for_file: invalid_use_of_internal_member, implementation_imports
 
+import 'dart:io' show Platform;
 import 'dart:ui' show AppExitType;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:nativeapi/nativeapi.dart' as na;
 import 'package:nativeapi/windowing.dart';
 
 void main() {
+  // The stable channel does not offer `flutter config --enable-windowing`,
+  // so turn the experimental windowing API on before the binding starts.
+  isWindowingEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runWidget(const FloatingToolbarApp());
 }
@@ -26,6 +31,14 @@ const List<Color> _swatches = [
   Color(0xFFFF9800),
   Color(0xFFE91E63),
 ];
+
+/// On Wayland an application can neither place its top-level windows nor find out
+/// where they are, so nothing here can make the toolbar follow: it stays where the
+/// desktop puts it, and the user drags it by the pill instead.
+final bool canPlaceWindows =
+    !(Platform.isLinux &&
+        Platform.environment.containsKey('WAYLAND_DISPLAY') &&
+        Platform.environment['GDK_BACKEND'] != 'x11');
 
 /// What both windows show. They run in one isolate, so a plain [ChangeNotifier]
 /// is all the "communication between windows" there is.
@@ -59,13 +72,13 @@ class ToolbarModel extends ChangeNotifier {
   }
 }
 
-class _CloseDelegate with fw.WindowControllerDelegate {
+class _CloseDelegate with fw.RegularWindowControllerDelegate {
   _CloseDelegate(this.onCloseRequested);
 
   final VoidCallback onCloseRequested;
 
   @override
-  void onWindowCloseRequested(fw.WindowController controller) =>
+  void onWindowCloseRequested(fw.RegularWindowController controller) =>
       onCloseRequested();
 }
 
@@ -79,14 +92,14 @@ class FloatingToolbarApp extends StatefulWidget {
 class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
   final _model = ToolbarModel();
 
-  late final fw.WindowController _mainController = fw.WindowController(
+  late final fw.RegularWindowController _mainController = fw.RegularWindowController(
     size: _mainWindowSize,
     constraints: const BoxConstraints(minWidth: 480, minHeight: 360),
     title: 'Floating toolbar',
     delegate: _CloseDelegate(_closeEverything),
   );
 
-  late final fw.WindowController _toolbarController = fw.WindowController(
+  late final fw.RegularWindowController _toolbarController = fw.RegularWindowController(
     size: _toolbarSize,
     title: 'Toolbar',
     // The toolbar has no close button; closing the main window closes it.
@@ -226,7 +239,7 @@ class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
     if (_closing) return const ViewCollection(views: []);
     return ViewCollection(
       views: [
-        fw.Window(
+        fw.RegularWindow(
           controller: _mainController,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -239,7 +252,7 @@ class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
             ),
           ),
         ),
-        fw.Window(
+        fw.RegularWindow(
           controller: _toolbarController,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -249,7 +262,11 @@ class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
             ),
             // Nothing opaque between the pill and the desktop.
             color: const Color(0x00000000),
-            home: ToolbarPage(model: _model),
+            home: ToolbarPage(
+              model: _model,
+              // Where the app cannot place the toolbar, the user can.
+              onDrag: canPlaceWindows ? null : () => _toolbar?.startDragging(),
+            ),
           ),
         ),
       ],
@@ -287,6 +304,21 @@ class MainPage extends StatelessWidget {
                 'transparent, frameless, and a child of this one. Move, resize '
                 'or minimize this window and it comes along.',
               ),
+              if (!canPlaceWindows) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Wayland: applications cannot place their windows here, so '
+                    'the pill cannot follow this window. It stays above it and '
+                    'shares its state; drag the pill to put it where you want it.',
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -346,9 +378,12 @@ class MainPage extends StatelessWidget {
 }
 
 class ToolbarPage extends StatelessWidget {
-  const ToolbarPage({super.key, required this.model});
+  const ToolbarPage({super.key, required this.model, this.onDrag});
 
   final ToolbarModel model;
+
+  /// Starts a window drag from the pill; null where the app places the toolbar itself.
+  final VoidCallback? onDrag;
 
   @override
   Widget build(BuildContext context) {
@@ -357,45 +392,48 @@ class ToolbarPage extends StatelessWidget {
       builder: (context, _) => Scaffold(
         backgroundColor: const Color(0x00000000),
         body: Center(
-          child: Container(
-            height: 52,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: const Color(0xF0202124),
-              borderRadius: BorderRadius.circular(26),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final swatch in _swatches)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => model.pick(swatch),
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: swatch,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: model.color == swatch
-                                ? Colors.white
-                                : Colors.transparent,
-                            width: 2,
+          child: GestureDetector(
+            onPanStart: onDrag == null ? null : (_) => onDrag!(),
+            child: Container(
+              height: 52,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xF0202124),
+                borderRadius: BorderRadius.circular(26),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final swatch in _swatches)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: () => model.pick(swatch),
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: swatch,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: model.color == swatch
+                                  ? Colors.white
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  const SizedBox(width: 10),
+                  TextButton.icon(
+                    onPressed: model.stamp,
+                    icon: const Icon(Icons.approval, size: 18),
+                    label: const Text('Stamp'),
                   ),
-                const SizedBox(width: 10),
-                TextButton.icon(
-                  onPressed: model.stamp,
-                  icon: const Icon(Icons.approval, size: 18),
-                  label: const Text('Stamp'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

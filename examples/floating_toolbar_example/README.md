@@ -53,7 +53,7 @@ flutter run -d macos   # or windows, linux
 | --- | --- | --- |
 | macOS | natively (a child `NSWindow` moves with its parent); step 5 only re-centres after a resize | yes |
 | Windows | through step 5 (an owned window does not move with its owner) | yes |
-| Linux | through step 5 on X11; on Wayland a client cannot position its windows, so the toolbar is placed by the compositor | stays above; minimizing with the parent is up to the window manager |
+| Linux | through step 5 on X11. **Not on Wayland**: an application can neither place its toplevel windows nor find out where they are, so the pill stays where the desktop puts it. The example says so in its main window and lets you drag the pill instead. Flutter's satellite window type would be the real answer; it is not implemented on any platform yet | stays above; minimizing with the parent is up to the window manager |
 
 A GUI test lives in the workspace repository: `tools/gui/flutter_floating_toolbar_test.py` (macOS), `.ps1` (Windows) and
 `_linux.py` (Linux, from the inside only).
