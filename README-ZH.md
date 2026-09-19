@@ -48,6 +48,9 @@ DragToResizeArea(
 
 ### 用 Flutter 渲染的第二个窗口
 
+> **暂未包含在 pub.dev 的包里。** `package:nativeapi/windowing.dart` 跟随 Flutter main 通道，在 stable 上无法通过分析，
+> 所以 0.2.7 发布时没有带上它。要使用它，请改为依赖 [git 仓库](https://github.com/libnativeapi/nativeapi-flutter)。
+
 `Window.create()` 打开的是一个不含 Flutter 视图的原生空窗口。要在第二个窗口里渲染 widget，请用 Flutter 的多窗口 API 创建窗口，再把 controller 交给 nativeapi：
 
 ```dart

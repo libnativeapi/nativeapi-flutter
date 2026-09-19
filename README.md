@@ -48,6 +48,10 @@ Both widgets use `WindowManager.instance.getCurrent()` unless a `window` is pass
 
 ### Flutter-rendered secondary windows
 
+> **Not in the pub.dev package yet.** `package:nativeapi/windowing.dart` follows Flutter's
+> main channel and does not analyze on stable, so 0.2.7 ships without it. To use it, depend
+> on the [git repository](https://github.com/libnativeapi/nativeapi-flutter) instead.
+
 `Window.create()` opens a bare native window with no Flutter view in it. To render widgets in a second window, create it with Flutter's multi-window API and hand the controller to nativeapi:
 
 ```dart
