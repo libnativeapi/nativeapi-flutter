@@ -55,11 +55,5 @@ flutter run -d macos   # or windows, linux
 | Windows | through step 5 (an owned window does not move with its owner) | yes |
 | Linux | through step 5 on X11; on Wayland a client cannot position its windows, so the toolbar is placed by the compositor | stays above; minimizing with the parent is up to the window manager |
 
-Known gap (2026-09-19), in the core library rather than in this example:
-
-- **Linux (Wayland)**: once the toolbar's title bar is hidden its view comes out 52 px
-  short in both directions (GTK's shadow margin), which leaves a sliver. The window
-  relationship itself is established and the app runs.
-
 A GUI test lives in the workspace repository: `tools/gui/flutter_floating_toolbar_test.py` (macOS), `.ps1` (Windows) and
 `_linux.py` (Linux, from the inside only).
