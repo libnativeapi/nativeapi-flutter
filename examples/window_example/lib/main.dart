@@ -167,6 +167,14 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           _addLog('Window #${event.windowId} restored');
           _updateWindows();
         }
+        if (event is WindowCreatedEvent) {
+          _addLog('Window #${event.windowId} created (first shown)');
+          _updateWindows();
+        }
+        if (event is WindowClosedEvent) {
+          _addLog('Window #${event.windowId} closed');
+          _updateWindows();
+        }
         if (event is WindowMovedEvent) {
           final p = event.newPosition;
           _addLog(
