@@ -466,6 +466,19 @@ class Window {
     return _bindings.native_window_is_always_on_bottom(nativeHandle);
   }
 
+  bool setParentWindow(Window? parent) {
+    return _bindings.native_window_set_parent_window(
+      nativeHandle,
+      parent?.nativeHandle ?? 0,
+    );
+  }
+
+  Window? get parentWindow {
+    final handle = _bindings.native_window_get_parent_window(nativeHandle);
+    if (handle == 0) return null;
+    return Window.fromHandle(handle);
+  }
+
   set isNonActivating(bool value) {
     _bindings.native_window_set_non_activating(nativeHandle, value);
   }

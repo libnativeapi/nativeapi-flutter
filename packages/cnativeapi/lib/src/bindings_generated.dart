@@ -931,6 +931,29 @@ class CNativeApiBindings {
   late final _native_window_is_always_on_bottom =
       _native_window_is_always_on_bottomPtr.asFunction<bool Function(int)>();
 
+  bool native_window_set_parent_window(int window, int parent) {
+    return _native_window_set_parent_window(window, parent);
+  }
+
+  late final _native_window_set_parent_windowPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_window_t, native_window_t)>
+      >('native_window_set_parent_window');
+  late final _native_window_set_parent_window =
+      _native_window_set_parent_windowPtr.asFunction<bool Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_window_get_parent_window(int window) {
+    return _native_window_get_parent_window(window);
+  }
+
+  late final _native_window_get_parent_windowPtr =
+      _lookup<ffi.NativeFunction<native_window_t Function(native_window_t)>>(
+        'native_window_get_parent_window',
+      );
+  late final _native_window_get_parent_window =
+      _native_window_get_parent_windowPtr.asFunction<int Function(int)>();
+
   void native_window_set_non_activating(int window, bool is_non_activating) {
     return _native_window_set_non_activating(window, is_non_activating);
   }

@@ -9,6 +9,10 @@
   a window the first time it is shown and when it is closed for good, whoever created or
   closed it — including windows made with Flutter's multi-window API. A window that is
   never shown emits neither; hiding is not closing.
+* Add `Window.setParentWindow` / `Window.parentWindow` for child windows — floating
+  toolbars, palettes, inspectors. A child stays above its parent and hides when the parent
+  is minimized. On macOS it also moves with its parent; on Windows and Linux follow the
+  parent's `WindowMovedEvent` for that. On Windows a child is destroyed with its parent.
 * Add `TrayIcon.isIconTemplate`, `iconSize` and `iconPosition` (with `TrayIconPosition`).
   **Behaviour change on macOS:** an icon is no longer forced to be a template image, so
   coloured icons keep their colours — set `isIconTemplate = true` for a monochrome glyph
