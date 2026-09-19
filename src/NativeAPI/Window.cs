@@ -445,6 +445,21 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public bool SetParentWindow(Window? parent)
+    {
+        var rawResult = Interop.native_window_set_parent_window(NativeHandle, parent?.NativeHandle ?? 0);
+        return rawResult;
+    }
+
+    public Window? ParentWindow
+    {
+        get
+        {
+            var rawResult = Interop.native_window_get_parent_window(NativeHandle);
+            return rawResult == 0 ? null : new Window(rawResult);
+        }
+    }
+
     public void SetNonActivating(bool isNonActivating)
     {
         Interop.native_window_set_non_activating(NativeHandle, isNonActivating);
