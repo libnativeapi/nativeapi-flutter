@@ -85,6 +85,8 @@ enum ResizeEdge {
 sealed class WindowEvent {
   const WindowEvent();
 
+  WindowId get windowId;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static WindowEvent? fromNative(c.native_window_event_t raw) {
@@ -143,36 +145,42 @@ sealed class WindowEvent {
 final class WindowFocusedEvent extends WindowEvent {
   const WindowFocusedEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 
 final class WindowBlurredEvent extends WindowEvent {
   const WindowBlurredEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 
 final class WindowMinimizedEvent extends WindowEvent {
   const WindowMinimizedEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 
 final class WindowMaximizedEvent extends WindowEvent {
   const WindowMaximizedEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 
 final class WindowRestoredEvent extends WindowEvent {
   const WindowRestoredEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 
 final class WindowMovedEvent extends WindowEvent {
   const WindowMovedEvent({required this.windowId, required this.newPosition});
 
+  @override
   final WindowId windowId;
   final Offset newPosition;
 }
@@ -180,6 +188,7 @@ final class WindowMovedEvent extends WindowEvent {
 final class WindowResizedEvent extends WindowEvent {
   const WindowResizedEvent({required this.windowId, required this.newSize});
 
+  @override
   final WindowId windowId;
   final Size newSize;
 }
@@ -187,12 +196,14 @@ final class WindowResizedEvent extends WindowEvent {
 final class WindowCreatedEvent extends WindowEvent {
   const WindowCreatedEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 
 final class WindowClosedEvent extends WindowEvent {
   const WindowClosedEvent({required this.windowId});
 
+  @override
   final WindowId windowId;
 }
 

@@ -21,6 +21,9 @@ final _bindings = c.cnativeApiBindings;
 sealed class DropTargetEvent {
   const DropTargetEvent();
 
+  WindowId get windowId;
+  Offset get position;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static DropTargetEvent? fromNative(c.native_drop_target_event_t raw) {
@@ -84,21 +87,27 @@ final class DropTargetEnteredEvent extends DropTargetEvent {
     required this.position,
   });
 
+  @override
   final WindowId windowId;
+  @override
   final Offset position;
 }
 
 final class DropTargetMovedEvent extends DropTargetEvent {
   const DropTargetMovedEvent({required this.windowId, required this.position});
 
+  @override
   final WindowId windowId;
+  @override
   final Offset position;
 }
 
 final class DropTargetExitedEvent extends DropTargetEvent {
   const DropTargetExitedEvent({required this.windowId, required this.position});
 
+  @override
   final WindowId windowId;
+  @override
   final Offset position;
 }
 
@@ -110,7 +119,9 @@ final class DropTargetDroppedEvent extends DropTargetEvent {
     required this.text,
   });
 
+  @override
   final WindowId windowId;
+  @override
   final Offset position;
   final List<String> filePaths;
   final String? text;

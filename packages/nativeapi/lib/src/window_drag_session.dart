@@ -20,6 +20,9 @@ final _bindings = c.cnativeApiBindings;
 sealed class WindowDragEvent {
   const WindowDragEvent();
 
+  WindowId get windowId;
+  Offset get cursorPosition;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static WindowDragEvent? fromNative(c.native_window_drag_event_t raw) {
@@ -63,7 +66,9 @@ final class WindowDragMovedEvent extends WindowDragEvent {
     required this.cursorPosition,
   });
 
+  @override
   final WindowId windowId;
+  @override
   final Offset cursorPosition;
 }
 
@@ -73,7 +78,9 @@ final class WindowDragEndedEvent extends WindowDragEvent {
     required this.cursorPosition,
   });
 
+  @override
   final WindowId windowId;
+  @override
   final Offset cursorPosition;
 }
 
@@ -83,7 +90,9 @@ final class WindowDragCancelledEvent extends WindowDragEvent {
     required this.cursorPosition,
   });
 
+  @override
   final WindowId windowId;
+  @override
   final Offset cursorPosition;
 }
 

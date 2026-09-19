@@ -42,6 +42,9 @@ enum DragOperation {
 sealed class DragSourceEvent {
   const DragSourceEvent();
 
+  WindowId get windowId;
+  Offset get position;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static DragSourceEvent? fromNative(c.native_drag_source_event_t raw) {
@@ -67,7 +70,9 @@ final class DragSourceEndedEvent extends DragSourceEvent {
     required this.operation,
   });
 
+  @override
   final WindowId windowId;
+  @override
   final Offset position;
   final DragOperation operation;
 }

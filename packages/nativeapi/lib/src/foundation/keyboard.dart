@@ -75,6 +75,8 @@ class KeyboardAccelerator {
 sealed class KeyboardEvent {
   const KeyboardEvent();
 
+  int get keycode;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static KeyboardEvent? fromNative(c.native_keyboard_event_t raw) {
@@ -109,12 +111,14 @@ sealed class KeyboardEvent {
 final class KeyboardKeyPressedEvent extends KeyboardEvent {
   const KeyboardKeyPressedEvent({required this.keycode});
 
+  @override
   final int keycode;
 }
 
 final class KeyboardKeyReleasedEvent extends KeyboardEvent {
   const KeyboardKeyReleasedEvent({required this.keycode});
 
+  @override
   final int keycode;
 }
 
@@ -124,6 +128,7 @@ final class KeyboardModifierKeysChangedEvent extends KeyboardEvent {
     required this.modifierKeys,
   });
 
+  @override
   final int keycode;
   final int modifierKeys;
 }

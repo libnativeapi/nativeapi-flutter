@@ -87,6 +87,9 @@ class ShortcutOptions {
 sealed class ShortcutEvent {
   const ShortcutEvent();
 
+  ShortcutId get shortcutId;
+  String? get accelerator;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static ShortcutEvent? fromNative(c.native_shortcut_event_t raw) {
@@ -153,7 +156,9 @@ final class ShortcutActivatedEvent extends ShortcutEvent {
     required this.accelerator,
   });
 
+  @override
   final ShortcutId shortcutId;
+  @override
   final String? accelerator;
 }
 
@@ -163,7 +168,9 @@ final class ShortcutRegisteredEvent extends ShortcutEvent {
     required this.accelerator,
   });
 
+  @override
   final ShortcutId shortcutId;
+  @override
   final String? accelerator;
 }
 
@@ -173,7 +180,9 @@ final class ShortcutUnregisteredEvent extends ShortcutEvent {
     required this.accelerator,
   });
 
+  @override
   final ShortcutId shortcutId;
+  @override
   final String? accelerator;
 }
 
@@ -184,7 +193,9 @@ final class ShortcutRegistrationFailedEvent extends ShortcutEvent {
     required this.errorMessage,
   });
 
+  @override
   final ShortcutId shortcutId;
+  @override
   final String? accelerator;
   final String? errorMessage;
 }

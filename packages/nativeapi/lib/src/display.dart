@@ -40,6 +40,8 @@ enum DisplayOrientation {
 sealed class DisplayEvent {
   const DisplayEvent();
 
+  Display get display;
+
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static DisplayEvent? fromNative(c.native_display_event_t raw) {
@@ -62,18 +64,21 @@ sealed class DisplayEvent {
 final class DisplayAddedEvent extends DisplayEvent {
   const DisplayAddedEvent({required this.display});
 
+  @override
   final Display display;
 }
 
 final class DisplayRemovedEvent extends DisplayEvent {
   const DisplayRemovedEvent({required this.display});
 
+  @override
   final Display display;
 }
 
 final class DisplayChangedEvent extends DisplayEvent {
   const DisplayChangedEvent({required this.display});
 
+  @override
   final Display display;
 }
 
