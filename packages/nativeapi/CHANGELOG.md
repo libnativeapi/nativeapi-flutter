@@ -1,10 +1,15 @@
-## 0.2.6
+## Unreleased
 
 * Add `package:nativeapi/windowing.dart`: `controller.nativeWindow` / `nativeWindowOf()`
   turn a window created with Flutter's experimental multi-window API into a nativeapi
   `Window`, so Flutter-rendered secondary windows can be styled, positioned and observed
   from Dart alone. Kept out of the main library because it needs the Flutter main channel
   with `--enable-windowing`.
+  Not part of the pub.dev package yet: it does not analyze on stable Flutter, so use a git
+  dependency for it.
+
+## 0.2.7
+
 * Add `WindowCreatedEvent` and `WindowClosedEvent`. `WindowManager.addListener` now reports
   a window the first time it is shown and when it is closed for good, whoever created or
   closed it — including windows made with Flutter's multi-window API. A window that is

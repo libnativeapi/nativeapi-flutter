@@ -1,3 +1,7 @@
+## 0.2.7
+
+* Same as 0.2.6; released together with nativeapi 0.2.7 (there is no nativeapi 0.2.6).
+
 ## 0.2.6
 
 * Update the embedded core and regenerate the C bindings.
