@@ -49,7 +49,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
     pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
     pkg_check_modules(XI REQUIRED IMPORTED_TARGET xi)
-    pkg_check_modules(AYATANA_APPINDICATOR REQUIRED IMPORTED_TARGET ayatana-appindicator3-0.1)
 elseif (APPLE)
     file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/macos/*.mm")
     # Find required frameworks for macOS
@@ -94,7 +93,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
             PkgConfig::GTK
             PkgConfig::X11
             PkgConfig::XI
-            PkgConfig::AYATANA_APPINDICATOR
             pthread
     )
 elseif (APPLE)

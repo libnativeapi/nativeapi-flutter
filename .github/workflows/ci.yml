@@ -205,7 +205,8 @@ jobs:
             cmake \
             ninja-build \
             clang \
-            libayatana-appindicator3-dev
+            libx11-dev \
+            libxi-dev
           
       - name: Build cnativeapi example Linux
         run: |

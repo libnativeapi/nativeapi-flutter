@@ -1,3 +1,9 @@
+## Unreleased
+
+* Linux: building no longer asks for `libayatana-appindicator3-dev`. The tray icon has been a
+  StatusNotifierItem over D-Bus for a while; only the plugin's CMake file still required
+  and linked the library.
+
 ## 0.2.7
 
 * Same as 0.2.6; released together with nativeapi 0.2.7 (there is no nativeapi 0.2.6).
