@@ -77,3 +77,13 @@ cd examples\<name>; flutter build windows --debug
 
 A cold Flutter Windows build takes several minutes; give `desktop` a generous
 timeout (900+).
+
+Send build output to a file, not down a PowerShell pipeline: with
+`cmake --build ... 2>&1 | Select-String ...` a `cl.exe` sat at 0 % CPU for twenty
+minutes until the job timed out (and outlived it — `taskkill /F /T /PID`). This
+finished in under a minute:
+
+```powershell
+cmd /c "cmake --build `"$build`" --config Debug --target <t> -- /nologo /v:minimal > `"$log`" 2>&1"
+Get-Content $log | Select-String " error |vcxproj ->"
+```
