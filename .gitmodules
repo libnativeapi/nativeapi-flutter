@@ -29,3 +29,7 @@
 	path = packages/protocol_handler
 	url = https://github.com/leanflutter/protocol_handler
 	branch = main
+[submodule "packages/local_notifier"]
+	path = packages/local_notifier
+	url = https://github.com/leanflutter/local_notifier
+	branch = main
