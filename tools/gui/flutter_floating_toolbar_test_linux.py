@@ -4,8 +4,9 @@
 Flutter's multi-window does not run under Xwayland on this kind of host (see the
 remote-hosts skill, references/linux.md), so the example runs as a Wayland client — and a
 Wayland window can neither be measured nor pressed from outside. What is left to check:
-the app comes up with both windows rendering, Window.setParentWindow succeeded, the two
-views show what they should, and the app keeps running. Geometry (does the toolbar sit
+the app comes up with both windows rendering, Window.setParentWindow succeeded and
+reached the compositor (read from the Wayland protocol trace), the two views show what
+they should at the size they were given, and the app keeps running. Geometry (does the toolbar sit
 above the main window?) is NOT checked: on Wayland a client cannot even position its
 windows. The macOS twin, flutter_floating_toolbar_test.py, covers the behaviour.
 
@@ -17,6 +18,7 @@ checkout ($REMOTE_WORKSPACE). No input is sent.
 """
 
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -46,7 +48,8 @@ def example_dir():
 def main():
     checks = Checks()
     log = tempfile.NamedTemporaryFile('w', suffix=f'.{NAME}.log', delete=False)
-    env = dict(os.environ, GDK_BACKEND='wayland')
+    # WAYLAND_DEBUG: the protocol trace is the only way to see what the compositor was told
+    env = dict(os.environ, GDK_BACKEND='wayland', WAYLAND_DEBUG='1')
     proc = subprocess.Popen([flutter_executable(example_dir())], stdout=log,
                             stderr=subprocess.STDOUT, env=env)
     probe = Probe(log.name)
@@ -82,6 +85,10 @@ def main():
                      'Toolbar attached to the main window' in output()
                      and 'setParentWindow failed' not in output())
         print('view sizes:', [tuple(round(s) for s in v.size) for v in views])
+        # GDK only announces a parent that is mapped already, and the toolbar is mapped
+        # first: core announces it again once the main window is up.
+        checks.check('the compositor was told the toolbar has a parent',
+                     re.search(r'xdg_toplevel@\d+\.set_parent\(xdg_toplevel@\d+\)', output()) is not None)
         toolbar = next((v for v in views if v.has('Stamp') and not v.has('Stamps: 0')), None)
         if toolbar is not None:
             # It was 328 x 12 while core un-decorated the window instead of hiding its
@@ -98,7 +105,8 @@ def main():
                 proc.wait(5)
             except subprocess.TimeoutExpired:
                 proc.kill()
-    lines = [line for line in output().splitlines() if 'floating_toolbar' in line or 'rror' in line]
+    lines = [line for line in output().splitlines()
+             if ('floating_toolbar' in line or 'rror' in line) and '@' not in line[:40]]
     print('app log:', *lines[:12], sep='\n  ')
     print(f'{checks.failures} failure(s)')
     return 1 if checks.failures else 0
