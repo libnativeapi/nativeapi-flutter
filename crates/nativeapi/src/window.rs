@@ -100,6 +100,8 @@ pub enum WindowEvent {
     Restored { window_id: WindowId },
     Moved { window_id: WindowId, new_position: Point },
     Resized { window_id: WindowId, new_size: Size },
+    Created { window_id: WindowId },
+    Closed { window_id: WindowId },
 }
 
 impl WindowEvent {
@@ -112,6 +114,8 @@ impl WindowEvent {
             cnativeapi::NATIVE_WINDOW_EVENT_TYPE_RESTORED => Self::Restored { window_id: raw.window_id },
             cnativeapi::NATIVE_WINDOW_EVENT_TYPE_MOVED => Self::Moved { window_id: raw.window_id, new_position: Point::from_raw(&raw.data.moved.new_position) },
             cnativeapi::NATIVE_WINDOW_EVENT_TYPE_RESIZED => Self::Resized { window_id: raw.window_id, new_size: Size::from_raw(&raw.data.resized.new_size) },
+            cnativeapi::NATIVE_WINDOW_EVENT_TYPE_CREATED => Self::Created { window_id: raw.window_id },
+            cnativeapi::NATIVE_WINDOW_EVENT_TYPE_CLOSED => Self::Closed { window_id: raw.window_id },
             _ => return None,
         })
     }
