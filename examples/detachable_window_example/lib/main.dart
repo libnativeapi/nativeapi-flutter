@@ -5,6 +5,7 @@ import 'dart:ui' show AppExitType;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:nativeapi/nativeapi.dart' as na;
 
@@ -12,6 +13,9 @@ import 'src/demo/panels.dart';
 import 'src/detachable/detachable.dart';
 
 void main() {
+  // The stable channel does not offer `flutter config --enable-windowing`,
+  // so turn the experimental windowing API on before the binding starts.
+  isWindowingEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runWidget(const DetachableWindowApp());
 }
@@ -22,13 +26,13 @@ final ThemeData _theme = ThemeData(
   visualDensity: VisualDensity.compact,
 );
 
-class _MainWindowDelegate with fw.WindowControllerDelegate {
+class _MainWindowDelegate with fw.RegularWindowControllerDelegate {
   _MainWindowDelegate(this.onCloseRequested);
 
-  final void Function(fw.WindowController controller) onCloseRequested;
+  final void Function(fw.RegularWindowController controller) onCloseRequested;
 
   @override
-  void onWindowCloseRequested(fw.WindowController controller) {
+  void onWindowCloseRequested(fw.RegularWindowController controller) {
     onCloseRequested(controller);
   }
 }
@@ -64,7 +68,7 @@ class _DetachableWindowAppState extends State<DetachableWindowApp> {
   ];
 
   HostWindow _createMainWindow(String name) {
-    final controller = fw.WindowController(
+    final controller = fw.RegularWindowController(
       size: _mainWindowSize,
       constraints: const BoxConstraints(minWidth: 720, minHeight: 480),
       title: 'nativeapi · Window $name',
@@ -105,7 +109,7 @@ class _DetachableWindowAppState extends State<DetachableWindowApp> {
 
   /// Closing a main window pops its panels out instead of losing them; the
   /// app ends with the last main window.
-  void _closeMainWindow(fw.WindowController controller) {
+  void _closeMainWindow(fw.RegularWindowController controller) {
     _controller.floatItemsInView(controller.rootView.viewId);
     _controller.unregisterHostWindow(controller);
     setState(() {

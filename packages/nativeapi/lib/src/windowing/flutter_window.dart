@@ -21,13 +21,19 @@ import '../window.dart';
 /// Returns null once the controller is destroyed, or on a platform whose
 /// controller does not expose a window handle.
 Window? nativeWindowOf(fw.BaseWindowController controller) {
-  if (controller.isDestroyed) return null;
-  final ffi.Pointer<ffi.Void> handle = switch (controller) {
-    final fw_macos.BaseWindowControllerMacOS c => c.windowHandle,
-    final fw_win32.BaseWindowControllerWin32 c => c.windowHandle,
-    final fw_linux.BaseWindowControllerLinux c => c.windowHandle,
-    _ => ffi.nullptr,
-  };
+  final ffi.Pointer<ffi.Void> handle;
+  try {
+    handle = switch (controller) {
+      final fw_macos.WindowControllerMacOS c => c.windowHandle,
+      final fw_win32.WindowControllerWin32 c => c.windowHandle,
+      final fw_linux.WindowControllerLinux c => c.windowHandle,
+      _ => ffi.nullptr,
+    };
+  } on StateError {
+    // The stable channel has no `isDestroyed`; a destroyed controller throws
+    // from `windowHandle` instead.
+    return null;
+  }
   if (handle == ffi.nullptr) return null;
   return Window.createWithNativeWindow(handle);
 }

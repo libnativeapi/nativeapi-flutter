@@ -12,7 +12,7 @@ workspace:
   - examples/launch_at_login_example
   - examples/display_example
   - examples/menu_example
-  # - examples/multiple_window_example
+  - examples/multiple_window_example
   - examples/storage_example
   - examples/tray_icon_example
   - examples/url_opener_example
@@ -39,12 +39,12 @@ melos:
     - "**/.dart_tool/**"
     - "**/.symlinks/**"
     - "**/Pods/**"
-    # These use Flutter's experimental multi-window API, which exists only on
-    # the main channel with `flutter config --enable-windowing`; CI runs
-    # stable.
+    # These use Flutter's experimental multi-window API as it is on the current
+    # stable channel (3.47); CI pins an older stable.
     - examples/browser_tabs_example
     - examples/detachable_window_example
     - examples/floating_toolbar_example
+    - examples/multiple_window_example
 
   command:
     bootstrap:

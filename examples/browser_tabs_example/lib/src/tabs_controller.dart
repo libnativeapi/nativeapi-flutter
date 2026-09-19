@@ -24,7 +24,7 @@ class BrowserTab {
 class BrowserWindow {
   BrowserWindow._(this.controller, this.tabs, this.activeTab);
 
-  final fw.WindowController controller;
+  final fw.RegularWindowController controller;
   final List<BrowserTab> tabs;
   BrowserTab activeTab;
   na.Window? nativeWindow;
@@ -128,7 +128,7 @@ class TabsController extends ChangeNotifier {
 
   BrowserWindow openWindow(List<BrowserTab> tabs, {Size? size}) {
     late final BrowserWindow window;
-    final controller = fw.WindowController(
+    final controller = fw.RegularWindowController(
       size: size ?? defaultWindowSize,
       constraints: const BoxConstraints(minWidth: 420, minHeight: 280),
       title: 'Browser',
@@ -433,13 +433,13 @@ class TabsController extends ChangeNotifier {
   }
 }
 
-class _WindowDelegate with fw.WindowControllerDelegate {
+class _WindowDelegate with fw.RegularWindowControllerDelegate {
   _WindowDelegate(this._onCloseRequested);
 
   final VoidCallback _onCloseRequested;
 
   @override
-  void onWindowCloseRequested(fw.WindowController controller) {
+  void onWindowCloseRequested(fw.RegularWindowController controller) {
     _onCloseRequested();
   }
 }

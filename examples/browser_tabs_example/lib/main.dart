@@ -4,6 +4,7 @@ import 'dart:ui' show AppExitType;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:nativeapi/nativeapi.dart' as na;
 
@@ -11,6 +12,9 @@ import 'src/browser_window.dart';
 import 'src/tabs_controller.dart';
 
 void main() {
+  // The stable channel does not offer `flutter config --enable-windowing`,
+  // so turn the experimental windowing API on before the binding starts.
+  isWindowingEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runWidget(const BrowserTabsApp());
 }
@@ -80,7 +84,7 @@ class _BrowserTabsAppState extends State<BrowserTabsApp> {
         builder: (context, _) => ViewCollection(
           views: [
             for (final window in _controller.windows)
-              fw.Window(
+              fw.RegularWindow(
                 key: ObjectKey(window.controller),
                 controller: window.controller,
                 child: MaterialApp(

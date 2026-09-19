@@ -92,19 +92,21 @@ class FloatingToolbarApp extends StatefulWidget {
 class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
   final _model = ToolbarModel();
 
-  late final fw.RegularWindowController _mainController = fw.RegularWindowController(
-    size: _mainWindowSize,
-    constraints: const BoxConstraints(minWidth: 480, minHeight: 360),
-    title: 'Floating toolbar',
-    delegate: _CloseDelegate(_closeEverything),
-  );
+  late final fw.RegularWindowController _mainController =
+      fw.RegularWindowController(
+        size: _mainWindowSize,
+        constraints: const BoxConstraints(minWidth: 480, minHeight: 360),
+        title: 'Floating toolbar',
+        delegate: _CloseDelegate(_closeEverything),
+      );
 
-  late final fw.RegularWindowController _toolbarController = fw.RegularWindowController(
-    size: _toolbarSize,
-    title: 'Toolbar',
-    // The toolbar has no close button; closing the main window closes it.
-    delegate: _CloseDelegate(() {}),
-  );
+  late final fw.RegularWindowController _toolbarController =
+      fw.RegularWindowController(
+        size: _toolbarSize,
+        title: 'Toolbar',
+        // The toolbar has no close button; closing the main window closes it.
+        delegate: _CloseDelegate(() {}),
+      );
 
   na.Window? get _main => _mainController.nativeWindow;
   na.Window? get _toolbar => _toolbarController.nativeWindow;

@@ -8,17 +8,21 @@ survives every move.
 
 ## Running
 
-Flutter's multi-window API is experimental: it needs the **main** channel and
-the windowing feature flag.
+Flutter's multi-window API is experimental. This example is written against the
+**stable** channel (checked with Flutter 3.47.5). Stable does not offer
+`flutter config --enable-windowing`, so `main()` turns the API on itself by setting
+Flutter's internal `isWindowingEnabled` before the binding starts. The main channel
+has since renamed parts of this API (`RegularWindowController` became
+`WindowController`, `RegularWindow` became `Window`), so the example does not compile
+there.
 
 ```bash
-flutter channel main
-flutter config --enable-windowing
+flutter channel stable && flutter upgrade
 flutter run -d macos   # or windows, linux
 ```
 
-This example is excluded from the repository's melos scripts because CI runs
-the stable channel.
+This example is excluded from the repository's melos scripts because CI pins an
+older stable release.
 
 ## Using it
 

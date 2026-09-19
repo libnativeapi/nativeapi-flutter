@@ -1,10 +1,14 @@
 // ignore_for_file: invalid_use_of_internal_member, implementation_imports
 
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' hide WindowManager;
 import 'package:nativeapi/nativeapi.dart';
 
 void main() {
+  // The stable channel does not offer `flutter config --enable-windowing`,
+  // so turn the experimental windowing API on before the binding starts.
+  isWindowingEnabled = true;
   Display? primaryDisplay = DisplayManager.instance.getPrimary();
   WindowManager.instance.setWillShowHook((windowId) {
     Window? window = WindowManager.instance.get(windowId);
@@ -24,6 +28,8 @@ void main() {
           break;
       }
     }
+    // A will-show hook replaces the show: nothing appears until it says so.
+    WindowManager.instance.callOriginalShow(windowId);
   });
   WindowManager.instance.setWillHideHook((windowId) {
     print('[Dart] will hide hook $windowId');
