@@ -65,10 +65,7 @@ try {
   $inside = Get-ScreenColor ($w.Bar.ClientX + 3) ($w.Bar.ClientY + 3)
   $outside = Get-ScreenColor ($w.Bar.ClientX - 12) ($w.Bar.ClientY + 3)
   $diff = (0..2 | % { [math]::Abs($inside[$_] - $outside[$_]) } | Measure-Object -Maximum).Maximum
-  # KNOWN GAP (2026-09-19): core's Windows SetBackgroundColor ignores alpha, the corner is
-  # opaque black. Reported, not counted, until core makes a translucent window see-through.
-  if ($diff -le 24) { Check "the toolbar window is see-through around the pill" $true }
-  else { Say "KNOWN GAP the toolbar window is not see-through around the pill - corner $($inside -join ','), just outside $($outside -join ',')" }
+  Check "the toolbar window is see-through around the pill" ($diff -le 24) "corner $($inside -join ','), just outside $($outside -join ',')"
 
   # Moved and resized by the system, no input involved.
   [WInput]::Move($w.Main.Hwnd, 300, 360); Pause 1.0
