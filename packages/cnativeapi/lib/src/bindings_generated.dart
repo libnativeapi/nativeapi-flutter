@@ -6383,16 +6383,14 @@ typedef native_listener_id_t = ffi.Uint64;
 typedef Dartnative_listener_id_t = int;
 typedef native_menu_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_menu_event_callback_tFunction>>;
-typedef native_menu_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_menu_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_menu_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_menu_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_menu_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_menu_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_menu_event_callback_tFunction = void Function(
+  ffi.Pointer<native_menu_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 enum native_brightness_t {
   NATIVE_BRIGHTNESS_SYSTEM(0),
@@ -6458,16 +6456,14 @@ typedef native_application_event_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<native_application_event_callback_tFunction>
     >;
-typedef native_application_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_application_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_application_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_application_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_application_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_application_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_application_event_callback_tFunction = void Function(
+  ffi.Pointer<native_application_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 enum native_dialog_modality_t {
   NATIVE_DIALOG_MODALITY_NONE(0),
@@ -6559,16 +6555,14 @@ typedef native_display_id_t = ffi.UnsignedInt;
 typedef Dartnative_display_id_t = int;
 typedef native_display_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_display_event_callback_tFunction>>;
-typedef native_display_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_display_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_display_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_display_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_display_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_display_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_display_event_callback_tFunction = void Function(
+  ffi.Pointer<native_display_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 /// An owning list of strings.
 ///
@@ -6666,16 +6660,14 @@ typedef native_drag_source_event_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<native_drag_source_event_callback_tFunction>
     >;
-typedef native_drag_source_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_drag_source_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_drag_source_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_drag_source_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_drag_source_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_drag_source_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_drag_source_event_callback_tFunction = void Function(
+  ffi.Pointer<native_drag_source_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 /// Which concrete DropTargetEvent arrived.
 enum native_drop_target_event_type_t {
@@ -6737,16 +6729,14 @@ typedef native_drop_target_event_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<native_drop_target_event_callback_tFunction>
     >;
-typedef native_drop_target_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_drop_target_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_drop_target_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_drop_target_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_drop_target_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_drop_target_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_drop_target_event_callback_tFunction = void Function(
+  ffi.Pointer<native_drop_target_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 enum native_file_dialog_mode_t {
   NATIVE_FILE_DIALOG_MODE_OPEN_FILE(0),
@@ -6807,16 +6797,14 @@ typedef native_keyboard_monitor_t = ffi.Uint64;
 typedef Dartnative_keyboard_monitor_t = int;
 typedef native_keyboard_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_keyboard_event_callback_tFunction>>;
-typedef native_keyboard_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_keyboard_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_keyboard_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_keyboard_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_keyboard_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_keyboard_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_keyboard_event_callback_tFunction = void Function(
+  ffi.Pointer<native_keyboard_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 /// Opaque LaunchAtLogin handle.
 ///
@@ -6895,16 +6883,14 @@ typedef native_notification_event_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<native_notification_event_callback_tFunction>
     >;
-typedef native_notification_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_notification_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_notification_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_notification_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_notification_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_notification_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_notification_event_callback_tFunction = void Function(
+  ffi.Pointer<native_notification_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 /// Opaque Preferences handle.
 ///
@@ -6958,10 +6944,12 @@ final class native_shortcut_options_t extends ffi.Struct {
 
 typedef native_shortcut_options_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_shortcut_options_callback_tFunction>>;
-typedef native_shortcut_options_callback_tFunction =
-    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
-typedef Dartnative_shortcut_options_callback_tFunction =
-    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef native_shortcut_options_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_options_callback_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 /// Owning list of Shortcut handles.
 final class native_shortcut_list_t extends ffi.Struct {
@@ -7040,30 +7028,32 @@ typedef Dartnative_shortcut_create_with_id_and_accelerator_and_callback_tFunctio
     void Function(ffi.Pointer<ffi.Void> user_data);
 typedef native_shortcut_set_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_shortcut_set_callback_tFunction>>;
-typedef native_shortcut_set_callback_tFunction =
-    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
-typedef Dartnative_shortcut_set_callback_tFunction =
-    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef native_shortcut_set_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_set_callback_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
 typedef native_shortcut_manager_register_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<native_shortcut_manager_register_callback_tFunction>
     >;
-typedef native_shortcut_manager_register_callback_tFunction =
-    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
-typedef Dartnative_shortcut_manager_register_callback_tFunction =
-    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef native_shortcut_manager_register_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_manager_register_callback_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
 typedef native_shortcut_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_shortcut_event_callback_tFunction>>;
-typedef native_shortcut_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_shortcut_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_shortcut_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_shortcut_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_shortcut_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_shortcut_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_event_callback_tFunction = void Function(
+  ffi.Pointer<native_shortcut_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 enum native_context_menu_trigger_t {
   NATIVE_CONTEXT_MENU_TRIGGER_NONE(0),
@@ -7176,16 +7166,14 @@ final class UnnamedStruct16 extends ffi.Struct {
 
 typedef native_tray_icon_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_tray_icon_event_callback_tFunction>>;
-typedef native_tray_icon_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_tray_icon_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_tray_icon_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_tray_icon_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_tray_icon_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_tray_icon_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_tray_icon_event_callback_tFunction = void Function(
+  ffi.Pointer<native_tray_icon_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 enum native_url_open_error_code_t {
   NATIVE_URL_OPEN_ERROR_CODE_NONE(0),
@@ -7267,16 +7255,14 @@ typedef native_window_drag_event_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<native_window_drag_event_callback_tFunction>
     >;
-typedef native_window_drag_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_window_drag_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_window_drag_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_window_drag_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_window_drag_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_window_drag_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_window_drag_event_callback_tFunction = void Function(
+  ffi.Pointer<native_window_drag_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 typedef native_window_manager_set_will_show_hook_callback_t =
     ffi.Pointer<
       ffi.NativeFunction<
@@ -7299,16 +7285,14 @@ typedef Dartnative_window_manager_set_will_hide_hook_callback_tFunction =
     void Function(int arg0, ffi.Pointer<ffi.Void> user_data);
 typedef native_window_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_window_event_callback_tFunction>>;
-typedef native_window_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_window_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_window_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_window_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_window_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_window_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_window_event_callback_tFunction = void Function(
+  ffi.Pointer<native_window_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
 const int NATIVE_INVALID_LISTENER_ID = 0;
 

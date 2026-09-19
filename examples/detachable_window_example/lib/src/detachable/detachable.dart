@@ -4,4 +4,5 @@ library;
 
 export 'detach_controller.dart';
 export 'detachable_widgets.dart';
+
 export 'package:nativeapi/windowing.dart';

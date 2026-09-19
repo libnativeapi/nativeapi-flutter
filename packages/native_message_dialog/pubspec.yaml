@@ -5,8 +5,8 @@ homepage: https://github.com/libnativeapi/nativeapi-flutter
 resolution: workspace
 
 environment:
-  sdk: ^3.5.0
-  flutter: ">=1.17.0"
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:

@@ -184,9 +184,8 @@ class _DetachHandleState extends State<DetachHandle> {
 
   void _handlePanStart(DragStartDetails details) {
     final pointer = _pointer;
-    final started = DetachScope.read(
-      context,
-    ).beginDrag(widget.itemId, details.globalPosition);
+    final started = DetachScope.read(context)
+        .beginDrag(widget.itemId, details.globalPosition);
     if (started && pointer != null) {
       // The native session owns the gesture from here on. The content (and
       // with it this recognizer) is about to move to another window, and the

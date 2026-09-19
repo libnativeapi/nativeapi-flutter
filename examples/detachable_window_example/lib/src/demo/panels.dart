@@ -79,9 +79,8 @@ class PanelFrame extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
             child: Text(
               stateLabel,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: colors.outline),
+              style: Theme.of(context).textTheme.labelSmall
+                  ?.copyWith(color: colors.outline),
             ),
           ),
           Expanded(child: child),

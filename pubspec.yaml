@@ -1,7 +1,7 @@
 name: nativeapi_flutter
 publish_to: none
 environment:
-  sdk: ^3.9.0
+  sdk: ^3.13.0
 
 workspace:
   - examples/browser_tabs_example
@@ -39,12 +39,6 @@ melos:
     - "**/.dart_tool/**"
     - "**/.symlinks/**"
     - "**/Pods/**"
-    # These use Flutter's experimental multi-window API as it is on the current
-    # stable channel (3.47); CI pins an older stable.
-    - examples/browser_tabs_example
-    - examples/detachable_window_example
-    - examples/floating_toolbar_example
-    - examples/multiple_window_example
 
   command:
     bootstrap:

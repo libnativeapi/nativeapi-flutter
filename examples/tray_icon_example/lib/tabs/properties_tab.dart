@@ -6,8 +6,11 @@ import '../widgets/option_chip.dart';
 import '../widgets/palette.dart';
 
 /// Asks the shell to show its text editor.
-typedef EditText =
-    void Function(String title, String initial, ValueChanged<String> onSubmit);
+typedef EditText = void Function(
+  String title,
+  String initial,
+  ValueChanged<String> onSubmit,
+);
 
 /// One row per TrayIcon API. The block on top never shows what was written —
 /// it shows what the native getters return afterwards.

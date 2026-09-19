@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:nativeapi/nativeapi.dart';
+
 import 'animated_icon_generator.dart';
 
 void main() {

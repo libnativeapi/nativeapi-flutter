@@ -22,7 +22,11 @@ jobs:
       - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260
 
       # Download Flutter SDK - needed for publishing Flutter packages.
+      # Same version as CI, so a dry run here matches what CI analyzed.
       - uses: flutter-actions/setup-flutter@18c66a64fb6f6d3338c63cabbc5cd6da395e7f1d
+        with:
+          channel: stable
+          version: 3.47.5
 
       # Publish cnativeapi
       - name: Install dependencies (cnativeapi)
