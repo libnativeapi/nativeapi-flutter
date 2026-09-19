@@ -1,3 +1,17 @@
+## 0.2.6
+
+* Update the embedded core and regenerate the C bindings.
+* Add `native_tray_icon_set_icon_template` / `_is_icon_template`, `_set_icon_size` /
+  `_get_icon_size`, `_set_icon_position` / `_get_icon_position` and
+  `native_tray_icon_position_t`. macOS no longer forces tray icons to be template images.
+* Add `native_window_set_parent_window` / `native_window_get_parent_window`, and the
+  `NATIVE_WINDOW_EVENT_TYPE_CREATED` / `_CLOSED` window events.
+* macOS: a window background color with alpha makes the window non-opaque.
+* Windows: tray icons are added again when Explorer restarts; menu item clicks are emitted
+  before the popup call returns, and its result says whether the menu was shown.
+* Linux: one D-Bus connection per tray icon; window geometry measured by frame and content.
+* Fix window handlers being called for menus that were already destroyed.
+
 ## 0.2.5
 
 * Update the embedded core and regenerate the C bindings.

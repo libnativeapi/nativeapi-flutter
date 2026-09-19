@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.6
 
 * Add `package:nativeapi/windowing.dart`: `controller.nativeWindow` / `nativeWindowOf()`
   turn a window created with Flutter's experimental multi-window API into a nativeapi
@@ -26,6 +26,14 @@
   draws the image at its own size. The `Image` given to `icon` is no longer modified.
   Windows and Linux record the three values without using them.
 * Windows: tray icons come back after Explorer restarts instead of disappearing for good.
+* Linux: every tray icon gets its own D-Bus connection, so a second icon in the same
+  process appears instead of failing to register, and a disposed icon leaves the panel
+  at once.
+* Linux: window size and position are measured by the frame and the content instead of
+  the `GdkWindow`.
+* Windows: a menu item's click event is emitted before `Menu.open` returns, and `open`
+  reports failure from whether the menu was actually shown.
+* Fix a crash when a window message arrived for a menu that had already been destroyed.
 
 ## 0.2.5
 
