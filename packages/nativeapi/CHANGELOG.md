@@ -26,6 +26,9 @@
 * Linux: `Window.titleBarStyle = hidden` on a window that is not shown yet no longer
   leaves its content 52 px short in both directions on Wayland (it now hides GTK's own
   header bar instead of un-decorating the window).
+* Linux: a `Window.backgroundColor` with alpha makes a Flutter window see-through there
+  too (the Flutter view's black backing takes the color), and `Window.setParentWindow`
+  now reaches a Wayland compositor when the child happens to be shown before its parent.
 * Add `floating_toolbar_example`: a transparent, frameless Flutter window attached to the
   main window, from Dart alone.
 * Add `TrayIcon.isIconTemplate`, `iconSize` and `iconPosition` (with `TrayIconPosition`).
