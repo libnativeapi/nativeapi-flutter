@@ -17,7 +17,7 @@ cargo add nativeapi
 Building requires CMake and a C++17 compiler (the core library is compiled by `build.rs`). On Linux, also install:
 
 ```bash
-sudo apt install libgtk-3-dev libx11-dev libxi-dev libayatana-appindicator3-dev
+sudo apt install libgtk-3-dev libx11-dev libxi-dev
 ```
 
 The crate is split into `nativeapi` (safe API) and `cnativeapi` (raw FFI).
