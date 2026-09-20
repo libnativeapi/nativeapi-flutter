@@ -68,9 +68,11 @@ changes for a tab, because its `State` is never recreated.
 
 ## Platform notes
 
-- The strip replaces the title bar (`Window.titleBarStyle = hidden`). On macOS
-  the traffic lights stay, so the strip leaves room for them; elsewhere the
-  strip has its own close button.
+- The strip replaces the title bar. On macOS that is
+  `setContentUnderTitleBar(true)`: the traffic lights stay on a transparent
+  bar and the strip leaves room for them. Elsewhere that call returns false and
+  the strip falls back to `titleBarStyle = hidden`, which takes the window
+  buttons with it, so the strip carries its own close button.
 - With a hidden title bar the content owns the title bar area: nativeapi keeps
   macOS from moving the window for drags there (it otherwise would, even over
   the Flutter content), so the strip moves windows itself.

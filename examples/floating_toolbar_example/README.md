@@ -39,8 +39,8 @@ flutter run -d macos   # or windows, linux
    `ViewCollection`.
 2. `controller.nativeWindow` (`package:nativeapi/windowing.dart`) turns each controller
    into a nativeapi `Window`.
-3. The toolbar window is dressed from Dart: `titleBarStyle = hidden`,
-   `isWindowControlButtonsVisible = false`, `backgroundColor = transparent`,
+3. The toolbar window is dressed from Dart: `titleBarStyle = hidden` (which
+   takes the window buttons with it), `backgroundColor = transparent`,
    `hasShadow = false`, `isResizable = false`, `isMovable = false`,
    `isVisibleInTaskbar = false`. The widget tree above it paints nothing opaque
    (`MaterialApp.color` and `Scaffold.backgroundColor` are transparent).

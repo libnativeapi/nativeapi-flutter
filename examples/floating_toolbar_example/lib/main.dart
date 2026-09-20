@@ -132,7 +132,6 @@ class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
     if (toolbar != null) {
       // Everything that makes a window a floating toolbar, from Dart.
       toolbar.titleBarStyle = na.TitleBarStyle.hidden;
-      toolbar.isWindowControlButtonsVisible = false;
       toolbar.backgroundColor = const Color(0x00000000);
       toolbar.hasShadow = false;
       toolbar.isResizable = false;

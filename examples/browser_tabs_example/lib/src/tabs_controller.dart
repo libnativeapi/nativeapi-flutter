@@ -137,13 +137,19 @@ class TabsController extends ChangeNotifier {
     );
     window = BrowserWindow._(controller, tabs, tabs.first);
     final native = nativeWindowOf(controller);
-    // Put the tab strip where the title bar would be. With a hidden title bar
-    // the content owns that area, so the strip moves the window itself
-    // (`beginWindowDrag`).
-    native?.titleBarStyle = na.TitleBarStyle.hidden;
-    // Hiding the title bar keeps the frame, so the content just grew into the
-    // title bar area; give it back the requested size.
-    native?.contentSize = size ?? defaultWindowSize;
+    // Put the tab strip where the title bar would be; either way the content owns
+    // that area, so the strip moves the window itself (`beginWindowDrag`).
+    // On macOS the traffic lights stay and the strip leaves room for them, which
+    // is a title bar the content has taken in; elsewhere the strip carries its own
+    // close button and the title bar goes away with its buttons.
+    if (native != null) {
+      if (!native.setContentUnderTitleBar(true)) {
+        native.titleBarStyle = na.TitleBarStyle.hidden;
+      }
+      // Either way the frame is kept, so the content just grew into the title
+      // bar area; give it back the requested size.
+      native.contentSize = size ?? defaultWindowSize;
+    }
     window.nativeWindow = native;
     windows.add(window);
     notifyListeners();

@@ -1094,6 +1094,48 @@ class CNativeApiBindings {
   late final _native_window_get_title_bar_style =
       _native_window_get_title_bar_stylePtr.asFunction<int Function(int)>();
 
+  bool native_window_set_content_under_title_bar(
+    int window,
+    bool is_content_under_title_bar,
+  ) {
+    return _native_window_set_content_under_title_bar(
+      window,
+      is_content_under_title_bar,
+    );
+  }
+
+  late final _native_window_set_content_under_title_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_content_under_title_bar',
+      );
+  late final _native_window_set_content_under_title_bar =
+      _native_window_set_content_under_title_barPtr
+          .asFunction<bool Function(int, bool)>();
+
+  bool native_window_is_content_under_title_bar(int window) {
+    return _native_window_is_content_under_title_bar(window);
+  }
+
+  late final _native_window_is_content_under_title_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_content_under_title_bar',
+      );
+  late final _native_window_is_content_under_title_bar =
+      _native_window_is_content_under_title_barPtr
+          .asFunction<bool Function(int)>();
+
+  bool native_window_is_content_under_title_bar_supported() {
+    return _native_window_is_content_under_title_bar_supported();
+  }
+
+  late final _native_window_is_content_under_title_bar_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_is_content_under_title_bar_supported',
+      );
+  late final _native_window_is_content_under_title_bar_supported =
+      _native_window_is_content_under_title_bar_supportedPtr
+          .asFunction<bool Function()>();
+
   void native_window_set_has_shadow(int window, bool has_shadow) {
     return _native_window_set_has_shadow(window, has_shadow);
   }
@@ -1138,7 +1180,7 @@ class CNativeApiBindings {
   late final _native_window_get_opacity = _native_window_get_opacityPtr
       .asFunction<double Function(int)>();
 
-  void native_window_set_visual_effect(
+  bool native_window_set_visual_effect(
     Dartnative_window_t window,
     native_visual_effect_t effect,
   ) {
@@ -1147,10 +1189,10 @@ class CNativeApiBindings {
 
   late final _native_window_set_visual_effectPtr =
       _lookup<
-        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.UnsignedInt)>
+        ffi.NativeFunction<ffi.Bool Function(native_window_t, ffi.UnsignedInt)>
       >('native_window_set_visual_effect');
   late final _native_window_set_visual_effect =
-      _native_window_set_visual_effectPtr.asFunction<void Function(int, int)>();
+      _native_window_set_visual_effectPtr.asFunction<bool Function(int, int)>();
 
   native_visual_effect_t native_window_get_visual_effect(
     Dartnative_window_t window,
@@ -1166,6 +1208,18 @@ class CNativeApiBindings {
       );
   late final _native_window_get_visual_effect =
       _native_window_get_visual_effectPtr.asFunction<int Function(int)>();
+
+  bool native_window_is_visual_effect_supported(native_visual_effect_t effect) {
+    return _native_window_is_visual_effect_supported(effect.value);
+  }
+
+  late final _native_window_is_visual_effect_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.UnsignedInt)>>(
+        'native_window_is_visual_effect_supported',
+      );
+  late final _native_window_is_visual_effect_supported =
+      _native_window_is_visual_effect_supportedPtr
+          .asFunction<bool Function(int)>();
 
   void native_window_set_background_color(int window, native_color_t color) {
     return _native_window_set_background_color(window, color);
@@ -6072,7 +6126,11 @@ enum native_visual_effect_t {
   NATIVE_VISUAL_EFFECT_NONE(0),
   NATIVE_VISUAL_EFFECT_BLUR(1),
   NATIVE_VISUAL_EFFECT_ACRYLIC(2),
-  NATIVE_VISUAL_EFFECT_MICA(3);
+  NATIVE_VISUAL_EFFECT_MICA(3),
+  NATIVE_VISUAL_EFFECT_MICA_ALT(4),
+  NATIVE_VISUAL_EFFECT_HUD(5),
+  NATIVE_VISUAL_EFFECT_POPOVER(6),
+  NATIVE_VISUAL_EFFECT_MENU(7);
 
   final int value;
   const native_visual_effect_t(this.value);
@@ -6082,6 +6140,10 @@ enum native_visual_effect_t {
     1 => NATIVE_VISUAL_EFFECT_BLUR,
     2 => NATIVE_VISUAL_EFFECT_ACRYLIC,
     3 => NATIVE_VISUAL_EFFECT_MICA,
+    4 => NATIVE_VISUAL_EFFECT_MICA_ALT,
+    5 => NATIVE_VISUAL_EFFECT_HUD,
+    6 => NATIVE_VISUAL_EFFECT_POPOVER,
+    7 => NATIVE_VISUAL_EFFECT_MENU,
     _ => throw ArgumentError(
       "Unknown value for native_visual_effect_t: $value",
     ),

@@ -1,5 +1,15 @@
 ## 0.3.1
 
+* `native_window_set_content_under_title_bar`,
+  `native_window_is_content_under_title_bar` and
+  `native_window_is_content_under_title_bar_supported` are new, and
+  `NATIVE_TITLE_BAR_STYLE_HIDDEN` now hides the window control buttons on macOS too.
+  See the `nativeapi` changelog.
+* `native_window_set_visual_effect` returns whether the effect is in force;
+  `native_window_is_visual_effect_supported` is new, and so are the effects `MICA_ALT`,
+  `HUD`, `POPOVER` and `MENU`. The effect is read from the native window, shows in a
+  Flutter window on macOS, and on Windows Blur is a plain blur-behind that works on
+  Windows 10. See the `nativeapi` changelog.
 * `LaunchAtLogin` on Windows: an app running from an MSIX package gets a shortcut in the
   user's Startup folder, because the `Run` registry key an MSIX container writes is
   virtualized and never read. `IsEnabled()` also reads Explorer's `StartupApproved\Run`

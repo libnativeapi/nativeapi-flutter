@@ -16,8 +16,10 @@ workspace:
   - examples/storage_example
   - examples/tray_icon_example
   - examples/url_opener_example
+  - examples/visual_effect_example
   - examples/window_drag_areas_example
   - examples/window_example
+  - examples/window_title_bar_example
   - packages/cnativeapi
   - packages/cnativeapi/example
   - packages/native_message_dialog

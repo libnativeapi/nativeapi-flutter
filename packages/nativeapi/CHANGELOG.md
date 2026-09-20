@@ -1,5 +1,40 @@
 ## 0.3.1
 
+* **Breaking:** `TitleBarStyle.hidden` now means the same thing on every platform — no
+  title bar and no window control buttons. On macOS it used to leave the traffic lights
+  on a transparent bar, which Windows and Linux never did. A window that wants them back
+  sets `isWindowControlButtonsVisible = true` after the style, and one that wanted the
+  transparent bar all along wants the new call below.
+* `Window.setContentUnderTitleBar(bool)` takes the title bar into the content area:
+  it becomes a transparent overlay, the window buttons stay on it, and a background
+  colour or visual effect runs unbroken to the top edge. It returns whether the platform
+  can do it, and `Window.isContentUnderTitleBarSupported()` answers beforehand —
+  macOS only. On Windows the client area can be given the caption band, but the caption
+  buttons stop hit-testing once it is client area; on Linux a GTK header bar is a sibling
+  above the content, not an overlay over it.
+* `Window.titleBarStyle` no longer forces the window control buttons visible on macOS as
+  a side effect; it sets them to what the style implies, which a following
+  `isWindowControlButtonsVisible` overrides.
+* **Breaking:** the `Window.visualEffect` setter is now `bool setVisualEffect(effect)`: it
+  returns whether the effect is in force, and `Window.isVisualEffectSupported(effect)`
+  answers beforehand. The getter stays, and now reports the effect the native window
+  really has - `none` on Linux, where there are no visual effects, and after a refused
+  call - instead of the last value that was set.
+* A visual effect shows in a Flutter window. On macOS the effect view used to end up
+  either over the Flutter content or behind its opaque black backing; the backing is now
+  clear while an effect is active and comes back with `VisualEffect.none`. The window's
+  `backgroundColor` is kept (and no longer reset on macOS) but not shown meanwhile. What
+  Flutter paints is the app's business: use a transparent scaffold, or no `MaterialApp`
+  at all as the new `visual_effect_example` does.
+* Windows: every effect now works on Windows 10 as well, where it is a blur-behind
+  kind — before, all of them needed Windows 11 22H2 and did nothing at all below it.
+  On Windows 11 22H2 and later every effect is a system backdrop, which covers the
+  title bar too; a blur-behind reaches the client area only, so on Windows 10
+  `blur` stops at the title bar.
+* New effects `micaAlt` (Windows 11 Mica Alt), `hud`, `popover` and `menu` (macOS
+  materials; Acrylic on Windows).
+* Windows: `Window.backgroundColor` of a window created with `Window.create()` no longer
+  changes every other such window with it.
 * `LaunchAtLogin` on Windows: an app running from an MSIX package gets a shortcut in the
   user's Startup folder, because the `Run` registry key an MSIX container writes is
   virtualized and never read. `IsEnabled()` also reads Explorer's `StartupApproved\Run`

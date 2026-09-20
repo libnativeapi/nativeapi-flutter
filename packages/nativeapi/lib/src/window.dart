@@ -37,7 +37,11 @@ enum VisualEffect {
   none(0),
   blur(1),
   acrylic(2),
-  mica(3);
+  mica(3),
+  micaAlt(4),
+  hud(5),
+  popover(6),
+  menu(7);
 
   const VisualEffect(this.value);
   final int value;
@@ -47,6 +51,10 @@ enum VisualEffect {
     1 => VisualEffect.blur,
     2 => VisualEffect.acrylic,
     3 => VisualEffect.mica,
+    4 => VisualEffect.micaAlt,
+    5 => VisualEffect.hud,
+    6 => VisualEffect.popover,
+    7 => VisualEffect.menu,
     _ => VisualEffect.none,
   };
 
@@ -563,6 +571,21 @@ class Window {
     return TitleBarStyle.fromValue(raw.value);
   }
 
+  bool setContentUnderTitleBar(bool isContentUnderTitleBar) {
+    return _bindings.native_window_set_content_under_title_bar(
+      nativeHandle,
+      isContentUnderTitleBar,
+    );
+  }
+
+  bool get isContentUnderTitleBar {
+    return _bindings.native_window_is_content_under_title_bar(nativeHandle);
+  }
+
+  static bool isContentUnderTitleBarSupported() {
+    return _bindings.native_window_is_content_under_title_bar_supported();
+  }
+
   set hasShadow(bool value) {
     _bindings.native_window_set_has_shadow(nativeHandle, value);
   }
@@ -579,13 +602,17 @@ class Window {
     return _bindings.native_window_get_opacity(nativeHandle);
   }
 
-  set visualEffect(VisualEffect value) {
-    _bindings.native_window_set_visual_effect(nativeHandle, value.raw);
+  bool setVisualEffect(VisualEffect effect) {
+    return _bindings.native_window_set_visual_effect(nativeHandle, effect.raw);
   }
 
   VisualEffect get visualEffect {
     final raw = _bindings.native_window_get_visual_effect(nativeHandle);
     return VisualEffect.fromValue(raw.value);
+  }
+
+  static bool isVisualEffectSupported(VisualEffect effect) {
+    return _bindings.native_window_is_visual_effect_supported(effect.raw);
   }
 
   set backgroundColor(Color value) {

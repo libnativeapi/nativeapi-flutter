@@ -52,7 +52,6 @@ class _DragAreasPageState extends State<DragAreasPage> {
     if (window == null) return;
     window.title = 'nativeapi · Drag areas';
     window.titleBarStyle = TitleBarStyle.hidden;
-    window.isWindowControlButtonsVisible = false;
     window.minimumSize = const Size(480, 320);
     window.contentSize = const Size(720, 480);
     window.center();

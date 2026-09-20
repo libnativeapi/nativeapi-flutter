@@ -1022,6 +1022,22 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               },
             ),
             _actionBtn(
+              window.isContentUnderTitleBar
+                  ? 'Give Back Title Bar'
+                  : 'Extend Into Title Bar',
+              Icons.vertical_align_top,
+              () {
+                final applied = window.setContentUnderTitleBar(
+                  !window.isContentUnderTitleBar,
+                );
+                _showFeedback(
+                  applied
+                      ? 'Content ${window.isContentUnderTitleBar ? 'extends into' : 'stops at'} the title bar'
+                      : 'Extending into the title bar is not available here',
+                );
+              },
+            ),
+            _actionBtn(
               window.hasShadow ? 'Remove Shadow' : 'Add Shadow',
               Icons.blur_on,
               () {
@@ -1061,8 +1077,12 @@ class _WindowManagerPageState extends State<WindowManagerPage>
                     ? Icons.water_drop
                     : Icons.dark_mode,
                 () {
-                  window.visualEffect = effect;
-                  _showFeedback('Visual effect: $label');
+                  final applied = window.setVisualEffect(effect);
+                  _showFeedback(
+                    applied
+                        ? 'Visual effect: $label'
+                        : 'Visual effect $label is not available here',
+                  );
                 },
                 color: window.visualEffect == effect
                     ? theme.colorScheme.primary
