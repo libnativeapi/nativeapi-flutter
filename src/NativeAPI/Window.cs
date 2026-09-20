@@ -21,6 +21,10 @@ public enum VisualEffect
     Blur = 1,
     Acrylic = 2,
     Mica = 3,
+    MicaAlt = 4,
+    Hud = 5,
+    Popover = 6,
+    Menu = 7,
 }
 
 public enum ResizeEdge
@@ -536,6 +540,27 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public bool SetContentUnderTitleBar(bool isContentUnderTitleBar)
+    {
+        var rawResult = Interop.native_window_set_content_under_title_bar(NativeHandle, isContentUnderTitleBar);
+        return rawResult;
+    }
+
+    public bool IsContentUnderTitleBar
+    {
+        get
+        {
+            var rawResult = Interop.native_window_is_content_under_title_bar(NativeHandle);
+            return rawResult;
+        }
+    }
+
+    public static bool IsContentUnderTitleBarSupported()
+    {
+        var rawResult = Interop.native_window_is_content_under_title_bar_supported();
+        return rawResult;
+    }
+
     public void SetHasShadow(bool hasShadow)
     {
         Interop.native_window_set_has_shadow(NativeHandle, hasShadow);
@@ -564,9 +589,10 @@ public sealed partial class Window : IDisposable
         }
     }
 
-    public void SetVisualEffect(VisualEffect effect)
+    public bool SetVisualEffect(VisualEffect effect)
     {
-        Interop.native_window_set_visual_effect(NativeHandle, (int)effect);
+        var rawResult = Interop.native_window_set_visual_effect(NativeHandle, (int)effect);
+        return rawResult;
     }
 
     public VisualEffect VisualEffect
@@ -576,6 +602,12 @@ public sealed partial class Window : IDisposable
             var rawResult = Interop.native_window_get_visual_effect(NativeHandle);
             return (VisualEffect)rawResult;
         }
+    }
+
+    public static bool IsVisualEffectSupported(VisualEffect effect)
+    {
+        var rawResult = Interop.native_window_is_visual_effect_supported((int)effect);
+        return rawResult;
     }
 
     public void SetBackgroundColor(Color color)
