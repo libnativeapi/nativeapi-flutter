@@ -243,6 +243,10 @@ pub const NATIVE_VISUAL_EFFECT_NONE: native_visual_effect_t = 0;
 pub const NATIVE_VISUAL_EFFECT_BLUR: native_visual_effect_t = 1;
 pub const NATIVE_VISUAL_EFFECT_ACRYLIC: native_visual_effect_t = 2;
 pub const NATIVE_VISUAL_EFFECT_MICA: native_visual_effect_t = 3;
+pub const NATIVE_VISUAL_EFFECT_MICA_ALT: native_visual_effect_t = 4;
+pub const NATIVE_VISUAL_EFFECT_HUD: native_visual_effect_t = 5;
+pub const NATIVE_VISUAL_EFFECT_POPOVER: native_visual_effect_t = 6;
+pub const NATIVE_VISUAL_EFFECT_MENU: native_visual_effect_t = 7;
 pub type native_visual_effect_t = ::std::os::raw::c_uint;
 pub const NATIVE_RESIZE_EDGE_TOP: native_resize_edge_t = 0;
 pub const NATIVE_RESIZE_EDGE_LEFT: native_resize_edge_t = 1;
@@ -539,6 +543,18 @@ unsafe extern "C" {
     pub fn native_window_get_title_bar_style(window: native_window_t) -> native_title_bar_style_t;
 }
 unsafe extern "C" {
+    pub fn native_window_set_content_under_title_bar(
+        window: native_window_t,
+        is_content_under_title_bar: bool,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_is_content_under_title_bar(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_is_content_under_title_bar_supported() -> bool;
+}
+unsafe extern "C" {
     pub fn native_window_set_has_shadow(window: native_window_t, has_shadow: bool);
 }
 unsafe extern "C" {
@@ -551,10 +567,16 @@ unsafe extern "C" {
     pub fn native_window_get_opacity(window: native_window_t) -> f32;
 }
 unsafe extern "C" {
-    pub fn native_window_set_visual_effect(window: native_window_t, effect: native_visual_effect_t);
+    pub fn native_window_set_visual_effect(
+        window: native_window_t,
+        effect: native_visual_effect_t,
+    ) -> bool;
 }
 unsafe extern "C" {
     pub fn native_window_get_visual_effect(window: native_window_t) -> native_visual_effect_t;
+}
+unsafe extern "C" {
+    pub fn native_window_is_visual_effect_supported(effect: native_visual_effect_t) -> bool;
 }
 unsafe extern "C" {
     pub fn native_window_set_background_color(window: native_window_t, color: native_color_t);

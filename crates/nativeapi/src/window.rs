@@ -39,6 +39,10 @@ pub enum VisualEffect {
     Blur = 1,
     Acrylic = 2,
     Mica = 3,
+    MicaAlt = 4,
+    Hud = 5,
+    Popover = 6,
+    Menu = 7,
 }
 
 impl VisualEffect {
@@ -48,6 +52,10 @@ impl VisualEffect {
             cnativeapi::NATIVE_VISUAL_EFFECT_BLUR => Self::Blur,
             cnativeapi::NATIVE_VISUAL_EFFECT_ACRYLIC => Self::Acrylic,
             cnativeapi::NATIVE_VISUAL_EFFECT_MICA => Self::Mica,
+            cnativeapi::NATIVE_VISUAL_EFFECT_MICA_ALT => Self::MicaAlt,
+            cnativeapi::NATIVE_VISUAL_EFFECT_HUD => Self::Hud,
+            cnativeapi::NATIVE_VISUAL_EFFECT_POPOVER => Self::Popover,
+            cnativeapi::NATIVE_VISUAL_EFFECT_MENU => Self::Menu,
             _ => Self::None,
         }
     }
@@ -553,6 +561,24 @@ impl Window {
         }
     }
 
+    pub fn set_content_under_title_bar(&self, is_content_under_title_bar: bool) -> bool {
+        unsafe {
+            cnativeapi::native_window_set_content_under_title_bar(self.handle, is_content_under_title_bar)
+        }
+    }
+
+    pub fn is_content_under_title_bar(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_content_under_title_bar(self.handle)
+        }
+    }
+
+    pub fn is_content_under_title_bar_supported() -> bool {
+        unsafe {
+            cnativeapi::native_window_is_content_under_title_bar_supported()
+        }
+    }
+
     pub fn set_has_shadow(&self, has_shadow: bool) {
         unsafe {
             cnativeapi::native_window_set_has_shadow(self.handle, has_shadow);
@@ -577,15 +603,21 @@ impl Window {
         }
     }
 
-    pub fn set_visual_effect(&self, effect: VisualEffect) {
+    pub fn set_visual_effect(&self, effect: VisualEffect) -> bool {
         unsafe {
-            cnativeapi::native_window_set_visual_effect(self.handle, effect.to_raw());
+            cnativeapi::native_window_set_visual_effect(self.handle, effect.to_raw())
         }
     }
 
     pub fn visual_effect(&self) -> VisualEffect {
         unsafe {
             VisualEffect::from_raw(cnativeapi::native_window_get_visual_effect(self.handle))
+        }
+    }
+
+    pub fn is_visual_effect_supported(effect: VisualEffect) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_visual_effect_supported(effect.to_raw())
         }
     }
 
