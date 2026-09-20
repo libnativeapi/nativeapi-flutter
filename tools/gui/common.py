@@ -12,7 +12,9 @@ CORE_BUILD = os.path.join(WORKSPACE, 'core', 'build')  # ignored by core's .giti
 sys.path.insert(0, os.path.join(SKILLS, 'gui-test', 'scripts', 'macos'))
 sys.path.insert(0, os.path.join(SKILLS, 'record-demo', 'scripts', 'macos'))
 
+import struct  # noqa: E402
 import subprocess  # noqa: E402
+import tempfile  # noqa: E402
 
 from guiapp import GuiApp, build_flutter, flutter_executable  # noqa: E402
 
@@ -43,3 +45,20 @@ def output_path(script, platform, variant=None, ext='mp4'):
     os.makedirs(OUTPUT, exist_ok=True)
     name = os.path.splitext(os.path.basename(script))[0]
     return os.path.join(OUTPUT, '-'.join(filter(None, [name, variant, platform])) + f'.{ext}')
+
+
+def screen_color(x, y):
+    """(r, g, b) of the screen around a point, averaged over 4 x 4 points."""
+    with tempfile.TemporaryDirectory() as tmp:
+        png, bmp = os.path.join(tmp, 'p.png'), os.path.join(tmp, 'p.bmp')
+        subprocess.run(['screencapture', '-x', '-R', f'{int(x)},{int(y)},4,4', png], check=True)
+        subprocess.run(['sips', '-s', 'format', 'bmp', png, '--out', bmp], check=True,
+                       stdout=subprocess.DEVNULL)
+        data = open(bmp, 'rb').read()
+    offset, width, height, bits = (struct.unpack_from('<I', data, 10)[0],
+                                   *struct.unpack_from('<ii', data, 18),
+                                   struct.unpack_from('<H', data, 28)[0])
+    step, row = bits // 8, ((bits * width + 31) // 32) * 4
+    pixels = [data[offset + r * row + c * step: offset + r * row + c * step + 3]
+              for r in range(abs(height)) for c in range(width)]
+    return tuple(round(sum(p[i] for p in pixels) / len(pixels)) for i in (2, 1, 0))

@@ -16,6 +16,8 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `flutter_floating_toolbar_test.py` / `.ps1` / `_linux.py` | `floating_toolbar_example` | macOS / Windows / Linux (inside only) | `Window.setParentWindow` with two Flutter windows: the toolbar window starts centred above the main one, follows a move and re-centres after a resize (through Accessibility, `--no-input` stops here); follows a real drag of the title bar; a press in the toolbar counts up in the main window; detached it stays put, attached it comes back; hidden it is not brought back by moving its parent. Windows runs the same steps (moves through `SetWindowPos`). Linux: multi-window Flutter only runs as a Wayland client, which cannot be measured or pressed from outside, so the twin only checks from the inside that both views render, `setParentWindow` succeeded, the toolbar view has the size it was given (it was 52 px short while core un-decorated the window instead of hiding its header bar) and the app keeps running |
 | `flutter_window_events_test.py` | `window_example` | macOS | `WindowManager.addListener` really is called: focused on activation, moved and resized when the frame changes (through Accessibility, one click only), payloads equal to the frame the OS reports |
 | `core_window_drag_session_test.py` / `.ps1` / `_linux.py` | core `window_drag_session_example` (C++) | macOS / Windows / Linux | dock by dragging onto another window, tear off anchored under the cursor, event output; the Linux twin also checks that the panel follows the cursor while carried |
+| `core_window_visual_effect_test.py` / `.ps1` | core `window_visual_effect_example` (C++) | macOS / Windows | `Window::SetVisualEffect`: the example walks a window through every effect over a plain red window and the test samples the screen after each step - the materials that blend with the windows behind come out reddish, no effect does not, `SetVisualEffect` agrees with `IsVisualEffectSupported`, `GetVisualEffect` is the effect in force, and a background color set while an effect was active is what shows once the effect is removed. No input on macOS; on Windows one click on the example's title bar, because the system backdrops are only drawn for the active window |
+| `flutter_visual_effect_test.py` / `.ps1` | `visual_effect_example` | macOS / Windows | the same through a Flutter window: started with `VISUAL_EFFECT_AUTOPLAY=1` the example shows the red backdrop and walks through the effects itself; where Flutter paints nothing the material shows the red behind, and with the effect removed the Flutter view has its opaque backing again. No input on macOS, the one activating click on Windows |
 | `core_menu_lifetime_test.ps1` | core `tests/menu_lifetime_test.cpp` | Windows | issue 54: a `Menu` destroyed from a listener that runs inside the window procedure does not kill the process, and a menu created after every other menu was destroyed still gets its events. No input, but it needs a desktop session |
 | `core_menu_backend_test.ps1` | core `tests/menu_click_test.cpp` | Windows | native menu backend: a top-level and a submenu item click reach the listener *before* `Menu::Open()` returns and fire exactly once; dismissing without picking fires none. The test binary owns the assertions, the script owns the mouse |
 | `core_drag_drop_test.py` / `.ps1` | core `drag_drop_example` (C++) | macOS / Windows | `DragSource` → `DropTarget` across two windows: enter / move / drop events, dropped file path and text, drop position in content coordinates, source reports `copy`; a drag released where nothing accepts it reports exit and `none` |
@@ -48,6 +50,8 @@ tools/gui/core_drag_drop_test.py --build
 tools/gui/flutter_drag_drop_test.py
 tools/gui/flutter_tray_icon_test.py
 tools/gui/flutter_launch_at_startup_test.py
+tools/gui/core_window_visual_effect_test.py --build   # no input
+tools/gui/flutter_visual_effect_test.py               # no input
 tools/gui/flutter_detachable_window_and_browser_tabs_demo.py --record   # --only detachable|tabs, --keep-open
 tools/gui/flutter_tray_icon_demo.py --record
 tools/gui/flutter_floating_toolbar_demo.py --record
@@ -63,6 +67,8 @@ $R win desktop tools/gui/core_drag_drop_test.ps1 120
 $R win desktop tools/gui/flutter_drag_drop_test.ps1 150
 $R win desktop tools/gui/flutter_tray_icon_test.ps1 400
 $R win desktop tools/gui/flutter_floating_toolbar_test.ps1 240
+$R win desktop tools/gui/core_window_visual_effect_test.ps1 120
+$R win desktop tools/gui/flutter_visual_effect_test.ps1 150
 .agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1 tools/gui/output
 .agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_floating_toolbar_demo.ps1 tools/gui/output
 

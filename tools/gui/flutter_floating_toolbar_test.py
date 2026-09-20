@@ -11,13 +11,9 @@ Built on the gui-test skill (.agents/skills). --no-input runs only the part that
 mouse: placement, following a move and a resize.
 """
 
-import os
-import struct
-import subprocess
 import sys
-import tempfile
 
-from common import build_example, example
+from common import build_example, example, screen_color
 from guiapp import Abort, Checks, assert_idle, pause
 
 NAME = 'floating_toolbar_example'
@@ -28,23 +24,6 @@ GAP = 10  # _toolbarGap in the example
 FIRST = (300, 260, 720, 552)
 MOVED = (420, 330, 720, 552)
 RESIZED = (420, 330, 900, 620)
-
-
-def screen_color(x, y):
-    """(r, g, b) of the screen around a point, averaged over 4 x 4 points."""
-    with tempfile.TemporaryDirectory() as tmp:
-        png, bmp = os.path.join(tmp, 'p.png'), os.path.join(tmp, 'p.bmp')
-        subprocess.run(['screencapture', '-x', '-R', f'{int(x)},{int(y)},4,4', png], check=True)
-        subprocess.run(['sips', '-s', 'format', 'bmp', png, '--out', bmp], check=True,
-                       stdout=subprocess.DEVNULL)
-        data = open(bmp, 'rb').read()
-    offset, width, height, bits = (struct.unpack_from('<I', data, 10)[0],
-                                   *struct.unpack_from('<ii', data, 18),
-                                   struct.unpack_from('<H', data, 28)[0])
-    step, row = bits // 8, ((bits * width + 31) // 32) * 4
-    pixels = [data[offset + r * row + c * step: offset + r * row + c * step + 3]
-              for r in range(abs(height)) for c in range(width)]
-    return tuple(round(sum(p[i] for p in pixels) / len(pixels)) for i in (2, 1, 0))
 
 
 def expected_toolbar(main, toolbar):

@@ -95,6 +95,7 @@ static bool IsBackendSupported(MenuBackend backend); // 某个子能力
 
 `static`、名字固定 `IsSupported` / `IsXxxSupported`。最近新增的 `FileDialog`、
 `NotificationManager`、`LaunchAtLogin`、`Menu::IsBackendSupported`、
+`Window::IsVisualEffectSupported`、`Window::IsContentUnderTitleBarSupported`、
 `MessageDialog::IsExtendedSupported` 都是这个形态。存量缺口：`TrayManager`、
 `ShortcutManager`、`UrlOpener` 是实例方法，`SecureStorage::IsAvailable` 异名。
 
@@ -300,7 +301,7 @@ class Foo : public EventEmitter<FooEvent>, public NativeObjectProvider {
 
 三档含义固定：✅ 行为与描述一致；⚠️ 可调用但行为打折（写明怎么打折）；❌ 调用被忽略。
 成对的 getter 用 `@see SetXxx() for platform availability.` 指过去，不重复写。
-当前 `window.h` 7 块、`application.h` 3 块。
+当前 `window.h` 21 块、`application.h` 3 块。
 
 整个模块在某平台不可用 → §1.4 的 `IsSupported()`；模块可用但某个子能力不可用 →
 `IsXxxSupported()` + 该方法返回 `false`。
