@@ -8,6 +8,7 @@ workspace:
   - examples/cocoapods_example
   - examples/detachable_window_example
   - examples/drag_drop_example
+  - examples/shaped_window_example
   - examples/floating_toolbar_example
   - examples/launch_at_login_example
   - examples/display_example

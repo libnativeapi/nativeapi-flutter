@@ -1,3 +1,13 @@
+## Unreleased
+
+* Add `WindowShadow`, `Window.setCustomShadow` and `customShadow` for core-rendered custom shadows on hidden-title-bar desktop windows. `hasShadow` toggles visibility without discarding configuration.
+
+* Add `Window.setInputShape`, `isInputShaped`, and `isInputShapeSupported` for Linux X11/Wayland pointer and touch regions.
+* Support Wayland in the shape demo using transparent Flutter clipping and matching native input regions, including restoration and resize/scale updates.
+
+* Add `WindowShape`, `Window.setShape`, `isShaped`, and `isShapeSupported` for polygonal desktop windows.
+* Add `shaped_window_example` with circle, star, and speech-bubble presets, interactive content, and rectangular restoration.
+
 ## 0.3.1
 
 * **Breaking:** `TitleBarStyle.hidden` now means the same thing on every platform — no

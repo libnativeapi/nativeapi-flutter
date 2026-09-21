@@ -41,6 +41,8 @@ headers:
     - "cxx_impl/src/capi/window_c.h"
     - "cxx_impl/src/capi/window_drag_session_c.h"
     - "cxx_impl/src/capi/window_manager_c.h"
+    - "cxx_impl/src/capi/window_shadow_c.h"
+    - "cxx_impl/src/capi/window_shape_c.h"
 
   include-directives:
     - "cxx_impl/src/capi/accessibility_manager_c.h"
@@ -76,6 +78,8 @@ headers:
     - "cxx_impl/src/capi/window_c.h"
     - "cxx_impl/src/capi/window_drag_session_c.h"
     - "cxx_impl/src/capi/window_manager_c.h"
+    - "cxx_impl/src/capi/window_shadow_c.h"
+    - "cxx_impl/src/capi/window_shape_c.h"
 
 preamble: |
   // ignore_for_file: always_specify_types

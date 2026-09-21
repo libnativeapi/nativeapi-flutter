@@ -11,6 +11,8 @@ import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'foundation/color.dart';
 import 'foundation/geometry.dart';
+import 'window_shadow.dart';
+import 'window_shape.dart';
 
 final _bindings = c.cnativeApiBindings;
 
@@ -594,6 +596,19 @@ class Window {
     return _bindings.native_window_has_shadow(nativeHandle);
   }
 
+  bool setCustomShadow(WindowShadow? shadow) {
+    return _bindings.native_window_set_custom_shadow(
+      nativeHandle,
+      shadow?.nativeHandle ?? 0,
+    );
+  }
+
+  WindowShadow? get customShadow {
+    final handle = _bindings.native_window_get_custom_shadow(nativeHandle);
+    if (handle == 0) return null;
+    return WindowShadow.fromHandle(handle);
+  }
+
   set opacity(double value) {
     _bindings.native_window_set_opacity(nativeHandle, value);
   }
@@ -613,6 +628,36 @@ class Window {
 
   static bool isVisualEffectSupported(VisualEffect effect) {
     return _bindings.native_window_is_visual_effect_supported(effect.raw);
+  }
+
+  bool setShape(WindowShape? shape) {
+    return _bindings.native_window_set_shape(
+      nativeHandle,
+      shape?.nativeHandle ?? 0,
+    );
+  }
+
+  bool get isShaped {
+    return _bindings.native_window_is_shaped(nativeHandle);
+  }
+
+  static bool isShapeSupported() {
+    return _bindings.native_window_is_shape_supported();
+  }
+
+  bool setInputShape(WindowShape? shape) {
+    return _bindings.native_window_set_input_shape(
+      nativeHandle,
+      shape?.nativeHandle ?? 0,
+    );
+  }
+
+  bool get isInputShaped {
+    return _bindings.native_window_is_input_shaped(nativeHandle);
+  }
+
+  static bool isInputShapeSupported() {
+    return _bindings.native_window_is_input_shape_supported();
   }
 
   set backgroundColor(Color value) {

@@ -47,6 +47,8 @@
 #include "../../../../../cxx_impl/src/window_drag_session.h"
 #include "../../../../../cxx_impl/src/window_manager.h"
 #include "../../../../../cxx_impl/src/window_registry.h"
+#include "../../../../../cxx_impl/src/window_shadow.h"
+#include "../../../../../cxx_impl/src/window_shape.h"
 #endif
 
 // C API headers (available for both C and C++)
@@ -83,3 +85,5 @@
 #include "../../../../../cxx_impl/src/capi/window_c.h"
 #include "../../../../../cxx_impl/src/capi/window_drag_session_c.h"
 #include "../../../../../cxx_impl/src/capi/window_manager_c.h"
+#include "../../../../../cxx_impl/src/capi/window_shadow_c.h"
+#include "../../../../../cxx_impl/src/capi/window_shape_c.h"

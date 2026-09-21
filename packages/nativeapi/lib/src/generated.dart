@@ -33,3 +33,5 @@ export 'url_opener.dart';
 export 'window.dart';
 export 'window_drag_session.dart';
 export 'window_manager.dart';
+export 'window_shadow.dart';
+export 'window_shape.dart';

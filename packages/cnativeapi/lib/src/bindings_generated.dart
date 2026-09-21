@@ -347,6 +347,186 @@ class CNativeApiBindings {
   late final _native_color_to_argb = _native_color_to_argbPtr
       .asFunction<int Function(native_color_t)>();
 
+  /// Creates a WindowShadow instance; release it with native_window_shadow_free().
+  int native_window_shadow_create() {
+    return _native_window_shadow_create();
+  }
+
+  late final _native_window_shadow_createPtr =
+      _lookup<ffi.NativeFunction<native_window_shadow_t Function()>>(
+        'native_window_shadow_create',
+      );
+  late final _native_window_shadow_create = _native_window_shadow_createPtr
+      .asFunction<int Function()>();
+
+  void native_window_shadow_set_color(int window_shadow, native_color_t color) {
+    return _native_window_shadow_set_color(window_shadow, color);
+  }
+
+  late final _native_window_shadow_set_colorPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_shadow_t, native_color_t)
+        >
+      >('native_window_shadow_set_color');
+  late final _native_window_shadow_set_color =
+      _native_window_shadow_set_colorPtr
+          .asFunction<void Function(int, native_color_t)>();
+
+  native_color_t native_window_shadow_get_color(int window_shadow) {
+    return _native_window_shadow_get_color(window_shadow);
+  }
+
+  late final _native_window_shadow_get_colorPtr =
+      _lookup<
+        ffi.NativeFunction<native_color_t Function(native_window_shadow_t)>
+      >('native_window_shadow_get_color');
+  late final _native_window_shadow_get_color =
+      _native_window_shadow_get_colorPtr
+          .asFunction<native_color_t Function(int)>();
+
+  bool native_window_shadow_set_blur_radius(int window_shadow, double radius) {
+    return _native_window_shadow_set_blur_radius(window_shadow, radius);
+  }
+
+  late final _native_window_shadow_set_blur_radiusPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_shadow_t, ffi.Double)
+        >
+      >('native_window_shadow_set_blur_radius');
+  late final _native_window_shadow_set_blur_radius =
+      _native_window_shadow_set_blur_radiusPtr
+          .asFunction<bool Function(int, double)>();
+
+  double native_window_shadow_get_blur_radius(int window_shadow) {
+    return _native_window_shadow_get_blur_radius(window_shadow);
+  }
+
+  late final _native_window_shadow_get_blur_radiusPtr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(native_window_shadow_t)>>(
+        'native_window_shadow_get_blur_radius',
+      );
+  late final _native_window_shadow_get_blur_radius =
+      _native_window_shadow_get_blur_radiusPtr
+          .asFunction<double Function(int)>();
+
+  bool native_window_shadow_set_offset(
+    int window_shadow,
+    native_point_t offset,
+  ) {
+    return _native_window_shadow_set_offset(window_shadow, offset);
+  }
+
+  late final _native_window_shadow_set_offsetPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_shadow_t, native_point_t)
+        >
+      >('native_window_shadow_set_offset');
+  late final _native_window_shadow_set_offset =
+      _native_window_shadow_set_offsetPtr
+          .asFunction<bool Function(int, native_point_t)>();
+
+  native_point_t native_window_shadow_get_offset(int window_shadow) {
+    return _native_window_shadow_get_offset(window_shadow);
+  }
+
+  late final _native_window_shadow_get_offsetPtr =
+      _lookup<
+        ffi.NativeFunction<native_point_t Function(native_window_shadow_t)>
+      >('native_window_shadow_get_offset');
+  late final _native_window_shadow_get_offset =
+      _native_window_shadow_get_offsetPtr
+          .asFunction<native_point_t Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_shadow_free(int window_shadow) {
+    return _native_window_shadow_free(window_shadow);
+  }
+
+  late final _native_window_shadow_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_shadow_t)>>(
+        'native_window_shadow_free',
+      );
+  late final _native_window_shadow_free = _native_window_shadow_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Creates a WindowShape instance; release it with native_window_shape_free().
+  int native_window_shape_create() {
+    return _native_window_shape_create();
+  }
+
+  late final _native_window_shape_createPtr =
+      _lookup<ffi.NativeFunction<native_window_shape_t Function()>>(
+        'native_window_shape_create',
+      );
+  late final _native_window_shape_create = _native_window_shape_createPtr
+      .asFunction<int Function()>();
+
+  bool native_window_shape_add_point(int window_shape, native_point_t point) {
+    return _native_window_shape_add_point(window_shape, point);
+  }
+
+  late final _native_window_shape_add_pointPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_shape_t, native_point_t)
+        >
+      >('native_window_shape_add_point');
+  late final _native_window_shape_add_point = _native_window_shape_add_pointPtr
+      .asFunction<bool Function(int, native_point_t)>();
+
+  void native_window_shape_clear(int window_shape) {
+    return _native_window_shape_clear(window_shape);
+  }
+
+  late final _native_window_shape_clearPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_shape_t)>>(
+        'native_window_shape_clear',
+      );
+  late final _native_window_shape_clear = _native_window_shape_clearPtr
+      .asFunction<void Function(int)>();
+
+  int native_window_shape_get_point_count(int window_shape) {
+    return _native_window_shape_get_point_count(window_shape);
+  }
+
+  late final _native_window_shape_get_point_countPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedLong Function(native_window_shape_t)>
+      >('native_window_shape_get_point_count');
+  late final _native_window_shape_get_point_count =
+      _native_window_shape_get_point_countPtr.asFunction<int Function(int)>();
+
+  native_point_t native_window_shape_get_point_at(int window_shape, int index) {
+    return _native_window_shape_get_point_at(window_shape, index);
+  }
+
+  late final _native_window_shape_get_point_atPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_point_t Function(native_window_shape_t, ffi.UnsignedLong)
+        >
+      >('native_window_shape_get_point_at');
+  late final _native_window_shape_get_point_at =
+      _native_window_shape_get_point_atPtr
+          .asFunction<native_point_t Function(int, int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_shape_free(int window_shape) {
+    return _native_window_shape_free(window_shape);
+  }
+
+  late final _native_window_shape_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_shape_t)>>(
+        'native_window_shape_free',
+      );
+  late final _native_window_shape_free = _native_window_shape_freePtr
+      .asFunction<void Function(int)>();
+
   /// Creates a Window instance; release it with native_window_free().
   int native_window_create() {
     return _native_window_create();
@@ -1158,6 +1338,31 @@ class CNativeApiBindings {
   late final _native_window_has_shadow = _native_window_has_shadowPtr
       .asFunction<bool Function(int)>();
 
+  bool native_window_set_custom_shadow(int window, int shadow) {
+    return _native_window_set_custom_shadow(window, shadow);
+  }
+
+  late final _native_window_set_custom_shadowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_window_shadow_t)
+        >
+      >('native_window_set_custom_shadow');
+  late final _native_window_set_custom_shadow =
+      _native_window_set_custom_shadowPtr.asFunction<bool Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_window_shadow_free().
+  int native_window_get_custom_shadow(int window) {
+    return _native_window_get_custom_shadow(window);
+  }
+
+  late final _native_window_get_custom_shadowPtr =
+      _lookup<
+        ffi.NativeFunction<native_window_shadow_t Function(native_window_t)>
+      >('native_window_get_custom_shadow');
+  late final _native_window_get_custom_shadow =
+      _native_window_get_custom_shadowPtr.asFunction<int Function(int)>();
+
   void native_window_set_opacity(int window, double opacity) {
     return _native_window_set_opacity(window, opacity);
   }
@@ -1220,6 +1425,76 @@ class CNativeApiBindings {
   late final _native_window_is_visual_effect_supported =
       _native_window_is_visual_effect_supportedPtr
           .asFunction<bool Function(int)>();
+
+  bool native_window_set_shape(int window, int shape) {
+    return _native_window_set_shape(window, shape);
+  }
+
+  late final _native_window_set_shapePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_window_shape_t)
+        >
+      >('native_window_set_shape');
+  late final _native_window_set_shape = _native_window_set_shapePtr
+      .asFunction<bool Function(int, int)>();
+
+  bool native_window_is_shaped(int window) {
+    return _native_window_is_shaped(window);
+  }
+
+  late final _native_window_is_shapedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_shaped',
+      );
+  late final _native_window_is_shaped = _native_window_is_shapedPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_window_is_shape_supported() {
+    return _native_window_is_shape_supported();
+  }
+
+  late final _native_window_is_shape_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_is_shape_supported',
+      );
+  late final _native_window_is_shape_supported =
+      _native_window_is_shape_supportedPtr.asFunction<bool Function()>();
+
+  bool native_window_set_input_shape(int window, int shape) {
+    return _native_window_set_input_shape(window, shape);
+  }
+
+  late final _native_window_set_input_shapePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_window_shape_t)
+        >
+      >('native_window_set_input_shape');
+  late final _native_window_set_input_shape = _native_window_set_input_shapePtr
+      .asFunction<bool Function(int, int)>();
+
+  bool native_window_is_input_shaped(int window) {
+    return _native_window_is_input_shaped(window);
+  }
+
+  late final _native_window_is_input_shapedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_input_shaped',
+      );
+  late final _native_window_is_input_shaped = _native_window_is_input_shapedPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_window_is_input_shape_supported() {
+    return _native_window_is_input_shape_supported();
+  }
+
+  late final _native_window_is_input_shape_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_is_input_shape_supported',
+      );
+  late final _native_window_is_input_shape_supported =
+      _native_window_is_input_shape_supportedPtr.asFunction<bool Function()>();
 
   void native_window_set_background_color(int window, native_color_t color) {
     return _native_window_set_background_color(window, color);
@@ -6106,6 +6381,24 @@ final class native_color_t extends ffi.Struct {
   external int a;
 }
 
+/// Opaque WindowShadow handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHADOW rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_shadow_t = ffi.Uint64;
+typedef Dartnative_window_shadow_t = int;
+
+/// Opaque WindowShape handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHAPE rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_shape_t = ffi.Uint64;
+typedef Dartnative_window_shape_t = int;
+
 enum native_title_bar_style_t {
   NATIVE_TITLE_BAR_STYLE_NORMAL(0),
   NATIVE_TITLE_BAR_STYLE_HIDDEN(1);
@@ -7359,6 +7652,10 @@ typedef Dartnative_window_event_callback_tFunction = void Function(
 const int NATIVE_INVALID_LISTENER_ID = 0;
 
 const int NATIVE_INVALID_IMAGE = 0;
+
+const int NATIVE_INVALID_WINDOW_SHADOW = 0;
+
+const int NATIVE_INVALID_WINDOW_SHAPE = 0;
 
 const int NATIVE_INVALID_WINDOW = 0;
 
