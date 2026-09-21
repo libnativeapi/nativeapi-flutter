@@ -10,6 +10,8 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 
 | Script | Example | Platform | Covers |
 | --- | --- | --- | --- |
+| `core_window_shadow_layout_test_linux.cpp` | core shadow | Linux Wayland / X11 | No-input regression: stable shadow geometry, contour pixels inside transparent content, input pass-through, disable and decoration restoration |
+| `flutter_window_shape_smoke_macos.py` / `flutter_window_shape_test_windows.ps1` | `shaped_window_example` | macOS / Windows | macOS: no-input shape and pixel-alpha smoke test; Windows: native regions, real button clicks/drag, resize, clear/reapply, click-through to the underlying app window |
 | `flutter_detachable_window_test.py` / `.ps1` | `detachable_window_example` | macOS / Windows | tear a panel off, exact content size, header stays under the cursor, dock into the other window, `State` preserved |
 | `flutter_window_drag_areas_test.py` / `.ps1` | `window_drag_areas_example` | macOS / Windows | `DragToMoveArea`: window follows the mouse, a click does not move it, double click maximizes and restores; `DragToResizeArea`: all eight handles, the other edges stay anchored, minimum size, `enableResizeEdges`, clicks pass through the middle |
 | `flutter_menu_test.py` / `.ps1` | `menu_example` | macOS / Windows (WinUI 3 and Native backends) | context menu opens at the click point; placement Top End (also after the menu changed); item types and states (checkbox, radio group, disabled, submenu, special characters); click / open / close / submenu events; dismissing fires no click; label change, added item and detached submenu show on the next open; absolute and cursor positioning |

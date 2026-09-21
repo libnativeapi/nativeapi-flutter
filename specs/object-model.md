@@ -89,7 +89,11 @@ manager 集合，因此不定义 `XxxId` 别名、不调用 `IdAllocator::Alloca
 
 `PositioningStrategy` 在 C++ 侧是可拷贝的值对象（静态工厂按值返回），但它带私有
 状态、没有平面 C struct 映射，跨 ABI 时由生成的 capi 装进 `shared_ptr` 进句柄表，
-因此也登记了 `IdTypeTag`（tag 12）。这是「值对象不进 handle 表」目前唯一的例外；
+因此也登记了 `IdTypeTag`（tag 12）。`WindowShape` 同样带私有顶点集合，经句柄
+跨 ABI（tag 18）；`Window::SetShape` 应用时复制轮廓，修改或释放 builder 不影响窗口。
+`WindowShadow` 的阴影配置也带私有状态，经句柄跨 ABI（tag 19）；
+`SetCustomShadow` 和 `GetCustomShadow` 都复制配置，不共享可变对象。
+这些类型是「值对象不进 handle 表」的例外；
 新类型遇到同样处境（带工厂 API / 私有状态的纯数据）按此先例处理，不再各开新形态。
 注意它的 `Relative(const Window&)` 内部存裸指针，C 侧跨调用持有 strategy 句柄会
 放大悬垂风险——已知缺陷，修复方向是改收 `std::shared_ptr<Window>`。

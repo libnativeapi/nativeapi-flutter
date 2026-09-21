@@ -28,6 +28,8 @@ pub const API_HEADERS: &[&str] = &[
     "file_dialog.h",
     "notification_manager.h",
     "image.h",
+    "window_shape.h",
+    "window_shadow.h",
     "window.h",
     "window_manager.h",
     "window_drag_session.h",
