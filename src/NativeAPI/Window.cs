@@ -575,6 +575,21 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public bool SetCustomShadow(WindowShadow? shadow)
+    {
+        var rawResult = Interop.native_window_set_custom_shadow(NativeHandle, shadow?.NativeHandle ?? 0);
+        return rawResult;
+    }
+
+    public WindowShadow? CustomShadow
+    {
+        get
+        {
+            var rawResult = Interop.native_window_get_custom_shadow(NativeHandle);
+            return rawResult == 0 ? null : new WindowShadow(rawResult);
+        }
+    }
+
     public void SetOpacity(float opacity)
     {
         Interop.native_window_set_opacity(NativeHandle, opacity);
@@ -607,6 +622,48 @@ public sealed partial class Window : IDisposable
     public static bool IsVisualEffectSupported(VisualEffect effect)
     {
         var rawResult = Interop.native_window_is_visual_effect_supported((int)effect);
+        return rawResult;
+    }
+
+    public bool SetShape(WindowShape? shape)
+    {
+        var rawResult = Interop.native_window_set_shape(NativeHandle, shape?.NativeHandle ?? 0);
+        return rawResult;
+    }
+
+    public bool IsShaped
+    {
+        get
+        {
+            var rawResult = Interop.native_window_is_shaped(NativeHandle);
+            return rawResult;
+        }
+    }
+
+    public static bool IsShapeSupported()
+    {
+        var rawResult = Interop.native_window_is_shape_supported();
+        return rawResult;
+    }
+
+    public bool SetInputShape(WindowShape? shape)
+    {
+        var rawResult = Interop.native_window_set_input_shape(NativeHandle, shape?.NativeHandle ?? 0);
+        return rawResult;
+    }
+
+    public bool IsInputShaped
+    {
+        get
+        {
+            var rawResult = Interop.native_window_is_input_shaped(NativeHandle);
+            return rawResult;
+        }
+    }
+
+    public static bool IsInputShapeSupported()
+    {
+        var rawResult = Interop.native_window_is_input_shape_supported();
         return rawResult;
     }
 
