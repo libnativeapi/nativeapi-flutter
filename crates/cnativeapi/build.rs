@@ -24,6 +24,7 @@ fn main() {
             // go through Carbon's RegisterEventHotKey, and login items through
             // SMAppService.
             println!("cargo:rustc-link-lib=framework=Cocoa");
+            println!("cargo:rustc-link-lib=framework=QuartzCore");
             println!("cargo:rustc-link-lib=framework=Carbon");
             println!("cargo:rustc-link-lib=framework=ServiceManagement");
         }

@@ -8,6 +8,8 @@ use std::ffi::{CStr, CString};
 
 use crate::color::Color;
 use crate::geometry::{Point, Rectangle, Size};
+use crate::window_shadow::WindowShadow;
+use crate::window_shape::WindowShape;
 
 pub type WindowId = u32;
 
@@ -591,6 +593,18 @@ impl Window {
         }
     }
 
+    pub fn set_custom_shadow(&self, shadow: Option<&WindowShadow>) -> bool {
+        unsafe {
+            cnativeapi::native_window_set_custom_shadow(self.handle, shadow.map_or(0, |value| value.as_raw()))
+        }
+    }
+
+    pub fn custom_shadow(&self) -> Option<WindowShadow> {
+        unsafe {
+            WindowShadow::from_raw(cnativeapi::native_window_get_custom_shadow(self.handle))
+        }
+    }
+
     pub fn set_opacity(&self, opacity: f32) {
         unsafe {
             cnativeapi::native_window_set_opacity(self.handle, opacity);
@@ -618,6 +632,42 @@ impl Window {
     pub fn is_visual_effect_supported(effect: VisualEffect) -> bool {
         unsafe {
             cnativeapi::native_window_is_visual_effect_supported(effect.to_raw())
+        }
+    }
+
+    pub fn set_shape(&self, shape: Option<&WindowShape>) -> bool {
+        unsafe {
+            cnativeapi::native_window_set_shape(self.handle, shape.map_or(0, |value| value.as_raw()))
+        }
+    }
+
+    pub fn is_shaped(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_shaped(self.handle)
+        }
+    }
+
+    pub fn is_shape_supported() -> bool {
+        unsafe {
+            cnativeapi::native_window_is_shape_supported()
+        }
+    }
+
+    pub fn set_input_shape(&self, shape: Option<&WindowShape>) -> bool {
+        unsafe {
+            cnativeapi::native_window_set_input_shape(self.handle, shape.map_or(0, |value| value.as_raw()))
+        }
+    }
+
+    pub fn is_input_shaped(&self) -> bool {
+        unsafe {
+            cnativeapi::native_window_is_input_shaped(self.handle)
+        }
+    }
+
+    pub fn is_input_shape_supported() -> bool {
+        unsafe {
+            cnativeapi::native_window_is_input_shape_supported()
         }
     }
 

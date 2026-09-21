@@ -235,6 +235,74 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn native_color_to_argb(color: native_color_t) -> ::std::os::raw::c_uint;
 }
+#[doc = " Opaque WindowShadow handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHADOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_window_shadow_t = u64;
+unsafe extern "C" {
+    #[doc = " Creates a WindowShadow instance; release it with native_window_shadow_free()."]
+    pub fn native_window_shadow_create() -> native_window_shadow_t;
+}
+unsafe extern "C" {
+    pub fn native_window_shadow_set_color(
+        window_shadow: native_window_shadow_t,
+        color: native_color_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_window_shadow_get_color(window_shadow: native_window_shadow_t) -> native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_window_shadow_set_blur_radius(
+        window_shadow: native_window_shadow_t,
+        radius: f64,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_shadow_get_blur_radius(window_shadow: native_window_shadow_t) -> f64;
+}
+unsafe extern "C" {
+    pub fn native_window_shadow_set_offset(
+        window_shadow: native_window_shadow_t,
+        offset: native_point_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_shadow_get_offset(window_shadow: native_window_shadow_t)
+        -> native_point_t;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_window_shadow_free(window_shadow: native_window_shadow_t);
+}
+#[doc = " Opaque WindowShape handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHAPE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_window_shape_t = u64;
+unsafe extern "C" {
+    #[doc = " Creates a WindowShape instance; release it with native_window_shape_free()."]
+    pub fn native_window_shape_create() -> native_window_shape_t;
+}
+unsafe extern "C" {
+    pub fn native_window_shape_add_point(
+        window_shape: native_window_shape_t,
+        point: native_point_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_shape_clear(window_shape: native_window_shape_t);
+}
+unsafe extern "C" {
+    pub fn native_window_shape_get_point_count(
+        window_shape: native_window_shape_t,
+    ) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+    pub fn native_window_shape_get_point_at(
+        window_shape: native_window_shape_t,
+        index: ::std::os::raw::c_ulong,
+    ) -> native_point_t;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_window_shape_free(window_shape: native_window_shape_t);
+}
 pub type native_window_id_t = ::std::os::raw::c_uint;
 pub const NATIVE_TITLE_BAR_STYLE_NORMAL: native_title_bar_style_t = 0;
 pub const NATIVE_TITLE_BAR_STYLE_HIDDEN: native_title_bar_style_t = 1;
@@ -561,6 +629,16 @@ unsafe extern "C" {
     pub fn native_window_has_shadow(window: native_window_t) -> bool;
 }
 unsafe extern "C" {
+    pub fn native_window_set_custom_shadow(
+        window: native_window_t,
+        shadow: native_window_shadow_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_window_shadow_free()."]
+    pub fn native_window_get_custom_shadow(window: native_window_t) -> native_window_shadow_t;
+}
+unsafe extern "C" {
     pub fn native_window_set_opacity(window: native_window_t, opacity: f32);
 }
 unsafe extern "C" {
@@ -577,6 +655,27 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn native_window_is_visual_effect_supported(effect: native_visual_effect_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_shape(window: native_window_t, shape: native_window_shape_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_is_shaped(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_is_shape_supported() -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_set_input_shape(
+        window: native_window_t,
+        shape: native_window_shape_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_is_input_shaped(window: native_window_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_window_is_input_shape_supported() -> bool;
 }
 unsafe extern "C" {
     pub fn native_window_set_background_color(window: native_window_t, color: native_color_t);

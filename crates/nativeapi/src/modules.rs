@@ -34,6 +34,8 @@ pub mod url_opener;
 pub mod window;
 pub mod window_drag_session;
 pub mod window_manager;
+pub mod window_shadow;
+pub mod window_shape;
 
 // Flat re-exports, so `use nativeapi::Display;` works alongside
 // `use nativeapi::display::Display;`.
@@ -68,3 +70,5 @@ pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
 pub use window::{WindowId, TitleBarStyle, VisualEffect, ResizeEdge, WindowEvent, Window, WindowRef};
 pub use window_drag_session::{WindowDragEvent, WindowDragSession, WindowDragSessionRef};
 pub use window_manager::{WindowManager};
+pub use window_shadow::{WindowShadow, WindowShadowRef};
+pub use window_shape::{WindowShape, WindowShapeRef};
