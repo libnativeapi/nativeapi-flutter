@@ -24,7 +24,8 @@ let package = Package(
             dependencies: [],
             path: "Sources/cnativeapi",
             sources: [
-                "cnativeapi.mm"
+                "cnativeapi.mm",
+                "generated",
             ],
             publicHeadersPath: "include",
             cxxSettings: [
@@ -35,8 +36,11 @@ let package = Package(
                 ]),
             ],
             linkerSettings: [
+                .linkedFramework("Carbon"),
                 .linkedFramework("Cocoa"),
+                .linkedFramework("QuartzCore"),
                 .linkedFramework("Foundation"),
+                .linkedFramework("ServiceManagement"),
             ]
         )
     ],

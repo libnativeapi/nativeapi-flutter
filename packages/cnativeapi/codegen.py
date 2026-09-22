@@ -16,6 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 import argparse
+import json
+import tempfile
 
 
 def run_command(cmd, cwd=None):
@@ -30,6 +32,8 @@ def run_command(cmd, cwd=None):
         return True
     except subprocess.CalledProcessError as e:
         print(f"Error: {e}")
+        if e.stdout:
+            print(e.stdout)
         if e.stderr:
             print(f"Error output: {e.stderr}")
         return False
@@ -79,7 +83,7 @@ def find_cpp_headers(cxx_impl_dir):
     headers = []
     # Find all .h files in src/ and subdirectories, excluding capi/ and platform/
     for header_file in src_dir.rglob("*.h"):
-        file_str = str(header_file)
+        file_str = header_file.as_posix()
         # Skip capi/ and platform/ directories
         if "/capi/" in file_str or "/platform/" in file_str:
             continue
@@ -87,7 +91,7 @@ def find_cpp_headers(cxx_impl_dir):
         # cnativeapi.h is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/include/
         # cxx_impl is at packages/cnativeapi/cxx_impl/
         # So relative path should be ../../../../../cxx_impl/src/...
-        rel_path = os.path.relpath(header_file, cxx_impl_dir.parent)
+        rel_path = Path(os.path.relpath(header_file, cxx_impl_dir.parent)).as_posix()
         headers.append((rel_path, header_file))
 
     # Sort by path for consistent ordering
@@ -110,7 +114,7 @@ def update_cnativeapi_h(header_path, cxx_impl_dir):
     # Calculate relative path from header_path to cxx_impl_dir
     # header_path is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/include/
     # cxx_impl_dir is at packages/cnativeapi/cxx_impl/
-    cxx_impl_rel = os.path.relpath(cxx_impl_dir, header_path.parent)
+    cxx_impl_rel = Path(os.path.relpath(cxx_impl_dir, header_path.parent)).as_posix()
 
     # Generate C++ includes
     cpp_includes = []
@@ -237,7 +241,7 @@ def find_source_files(cxx_impl_dir, platform):
     # Filter files based on platform
     filtered_files = []
     for file_path in source_files:
-        file_str = str(file_path)
+        file_str = file_path.as_posix()
 
         # Skip example directories
         if "examples" in file_str:
@@ -269,83 +273,29 @@ def find_source_files(cxx_impl_dir, platform):
 
 
 def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
-    """Update cnativeapi.mm file with include statements."""
+    """Generate one Apple translation unit per core source (also for SwiftPM)."""
     source_files = find_source_files(cxx_impl_dir, platform)
-    print(f"Processing {len(source_files)} source files for {platform}...")
-
-    # Read current file content
-    with open(nativeapi_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Find the section with include statements
-    # Look for the pattern that starts with "// Include source files"
-    # This should match everything from "// Include source files" to the end of file
-    include_pattern = r"(// Include source files\n)(.*?)(\Z)"
-
-    match = re.search(include_pattern, content, re.DOTALL)
-
-    if not match:
-        print(
-            f"Error: Could not find '// Include source files' marker in {nativeapi_path.name}"
-        )
-        return False
-
-    # Generate new include statements
-    new_includes = []
-
-    # Categorize files for better organization
-    capi_files = []
-    platform_files = []
-    core_files = []
-    foundation_files = []
-
-    for file_path in source_files:
-        file_str = str(file_path)
-
-        # Calculate relative path from cnativeapi.mm location
-        # cnativeapi.mm is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/
-        # cxx_impl is at packages/cnativeapi/cxx_impl/
-        # So relative path should be ../../../../cxx_impl/src/...
-        rel_path = os.path.relpath(file_path, nativeapi_path.parent)
-
-        if "/capi/" in file_str:
-            capi_files.append(rel_path)
-        elif f"/platform/{platform}/" in file_str:
-            platform_files.append(rel_path)
-        elif "/foundation/" in file_str:
-            foundation_files.append(rel_path)
-        else:
-            core_files.append(rel_path)
-
-    # Add includes in organized order
-    for file_path in (
-        sorted(capi_files)
-        + sorted(platform_files)
-        + sorted(foundation_files)
-        + sorted(core_files)
-    ):
-        new_includes.append(f'#include "{file_path}"')
-
-    # Print summary of what was included
-    print(f"  - C API files: {len(capi_files)}")
-    print(f"  - Platform-specific files: {len(platform_files)}")
-    print(f"  - Foundation files: {len(foundation_files)}")
-    print(f"  - Core files: {len(core_files)}")
-
-    # Build the new include section
-    new_include_section = match.group(1) + "\n".join(new_includes)
-
-    # Replace the old include section with the new one
-    new_content = content[: match.start()] + new_include_section
-
-    # Ensure file ends with a newline
-    if not new_content.endswith("\n"):
-        new_content += "\n"
-
-    # Write back to file
-    with open(nativeapi_path, "w", encoding="utf-8") as f:
-        f.write(new_content)
-
+    generated_dir = nativeapi_path.parent / "generated"
+    banner = "// AUTO-GENERATED. DO NOT EDIT.\n"
+    expected = set()
+    for source in sorted(source_files):
+        relative = source.relative_to(cxx_impl_dir / "src")
+        wrapper = generated_dir / relative.with_suffix(".mm")
+        if wrapper in expected:
+            raise ValueError(f"Duplicate Apple source wrapper: {wrapper}")
+        expected.add(wrapper)
+        wrapper.parent.mkdir(parents=True, exist_ok=True)
+        include = Path(os.path.relpath(source, wrapper.parent)).as_posix()
+        wrapper.write_text(banner + f'#include "{include}"\n', encoding="utf-8")
+    # Only remove stale files created by this generator.
+    for wrapper in generated_dir.rglob("*.mm"):
+        if wrapper not in expected and wrapper.read_text(encoding="utf-8").startswith(banner):
+            wrapper.unlink()
+    nativeapi_path.write_text(
+        banner + "// Core sources are compiled separately from generated/.\n",
+        encoding="utf-8",
+    )
+    print(f"Generated {len(expected)} separate translation units for {platform}")
     return True
 
 
@@ -488,12 +438,29 @@ def main():
     print("\nStep 7/7: Generating Dart bindings")
     print("Running ffigen to generate Dart bindings from C headers...")
 
-    ffigen_cmd = ["dart", "run", "ffigen", "--config", "ffigen.yaml"]
-    if not run_command(ffigen_cmd, cwd=cnativeapi_dir):
-        print("\nWarning: Failed to generate bindings with ffigen")
-        print("You can manually run: dart run ffigen --config ffigen.yaml")
-    else:
+    # Keep machine-specific LLVM paths out of the checked-in configuration.
+    temporary_config = None
+    config_path = ffigen_path
+    try:
+        if os.environ.get("LIBCLANG_PATH"):
+            llvm_path = Path(os.environ["LIBCLANG_PATH"])
+            if llvm_path.is_file():
+                llvm_path = llvm_path.parent
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", dir=cnativeapi_dir,
+                                             encoding="utf-8", delete=False) as config:
+                config.write(ffigen_path.read_text(encoding="utf-8"))
+                # ffigen expects the LLVM root; libclang users often pass bin/lib.
+                config.write("\nllvm-path:\n")
+                for candidate in (llvm_path, llvm_path.parent):
+                    config.write("  - " + json.dumps(str(candidate)) + "\n")
+                temporary_config = Path(config.name)
+                config_path = temporary_config
+        if not run_command(["dart", "run", "ffigen", "--config", str(config_path)], cwd=cnativeapi_dir):
+            return 1
         print("Dart bindings generated successfully")
+    finally:
+        if temporary_config:
+            temporary_config.unlink()
 
     print("\nAll steps completed successfully!")
     print("\nNext steps:")

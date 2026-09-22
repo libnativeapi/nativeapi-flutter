@@ -24,7 +24,8 @@ let package = Package(
             dependencies: [],
             path: "Sources/cnativeapi",
             sources: [
-                "cnativeapi.mm"
+                "cnativeapi.mm",
+                "generated",
             ],
             publicHeadersPath: "include",
             cxxSettings: [

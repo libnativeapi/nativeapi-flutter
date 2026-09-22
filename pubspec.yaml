@@ -3,20 +3,13 @@ publish_to: none
 environment:
   sdk: ^3.9.0
 
+# The OHOS SDK is based on Flutter 3.35 / Dart 3.9. Keep its buildable
+# examples in this workspace; the desktop windowing examples require 3.47.
 workspace:
   - examples/display_example
-  - examples/menu_example
-  # - examples/multiple_window_example
-  - examples/storage_example
-  - examples/tray_icon_example
-  - examples/window_example
   - packages/cnativeapi
   - packages/cnativeapi/example
-  - packages/native_message_dialog
-  - packages/native_preferences
-  - packages/native_secure_storage
   - packages/nativeapi
-  - packages/nativeapi/example
 
 dev_dependencies:
   melos: ^7.1.1

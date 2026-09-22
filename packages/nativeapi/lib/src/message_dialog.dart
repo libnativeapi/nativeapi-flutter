@@ -1,152 +1,212 @@
-import 'dart:ffi';
+// AUTO-GENERATED. DO NOT EDIT.
+// Any manual changes WILL BE LOST when this file is regenerated.
 
-import 'package:cnativeapi/cnativeapi.dart';
-import 'package:ffi/ffi.dart' as ffi;
-import 'package:nativeapi/src/dialog.dart';
-import 'package:nativeapi/src/foundation/cnativeapi_bindings_mixin.dart';
-import 'package:nativeapi/src/foundation/native_handle_wrapper.dart';
+// ignore_for_file: unused_import, unnecessary_import
 
-/// Dialog for displaying messages and simple prompts.
-///
-/// MessageDialog is used to display information, warnings, errors, or
-/// questions to the user. It can be shown modally or non-modally.
-///
-/// This class inherits from [Dialog] and provides message-specific
-/// functionality such as message text.
-///
-/// Example:
-/// ```dart
-/// // Simple message dialog
-/// final dialog = MessageDialog(
-///   'Update Available',
-///   'A new version is available. Would you like to update?',
-/// );
-/// dialog.modality = DialogModality.application;
-/// dialog.open();
-/// ```
-class MessageDialog extends Dialog
-    with CNativeApiBindingsMixin
-    implements NativeHandleWrapper<native_message_dialog_t> {
-  final native_message_dialog_t _nativeHandle;
+import 'dart:ffi' as ffi;
+import 'dart:ui';
 
-  /// Current modality setting.
-  DialogModality _modality = DialogModality.none;
+import 'package:cnativeapi/cnativeapi.dart' as c;
+import 'package:ffi/ffi.dart' as pkg_ffi;
 
-  /// Creates a message dialog with title and message.
-  ///
-  /// [title] is the dialog title.
-  /// [message] is the dialog message.
-  ///
-  /// Example:
-  /// ```dart
-  /// final dialog = MessageDialog(
-  ///   'Update Available',
-  ///   'A new version is available. Would you like to update?',
-  /// );
-  /// dialog.modality = DialogModality.application;
-  /// dialog.open();
-  /// ```
-  MessageDialog(String title, String message)
-    : _nativeHandle = _createNative(title, message);
+import 'dialog.dart';
+import 'window.dart';
 
-  static native_message_dialog_t _createNative(String title, String message) {
-    final titlePtr = title.toNativeUtf8();
-    final messagePtr = message.toNativeUtf8();
-    try {
-      return cnativeApiBindings.native_message_dialog_create(
-        titlePtr.cast<Char>(),
-        messagePtr.cast<Char>(),
-      );
-    } finally {
-      ffi.malloc.free(titlePtr);
-      ffi.malloc.free(messagePtr);
-    }
+final _bindings = c.cnativeApiBindings;
+
+enum MessageDialogResult {
+  none(0),
+  primary(1),
+  secondary(2),
+  close(3);
+
+  const MessageDialogResult(this.value);
+  final int value;
+
+  static MessageDialogResult fromValue(int value) => switch (value) {
+    0 => MessageDialogResult.none,
+    1 => MessageDialogResult.primary,
+    2 => MessageDialogResult.secondary,
+    3 => MessageDialogResult.close,
+    _ => MessageDialogResult.none,
+  };
+
+  c.native_message_dialog_result_t get raw =>
+      c.native_message_dialog_result_t.fromValue(value);
+}
+
+class MessageDialog {
+  /// Adopts a handle returned by the C API and releases it when this
+  /// object becomes unreachable.
+  MessageDialog.fromHandle(this.nativeHandle) {
+    _finalizer.attach(this, nativeHandle, detach: this);
   }
 
-  @override
-  native_message_dialog_t get nativeHandle => _nativeHandle;
+  /// Wraps a handle owned elsewhere; releasing it stays the owner's job.
+  MessageDialog.borrowed(this.nativeHandle);
 
-  /// Sets the dialog title.
-  set title(String value) {
-    final titlePtr = value.toNativeUtf8();
-    try {
-      bindings.native_message_dialog_set_title(
-        _nativeHandle,
-        titlePtr.cast<Char>(),
-      );
-    } finally {
-      ffi.malloc.free(titlePtr);
-    }
-  }
+  /// The underlying handle-table entry.
+  final int nativeHandle;
 
-  /// Gets the dialog title.
-  String get title {
-    final titlePtr = bindings.native_message_dialog_get_title(_nativeHandle);
-    if (titlePtr == nullptr) {
-      return '';
-    }
-    final title = titlePtr.cast<ffi.Utf8>().toDartString();
-    bindings.free_c_str(titlePtr);
-    return title;
-  }
+  static final Finalizer<int> _finalizer = Finalizer<int>(
+    (handle) => _bindings.native_message_dialog_free(handle),
+  );
 
-  /// Sets the dialog message.
-  set message(String value) {
-    final messagePtr = value.toNativeUtf8();
-    try {
-      bindings.native_message_dialog_set_message(
-        _nativeHandle,
-        messagePtr.cast<Char>(),
-      );
-    } finally {
-      ffi.malloc.free(messagePtr);
-    }
-  }
-
-  /// Gets the dialog message.
-  String get message {
-    final messagePtr = bindings.native_message_dialog_get_message(
-      _nativeHandle,
-    );
-    if (messagePtr == nullptr) {
-      return '';
-    }
-    final message = messagePtr.cast<ffi.Utf8>().toDartString();
-    bindings.free_c_str(messagePtr);
-    return message;
-  }
-
-  @override
-  DialogModality get modality {
-    // Update internal state from native dialog
-    final nativeModality = bindings.native_message_dialog_get_modality(
-      _nativeHandle,
-    );
-    _modality = DialogModality.fromNative(nativeModality);
-    return _modality;
-  }
-
-  @override
-  set modality(DialogModality value) {
-    _modality = value;
-    bindings.native_message_dialog_set_modality(
-      _nativeHandle,
-      value.toNative(),
-    );
-  }
-
-  @override
-  bool open() {
-    return bindings.native_message_dialog_open(_nativeHandle);
-  }
-
-  @override
-  bool close() {
-    return bindings.native_message_dialog_close(_nativeHandle);
-  }
-
-  @override
+  /// Releases the handle now instead of at collection.
   void dispose() {
-    bindings.native_message_dialog_destroy(_nativeHandle);
+    _finalizer.detach(this);
+    _bindings.native_message_dialog_free(nativeHandle);
+  }
+
+  /// Creates a new `MessageDialog`; returns null if the native side failed.
+  static MessageDialog? create(String title, String message) {
+    final titleNative = title.toNativeUtf8().cast<ffi.Char>();
+    final messageNative = message.toNativeUtf8().cast<ffi.Char>();
+    final handle = _bindings.native_message_dialog_create(
+      titleNative,
+      messageNative,
+    );
+    pkg_ffi.calloc.free(titleNative);
+    pkg_ffi.calloc.free(messageNative);
+    if (handle == 0) return null;
+    return MessageDialog.fromHandle(handle);
+  }
+
+  static bool isExtendedSupported() {
+    return _bindings.native_message_dialog_is_extended_supported();
+  }
+
+  bool setButtons(String primary, String secondary, String close) {
+    final primaryNative = primary.toNativeUtf8().cast<ffi.Char>();
+    final secondaryNative = secondary.toNativeUtf8().cast<ffi.Char>();
+    final closeNative = close.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_message_dialog_set_buttons(
+      nativeHandle,
+      primaryNative,
+      secondaryNative,
+      closeNative,
+    );
+    pkg_ffi.calloc.free(primaryNative);
+    pkg_ffi.calloc.free(secondaryNative);
+    pkg_ffi.calloc.free(closeNative);
+    return result;
+  }
+
+  bool setDefaultButton(MessageDialogResult button) {
+    return _bindings.native_message_dialog_set_default_button(
+      nativeHandle,
+      button.raw,
+    );
+  }
+
+  bool setParentWindow(Window? window) {
+    return _bindings.native_message_dialog_set_parent_window(
+      nativeHandle,
+      window?.nativeHandle ?? 0,
+    );
+  }
+
+  MessageDialogResult get result {
+    final raw = _bindings.native_message_dialog_get_result(nativeHandle);
+    return MessageDialogResult.fromValue(raw.value);
+  }
+
+  bool get isOpen {
+    return _bindings.native_message_dialog_is_open(nativeHandle);
+  }
+
+  bool setInputEnabled(bool enabled) {
+    return _bindings.native_message_dialog_set_input_enabled(
+      nativeHandle,
+      enabled,
+    );
+  }
+
+  bool setInputText(String text) {
+    final textNative = text.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_message_dialog_set_input_text(
+      nativeHandle,
+      textNative,
+    );
+    pkg_ffi.calloc.free(textNative);
+    return result;
+  }
+
+  String? get inputText {
+    final resultPointer = _bindings.native_message_dialog_get_input_text(
+      nativeHandle,
+    );
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  bool setCheckbox(String label, bool checked) {
+    final labelNative = label.toNativeUtf8().cast<ffi.Char>();
+    final result = _bindings.native_message_dialog_set_checkbox(
+      nativeHandle,
+      labelNative,
+      checked,
+    );
+    pkg_ffi.calloc.free(labelNative);
+    return result;
+  }
+
+  bool get isCheckboxChecked {
+    return _bindings.native_message_dialog_is_checkbox_checked(nativeHandle);
+  }
+
+  bool setProgress(double value) {
+    return _bindings.native_message_dialog_set_progress(nativeHandle, value);
+  }
+
+  set title(String value) {
+    final valueNative = value.toNativeUtf8().cast<ffi.Char>();
+    _bindings.native_message_dialog_set_title(nativeHandle, valueNative);
+    pkg_ffi.calloc.free(valueNative);
+  }
+
+  String? get title {
+    final resultPointer = _bindings.native_message_dialog_get_title(
+      nativeHandle,
+    );
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  set message(String value) {
+    final valueNative = value.toNativeUtf8().cast<ffi.Char>();
+    _bindings.native_message_dialog_set_message(nativeHandle, valueNative);
+    pkg_ffi.calloc.free(valueNative);
+  }
+
+  String? get message {
+    final resultPointer = _bindings.native_message_dialog_get_message(
+      nativeHandle,
+    );
+    if (resultPointer == ffi.nullptr) return null;
+    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
+    _bindings.free_c_str(resultPointer);
+    return result;
+  }
+
+  DialogModality get modality {
+    final raw = _bindings.native_message_dialog_get_modality(nativeHandle);
+    return DialogModality.fromValue(raw.value);
+  }
+
+  set modality(DialogModality value) {
+    _bindings.native_message_dialog_set_modality(nativeHandle, value.raw);
+  }
+
+  bool open() {
+    return _bindings.native_message_dialog_open(nativeHandle);
+  }
+
+  bool close() {
+    return _bindings.native_message_dialog_close(nativeHandle);
   }
 }

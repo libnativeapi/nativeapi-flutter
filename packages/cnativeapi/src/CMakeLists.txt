@@ -14,6 +14,21 @@ set(LIBNATIVEAPI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../cxx_impl")
 set(LIBNATIVEAPI_SRC_DIR "${LIBNATIVEAPI_ROOT}/src")
 set(LIBNATIVEAPI_INCLUDE_DIR "${LIBNATIVEAPI_ROOT}/include")
 
+# Use core's Windows build rules so optional backends and system libraries stay
+# in sync. Compile the C ABI into the DLL to retain every exported entry point.
+if(WIN32)
+    add_subdirectory("${LIBNATIVEAPI_SRC_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/nativeapi")
+    file(GLOB CAPI_SOURCES "${LIBNATIVEAPI_SRC_DIR}/capi/*.cpp" "${LIBNATIVEAPI_SRC_DIR}/capi/*.c")
+    add_library(cnativeapi SHARED ${CAPI_SOURCES})
+    if(MSVC)
+        target_compile_options(nativeapi PRIVATE /utf-8)
+        target_compile_options(cnativeapi PRIVATE /utf-8)
+    endif()
+    target_link_libraries(cnativeapi PRIVATE nativeapi ole32 uuid)
+    target_compile_definitions(cnativeapi PUBLIC DART_SHARED_LIB)
+    return()
+endif()
+
 # Common source files
 file(GLOB COMMON_SOURCES "${LIBNATIVEAPI_SRC_DIR}/*.cpp" "${LIBNATIVEAPI_SRC_DIR}/foundation/*.cpp")
 list(FILTER COMMON_SOURCES EXCLUDE REGEX "${LIBNATIVEAPI_SRC_DIR}/platform/*")
@@ -34,7 +49,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
     pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
     pkg_check_modules(XI REQUIRED IMPORTED_TARGET xi)
-    pkg_check_modules(AYATANA_APPINDICATOR REQUIRED IMPORTED_TARGET ayatana-appindicator3-0.1)
 elseif (APPLE)
     file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/macos/*.mm")
     # Find required frameworks for macOS
@@ -42,6 +56,7 @@ elseif (APPLE)
     find_library(CARBON_FRAMEWORK Carbon)
     find_library(COREGRAPHICS_FRAMEWORK CoreGraphics)
     find_library(APPLICATIONSERVICES_FRAMEWORK ApplicationServices)
+    find_library(SERVICEMANAGEMENT_FRAMEWORK ServiceManagement)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "OHOS")
     file(GLOB PLATFORM_SOURCES "${LIBNATIVEAPI_SRC_DIR}/platform/ohos/*.cpp")
 elseif (WIN32)
@@ -75,16 +90,26 @@ endif ()
 # Link required frameworks and libraries
 if(ANDROID)
     target_link_libraries(cnativeapi PUBLIC log android)
+    # Android 15 runs on devices with 16 KB memory pages; a shared library whose
+    # segments are aligned to 4 KB does not load there.
+    target_link_options(cnativeapi PRIVATE "-Wl,-z,max-page-size=16384")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(cnativeapi PUBLIC
             PkgConfig::GTK
             PkgConfig::X11
             PkgConfig::XI
-            PkgConfig::AYATANA_APPINDICATOR
             pthread
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "OHOS")
     target_link_libraries(cnativeapi PUBLIC hilog_ndk.z)
+elseif (APPLE)
+    target_link_libraries(cnativeapi PUBLIC
+            "${COCOA_FRAMEWORK}"
+            "${CARBON_FRAMEWORK}"
+            "${COREGRAPHICS_FRAMEWORK}"
+            "${APPLICATIONSERVICES_FRAMEWORK}"
+            "${SERVICEMANAGEMENT_FRAMEWORK}"
+    )
 elseif (WIN32)
     target_link_libraries(cnativeapi PUBLIC user32 shell32 dwmapi gdiplus crypt32)
 endif ()

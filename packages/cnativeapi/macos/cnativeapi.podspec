@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'cnativeapi'
-  s.version          = '0.0.1'
+  s.version          = '0.1.3'
   s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
 A new Flutter plugin project.
@@ -14,7 +14,8 @@ A new Flutter plugin project.
   s.author           = { 'Your Company' => 'email@example.com' }
 
   s.source           = { :path => '.' }
-  s.source_files = 'cnativeapi/Sources/cnativeapi/**/*', '../cxx_impl/**/*.{cpp,h,mm}'
+  s.source_files = 'cnativeapi/Sources/cnativeapi/**/*'
+  s.preserve_paths = '../cxx_impl/**/*'
 
   # If your plugin requires a privacy manifest, for example if it collects user
   # data, update the PrivacyInfo.xcprivacy file to describe your plugin's
@@ -23,6 +24,7 @@ A new Flutter plugin project.
   # s.resource_bundles = {'cnativeapi_privacy' => ['cnativeapi/Sources/cnativeapi/PrivacyInfo.xcprivacy']}
 
   s.dependency 'FlutterMacOS'
+  s.frameworks = ['Carbon', 'ServiceManagement', 'QuartzCore']
 
   s.platform = :osx, '10.15'
   s.pod_target_xcconfig = {
@@ -34,8 +36,7 @@ A new Flutter plugin project.
     'OTHER_CPLUSPLUSFLAGS' => '-std=c++17',
     # Enable Objective-C++ compilation for .cpp files
     'OTHER_CFLAGS' => '-DOBJC_OLD_DISPATCH_PROTOTYPES=0',
-    'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited)',
-    'MACOSX_DEPLOYMENT_TARGET' => '10.15'
+    'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited)'
   }
   s.swift_version = '5.0'
 

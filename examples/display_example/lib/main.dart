@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
-        // cardTheme: const CardThemeData(elevation: 2, margin: EdgeInsets.all(8)),
+        cardTheme: const CardThemeData(elevation: 2, margin: EdgeInsets.all(8)),
       ),
       home: const DisplayManagerPage(),
     );
@@ -50,9 +51,8 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
   @override
   void dispose() {
     _updateTimer?.cancel();
-    final windowManager = WindowManager.instance;
     for (final listenerId in _windowListenerIds) {
-      windowManager.removeListener(listenerId);
+      WindowManager.instance.removeListener(listenerId);
     }
     _windowListenerIds.clear();
     super.dispose();
@@ -66,24 +66,15 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
       }
     });
 
-    // Listen to window events to update current window
-    final windowManager = WindowManager.instance;
+    // One listener per emitter now, with the concrete event carried in the
+    // payload rather than selected by a type argument.
     _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowFocusedEvent>((event) {
-        if (mounted) {
-          _updateCurrentWindow();
+      WindowManager.instance.addListener((event) {
+        if (event is! WindowFocusedEvent &&
+            event is! WindowMovedEvent &&
+            event is! WindowResizedEvent) {
+          return;
         }
-      }),
-    );
-    _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowMovedEvent>((event) {
-        if (mounted) {
-          _updateCurrentWindow();
-        }
-      }),
-    );
-    _windowListenerIds.add(
-      windowManager.addCallbackListener<WindowResizedEvent>((event) {
         if (mounted) {
           _updateCurrentWindow();
         }
@@ -92,11 +83,9 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
   }
 
   void _updateCursorAndWindow() {
-    final displayManager = DisplayManager.instance;
-    final cursorPos = displayManager.getCursorPosition();
+    final cursorPos = DisplayManager.instance.getCursorPosition();
 
-    final windowManager = WindowManager.instance;
-    final currentWindow = windowManager.getCurrent();
+    final currentWindow = WindowManager.instance.getCurrent();
 
     if (mounted) {
       setState(() {
@@ -107,8 +96,7 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
   }
 
   void _updateCurrentWindow() {
-    final windowManager = WindowManager.instance;
-    final currentWindow = windowManager.getCurrent();
+    final currentWindow = WindowManager.instance.getCurrent();
 
     if (mounted) {
       setState(() {
@@ -124,8 +112,7 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
     });
 
     try {
-      final displayManager = DisplayManager.instance;
-      final displays = displayManager.getAll();
+      final displays = DisplayManager.instance.getAll();
 
       setState(() {
         _displays = displays;
@@ -514,7 +501,7 @@ class DisplayCanvas extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            display.name,
+            display.name ?? '',
             style: TextStyle(
               fontSize: nameSize,
               fontWeight: FontWeight.bold,
@@ -624,7 +611,9 @@ class DisplayCanvas extends StatelessWidget {
                     SizedBox(width: (4 * scale).clamp(2.0, 4.0)),
                     Expanded(
                       child: Text(
-                        window.title.isNotEmpty ? window.title : 'Window',
+                        (window.title?.isNotEmpty ?? false)
+                            ? window.title!
+                            : 'Window',
                         style: TextStyle(
                           fontSize: (10 * scale).clamp(6.0, 10.0),
                           color: Colors.orange[900],
@@ -751,7 +740,7 @@ class DisplayDetails extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  display.name,
+                  display.name ?? '',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.grey[800],
@@ -812,8 +801,8 @@ class DisplayDetails extends StatelessWidget {
   List<Widget> _buildDetailSections() {
     return [
       _buildSection('Basic Information', [
-        _DetailItem(Icons.badge, 'ID', display.id),
-        _DetailItem(Icons.label, 'Name', display.name),
+        _DetailItem(Icons.badge, 'ID', display.id.toString()),
+        _DetailItem(Icons.label, 'Name', display.name ?? ''),
         _DetailItem(Icons.star, 'Primary', display.isPrimary ? 'Yes' : 'No'),
       ]),
 

@@ -1,3 +1,35 @@
 [submodule "packages/cnativeapi/cxx_impl"]
 	path = packages/cnativeapi/cxx_impl
 	url = https://github.com/libnativeapi/nativeapi.git
+[submodule "packages/tray_manager"]
+	path = packages/tray_manager
+	url = https://github.com/leanflutter/tray_manager
+	branch = dev
+[submodule "packages/hotkey_manager"]
+	path = packages/hotkey_manager
+	url = https://github.com/leanflutter/hotkey_manager
+	branch = dev
+[submodule "packages/window_manager"]
+	path = packages/window_manager
+	url = https://github.com/leanflutter/window_manager
+	branch = dev
+[submodule "packages/screen_retriever"]
+	path = packages/screen_retriever
+	url = https://github.com/leanflutter/screen_retriever
+	branch = dev
+[submodule "packages/clipboard_watcher"]
+	path = packages/clipboard_watcher
+	url = https://github.com/leanflutter/clipboard_watcher
+	branch = dev
+[submodule "packages/launch_at_startup"]
+	path = packages/launch_at_startup
+	url = https://github.com/leanflutter/launch_at_startup
+	branch = dev
+[submodule "packages/protocol_handler"]
+	path = packages/protocol_handler
+	url = https://github.com/leanflutter/protocol_handler
+	branch = dev
+[submodule "packages/local_notifier"]
+	path = packages/local_notifier
+	url = https://github.com/leanflutter/local_notifier
+	branch = dev

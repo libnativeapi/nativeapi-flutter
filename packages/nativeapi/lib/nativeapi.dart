@@ -1,25 +1,13 @@
 library;
 
+// Every generated module. The list itself is generated too, so adding a header
+// upstream does not need an edit here.
+export 'src/generated.dart';
+
+// Hand-written additions that sit on top of the generated bindings.
 export 'src/widgets/context_menu_region.dart';
-export 'src/accessibility_manager.dart';
-export 'src/dialog.dart';
-export 'src/display.dart';
-export 'src/display_manager.dart';
-export 'src/foundation/event.dart';
-export 'src/foundation/event_emitter.dart';
-export 'src/foundation/geometry.dart';
-export 'src/placement.dart';
-export 'src/positioning_strategy.dart';
-export 'src/foundation/storage.dart';
-export 'src/image.dart';
-export 'src/menu.dart';
-export 'src/message_dialog.dart';
-export 'src/menu_event.dart';
-export 'src/preferences.dart';
-export 'src/secure_storage.dart';
-export 'src/tray_icon.dart';
-export 'src/tray_icon_event.dart';
-export 'src/tray_manager.dart';
-export 'src/window.dart';
-export 'src/window_event.dart';
-export 'src/window_manager.dart';
+export 'src/widgets/image_asset.dart';
+export 'src/widgets/drag_to_move_area.dart';
+export 'src/widgets/drag_to_resize_area.dart';
+export 'src/widgets/drag_out_area.dart';
+export 'src/widgets/drop_region.dart';

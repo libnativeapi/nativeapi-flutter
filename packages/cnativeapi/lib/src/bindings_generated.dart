@@ -10,8 +10,6 @@ import 'dart:ffi' as ffi;
 
 /// Bindings for `nativeapi capi`.
 ///
-/// Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-///
 class CNativeApiBindings {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
@@ -26,14 +24,6 @@ class CNativeApiBindings {
     ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
   ) : _lookup = lookup;
 
-  /// @brief Enables system accessibility features
-  ///
-  /// This function activates accessibility functionality across the system.
-  /// The operation is idempotent - calling it multiple times has the same
-  /// effect as calling it once.
-  ///
-  /// @note This operation may require system permissions depending on the
-  /// platform implementation.
   void native_accessibility_manager_enable() {
     return _native_accessibility_manager_enable();
   }
@@ -45,12 +35,6 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_enable =
       _native_accessibility_manager_enablePtr.asFunction<void Function()>();
 
-  /// @brief Checks if accessibility features are currently enabled
-  ///
-  /// @return true if accessibility is enabled, false otherwise
-  ///
-  /// This function provides a quick way to query the current state of
-  /// accessibility features without modifying the system state.
   bool native_accessibility_manager_is_enabled() {
     return _native_accessibility_manager_is_enabled();
   }
@@ -62,96 +46,206 @@ class CNativeApiBindings {
   late final _native_accessibility_manager_is_enabled =
       _native_accessibility_manager_is_enabledPtr.asFunction<bool Function()>();
 
-  /// @brief Creates a color from RGBA values.
-  ///
-  /// @param red Red component (0-255)
-  /// @param green Green component (0-255)
-  /// @param blue Blue component (0-255)
-  /// @param alpha Alpha component (0-255)
-  /// @return Color instance with specified values
-  native_color_t native_color_from_rgba(
-    int red,
-    int green,
-    int blue,
-    int alpha,
-  ) {
-    return _native_color_from_rgba(red, green, blue, alpha);
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_name() {
+    return _native_app_info_get_name();
   }
 
-  late final _native_color_from_rgbaPtr =
+  late final _native_app_info_get_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_name',
+      );
+  late final _native_app_info_get_name = _native_app_info_get_namePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_identifier() {
+    return _native_app_info_get_identifier();
+  }
+
+  late final _native_app_info_get_identifierPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_identifier',
+      );
+  late final _native_app_info_get_identifier =
+      _native_app_info_get_identifierPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_version() {
+    return _native_app_info_get_version();
+  }
+
+  late final _native_app_info_get_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_version',
+      );
+  late final _native_app_info_get_version = _native_app_info_get_versionPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_app_info_get_build_number() {
+    return _native_app_info_get_build_number();
+  }
+
+  late final _native_app_info_get_build_numberPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_app_info_get_build_number',
+      );
+  late final _native_app_info_get_build_number =
+      _native_app_info_get_build_numberPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned handle; release it with native_image_free().
+  int native_image_from_file(ffi.Pointer<ffi.Char> file_path) {
+    return _native_image_from_file(file_path);
+  }
+
+  late final _native_image_from_filePtr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_image_from_file');
+  late final _native_image_from_file = _native_image_from_filePtr
+      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned handle; release it with native_image_free().
+  int native_image_from_base64(ffi.Pointer<ffi.Char> base64_data) {
+    return _native_image_from_base64(base64_data);
+  }
+
+  late final _native_image_from_base64Ptr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_image_from_base64');
+  late final _native_image_from_base64 = _native_image_from_base64Ptr
+      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  native_size_t native_image_get_size(int image) {
+    return _native_image_get_size(image);
+  }
+
+  late final _native_image_get_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_image_t)>>(
+        'native_image_get_size',
+      );
+  late final _native_image_get_size = _native_image_get_sizePtr
+      .asFunction<native_size_t Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_image_get_format(int image) {
+    return _native_image_get_format(image);
+  }
+
+  late final _native_image_get_formatPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>
+      >('native_image_get_format');
+  late final _native_image_get_format = _native_image_get_formatPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_image_to_base64(int image) {
+    return _native_image_to_base64(image);
+  }
+
+  late final _native_image_to_base64Ptr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>
+      >('native_image_to_base64');
+  late final _native_image_to_base64 = _native_image_to_base64Ptr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  bool native_image_save_to_file(int image, ffi.Pointer<ffi.Char> file_path) {
+    return _native_image_save_to_file(image, file_path);
+  }
+
+  late final _native_image_save_to_filePtr =
       _lookup<
         ffi.NativeFunction<
-          native_color_t Function(
-            ffi.UnsignedChar,
-            ffi.UnsignedChar,
-            ffi.UnsignedChar,
-            ffi.UnsignedChar,
-          )
+          ffi.Bool Function(native_image_t, ffi.Pointer<ffi.Char>)
         >
-      >('native_color_from_rgba');
-  late final _native_color_from_rgba = _native_color_from_rgbaPtr
-      .asFunction<native_color_t Function(int, int, int, int)>();
+      >('native_image_save_to_file');
+  late final _native_image_save_to_file = _native_image_save_to_filePtr
+      .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Creates a color from a hexadecimal string.
-  ///
-  /// Supports multiple hex color formats:
-  /// - "#RGB" - 3-digit hex (e.g., "#F00" = red)
-  /// - "#RGBA" - 4-digit hex with alpha
-  /// - "#RRGGBB" - 6-digit hex (e.g., "#FF0000" = red)
-  /// - "#RRGGBBAA" - 8-digit hex with alpha
-  ///
-  /// @param hex Hexadecimal color string (with or without '#' prefix)
-  /// @param out_color Pointer to store the resulting color
-  /// @return true if parsing succeeded, false otherwise
-  bool native_color_from_hex(
-    ffi.Pointer<ffi.Char> hex,
-    ffi.Pointer<native_color_t> out_color,
-  ) {
-    return _native_color_from_hex(hex, out_color);
+  /// Platform-specific native object (NSScreen*, HMONITOR, ...).
+  ffi.Pointer<ffi.Void> native_image_get_native_object(int image) {
+    return _native_image_get_native_object(image);
   }
 
-  late final _native_color_from_hexPtr =
+  late final _native_image_get_native_objectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_image_t)>
+      >('native_image_get_native_object');
+  late final _native_image_get_native_object =
+      _native_image_get_native_objectPtr
+          .asFunction<ffi.Pointer<ffi.Void> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_image_free(int image) {
+    return _native_image_free(image);
+  }
+
+  late final _native_image_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_image_t)>>(
+        'native_image_free',
+      );
+  late final _native_image_free = _native_image_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_keyboard_accelerator_to_string(
+    native_keyboard_accelerator_t keyboard_accelerator,
+  ) {
+    return _native_keyboard_accelerator_to_string(keyboard_accelerator);
+  }
+
+  late final _native_keyboard_accelerator_to_stringPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<native_color_t>)
+          ffi.Pointer<ffi.Char> Function(native_keyboard_accelerator_t)
         >
-      >('native_color_from_hex');
-  late final _native_color_from_hex = _native_color_from_hexPtr
-      .asFunction<
-        bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<native_color_t>)
-      >();
+      >('native_keyboard_accelerator_to_string');
+  late final _native_keyboard_accelerator_to_string =
+      _native_keyboard_accelerator_to_stringPtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(native_keyboard_accelerator_t)
+          >();
 
-  /// @brief Converts the color to a 32-bit integer (RGBA format).
-  ///
-  /// @param color The color to convert
-  /// @return 32-bit unsigned integer in RGBA format (0xRRGGBBAA)
-  int native_color_to_rgba(native_color_t color) {
-    return _native_color_to_rgba(color);
+  bool native_keyboard_accelerator_is_empty(
+    native_keyboard_accelerator_t keyboard_accelerator,
+  ) {
+    return _native_keyboard_accelerator_is_empty(keyboard_accelerator);
   }
 
-  late final _native_color_to_rgbaPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint32 Function(native_color_t)>>(
-        'native_color_to_rgba',
-      );
-  late final _native_color_to_rgba = _native_color_to_rgbaPtr
-      .asFunction<int Function(native_color_t)>();
+  late final _native_keyboard_accelerator_is_emptyPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_keyboard_accelerator_t)>
+      >('native_keyboard_accelerator_is_empty');
+  late final _native_keyboard_accelerator_is_empty =
+      _native_keyboard_accelerator_is_emptyPtr
+          .asFunction<bool Function(native_keyboard_accelerator_t)>();
 
-  /// @brief Converts the color to a 32-bit integer (ARGB format).
-  ///
-  /// @param color The color to convert
-  /// @return 32-bit unsigned integer in ARGB format (0xAARRGGBB)
-  int native_color_to_argb(native_color_t color) {
-    return _native_color_to_argb(color);
+  /// Frees everything the struct owns.
+  void native_keyboard_accelerator_free(
+    ffi.Pointer<native_keyboard_accelerator_t> value,
+  ) {
+    return _native_keyboard_accelerator_free(value);
   }
 
-  late final _native_color_to_argbPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint32 Function(native_color_t)>>(
-        'native_color_to_argb',
-      );
-  late final _native_color_to_argb = _native_color_to_argbPtr
-      .asFunction<int Function(native_color_t)>();
+  late final _native_keyboard_accelerator_freePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_keyboard_accelerator_t>)
+        >
+      >('native_keyboard_accelerator_free');
+  late final _native_keyboard_accelerator_free =
+      _native_keyboard_accelerator_freePtr
+          .asFunction<
+            void Function(ffi.Pointer<native_keyboard_accelerator_t>)
+          >();
 
-  /// Predefined color constants
   late final ffi.Pointer<native_color_t> _NATIVE_COLOR_TRANSPARENT =
       _lookup<native_color_t>('NATIVE_COLOR_TRANSPARENT');
 
@@ -197,8 +291,244 @@ class CNativeApiBindings {
 
   native_color_t get NATIVE_COLOR_MAGENTA => _NATIVE_COLOR_MAGENTA.ref;
 
-  /// Window creation and destruction
-  native_window_t native_window_create() {
+  native_color_t native_color_from_rgba(
+    int red,
+    int green,
+    int blue,
+    int alpha,
+  ) {
+    return _native_color_from_rgba(red, green, blue, alpha);
+  }
+
+  late final _native_color_from_rgbaPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_color_t Function(
+            ffi.UnsignedChar,
+            ffi.UnsignedChar,
+            ffi.UnsignedChar,
+            ffi.UnsignedChar,
+          )
+        >
+      >('native_color_from_rgba');
+  late final _native_color_from_rgba = _native_color_from_rgbaPtr
+      .asFunction<native_color_t Function(int, int, int, int)>();
+
+  native_color_t native_color_from_hex(ffi.Pointer<ffi.Char> hex) {
+    return _native_color_from_hex(hex);
+  }
+
+  late final _native_color_from_hexPtr =
+      _lookup<
+        ffi.NativeFunction<native_color_t Function(ffi.Pointer<ffi.Char>)>
+      >('native_color_from_hex');
+  late final _native_color_from_hex = _native_color_from_hexPtr
+      .asFunction<native_color_t Function(ffi.Pointer<ffi.Char>)>();
+
+  int native_color_to_rgba(native_color_t color) {
+    return _native_color_to_rgba(color);
+  }
+
+  late final _native_color_to_rgbaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_color_t)>>(
+        'native_color_to_rgba',
+      );
+  late final _native_color_to_rgba = _native_color_to_rgbaPtr
+      .asFunction<int Function(native_color_t)>();
+
+  int native_color_to_argb(native_color_t color) {
+    return _native_color_to_argb(color);
+  }
+
+  late final _native_color_to_argbPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_color_t)>>(
+        'native_color_to_argb',
+      );
+  late final _native_color_to_argb = _native_color_to_argbPtr
+      .asFunction<int Function(native_color_t)>();
+
+  /// Creates a WindowShadow instance; release it with native_window_shadow_free().
+  int native_window_shadow_create() {
+    return _native_window_shadow_create();
+  }
+
+  late final _native_window_shadow_createPtr =
+      _lookup<ffi.NativeFunction<native_window_shadow_t Function()>>(
+        'native_window_shadow_create',
+      );
+  late final _native_window_shadow_create = _native_window_shadow_createPtr
+      .asFunction<int Function()>();
+
+  void native_window_shadow_set_color(int window_shadow, native_color_t color) {
+    return _native_window_shadow_set_color(window_shadow, color);
+  }
+
+  late final _native_window_shadow_set_colorPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_shadow_t, native_color_t)
+        >
+      >('native_window_shadow_set_color');
+  late final _native_window_shadow_set_color =
+      _native_window_shadow_set_colorPtr
+          .asFunction<void Function(int, native_color_t)>();
+
+  native_color_t native_window_shadow_get_color(int window_shadow) {
+    return _native_window_shadow_get_color(window_shadow);
+  }
+
+  late final _native_window_shadow_get_colorPtr =
+      _lookup<
+        ffi.NativeFunction<native_color_t Function(native_window_shadow_t)>
+      >('native_window_shadow_get_color');
+  late final _native_window_shadow_get_color =
+      _native_window_shadow_get_colorPtr
+          .asFunction<native_color_t Function(int)>();
+
+  bool native_window_shadow_set_blur_radius(int window_shadow, double radius) {
+    return _native_window_shadow_set_blur_radius(window_shadow, radius);
+  }
+
+  late final _native_window_shadow_set_blur_radiusPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_shadow_t, ffi.Double)
+        >
+      >('native_window_shadow_set_blur_radius');
+  late final _native_window_shadow_set_blur_radius =
+      _native_window_shadow_set_blur_radiusPtr
+          .asFunction<bool Function(int, double)>();
+
+  double native_window_shadow_get_blur_radius(int window_shadow) {
+    return _native_window_shadow_get_blur_radius(window_shadow);
+  }
+
+  late final _native_window_shadow_get_blur_radiusPtr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(native_window_shadow_t)>>(
+        'native_window_shadow_get_blur_radius',
+      );
+  late final _native_window_shadow_get_blur_radius =
+      _native_window_shadow_get_blur_radiusPtr
+          .asFunction<double Function(int)>();
+
+  bool native_window_shadow_set_offset(
+    int window_shadow,
+    native_point_t offset,
+  ) {
+    return _native_window_shadow_set_offset(window_shadow, offset);
+  }
+
+  late final _native_window_shadow_set_offsetPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_shadow_t, native_point_t)
+        >
+      >('native_window_shadow_set_offset');
+  late final _native_window_shadow_set_offset =
+      _native_window_shadow_set_offsetPtr
+          .asFunction<bool Function(int, native_point_t)>();
+
+  native_point_t native_window_shadow_get_offset(int window_shadow) {
+    return _native_window_shadow_get_offset(window_shadow);
+  }
+
+  late final _native_window_shadow_get_offsetPtr =
+      _lookup<
+        ffi.NativeFunction<native_point_t Function(native_window_shadow_t)>
+      >('native_window_shadow_get_offset');
+  late final _native_window_shadow_get_offset =
+      _native_window_shadow_get_offsetPtr
+          .asFunction<native_point_t Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_shadow_free(int window_shadow) {
+    return _native_window_shadow_free(window_shadow);
+  }
+
+  late final _native_window_shadow_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_shadow_t)>>(
+        'native_window_shadow_free',
+      );
+  late final _native_window_shadow_free = _native_window_shadow_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Creates a WindowShape instance; release it with native_window_shape_free().
+  int native_window_shape_create() {
+    return _native_window_shape_create();
+  }
+
+  late final _native_window_shape_createPtr =
+      _lookup<ffi.NativeFunction<native_window_shape_t Function()>>(
+        'native_window_shape_create',
+      );
+  late final _native_window_shape_create = _native_window_shape_createPtr
+      .asFunction<int Function()>();
+
+  bool native_window_shape_add_point(int window_shape, native_point_t point) {
+    return _native_window_shape_add_point(window_shape, point);
+  }
+
+  late final _native_window_shape_add_pointPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_shape_t, native_point_t)
+        >
+      >('native_window_shape_add_point');
+  late final _native_window_shape_add_point = _native_window_shape_add_pointPtr
+      .asFunction<bool Function(int, native_point_t)>();
+
+  void native_window_shape_clear(int window_shape) {
+    return _native_window_shape_clear(window_shape);
+  }
+
+  late final _native_window_shape_clearPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_shape_t)>>(
+        'native_window_shape_clear',
+      );
+  late final _native_window_shape_clear = _native_window_shape_clearPtr
+      .asFunction<void Function(int)>();
+
+  int native_window_shape_get_point_count(int window_shape) {
+    return _native_window_shape_get_point_count(window_shape);
+  }
+
+  late final _native_window_shape_get_point_countPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedLong Function(native_window_shape_t)>
+      >('native_window_shape_get_point_count');
+  late final _native_window_shape_get_point_count =
+      _native_window_shape_get_point_countPtr.asFunction<int Function(int)>();
+
+  native_point_t native_window_shape_get_point_at(int window_shape, int index) {
+    return _native_window_shape_get_point_at(window_shape, index);
+  }
+
+  late final _native_window_shape_get_point_atPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_point_t Function(native_window_shape_t, ffi.UnsignedLong)
+        >
+      >('native_window_shape_get_point_at');
+  late final _native_window_shape_get_point_at =
+      _native_window_shape_get_point_atPtr
+          .asFunction<native_point_t Function(int, int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_shape_free(int window_shape) {
+    return _native_window_shape_free(window_shape);
+  }
+
+  late final _native_window_shape_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_shape_t)>>(
+        'native_window_shape_free',
+      );
+  late final _native_window_shape_free = _native_window_shape_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Creates a Window instance; release it with native_window_free().
+  int native_window_create() {
     return _native_window_create();
   }
 
@@ -207,35 +537,24 @@ class CNativeApiBindings {
         'native_window_create',
       );
   late final _native_window_create = _native_window_createPtr
-      .asFunction<native_window_t Function()>();
+      .asFunction<int Function()>();
 
-  native_window_t native_window_create_from_native(
+  /// Creates a Window instance; release it with native_window_free().
+  int native_window_create_with_native_window(
     ffi.Pointer<ffi.Void> native_window,
   ) {
-    return _native_window_create_from_native(native_window);
+    return _native_window_create_with_native_window(native_window);
   }
 
-  late final _native_window_create_from_nativePtr =
+  late final _native_window_create_with_native_windowPtr =
       _lookup<
         ffi.NativeFunction<native_window_t Function(ffi.Pointer<ffi.Void>)>
-      >('native_window_create_from_native');
-  late final _native_window_create_from_native =
-      _native_window_create_from_nativePtr
-          .asFunction<native_window_t Function(ffi.Pointer<ffi.Void>)>();
+      >('native_window_create_with_native_window');
+  late final _native_window_create_with_native_window =
+      _native_window_create_with_native_windowPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  void native_window_destroy(native_window_t window) {
-    return _native_window_destroy(window);
-  }
-
-  late final _native_window_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
-        'native_window_destroy',
-      );
-  late final _native_window_destroy = _native_window_destroyPtr
-      .asFunction<void Function(native_window_t)>();
-
-  /// Window basic operations
-  int native_window_get_id(native_window_t window) {
+  int native_window_get_id(int window) {
     return _native_window_get_id(window);
   }
 
@@ -244,9 +563,9 @@ class CNativeApiBindings {
         'native_window_get_id',
       );
   late final _native_window_get_id = _native_window_get_idPtr
-      .asFunction<int Function(native_window_t)>();
+      .asFunction<int Function(int)>();
 
-  void native_window_focus(native_window_t window) {
+  void native_window_focus(int window) {
     return _native_window_focus(window);
   }
 
@@ -255,9 +574,9 @@ class CNativeApiBindings {
         'native_window_focus',
       );
   late final _native_window_focus = _native_window_focusPtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  void native_window_blur(native_window_t window) {
+  void native_window_blur(int window) {
     return _native_window_blur(window);
   }
 
@@ -266,9 +585,9 @@ class CNativeApiBindings {
         'native_window_blur',
       );
   late final _native_window_blur = _native_window_blurPtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  bool native_window_is_focused(native_window_t window) {
+  bool native_window_is_focused(int window) {
     return _native_window_is_focused(window);
   }
 
@@ -277,9 +596,9 @@ class CNativeApiBindings {
         'native_window_is_focused',
       );
   late final _native_window_is_focused = _native_window_is_focusedPtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_show(native_window_t window) {
+  void native_window_show(int window) {
     return _native_window_show(window);
   }
 
@@ -288,9 +607,9 @@ class CNativeApiBindings {
         'native_window_show',
       );
   late final _native_window_show = _native_window_showPtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  void native_window_show_inactive(native_window_t window) {
+  void native_window_show_inactive(int window) {
     return _native_window_show_inactive(window);
   }
 
@@ -299,9 +618,9 @@ class CNativeApiBindings {
         'native_window_show_inactive',
       );
   late final _native_window_show_inactive = _native_window_show_inactivePtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  void native_window_hide(native_window_t window) {
+  void native_window_hide(int window) {
     return _native_window_hide(window);
   }
 
@@ -310,9 +629,9 @@ class CNativeApiBindings {
         'native_window_hide',
       );
   late final _native_window_hide = _native_window_hidePtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  bool native_window_is_visible(native_window_t window) {
+  bool native_window_is_visible(int window) {
     return _native_window_is_visible(window);
   }
 
@@ -321,10 +640,9 @@ class CNativeApiBindings {
         'native_window_is_visible',
       );
   late final _native_window_is_visible = _native_window_is_visiblePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Window state operations
-  void native_window_maximize(native_window_t window) {
+  void native_window_maximize(int window) {
     return _native_window_maximize(window);
   }
 
@@ -333,9 +651,9 @@ class CNativeApiBindings {
         'native_window_maximize',
       );
   late final _native_window_maximize = _native_window_maximizePtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  void native_window_unmaximize(native_window_t window) {
+  void native_window_unmaximize(int window) {
     return _native_window_unmaximize(window);
   }
 
@@ -344,9 +662,9 @@ class CNativeApiBindings {
         'native_window_unmaximize',
       );
   late final _native_window_unmaximize = _native_window_unmaximizePtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  bool native_window_is_maximized(native_window_t window) {
+  bool native_window_is_maximized(int window) {
     return _native_window_is_maximized(window);
   }
 
@@ -355,9 +673,9 @@ class CNativeApiBindings {
         'native_window_is_maximized',
       );
   late final _native_window_is_maximized = _native_window_is_maximizedPtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_minimize(native_window_t window) {
+  void native_window_minimize(int window) {
     return _native_window_minimize(window);
   }
 
@@ -366,9 +684,9 @@ class CNativeApiBindings {
         'native_window_minimize',
       );
   late final _native_window_minimize = _native_window_minimizePtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  void native_window_restore(native_window_t window) {
+  void native_window_restore(int window) {
     return _native_window_restore(window);
   }
 
@@ -377,9 +695,9 @@ class CNativeApiBindings {
         'native_window_restore',
       );
   late final _native_window_restore = _native_window_restorePtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  bool native_window_is_minimized(native_window_t window) {
+  bool native_window_is_minimized(int window) {
     return _native_window_is_minimized(window);
   }
 
@@ -388,38 +706,31 @@ class CNativeApiBindings {
         'native_window_is_minimized',
       );
   late final _native_window_is_minimized = _native_window_is_minimizedPtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_set_fullscreen(
-    native_window_t window,
-    bool is_fullscreen,
-  ) {
-    return _native_window_set_fullscreen(window, is_fullscreen);
+  void native_window_set_full_screen(int window, bool is_full_screen) {
+    return _native_window_set_full_screen(window, is_full_screen);
   }
 
-  late final _native_window_set_fullscreenPtr =
+  late final _native_window_set_full_screenPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
-        'native_window_set_fullscreen',
+        'native_window_set_full_screen',
       );
-  late final _native_window_set_fullscreen = _native_window_set_fullscreenPtr
-      .asFunction<void Function(native_window_t, bool)>();
+  late final _native_window_set_full_screen = _native_window_set_full_screenPtr
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_fullscreen(native_window_t window) {
-    return _native_window_is_fullscreen(window);
+  bool native_window_is_full_screen(int window) {
+    return _native_window_is_full_screen(window);
   }
 
-  late final _native_window_is_fullscreenPtr =
+  late final _native_window_is_full_screenPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
-        'native_window_is_fullscreen',
+        'native_window_is_full_screen',
       );
-  late final _native_window_is_fullscreen = _native_window_is_fullscreenPtr
-      .asFunction<bool Function(native_window_t)>();
+  late final _native_window_is_full_screen = _native_window_is_full_screenPtr
+      .asFunction<bool Function(int)>();
 
-  /// Window geometry operations
-  void native_window_set_bounds(
-    native_window_t window,
-    native_rectangle_t bounds,
-  ) {
+  void native_window_set_bounds(int window, native_rectangle_t bounds) {
     return _native_window_set_bounds(window, bounds);
   }
 
@@ -430,9 +741,9 @@ class CNativeApiBindings {
         >
       >('native_window_set_bounds');
   late final _native_window_set_bounds = _native_window_set_boundsPtr
-      .asFunction<void Function(native_window_t, native_rectangle_t)>();
+      .asFunction<void Function(int, native_rectangle_t)>();
 
-  native_rectangle_t native_window_get_bounds(native_window_t window) {
+  native_rectangle_t native_window_get_bounds(int window) {
     return _native_window_get_bounds(window);
   }
 
@@ -441,71 +752,9 @@ class CNativeApiBindings {
         'native_window_get_bounds',
       );
   late final _native_window_get_bounds = _native_window_get_boundsPtr
-      .asFunction<native_rectangle_t Function(native_window_t)>();
+      .asFunction<native_rectangle_t Function(int)>();
 
-  void native_window_set_size(
-    native_window_t window,
-    double width,
-    double height,
-    bool animate,
-  ) {
-    return _native_window_set_size(window, width, height, animate);
-  }
-
-  late final _native_window_set_sizePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(native_window_t, ffi.Double, ffi.Double, ffi.Bool)
-        >
-      >('native_window_set_size');
-  late final _native_window_set_size = _native_window_set_sizePtr
-      .asFunction<void Function(native_window_t, double, double, bool)>();
-
-  native_size_t native_window_get_size(native_window_t window) {
-    return _native_window_get_size(window);
-  }
-
-  late final _native_window_get_sizePtr =
-      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
-        'native_window_get_size',
-      );
-  late final _native_window_get_size = _native_window_get_sizePtr
-      .asFunction<native_size_t Function(native_window_t)>();
-
-  void native_window_set_content_size(
-    native_window_t window,
-    double width,
-    double height,
-  ) {
-    return _native_window_set_content_size(window, width, height);
-  }
-
-  late final _native_window_set_content_sizePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
-        >
-      >('native_window_set_content_size');
-  late final _native_window_set_content_size =
-      _native_window_set_content_sizePtr
-          .asFunction<void Function(native_window_t, double, double)>();
-
-  native_size_t native_window_get_content_size(native_window_t window) {
-    return _native_window_get_content_size(window);
-  }
-
-  late final _native_window_get_content_sizePtr =
-      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
-        'native_window_get_content_size',
-      );
-  late final _native_window_get_content_size =
-      _native_window_get_content_sizePtr
-          .asFunction<native_size_t Function(native_window_t)>();
-
-  void native_window_set_content_bounds(
-    native_window_t window,
-    native_rectangle_t bounds,
-  ) {
+  void native_window_set_content_bounds(int window, native_rectangle_t bounds) {
     return _native_window_set_content_bounds(window, bounds);
   }
 
@@ -517,9 +766,9 @@ class CNativeApiBindings {
       >('native_window_set_content_bounds');
   late final _native_window_set_content_bounds =
       _native_window_set_content_boundsPtr
-          .asFunction<void Function(native_window_t, native_rectangle_t)>();
+          .asFunction<void Function(int, native_rectangle_t)>();
 
-  native_rectangle_t native_window_get_content_bounds(native_window_t window) {
+  native_rectangle_t native_window_get_content_bounds(int window) {
     return _native_window_get_content_bounds(window);
   }
 
@@ -529,27 +778,69 @@ class CNativeApiBindings {
       );
   late final _native_window_get_content_bounds =
       _native_window_get_content_boundsPtr
-          .asFunction<native_rectangle_t Function(native_window_t)>();
+          .asFunction<native_rectangle_t Function(int)>();
 
-  void native_window_set_minimum_size(
-    native_window_t window,
-    double width,
-    double height,
-  ) {
-    return _native_window_set_minimum_size(window, width, height);
+  void native_window_set_size(int window, native_size_t size, bool animate) {
+    return _native_window_set_size(window, size, animate);
+  }
+
+  late final _native_window_set_sizePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_window_t, native_size_t, ffi.Bool)
+        >
+      >('native_window_set_size');
+  late final _native_window_set_size = _native_window_set_sizePtr
+      .asFunction<void Function(int, native_size_t, bool)>();
+
+  native_size_t native_window_get_size(int window) {
+    return _native_window_get_size(window);
+  }
+
+  late final _native_window_get_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
+        'native_window_get_size',
+      );
+  late final _native_window_get_size = _native_window_get_sizePtr
+      .asFunction<native_size_t Function(int)>();
+
+  void native_window_set_content_size(int window, native_size_t size) {
+    return _native_window_set_content_size(window, size);
+  }
+
+  late final _native_window_set_content_sizePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, native_size_t)>
+      >('native_window_set_content_size');
+  late final _native_window_set_content_size =
+      _native_window_set_content_sizePtr
+          .asFunction<void Function(int, native_size_t)>();
+
+  native_size_t native_window_get_content_size(int window) {
+    return _native_window_get_content_size(window);
+  }
+
+  late final _native_window_get_content_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_window_t)>>(
+        'native_window_get_content_size',
+      );
+  late final _native_window_get_content_size =
+      _native_window_get_content_sizePtr
+          .asFunction<native_size_t Function(int)>();
+
+  void native_window_set_minimum_size(int window, native_size_t size) {
+    return _native_window_set_minimum_size(window, size);
   }
 
   late final _native_window_set_minimum_sizePtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
-        >
+        ffi.NativeFunction<ffi.Void Function(native_window_t, native_size_t)>
       >('native_window_set_minimum_size');
   late final _native_window_set_minimum_size =
       _native_window_set_minimum_sizePtr
-          .asFunction<void Function(native_window_t, double, double)>();
+          .asFunction<void Function(int, native_size_t)>();
 
-  native_size_t native_window_get_minimum_size(native_window_t window) {
+  native_size_t native_window_get_minimum_size(int window) {
     return _native_window_get_minimum_size(window);
   }
 
@@ -559,27 +850,21 @@ class CNativeApiBindings {
       );
   late final _native_window_get_minimum_size =
       _native_window_get_minimum_sizePtr
-          .asFunction<native_size_t Function(native_window_t)>();
+          .asFunction<native_size_t Function(int)>();
 
-  void native_window_set_maximum_size(
-    native_window_t window,
-    double width,
-    double height,
-  ) {
-    return _native_window_set_maximum_size(window, width, height);
+  void native_window_set_maximum_size(int window, native_size_t size) {
+    return _native_window_set_maximum_size(window, size);
   }
 
   late final _native_window_set_maximum_sizePtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
-        >
+        ffi.NativeFunction<ffi.Void Function(native_window_t, native_size_t)>
       >('native_window_set_maximum_size');
   late final _native_window_set_maximum_size =
       _native_window_set_maximum_sizePtr
-          .asFunction<void Function(native_window_t, double, double)>();
+          .asFunction<void Function(int, native_size_t)>();
 
-  native_size_t native_window_get_maximum_size(native_window_t window) {
+  native_size_t native_window_get_maximum_size(int window) {
     return _native_window_get_maximum_size(window);
   }
 
@@ -589,46 +874,33 @@ class CNativeApiBindings {
       );
   late final _native_window_get_maximum_size =
       _native_window_get_maximum_sizePtr
-          .asFunction<native_size_t Function(native_window_t)>();
+          .asFunction<native_size_t Function(int)>();
 
-  void native_window_set_position(native_window_t window, double x, double y) {
-    return _native_window_set_position(window, x, y);
+  void native_window_set_aspect_ratio(int window, double aspect_ratio) {
+    return _native_window_set_aspect_ratio(window, aspect_ratio);
   }
 
-  late final _native_window_set_positionPtr =
+  late final _native_window_set_aspect_ratioPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(native_window_t, ffi.Double, ffi.Double)
-        >
-      >('native_window_set_position');
-  late final _native_window_set_position = _native_window_set_positionPtr
-      .asFunction<void Function(native_window_t, double, double)>();
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Double)>
+      >('native_window_set_aspect_ratio');
+  late final _native_window_set_aspect_ratio =
+      _native_window_set_aspect_ratioPtr
+          .asFunction<void Function(int, double)>();
 
-  native_point_t native_window_get_position(native_window_t window) {
-    return _native_window_get_position(window);
+  double native_window_get_aspect_ratio(int window) {
+    return _native_window_get_aspect_ratio(window);
   }
 
-  late final _native_window_get_positionPtr =
-      _lookup<ffi.NativeFunction<native_point_t Function(native_window_t)>>(
-        'native_window_get_position',
+  late final _native_window_get_aspect_ratioPtr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(native_window_t)>>(
+        'native_window_get_aspect_ratio',
       );
-  late final _native_window_get_position = _native_window_get_positionPtr
-      .asFunction<native_point_t Function(native_window_t)>();
+  late final _native_window_get_aspect_ratio =
+      _native_window_get_aspect_ratioPtr.asFunction<double Function(int)>();
 
-  void native_window_center(native_window_t window) {
-    return _native_window_center(window);
-  }
-
-  late final _native_window_centerPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
-        'native_window_center',
-      );
-  late final _native_window_center = _native_window_centerPtr
-      .asFunction<void Function(native_window_t)>();
-
-  /// Window properties
-  void native_window_set_resizable(native_window_t window, bool resizable) {
-    return _native_window_set_resizable(window, resizable);
+  void native_window_set_resizable(int window, bool is_resizable) {
+    return _native_window_set_resizable(window, is_resizable);
   }
 
   late final _native_window_set_resizablePtr =
@@ -636,9 +908,9 @@ class CNativeApiBindings {
         'native_window_set_resizable',
       );
   late final _native_window_set_resizable = _native_window_set_resizablePtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_resizable(native_window_t window) {
+  bool native_window_is_resizable(int window) {
     return _native_window_is_resizable(window);
   }
 
@@ -647,10 +919,10 @@ class CNativeApiBindings {
         'native_window_is_resizable',
       );
   late final _native_window_is_resizable = _native_window_is_resizablePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_set_movable(native_window_t window, bool movable) {
-    return _native_window_set_movable(window, movable);
+  void native_window_set_movable(int window, bool is_movable) {
+    return _native_window_set_movable(window, is_movable);
   }
 
   late final _native_window_set_movablePtr =
@@ -658,9 +930,9 @@ class CNativeApiBindings {
         'native_window_set_movable',
       );
   late final _native_window_set_movable = _native_window_set_movablePtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_movable(native_window_t window) {
+  bool native_window_is_movable(int window) {
     return _native_window_is_movable(window);
   }
 
@@ -669,10 +941,10 @@ class CNativeApiBindings {
         'native_window_is_movable',
       );
   late final _native_window_is_movable = _native_window_is_movablePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_set_minimizable(native_window_t window, bool minimizable) {
-    return _native_window_set_minimizable(window, minimizable);
+  void native_window_set_minimizable(int window, bool is_minimizable) {
+    return _native_window_set_minimizable(window, is_minimizable);
   }
 
   late final _native_window_set_minimizablePtr =
@@ -680,9 +952,9 @@ class CNativeApiBindings {
         'native_window_set_minimizable',
       );
   late final _native_window_set_minimizable = _native_window_set_minimizablePtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_minimizable(native_window_t window) {
+  bool native_window_is_minimizable(int window) {
     return _native_window_is_minimizable(window);
   }
 
@@ -691,10 +963,10 @@ class CNativeApiBindings {
         'native_window_is_minimizable',
       );
   late final _native_window_is_minimizable = _native_window_is_minimizablePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_set_maximizable(native_window_t window, bool maximizable) {
-    return _native_window_set_maximizable(window, maximizable);
+  void native_window_set_maximizable(int window, bool is_maximizable) {
+    return _native_window_set_maximizable(window, is_maximizable);
   }
 
   late final _native_window_set_maximizablePtr =
@@ -702,9 +974,9 @@ class CNativeApiBindings {
         'native_window_set_maximizable',
       );
   late final _native_window_set_maximizable = _native_window_set_maximizablePtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_maximizable(native_window_t window) {
+  bool native_window_is_maximizable(int window) {
     return _native_window_is_maximizable(window);
   }
 
@@ -713,37 +985,33 @@ class CNativeApiBindings {
         'native_window_is_maximizable',
       );
   late final _native_window_is_maximizable = _native_window_is_maximizablePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_set_fullscreenable(
-    native_window_t window,
-    bool fullscreenable,
-  ) {
-    return _native_window_set_fullscreenable(window, fullscreenable);
+  void native_window_set_full_screenable(int window, bool is_full_screenable) {
+    return _native_window_set_full_screenable(window, is_full_screenable);
   }
 
-  late final _native_window_set_fullscreenablePtr =
+  late final _native_window_set_full_screenablePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
-        'native_window_set_fullscreenable',
+        'native_window_set_full_screenable',
       );
-  late final _native_window_set_fullscreenable =
-      _native_window_set_fullscreenablePtr
-          .asFunction<void Function(native_window_t, bool)>();
+  late final _native_window_set_full_screenable =
+      _native_window_set_full_screenablePtr
+          .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_fullscreenable(native_window_t window) {
-    return _native_window_is_fullscreenable(window);
+  bool native_window_is_full_screenable(int window) {
+    return _native_window_is_full_screenable(window);
   }
 
-  late final _native_window_is_fullscreenablePtr =
+  late final _native_window_is_full_screenablePtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
-        'native_window_is_fullscreenable',
+        'native_window_is_full_screenable',
       );
-  late final _native_window_is_fullscreenable =
-      _native_window_is_fullscreenablePtr
-          .asFunction<bool Function(native_window_t)>();
+  late final _native_window_is_full_screenable =
+      _native_window_is_full_screenablePtr.asFunction<bool Function(int)>();
 
-  void native_window_set_closable(native_window_t window, bool closable) {
-    return _native_window_set_closable(window, closable);
+  void native_window_set_closable(int window, bool is_closable) {
+    return _native_window_set_closable(window, is_closable);
   }
 
   late final _native_window_set_closablePtr =
@@ -751,9 +1019,9 @@ class CNativeApiBindings {
         'native_window_set_closable',
       );
   late final _native_window_set_closable = _native_window_set_closablePtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_closable(native_window_t window) {
+  bool native_window_is_closable(int window) {
     return _native_window_is_closable(window);
   }
 
@@ -762,13 +1030,16 @@ class CNativeApiBindings {
         'native_window_is_closable',
       );
   late final _native_window_is_closable = _native_window_is_closablePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
   void native_window_set_window_control_buttons_visible(
-    native_window_t window,
-    bool visible,
+    int window,
+    bool is_visible,
   ) {
-    return _native_window_set_window_control_buttons_visible(window, visible);
+    return _native_window_set_window_control_buttons_visible(
+      window,
+      is_visible,
+    );
   }
 
   late final _native_window_set_window_control_buttons_visiblePtr =
@@ -777,9 +1048,9 @@ class CNativeApiBindings {
       );
   late final _native_window_set_window_control_buttons_visible =
       _native_window_set_window_control_buttons_visiblePtr
-          .asFunction<void Function(native_window_t, bool)>();
+          .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_window_control_buttons_visible(native_window_t window) {
+  bool native_window_is_window_control_buttons_visible(int window) {
     return _native_window_is_window_control_buttons_visible(window);
   }
 
@@ -789,13 +1060,10 @@ class CNativeApiBindings {
       );
   late final _native_window_is_window_control_buttons_visible =
       _native_window_is_window_control_buttons_visiblePtr
-          .asFunction<bool Function(native_window_t)>();
+          .asFunction<bool Function(int)>();
 
-  void native_window_set_always_on_top(
-    native_window_t window,
-    bool always_on_top,
-  ) {
-    return _native_window_set_always_on_top(window, always_on_top);
+  void native_window_set_always_on_top(int window, bool is_always_on_top) {
+    return _native_window_set_always_on_top(window, is_always_on_top);
   }
 
   late final _native_window_set_always_on_topPtr =
@@ -804,9 +1072,9 @@ class CNativeApiBindings {
       );
   late final _native_window_set_always_on_top =
       _native_window_set_always_on_topPtr
-          .asFunction<void Function(native_window_t, bool)>();
+          .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_always_on_top(native_window_t window) {
+  bool native_window_is_always_on_top(int window) {
     return _native_window_is_always_on_top(window);
   }
 
@@ -815,26 +1083,128 @@ class CNativeApiBindings {
         'native_window_is_always_on_top',
       );
   late final _native_window_is_always_on_top =
-      _native_window_is_always_on_topPtr
-          .asFunction<bool Function(native_window_t)>();
+      _native_window_is_always_on_topPtr.asFunction<bool Function(int)>();
 
-  bool native_window_set_title(
-    native_window_t window,
-    ffi.Pointer<ffi.Char> title,
+  void native_window_set_always_on_bottom(
+    int window,
+    bool is_always_on_bottom,
   ) {
+    return _native_window_set_always_on_bottom(window, is_always_on_bottom);
+  }
+
+  late final _native_window_set_always_on_bottomPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_always_on_bottom',
+      );
+  late final _native_window_set_always_on_bottom =
+      _native_window_set_always_on_bottomPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_window_is_always_on_bottom(int window) {
+    return _native_window_is_always_on_bottom(window);
+  }
+
+  late final _native_window_is_always_on_bottomPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_always_on_bottom',
+      );
+  late final _native_window_is_always_on_bottom =
+      _native_window_is_always_on_bottomPtr.asFunction<bool Function(int)>();
+
+  bool native_window_set_parent_window(int window, int parent) {
+    return _native_window_set_parent_window(window, parent);
+  }
+
+  late final _native_window_set_parent_windowPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_window_t, native_window_t)>
+      >('native_window_set_parent_window');
+  late final _native_window_set_parent_window =
+      _native_window_set_parent_windowPtr.asFunction<bool Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_window_get_parent_window(int window) {
+    return _native_window_get_parent_window(window);
+  }
+
+  late final _native_window_get_parent_windowPtr =
+      _lookup<ffi.NativeFunction<native_window_t Function(native_window_t)>>(
+        'native_window_get_parent_window',
+      );
+  late final _native_window_get_parent_window =
+      _native_window_get_parent_windowPtr.asFunction<int Function(int)>();
+
+  void native_window_set_non_activating(int window, bool is_non_activating) {
+    return _native_window_set_non_activating(window, is_non_activating);
+  }
+
+  late final _native_window_set_non_activatingPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_non_activating',
+      );
+  late final _native_window_set_non_activating =
+      _native_window_set_non_activatingPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_window_is_non_activating(int window) {
+    return _native_window_is_non_activating(window);
+  }
+
+  late final _native_window_is_non_activatingPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_non_activating',
+      );
+  late final _native_window_is_non_activating =
+      _native_window_is_non_activatingPtr.asFunction<bool Function(int)>();
+
+  void native_window_set_position(int window, native_point_t point) {
+    return _native_window_set_position(window, point);
+  }
+
+  late final _native_window_set_positionPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, native_point_t)>
+      >('native_window_set_position');
+  late final _native_window_set_position = _native_window_set_positionPtr
+      .asFunction<void Function(int, native_point_t)>();
+
+  native_point_t native_window_get_position(int window) {
+    return _native_window_get_position(window);
+  }
+
+  late final _native_window_get_positionPtr =
+      _lookup<ffi.NativeFunction<native_point_t Function(native_window_t)>>(
+        'native_window_get_position',
+      );
+  late final _native_window_get_position = _native_window_get_positionPtr
+      .asFunction<native_point_t Function(int)>();
+
+  void native_window_center(int window) {
+    return _native_window_center(window);
+  }
+
+  late final _native_window_centerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_center',
+      );
+  late final _native_window_center = _native_window_centerPtr
+      .asFunction<void Function(int)>();
+
+  void native_window_set_title(int window, ffi.Pointer<ffi.Char> title) {
     return _native_window_set_title(window, title);
   }
 
   late final _native_window_set_titlePtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Bool Function(native_window_t, ffi.Pointer<ffi.Char>)
+          ffi.Void Function(native_window_t, ffi.Pointer<ffi.Char>)
         >
       >('native_window_set_title');
   late final _native_window_set_title = _native_window_set_titlePtr
-      .asFunction<bool Function(native_window_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  ffi.Pointer<ffi.Char> native_window_get_title(native_window_t window) {
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_window_get_title(int window) {
     return _native_window_get_title(window);
   }
 
@@ -843,10 +1213,39 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_window_t)>
       >('native_window_get_title');
   late final _native_window_get_title = _native_window_get_titlePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_window_t)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  bool native_window_set_title_bar_colors(
+    int window,
+    native_color_t background,
+    native_color_t foreground,
+  ) {
+    return _native_window_set_title_bar_colors(window, background, foreground);
+  }
+
+  late final _native_window_set_title_bar_colorsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_color_t, native_color_t)
+        >
+      >('native_window_set_title_bar_colors');
+  late final _native_window_set_title_bar_colors =
+      _native_window_set_title_bar_colorsPtr
+          .asFunction<bool Function(int, native_color_t, native_color_t)>();
+
+  bool native_window_reset_title_bar_colors(int window) {
+    return _native_window_reset_title_bar_colors(window);
+  }
+
+  late final _native_window_reset_title_bar_colorsPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_reset_title_bar_colors',
+      );
+  late final _native_window_reset_title_bar_colors =
+      _native_window_reset_title_bar_colorsPtr.asFunction<bool Function(int)>();
 
   void native_window_set_title_bar_style(
-    native_window_t window,
+    Dartnative_window_t window,
     native_title_bar_style_t style,
   ) {
     return _native_window_set_title_bar_style(window, style.value);
@@ -858,10 +1257,10 @@ class CNativeApiBindings {
       >('native_window_set_title_bar_style');
   late final _native_window_set_title_bar_style =
       _native_window_set_title_bar_stylePtr
-          .asFunction<void Function(native_window_t, int)>();
+          .asFunction<void Function(int, int)>();
 
   native_title_bar_style_t native_window_get_title_bar_style(
-    native_window_t window,
+    Dartnative_window_t window,
   ) {
     return native_title_bar_style_t.fromValue(
       _native_window_get_title_bar_style(window),
@@ -873,10 +1272,51 @@ class CNativeApiBindings {
         'native_window_get_title_bar_style',
       );
   late final _native_window_get_title_bar_style =
-      _native_window_get_title_bar_stylePtr
-          .asFunction<int Function(native_window_t)>();
+      _native_window_get_title_bar_stylePtr.asFunction<int Function(int)>();
 
-  void native_window_set_has_shadow(native_window_t window, bool has_shadow) {
+  bool native_window_set_content_under_title_bar(
+    int window,
+    bool is_content_under_title_bar,
+  ) {
+    return _native_window_set_content_under_title_bar(
+      window,
+      is_content_under_title_bar,
+    );
+  }
+
+  late final _native_window_set_content_under_title_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_content_under_title_bar',
+      );
+  late final _native_window_set_content_under_title_bar =
+      _native_window_set_content_under_title_barPtr
+          .asFunction<bool Function(int, bool)>();
+
+  bool native_window_is_content_under_title_bar(int window) {
+    return _native_window_is_content_under_title_bar(window);
+  }
+
+  late final _native_window_is_content_under_title_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_content_under_title_bar',
+      );
+  late final _native_window_is_content_under_title_bar =
+      _native_window_is_content_under_title_barPtr
+          .asFunction<bool Function(int)>();
+
+  bool native_window_is_content_under_title_bar_supported() {
+    return _native_window_is_content_under_title_bar_supported();
+  }
+
+  late final _native_window_is_content_under_title_bar_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_is_content_under_title_bar_supported',
+      );
+  late final _native_window_is_content_under_title_bar_supported =
+      _native_window_is_content_under_title_bar_supportedPtr
+          .asFunction<bool Function()>();
+
+  void native_window_set_has_shadow(int window, bool has_shadow) {
     return _native_window_set_has_shadow(window, has_shadow);
   }
 
@@ -885,9 +1325,9 @@ class CNativeApiBindings {
         'native_window_set_has_shadow',
       );
   late final _native_window_set_has_shadow = _native_window_set_has_shadowPtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_has_shadow(native_window_t window) {
+  bool native_window_has_shadow(int window) {
     return _native_window_has_shadow(window);
   }
 
@@ -896,9 +1336,34 @@ class CNativeApiBindings {
         'native_window_has_shadow',
       );
   late final _native_window_has_shadow = _native_window_has_shadowPtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  void native_window_set_opacity(native_window_t window, double opacity) {
+  bool native_window_set_custom_shadow(int window, int shadow) {
+    return _native_window_set_custom_shadow(window, shadow);
+  }
+
+  late final _native_window_set_custom_shadowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_window_shadow_t)
+        >
+      >('native_window_set_custom_shadow');
+  late final _native_window_set_custom_shadow =
+      _native_window_set_custom_shadowPtr.asFunction<bool Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_window_shadow_free().
+  int native_window_get_custom_shadow(int window) {
+    return _native_window_get_custom_shadow(window);
+  }
+
+  late final _native_window_get_custom_shadowPtr =
+      _lookup<
+        ffi.NativeFunction<native_window_shadow_t Function(native_window_t)>
+      >('native_window_get_custom_shadow');
+  late final _native_window_get_custom_shadow =
+      _native_window_get_custom_shadowPtr.asFunction<int Function(int)>();
+
+  void native_window_set_opacity(int window, double opacity) {
     return _native_window_set_opacity(window, opacity);
   }
 
@@ -907,9 +1372,9 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Float)>
       >('native_window_set_opacity');
   late final _native_window_set_opacity = _native_window_set_opacityPtr
-      .asFunction<void Function(native_window_t, double)>();
+      .asFunction<void Function(int, double)>();
 
-  double native_window_get_opacity(native_window_t window) {
+  double native_window_get_opacity(int window) {
     return _native_window_get_opacity(window);
   }
 
@@ -918,10 +1383,10 @@ class CNativeApiBindings {
         'native_window_get_opacity',
       );
   late final _native_window_get_opacity = _native_window_get_opacityPtr
-      .asFunction<double Function(native_window_t)>();
+      .asFunction<double Function(int)>();
 
-  void native_window_set_visual_effect(
-    native_window_t window,
+  bool native_window_set_visual_effect(
+    Dartnative_window_t window,
     native_visual_effect_t effect,
   ) {
     return _native_window_set_visual_effect(window, effect.value);
@@ -929,14 +1394,13 @@ class CNativeApiBindings {
 
   late final _native_window_set_visual_effectPtr =
       _lookup<
-        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.UnsignedInt)>
+        ffi.NativeFunction<ffi.Bool Function(native_window_t, ffi.UnsignedInt)>
       >('native_window_set_visual_effect');
   late final _native_window_set_visual_effect =
-      _native_window_set_visual_effectPtr
-          .asFunction<void Function(native_window_t, int)>();
+      _native_window_set_visual_effectPtr.asFunction<bool Function(int, int)>();
 
   native_visual_effect_t native_window_get_visual_effect(
-    native_window_t window,
+    Dartnative_window_t window,
   ) {
     return native_visual_effect_t.fromValue(
       _native_window_get_visual_effect(window),
@@ -948,13 +1412,91 @@ class CNativeApiBindings {
         'native_window_get_visual_effect',
       );
   late final _native_window_get_visual_effect =
-      _native_window_get_visual_effectPtr
-          .asFunction<int Function(native_window_t)>();
+      _native_window_get_visual_effectPtr.asFunction<int Function(int)>();
 
-  void native_window_set_background_color(
-    native_window_t window,
-    native_color_t color,
-  ) {
+  bool native_window_is_visual_effect_supported(native_visual_effect_t effect) {
+    return _native_window_is_visual_effect_supported(effect.value);
+  }
+
+  late final _native_window_is_visual_effect_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.UnsignedInt)>>(
+        'native_window_is_visual_effect_supported',
+      );
+  late final _native_window_is_visual_effect_supported =
+      _native_window_is_visual_effect_supportedPtr
+          .asFunction<bool Function(int)>();
+
+  bool native_window_set_shape(int window, int shape) {
+    return _native_window_set_shape(window, shape);
+  }
+
+  late final _native_window_set_shapePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_window_shape_t)
+        >
+      >('native_window_set_shape');
+  late final _native_window_set_shape = _native_window_set_shapePtr
+      .asFunction<bool Function(int, int)>();
+
+  bool native_window_is_shaped(int window) {
+    return _native_window_is_shaped(window);
+  }
+
+  late final _native_window_is_shapedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_shaped',
+      );
+  late final _native_window_is_shaped = _native_window_is_shapedPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_window_is_shape_supported() {
+    return _native_window_is_shape_supported();
+  }
+
+  late final _native_window_is_shape_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_is_shape_supported',
+      );
+  late final _native_window_is_shape_supported =
+      _native_window_is_shape_supportedPtr.asFunction<bool Function()>();
+
+  bool native_window_set_input_shape(int window, int shape) {
+    return _native_window_set_input_shape(window, shape);
+  }
+
+  late final _native_window_set_input_shapePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_t, native_window_shape_t)
+        >
+      >('native_window_set_input_shape');
+  late final _native_window_set_input_shape = _native_window_set_input_shapePtr
+      .asFunction<bool Function(int, int)>();
+
+  bool native_window_is_input_shaped(int window) {
+    return _native_window_is_input_shaped(window);
+  }
+
+  late final _native_window_is_input_shapedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_input_shaped',
+      );
+  late final _native_window_is_input_shaped = _native_window_is_input_shapedPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_window_is_input_shape_supported() {
+    return _native_window_is_input_shape_supported();
+  }
+
+  late final _native_window_is_input_shape_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_window_is_input_shape_supported',
+      );
+  late final _native_window_is_input_shape_supported =
+      _native_window_is_input_shape_supportedPtr.asFunction<bool Function()>();
+
+  void native_window_set_background_color(int window, native_color_t color) {
     return _native_window_set_background_color(window, color);
   }
 
@@ -964,9 +1506,9 @@ class CNativeApiBindings {
       >('native_window_set_background_color');
   late final _native_window_set_background_color =
       _native_window_set_background_colorPtr
-          .asFunction<void Function(native_window_t, native_color_t)>();
+          .asFunction<void Function(int, native_color_t)>();
 
-  native_color_t native_window_get_background_color(native_window_t window) {
+  native_color_t native_window_get_background_color(int window) {
     return _native_window_get_background_color(window);
   }
 
@@ -976,13 +1518,16 @@ class CNativeApiBindings {
       );
   late final _native_window_get_background_color =
       _native_window_get_background_colorPtr
-          .asFunction<native_color_t Function(native_window_t)>();
+          .asFunction<native_color_t Function(int)>();
 
   void native_window_set_visible_on_all_workspaces(
-    native_window_t window,
-    bool visible,
+    int window,
+    bool is_visible_on_all_workspaces,
   ) {
-    return _native_window_set_visible_on_all_workspaces(window, visible);
+    return _native_window_set_visible_on_all_workspaces(
+      window,
+      is_visible_on_all_workspaces,
+    );
   }
 
   late final _native_window_set_visible_on_all_workspacesPtr =
@@ -991,9 +1536,9 @@ class CNativeApiBindings {
       );
   late final _native_window_set_visible_on_all_workspaces =
       _native_window_set_visible_on_all_workspacesPtr
-          .asFunction<void Function(native_window_t, bool)>();
+          .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_visible_on_all_workspaces(native_window_t window) {
+  bool native_window_is_visible_on_all_workspaces(int window) {
     return _native_window_is_visible_on_all_workspaces(window);
   }
 
@@ -1003,13 +1548,42 @@ class CNativeApiBindings {
       );
   late final _native_window_is_visible_on_all_workspaces =
       _native_window_is_visible_on_all_workspacesPtr
-          .asFunction<bool Function(native_window_t)>();
+          .asFunction<bool Function(int)>();
+
+  void native_window_set_visible_in_taskbar(
+    int window,
+    bool is_visible_in_taskbar,
+  ) {
+    return _native_window_set_visible_in_taskbar(window, is_visible_in_taskbar);
+  }
+
+  late final _native_window_set_visible_in_taskbarPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.Bool)>>(
+        'native_window_set_visible_in_taskbar',
+      );
+  late final _native_window_set_visible_in_taskbar =
+      _native_window_set_visible_in_taskbarPtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_window_is_visible_in_taskbar(int window) {
+    return _native_window_is_visible_in_taskbar(window);
+  }
+
+  late final _native_window_is_visible_in_taskbarPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_window_t)>>(
+        'native_window_is_visible_in_taskbar',
+      );
+  late final _native_window_is_visible_in_taskbar =
+      _native_window_is_visible_in_taskbarPtr.asFunction<bool Function(int)>();
 
   void native_window_set_ignore_mouse_events(
-    native_window_t window,
-    bool ignore,
+    int window,
+    bool is_ignore_mouse_events,
   ) {
-    return _native_window_set_ignore_mouse_events(window, ignore);
+    return _native_window_set_ignore_mouse_events(
+      window,
+      is_ignore_mouse_events,
+    );
   }
 
   late final _native_window_set_ignore_mouse_eventsPtr =
@@ -1018,9 +1592,9 @@ class CNativeApiBindings {
       );
   late final _native_window_set_ignore_mouse_events =
       _native_window_set_ignore_mouse_eventsPtr
-          .asFunction<void Function(native_window_t, bool)>();
+          .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_ignore_mouse_events(native_window_t window) {
+  bool native_window_is_ignore_mouse_events(int window) {
     return _native_window_is_ignore_mouse_events(window);
   }
 
@@ -1029,11 +1603,10 @@ class CNativeApiBindings {
         'native_window_is_ignore_mouse_events',
       );
   late final _native_window_is_ignore_mouse_events =
-      _native_window_is_ignore_mouse_eventsPtr
-          .asFunction<bool Function(native_window_t)>();
+      _native_window_is_ignore_mouse_eventsPtr.asFunction<bool Function(int)>();
 
-  void native_window_set_focusable(native_window_t window, bool focusable) {
-    return _native_window_set_focusable(window, focusable);
+  void native_window_set_focusable(int window, bool is_focusable) {
+    return _native_window_set_focusable(window, is_focusable);
   }
 
   late final _native_window_set_focusablePtr =
@@ -1041,9 +1614,9 @@ class CNativeApiBindings {
         'native_window_set_focusable',
       );
   late final _native_window_set_focusable = _native_window_set_focusablePtr
-      .asFunction<void Function(native_window_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  bool native_window_is_focusable(native_window_t window) {
+  bool native_window_is_focusable(int window) {
     return _native_window_is_focusable(window);
   }
 
@@ -1052,10 +1625,9 @@ class CNativeApiBindings {
         'native_window_is_focusable',
       );
   late final _native_window_is_focusable = _native_window_is_focusablePtr
-      .asFunction<bool Function(native_window_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Window interactions
-  void native_window_start_dragging(native_window_t window) {
+  void native_window_start_dragging(int window) {
     return _native_window_start_dragging(window);
   }
 
@@ -1064,23 +1636,24 @@ class CNativeApiBindings {
         'native_window_start_dragging',
       );
   late final _native_window_start_dragging = _native_window_start_draggingPtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int)>();
 
-  void native_window_start_resizing(native_window_t window) {
-    return _native_window_start_resizing(window);
+  void native_window_start_resizing(
+    Dartnative_window_t window,
+    native_resize_edge_t edge,
+  ) {
+    return _native_window_start_resizing(window, edge.value);
   }
 
   late final _native_window_start_resizingPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
-        'native_window_start_resizing',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_t, ffi.UnsignedInt)>
+      >('native_window_start_resizing');
   late final _native_window_start_resizing = _native_window_start_resizingPtr
-      .asFunction<void Function(native_window_t)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Platform-specific functions
-  ffi.Pointer<ffi.Void> native_window_get_native_object(
-    native_window_t window,
-  ) {
+  /// Platform-specific native object (NSScreen*, HMONITOR, ...).
+  ffi.Pointer<ffi.Void> native_window_get_native_object(int window) {
     return _native_window_get_native_object(window);
   }
 
@@ -1090,20 +1663,22 @@ class CNativeApiBindings {
       >('native_window_get_native_object');
   late final _native_window_get_native_object =
       _native_window_get_native_objectPtr
-          .asFunction<ffi.Pointer<ffi.Void> Function(native_window_t)>();
+          .asFunction<ffi.Pointer<ffi.Void> Function(int)>();
 
-  /// Memory management
-  void native_window_free_string(ffi.Pointer<ffi.Char> str) {
-    return _native_window_free_string(str);
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_free(int window) {
+    return _native_window_free(window);
   }
 
-  late final _native_window_free_stringPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-        'native_window_free_string',
+  late final _native_window_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_window_free',
       );
-  late final _native_window_free_string = _native_window_free_stringPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+  late final _native_window_free = _native_window_freePtr
+      .asFunction<void Function(int)>();
 
+  /// Frees the array and releases every handle it contains.
   void native_window_list_free(ffi.Pointer<native_window_list_t> list) {
     return _native_window_list_free(list);
   }
@@ -1115,967 +1690,35 @@ class CNativeApiBindings {
   late final _native_window_list_free = _native_window_list_freePtr
       .asFunction<void Function(ffi.Pointer<native_window_list_t>)>();
 
-  /// @brief Get the singleton instance of Application
-  ///
-  /// @return Handle to the singleton Application instance
-  native_application_t native_application_get_instance() {
-    return _native_application_get_instance();
+  /// Frees only the array; the caller takes over the handles.
+  void native_window_list_release(ffi.Pointer<native_window_list_t> list) {
+    return _native_window_list_release(list);
   }
 
-  late final _native_application_get_instancePtr =
-      _lookup<ffi.NativeFunction<native_application_t Function()>>(
-        'native_application_get_instance',
-      );
-  late final _native_application_get_instance =
-      _native_application_get_instancePtr
-          .asFunction<native_application_t Function()>();
-
-  /// @brief Run the application main event loop
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @return Exit code of the application (0 for success)
-  int native_application_run(native_application_t app) {
-    return _native_application_run(app);
-  }
-
-  late final _native_application_runPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(native_application_t)>>(
-        'native_application_run',
-      );
-  late final _native_application_run = _native_application_runPtr
-      .asFunction<int Function(native_application_t)>();
-
-  /// @brief Run the application with the specified window
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @param window Window handle (must not be NULL)
-  /// @return Exit code of the application (0 for success)
-  int native_application_run_with_window(
-    native_application_t app,
-    native_window_t window,
-  ) {
-    return _native_application_run_with_window(app, window);
-  }
-
-  late final _native_application_run_with_windowPtr =
+  late final _native_window_list_releasePtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(native_application_t, native_window_t)
-        >
-      >('native_application_run_with_window');
-  late final _native_application_run_with_window =
-      _native_application_run_with_windowPtr
-          .asFunction<int Function(native_application_t, native_window_t)>();
-
-  /// @brief Request the application to quit
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @param exit_code The exit code to use when quitting (default: 0)
-  void native_application_quit(native_application_t app, int exit_code) {
-    return _native_application_quit(app, exit_code);
-  }
-
-  late final _native_application_quitPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Void Function(native_application_t, ffi.Int)>
-      >('native_application_quit');
-  late final _native_application_quit = _native_application_quitPtr
-      .asFunction<void Function(native_application_t, int)>();
-
-  /// @brief Check if the application is currently running
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @return true if the application is running, false otherwise
-  bool native_application_is_running(native_application_t app) {
-    return _native_application_is_running(app);
-  }
-
-  late final _native_application_is_runningPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_application_t)>>(
-        'native_application_is_running',
-      );
-  late final _native_application_is_running = _native_application_is_runningPtr
-      .asFunction<bool Function(native_application_t)>();
-
-  /// @brief Check if this is a single instance application
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @return true if only one instance is allowed, false otherwise
-  bool native_application_is_single_instance(native_application_t app) {
-    return _native_application_is_single_instance(app);
-  }
-
-  late final _native_application_is_single_instancePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_application_t)>>(
-        'native_application_is_single_instance',
-      );
-  late final _native_application_is_single_instance =
-      _native_application_is_single_instancePtr
-          .asFunction<bool Function(native_application_t)>();
-
-  /// @brief Set the application icon
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @param icon_path Path to the icon file (must not be NULL)
-  /// @return true if the icon was set successfully, false otherwise
-  bool native_application_set_icon(
-    native_application_t app,
-    ffi.Pointer<ffi.Char> icon_path,
-  ) {
-    return _native_application_set_icon(app, icon_path);
-  }
-
-  late final _native_application_set_iconPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(native_application_t, ffi.Pointer<ffi.Char>)
-        >
-      >('native_application_set_icon');
-  late final _native_application_set_icon = _native_application_set_iconPtr
-      .asFunction<bool Function(native_application_t, ffi.Pointer<ffi.Char>)>();
-
-  /// @brief Show or hide the dock icon (macOS only)
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @param visible true to show the dock icon, false to hide it
-  /// @return true if the operation succeeded, false otherwise
-  bool native_application_set_dock_icon_visible(
-    native_application_t app,
-    bool visible,
-  ) {
-    return _native_application_set_dock_icon_visible(app, visible);
-  }
-
-  late final _native_application_set_dock_icon_visiblePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Bool Function(native_application_t, ffi.Bool)>
-      >('native_application_set_dock_icon_visible');
-  late final _native_application_set_dock_icon_visible =
-      _native_application_set_dock_icon_visiblePtr
-          .asFunction<bool Function(native_application_t, bool)>();
-
-  /// @brief Add an event listener for application events
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @param callback Event callback function (must not be NULL)
-  /// @return Listener ID that can be used to remove the listener, or 0 on failure
-  int native_application_add_event_listener(
-    native_application_t app,
-    native_application_event_callback_t callback,
-  ) {
-    return _native_application_add_event_listener(app, callback);
-  }
-
-  late final _native_application_add_event_listenerPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Size Function(
-            native_application_t,
-            native_application_event_callback_t,
-          )
-        >
-      >('native_application_add_event_listener');
-  late final _native_application_add_event_listener =
-      _native_application_add_event_listenerPtr
-          .asFunction<
-            int Function(
-              native_application_t,
-              native_application_event_callback_t,
-            )
-          >();
-
-  /// @brief Remove an event listener by ID
-  ///
-  /// @param app Application handle (must not be NULL)
-  /// @param listener_id The ID returned by native_application_add_event_listener
-  /// @return true if the listener was found and removed, false otherwise
-  bool native_application_remove_event_listener(
-    native_application_t app,
-    int listener_id,
-  ) {
-    return _native_application_remove_event_listener(app, listener_id);
-  }
-
-  late final _native_application_remove_event_listenerPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Bool Function(native_application_t, ffi.Size)>
-      >('native_application_remove_event_listener');
-  late final _native_application_remove_event_listener =
-      _native_application_remove_event_listenerPtr
-          .asFunction<bool Function(native_application_t, int)>();
-
-  /// @brief Convenience function to run the application with the specified window
-  ///
-  /// This is equivalent to calling native_application_run_with_window with the singleton instance.
-  /// This function provides a simple way to run an application without explicitly
-  /// accessing the singleton.
-  ///
-  /// @param window Window handle (must not be NULL)
-  /// @return Exit code of the application (0 for success)
-  int native_run_app(native_window_t window) {
-    return _native_run_app(window);
-  }
-
-  late final _native_run_appPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(native_window_t)>>(
-        'native_run_app',
-      );
-  late final _native_run_app = _native_run_appPtr
-      .asFunction<int Function(native_window_t)>();
-
-  /// Create an AutoStart manager with defaults derived from the current application.
-  ///
-  /// @return Handle to an AutoStart instance, or NULL on failure.
-  native_autostart_t native_autostart_create() {
-    return _native_autostart_create();
-  }
-
-  late final _native_autostart_createPtr =
-      _lookup<ffi.NativeFunction<native_autostart_t Function()>>(
-        'native_autostart_create',
-      );
-  late final _native_autostart_create = _native_autostart_createPtr
-      .asFunction<native_autostart_t Function()>();
-
-  /// Create an AutoStart manager with a custom identifier.
-  ///
-  /// @param id A stable, unique identifier for your app (e.g., "com.example.myapp").
-  /// @return Handle to an AutoStart instance, or NULL on failure.
-  native_autostart_t native_autostart_create_with_id(ffi.Pointer<ffi.Char> id) {
-    return _native_autostart_create_with_id(id);
-  }
-
-  late final _native_autostart_create_with_idPtr =
-      _lookup<
-        ffi.NativeFunction<native_autostart_t Function(ffi.Pointer<ffi.Char>)>
-      >('native_autostart_create_with_id');
-  late final _native_autostart_create_with_id =
-      _native_autostart_create_with_idPtr
-          .asFunction<native_autostart_t Function(ffi.Pointer<ffi.Char>)>();
-
-  /// Create an AutoStart manager with a custom identifier and display name.
-  ///
-  /// @param id           Stable, unique identifier (e.g., "com.example.myapp").
-  /// @param display_name Human-readable application name (e.g., "MyApp").
-  /// @return Handle to an AutoStart instance, or NULL on failure.
-  native_autostart_t native_autostart_create_with_id_and_name(
-    ffi.Pointer<ffi.Char> id,
-    ffi.Pointer<ffi.Char> display_name,
-  ) {
-    return _native_autostart_create_with_id_and_name(id, display_name);
-  }
-
-  late final _native_autostart_create_with_id_and_namePtr =
-      _lookup<
-        ffi.NativeFunction<
-          native_autostart_t Function(
-            ffi.Pointer<ffi.Char>,
-            ffi.Pointer<ffi.Char>,
-          )
-        >
-      >('native_autostart_create_with_id_and_name');
-  late final _native_autostart_create_with_id_and_name =
-      _native_autostart_create_with_id_and_namePtr
-          .asFunction<
-            native_autostart_t Function(
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-            )
-          >();
-
-  /// Destroy an AutoStart instance and release resources.
-  ///
-  /// @param autostart Handle returned by a native_autostart_create* function.
-  void native_autostart_destroy(native_autostart_t autostart) {
-    return _native_autostart_destroy(autostart);
-  }
-
-  late final _native_autostart_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_autostart_t)>>(
-        'native_autostart_destroy',
-      );
-  late final _native_autostart_destroy = _native_autostart_destroyPtr
-      .asFunction<void Function(native_autostart_t)>();
-
-  /// Check if auto-start management is supported on the current platform.
-  ///
-  /// This is a static check that does not require an AutoStart instance.
-  ///
-  /// @return true if supported, false if unsupported.
-  bool native_autostart_is_supported() {
-    return _native_autostart_is_supported();
-  }
-
-  late final _native_autostart_is_supportedPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-        'native_autostart_is_supported',
-      );
-  late final _native_autostart_is_supported = _native_autostart_is_supportedPtr
-      .asFunction<bool Function()>();
-
-  /// Get the identifier associated with this AutoStart instance.
-  ///
-  /// @param autostart AutoStart handle.
-  /// @return Newly allocated string with the identifier, or NULL on error.
-  /// Caller must free with free_c_str().
-  ffi.Pointer<ffi.Char> native_autostart_get_id(native_autostart_t autostart) {
-    return _native_autostart_get_id(autostart);
-  }
-
-  late final _native_autostart_get_idPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
-      >('native_autostart_get_id');
-  late final _native_autostart_get_id = _native_autostart_get_idPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
-
-  /// Get the human-readable display name associated with this AutoStart instance.
-  ///
-  /// @param autostart AutoStart handle.
-  /// @return Newly allocated string with the display name, or NULL on error.
-  /// Caller must free with free_c_str().
-  ffi.Pointer<ffi.Char> native_autostart_get_display_name(
-    native_autostart_t autostart,
-  ) {
-    return _native_autostart_get_display_name(autostart);
-  }
-
-  late final _native_autostart_get_display_namePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
-      >('native_autostart_get_display_name');
-  late final _native_autostart_get_display_name =
-      _native_autostart_get_display_namePtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
-
-  /// Set the human-readable display name used where applicable.
-  ///
-  /// @param autostart    AutoStart handle.
-  /// @param display_name The display name to set.
-  /// @return true if stored successfully; does not change OS registration until Enable().
-  bool native_autostart_set_display_name(
-    native_autostart_t autostart,
-    ffi.Pointer<ffi.Char> display_name,
-  ) {
-    return _native_autostart_set_display_name(autostart, display_name);
-  }
-
-  late final _native_autostart_set_display_namePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(native_autostart_t, ffi.Pointer<ffi.Char>)
-        >
-      >('native_autostart_set_display_name');
-  late final _native_autostart_set_display_name =
-      _native_autostart_set_display_namePtr
-          .asFunction<
-            bool Function(native_autostart_t, ffi.Pointer<ffi.Char>)
-          >();
-
-  /// Set the program (executable) path and optional arguments to use for auto-start.
-  ///
-  /// If not set, the implementation attempts to use the current process executable.
-  /// Pass NULL for arguments or argument_count == 0 when no arguments are needed.
-  ///
-  /// @param autostart       AutoStart handle.
-  /// @param executable_path Absolute path to the executable to launch on login.
-  /// @param arguments       Array of argument strings (can be NULL if count is 0).
-  /// @param argument_count  Number of strings in the arguments array.
-  /// @return true if stored successfully; does not change OS registration until Enable().
-  bool native_autostart_set_program(
-    native_autostart_t autostart,
-    ffi.Pointer<ffi.Char> executable_path,
-    ffi.Pointer<ffi.Pointer<ffi.Char>> arguments,
-    int argument_count,
-  ) {
-    return _native_autostart_set_program(
-      autostart,
-      executable_path,
-      arguments,
-      argument_count,
-    );
-  }
-
-  late final _native_autostart_set_programPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(
-            native_autostart_t,
-            ffi.Pointer<ffi.Char>,
-            ffi.Pointer<ffi.Pointer<ffi.Char>>,
-            ffi.Size,
-          )
-        >
-      >('native_autostart_set_program');
-  late final _native_autostart_set_program = _native_autostart_set_programPtr
-      .asFunction<
-        bool Function(
-          native_autostart_t,
-          ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Pointer<ffi.Char>>,
-          int,
-        )
-      >();
-
-  /// Get the currently configured executable path.
-  ///
-  /// @param autostart AutoStart handle.
-  /// @return Newly allocated string with the executable path, or NULL on error.
-  /// Caller must free with free_c_str().
-  ffi.Pointer<ffi.Char> native_autostart_get_executable_path(
-    native_autostart_t autostart,
-  ) {
-    return _native_autostart_get_executable_path(autostart);
-  }
-
-  late final _native_autostart_get_executable_pathPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>
-      >('native_autostart_get_executable_path');
-  late final _native_autostart_get_executable_path =
-      _native_autostart_get_executable_pathPtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_autostart_t)>();
-
-  /// Get the currently configured arguments for auto-start.
-  ///
-  /// @param autostart     AutoStart handle.
-  /// @param out_arguments Output pointer to an array of newly allocated strings.
-  /// @param out_count     Output pointer to receive the number of arguments.
-  /// @return true on success; false on error. On success, free each string with
-  /// free_c_str() and the array with delete[].
-  bool native_autostart_get_arguments(
-    native_autostart_t autostart,
-    ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_arguments,
-    ffi.Pointer<ffi.Size> out_count,
-  ) {
-    return _native_autostart_get_arguments(autostart, out_arguments, out_count);
-  }
-
-  late final _native_autostart_get_argumentsPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(
-            native_autostart_t,
-            ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
-            ffi.Pointer<ffi.Size>,
-          )
-        >
-      >('native_autostart_get_arguments');
-  late final _native_autostart_get_arguments =
-      _native_autostart_get_argumentsPtr
-          .asFunction<
-            bool Function(
-              native_autostart_t,
-              ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
-              ffi.Pointer<ffi.Size>,
-            )
-          >();
-
-  /// Enable auto-start at user login for the configured program and arguments.
-  ///
-  /// @param autostart AutoStart handle.
-  /// @return true on success, false on failure or if unsupported.
-  bool native_autostart_enable(native_autostart_t autostart) {
-    return _native_autostart_enable(autostart);
-  }
-
-  late final _native_autostart_enablePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
-        'native_autostart_enable',
-      );
-  late final _native_autostart_enable = _native_autostart_enablePtr
-      .asFunction<bool Function(native_autostart_t)>();
-
-  /// Disable auto-start at user login.
-  ///
-  /// @param autostart AutoStart handle.
-  /// @return true on success, false on failure or if unsupported.
-  bool native_autostart_disable(native_autostart_t autostart) {
-    return _native_autostart_disable(autostart);
-  }
-
-  late final _native_autostart_disablePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
-        'native_autostart_disable',
-      );
-  late final _native_autostart_disable = _native_autostart_disablePtr
-      .asFunction<bool Function(native_autostart_t)>();
-
-  /// Check whether auto-start is currently enabled for this identifier.
-  ///
-  /// @param autostart AutoStart handle.
-  /// @return true if enabled, false otherwise or on error.
-  bool native_autostart_is_enabled(native_autostart_t autostart) {
-    return _native_autostart_is_enabled(autostart);
-  }
-
-  late final _native_autostart_is_enabledPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_autostart_t)>>(
-        'native_autostart_is_enabled',
-      );
-  late final _native_autostart_is_enabled = _native_autostart_is_enabledPtr
-      .asFunction<bool Function(native_autostart_t)>();
-
-  /// Basic identification getters
-  ffi.Pointer<ffi.Char> native_display_get_id(native_display_t display) {
-    return _native_display_get_id(display);
-  }
-
-  late final _native_display_get_idPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
-      >('native_display_get_id');
-  late final _native_display_get_id = _native_display_get_idPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>();
-
-  ffi.Pointer<ffi.Char> native_display_get_name(native_display_t display) {
-    return _native_display_get_name(display);
-  }
-
-  late final _native_display_get_namePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
-      >('native_display_get_name');
-  late final _native_display_get_name = _native_display_get_namePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>();
-
-  /// Physical properties getters
-  native_point_t native_display_get_position(native_display_t display) {
-    return _native_display_get_position(display);
-  }
-
-  late final _native_display_get_positionPtr =
-      _lookup<ffi.NativeFunction<native_point_t Function(native_display_t)>>(
-        'native_display_get_position',
-      );
-  late final _native_display_get_position = _native_display_get_positionPtr
-      .asFunction<native_point_t Function(native_display_t)>();
-
-  native_size_t native_display_get_size(native_display_t display) {
-    return _native_display_get_size(display);
-  }
-
-  late final _native_display_get_sizePtr =
-      _lookup<ffi.NativeFunction<native_size_t Function(native_display_t)>>(
-        'native_display_get_size',
-      );
-  late final _native_display_get_size = _native_display_get_sizePtr
-      .asFunction<native_size_t Function(native_display_t)>();
-
-  native_rectangle_t native_display_get_work_area(native_display_t display) {
-    return _native_display_get_work_area(display);
-  }
-
-  late final _native_display_get_work_areaPtr =
-      _lookup<
-        ffi.NativeFunction<native_rectangle_t Function(native_display_t)>
-      >('native_display_get_work_area');
-  late final _native_display_get_work_area = _native_display_get_work_areaPtr
-      .asFunction<native_rectangle_t Function(native_display_t)>();
-
-  double native_display_get_scale_factor(native_display_t display) {
-    return _native_display_get_scale_factor(display);
-  }
-
-  late final _native_display_get_scale_factorPtr =
-      _lookup<ffi.NativeFunction<ffi.Double Function(native_display_t)>>(
-        'native_display_get_scale_factor',
-      );
-  late final _native_display_get_scale_factor =
-      _native_display_get_scale_factorPtr
-          .asFunction<double Function(native_display_t)>();
-
-  /// Additional properties getters
-  bool native_display_is_primary(native_display_t display) {
-    return _native_display_is_primary(display);
-  }
-
-  late final _native_display_is_primaryPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_display_t)>>(
-        'native_display_is_primary',
-      );
-  late final _native_display_is_primary = _native_display_is_primaryPtr
-      .asFunction<bool Function(native_display_t)>();
-
-  native_display_orientation_t native_display_get_orientation(
-    native_display_t display,
-  ) {
-    return native_display_orientation_t.fromValue(
-      _native_display_get_orientation(display),
-    );
-  }
-
-  late final _native_display_get_orientationPtr =
-      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_display_t)>>(
-        'native_display_get_orientation',
-      );
-  late final _native_display_get_orientation =
-      _native_display_get_orientationPtr
-          .asFunction<int Function(native_display_t)>();
-
-  int native_display_get_refresh_rate(native_display_t display) {
-    return _native_display_get_refresh_rate(display);
-  }
-
-  late final _native_display_get_refresh_ratePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(native_display_t)>>(
-        'native_display_get_refresh_rate',
-      );
-  late final _native_display_get_refresh_rate =
-      _native_display_get_refresh_ratePtr
-          .asFunction<int Function(native_display_t)>();
-
-  int native_display_get_bit_depth(native_display_t display) {
-    return _native_display_get_bit_depth(display);
-  }
-
-  late final _native_display_get_bit_depthPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(native_display_t)>>(
-        'native_display_get_bit_depth',
-      );
-  late final _native_display_get_bit_depth = _native_display_get_bit_depthPtr
-      .asFunction<int Function(native_display_t)>();
-
-  /// Platform-specific functions
-  ffi.Pointer<ffi.Void> native_display_get_native_object(
-    native_display_t display,
-  ) {
-    return _native_display_get_native_object(display);
-  }
-
-  late final _native_display_get_native_objectPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_display_t)>
-      >('native_display_get_native_object');
-  late final _native_display_get_native_object =
-      _native_display_get_native_objectPtr
-          .asFunction<ffi.Pointer<ffi.Void> Function(native_display_t)>();
-
-  /// Memory management
-  void native_display_free(native_display_t display) {
-    return _native_display_free(display);
-  }
-
-  late final _native_display_freePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_display_t)>>(
-        'native_display_free',
-      );
-  late final _native_display_free = _native_display_freePtr
-      .asFunction<void Function(native_display_t)>();
-
-  void native_display_list_free(ffi.Pointer<native_display_list_t> list) {
-    return _native_display_list_free(list);
-  }
-
-  late final _native_display_list_freePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<native_display_list_t>)
-        >
-      >('native_display_list_free');
-  late final _native_display_list_free = _native_display_list_freePtr
-      .asFunction<void Function(ffi.Pointer<native_display_list_t>)>();
-
-  native_display_list_t native_display_manager_get_all() {
-    return _native_display_manager_get_all();
-  }
-
-  late final _native_display_manager_get_allPtr =
-      _lookup<ffi.NativeFunction<native_display_list_t Function()>>(
-        'native_display_manager_get_all',
-      );
-  late final _native_display_manager_get_all =
-      _native_display_manager_get_allPtr
-          .asFunction<native_display_list_t Function()>();
-
-  native_display_t native_display_manager_get_primary() {
-    return _native_display_manager_get_primary();
-  }
-
-  late final _native_display_manager_get_primaryPtr =
-      _lookup<ffi.NativeFunction<native_display_t Function()>>(
-        'native_display_manager_get_primary',
-      );
-  late final _native_display_manager_get_primary =
-      _native_display_manager_get_primaryPtr
-          .asFunction<native_display_t Function()>();
-
-  native_point_t native_display_manager_get_cursor_position() {
-    return _native_display_manager_get_cursor_position();
-  }
-
-  late final _native_display_manager_get_cursor_positionPtr =
-      _lookup<ffi.NativeFunction<native_point_t Function()>>(
-        'native_display_manager_get_cursor_position',
-      );
-  late final _native_display_manager_get_cursor_position =
-      _native_display_manager_get_cursor_positionPtr
-          .asFunction<native_point_t Function()>();
-
-  /// Create an image from a file path
-  /// @param file_path Path to the image file
-  /// @return Image handle, or NULL if loading failed
-  native_image_t native_image_from_file(ffi.Pointer<ffi.Char> file_path) {
-    return _native_image_from_file(file_path);
-  }
-
-  late final _native_image_from_filePtr =
-      _lookup<
-        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
-      >('native_image_from_file');
-  late final _native_image_from_file = _native_image_from_filePtr
-      .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
-
-  /// Create an image from base64-encoded data
-  /// @param base64_data Base64-encoded image data, with or without data URI prefix
-  /// @return Image handle, or NULL if decoding failed
-  native_image_t native_image_from_base64(ffi.Pointer<ffi.Char> base64_data) {
-    return _native_image_from_base64(base64_data);
-  }
-
-  late final _native_image_from_base64Ptr =
-      _lookup<
-        ffi.NativeFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>
-      >('native_image_from_base64');
-  late final _native_image_from_base64 = _native_image_from_base64Ptr
-      .asFunction<native_image_t Function(ffi.Pointer<ffi.Char>)>();
-
-  /// Destroy an image and release its resources
-  /// @param image The image to destroy
-  void native_image_destroy(native_image_t image) {
-    return _native_image_destroy(image);
-  }
-
-  late final _native_image_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_image_t)>>(
-        'native_image_destroy',
-      );
-  late final _native_image_destroy = _native_image_destroyPtr
-      .asFunction<void Function(native_image_t)>();
-
-  /// Get the size of an image in pixels
-  /// @param image The image
-  /// @return Size of the image (width and height will be 0 if invalid)
-  native_size_t native_image_get_size(native_image_t image) {
-    return _native_image_get_size(image);
-  }
-
-  late final _native_image_get_sizePtr =
-      _lookup<ffi.NativeFunction<native_size_t Function(native_image_t)>>(
-        'native_image_get_size',
-      );
-  late final _native_image_get_size = _native_image_get_sizePtr
-      .asFunction<native_size_t Function(native_image_t)>();
-
-  /// Get the image format string for debugging purposes
-  /// @param image The image
-  /// @return The image format (e.g., "PNG", "JPEG", "GIF"), or NULL if unknown
-  /// (caller must free)
-  ffi.Pointer<ffi.Char> native_image_get_format(native_image_t image) {
-    return _native_image_get_format(image);
-  }
-
-  late final _native_image_get_formatPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>
-      >('native_image_get_format');
-  late final _native_image_get_format = _native_image_get_formatPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>();
-
-  /// Convert an image to base64-encoded PNG data
-  /// @param image The image
-  /// @return Base64-encoded PNG data with data URI prefix (caller must free), or
-  /// NULL on error
-  ffi.Pointer<ffi.Char> native_image_to_base64(native_image_t image) {
-    return _native_image_to_base64(image);
-  }
-
-  late final _native_image_to_base64Ptr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>
-      >('native_image_to_base64');
-  late final _native_image_to_base64 = _native_image_to_base64Ptr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_image_t)>();
-
-  /// Save an image to a file
-  /// @param image The image
-  /// @param file_path Path where the image should be saved
-  /// @return true if saved successfully, false otherwise
-  bool native_image_save_to_file(
-    native_image_t image,
-    ffi.Pointer<ffi.Char> file_path,
-  ) {
-    return _native_image_save_to_file(image, file_path);
-  }
-
-  late final _native_image_save_to_filePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(native_image_t, ffi.Pointer<ffi.Char>)
-        >
-      >('native_image_save_to_file');
-  late final _native_image_save_to_file = _native_image_save_to_filePtr
-      .asFunction<bool Function(native_image_t, ffi.Pointer<ffi.Char>)>();
-
-  /// Create a new keyboard monitor instance
-  /// @return Pointer to keyboard monitor instance, or NULL on failure
-  ffi.Pointer<native_keyboard_monitor_t> native_keyboard_monitor_create() {
-    return _native_keyboard_monitor_create();
-  }
-
-  late final _native_keyboard_monitor_createPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<native_keyboard_monitor_t> Function()>
-      >('native_keyboard_monitor_create');
-  late final _native_keyboard_monitor_create =
-      _native_keyboard_monitor_createPtr
-          .asFunction<ffi.Pointer<native_keyboard_monitor_t> Function()>();
-
-  /// Destroy a keyboard monitor instance
-  /// @param monitor Pointer to keyboard monitor instance to destroy
-  void native_keyboard_monitor_destroy(
-    ffi.Pointer<native_keyboard_monitor_t> monitor,
-  ) {
-    return _native_keyboard_monitor_destroy(monitor);
-  }
-
-  late final _native_keyboard_monitor_destroyPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<native_keyboard_monitor_t>)
-        >
-      >('native_keyboard_monitor_destroy');
-  late final _native_keyboard_monitor_destroy =
-      _native_keyboard_monitor_destroyPtr
-          .asFunction<void Function(ffi.Pointer<native_keyboard_monitor_t>)>();
-
-  /// Set callback functions for keyboard events
-  /// @param monitor Pointer to keyboard monitor instance
-  /// @param on_key_pressed Callback for key pressed events (can be NULL)
-  /// @param on_key_released Callback for key released events (can be NULL)
-  /// @param on_modifier_keys_changed Callback for modifier keys changed events
-  /// (can be NULL)
-  /// @param user_data User data to pass to callbacks
-  /// @return true on success, false on failure
-  bool native_keyboard_monitor_set_callbacks(
-    ffi.Pointer<native_keyboard_monitor_t> monitor,
-    native_key_pressed_callback_t on_key_pressed,
-    native_key_released_callback_t on_key_released,
-    native_modifier_keys_changed_callback_t on_modifier_keys_changed,
-    ffi.Pointer<ffi.Void> user_data,
-  ) {
-    return _native_keyboard_monitor_set_callbacks(
-      monitor,
-      on_key_pressed,
-      on_key_released,
-      on_modifier_keys_changed,
-      user_data,
-    );
-  }
-
-  late final _native_keyboard_monitor_set_callbacksPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(
-            ffi.Pointer<native_keyboard_monitor_t>,
-            native_key_pressed_callback_t,
-            native_key_released_callback_t,
-            native_modifier_keys_changed_callback_t,
-            ffi.Pointer<ffi.Void>,
-          )
-        >
-      >('native_keyboard_monitor_set_callbacks');
-  late final _native_keyboard_monitor_set_callbacks =
-      _native_keyboard_monitor_set_callbacksPtr
-          .asFunction<
-            bool Function(
-              ffi.Pointer<native_keyboard_monitor_t>,
-              native_key_pressed_callback_t,
-              native_key_released_callback_t,
-              native_modifier_keys_changed_callback_t,
-              ffi.Pointer<ffi.Void>,
-            )
-          >();
-
-  /// Start keyboard monitoring
-  /// @param monitor Pointer to keyboard monitor instance
-  /// @return true on success, false on failure
-  bool native_keyboard_monitor_start(
-    ffi.Pointer<native_keyboard_monitor_t> monitor,
-  ) {
-    return _native_keyboard_monitor_start(monitor);
-  }
-
-  late final _native_keyboard_monitor_startPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<native_keyboard_monitor_t>)
-        >
-      >('native_keyboard_monitor_start');
-  late final _native_keyboard_monitor_start = _native_keyboard_monitor_startPtr
-      .asFunction<bool Function(ffi.Pointer<native_keyboard_monitor_t>)>();
-
-  /// Stop keyboard monitoring
-  /// @param monitor Pointer to keyboard monitor instance
-  /// @return true on success, false on failure
-  bool native_keyboard_monitor_stop(
-    ffi.Pointer<native_keyboard_monitor_t> monitor,
-  ) {
-    return _native_keyboard_monitor_stop(monitor);
-  }
-
-  late final _native_keyboard_monitor_stopPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<native_keyboard_monitor_t>)
-        >
-      >('native_keyboard_monitor_stop');
-  late final _native_keyboard_monitor_stop = _native_keyboard_monitor_stopPtr
-      .asFunction<bool Function(ffi.Pointer<native_keyboard_monitor_t>)>();
-
-  /// Check if keyboard monitoring is active
-  /// @param monitor Pointer to keyboard monitor instance
-  /// @return true if monitoring is active, false otherwise
-  bool native_keyboard_monitor_is_monitoring(
-    ffi.Pointer<native_keyboard_monitor_t> monitor,
-  ) {
-    return _native_keyboard_monitor_is_monitoring(monitor);
-  }
-
-  late final _native_keyboard_monitor_is_monitoringPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<native_keyboard_monitor_t>)
-        >
-      >('native_keyboard_monitor_is_monitoring');
-  late final _native_keyboard_monitor_is_monitoring =
-      _native_keyboard_monitor_is_monitoringPtr
-          .asFunction<bool Function(ffi.Pointer<native_keyboard_monitor_t>)>();
-
-  /// Create a positioning strategy for absolute positioning at fixed coordinates
-  /// @param point Point in screen coordinates
-  /// @return Positioning strategy handle
-  native_positioning_strategy_t native_positioning_strategy_absolute(
-    ffi.Pointer<native_point_t> point,
-  ) {
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_window_list_t>)>
+      >('native_window_list_release');
+  late final _native_window_list_release = _native_window_list_releasePtr
+      .asFunction<void Function(ffi.Pointer<native_window_list_t>)>();
+
+  /// Caller owns the returned handle; release it with native_positioning_strategy_free().
+  int native_positioning_strategy_absolute(native_point_t point) {
     return _native_positioning_strategy_absolute(point);
   }
 
   late final _native_positioning_strategy_absolutePtr =
       _lookup<
         ffi.NativeFunction<
-          native_positioning_strategy_t Function(ffi.Pointer<native_point_t>)
+          native_positioning_strategy_t Function(native_point_t)
         >
       >('native_positioning_strategy_absolute');
   late final _native_positioning_strategy_absolute =
       _native_positioning_strategy_absolutePtr
-          .asFunction<
-            native_positioning_strategy_t Function(ffi.Pointer<native_point_t>)
-          >();
+          .asFunction<int Function(native_point_t)>();
 
-  /// Create a positioning strategy for positioning at current mouse location
-  /// @return Positioning strategy handle
-  native_positioning_strategy_t native_positioning_strategy_cursor_position() {
+  /// Caller owns the returned handle; release it with native_positioning_strategy_free().
+  int native_positioning_strategy_cursor_position() {
     return _native_positioning_strategy_cursor_position();
   }
 
@@ -2085,91 +1728,131 @@ class CNativeApiBindings {
       );
   late final _native_positioning_strategy_cursor_position =
       _native_positioning_strategy_cursor_positionPtr
-          .asFunction<native_positioning_strategy_t Function()>();
+          .asFunction<int Function()>();
 
-  /// Create a positioning strategy for positioning relative to a rectangle
-  /// @param rect Rectangle in screen coordinates to position relative to
-  /// @param offset Offset point to apply to the position, or NULL for no offset
-  /// @return Positioning strategy handle
-  ///
-  /// @example
-  /// ```c
-  /// native_rectangle_t buttonRect = {100, 100, 50, 30};
-  /// native_point_t offset = {0, 10};
-  /// native_positioning_strategy_t strategy = native_positioning_strategy_relative(&buttonRect,
-  /// &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);
-  /// ```
-  native_positioning_strategy_t native_positioning_strategy_relative(
-    ffi.Pointer<native_rectangle_t> rect,
-    ffi.Pointer<native_point_t> offset,
+  /// Caller owns the returned handle; release it with native_positioning_strategy_free().
+  int native_positioning_strategy_relative_with_rect_and_offset(
+    native_rectangle_t rect,
+    native_point_t offset,
   ) {
-    return _native_positioning_strategy_relative(rect, offset);
+    return _native_positioning_strategy_relative_with_rect_and_offset(
+      rect,
+      offset,
+    );
   }
 
-  late final _native_positioning_strategy_relativePtr =
+  late final _native_positioning_strategy_relative_with_rect_and_offsetPtr =
       _lookup<
         ffi.NativeFunction<
           native_positioning_strategy_t Function(
-            ffi.Pointer<native_rectangle_t>,
-            ffi.Pointer<native_point_t>,
+            native_rectangle_t,
+            native_point_t,
           )
         >
-      >('native_positioning_strategy_relative');
-  late final _native_positioning_strategy_relative =
-      _native_positioning_strategy_relativePtr
-          .asFunction<
-            native_positioning_strategy_t Function(
-              ffi.Pointer<native_rectangle_t>,
-              ffi.Pointer<native_point_t>,
-            )
-          >();
+      >('native_positioning_strategy_relative_with_rect_and_offset');
+  late final _native_positioning_strategy_relative_with_rect_and_offset =
+      _native_positioning_strategy_relative_with_rect_and_offsetPtr
+          .asFunction<int Function(native_rectangle_t, native_point_t)>();
 
-  /// Create a positioning strategy for positioning relative to a window
-  /// @param window Window to position relative to
-  /// @param offset Offset point to apply to the position, or NULL for no offset
-  /// @return Positioning strategy handle, or NULL if window is invalid
-  ///
-  /// This function obtains the window's bounds using native_window_get_bounds()
-  /// and creates a Relative positioning strategy based on those bounds.
-  ///
-  /// @example
-  /// ```c
-  /// native_window_t window = native_window_create();
-  /// native_point_t offset = {0, 10};
-  /// native_positioning_strategy_t strategy = native_positioning_strategy_relative_to_window(window,
-  /// &offset); native_menu_open(menu, strategy); native_positioning_strategy_free(strategy);
-  /// ```
-  native_positioning_strategy_t native_positioning_strategy_relative_to_window(
-    native_window_t window,
-    ffi.Pointer<native_point_t> offset,
+  /// Caller owns the returned handle; release it with native_positioning_strategy_free().
+  int native_positioning_strategy_relative_with_window_and_offset(
+    int window,
+    native_point_t offset,
   ) {
-    return _native_positioning_strategy_relative_to_window(window, offset);
+    return _native_positioning_strategy_relative_with_window_and_offset(
+      window,
+      offset,
+    );
   }
 
-  late final _native_positioning_strategy_relative_to_windowPtr =
+  late final _native_positioning_strategy_relative_with_window_and_offsetPtr =
       _lookup<
         ffi.NativeFunction<
           native_positioning_strategy_t Function(
             native_window_t,
-            ffi.Pointer<native_point_t>,
+            native_point_t,
           )
         >
-      >('native_positioning_strategy_relative_to_window');
-  late final _native_positioning_strategy_relative_to_window =
-      _native_positioning_strategy_relative_to_windowPtr
-          .asFunction<
-            native_positioning_strategy_t Function(
-              native_window_t,
-              ffi.Pointer<native_point_t>,
-            )
-          >();
+      >('native_positioning_strategy_relative_with_window_and_offset');
+  late final _native_positioning_strategy_relative_with_window_and_offset =
+      _native_positioning_strategy_relative_with_window_and_offsetPtr
+          .asFunction<int Function(int, native_point_t)>();
 
-  /// Free a positioning strategy handle
-  /// @param strategy The positioning strategy to free
-  void native_positioning_strategy_free(
-    native_positioning_strategy_t strategy,
+  native_positioning_strategy_type_t native_positioning_strategy_get_type(
+    Dartnative_positioning_strategy_t positioning_strategy,
   ) {
-    return _native_positioning_strategy_free(strategy);
+    return native_positioning_strategy_type_t.fromValue(
+      _native_positioning_strategy_get_type(positioning_strategy),
+    );
+  }
+
+  late final _native_positioning_strategy_get_typePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.UnsignedInt Function(native_positioning_strategy_t)
+        >
+      >('native_positioning_strategy_get_type');
+  late final _native_positioning_strategy_get_type =
+      _native_positioning_strategy_get_typePtr.asFunction<int Function(int)>();
+
+  native_point_t native_positioning_strategy_get_absolute_position(
+    int positioning_strategy,
+  ) {
+    return _native_positioning_strategy_get_absolute_position(
+      positioning_strategy,
+    );
+  }
+
+  late final _native_positioning_strategy_get_absolute_positionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_point_t Function(native_positioning_strategy_t)
+        >
+      >('native_positioning_strategy_get_absolute_position');
+  late final _native_positioning_strategy_get_absolute_position =
+      _native_positioning_strategy_get_absolute_positionPtr
+          .asFunction<native_point_t Function(int)>();
+
+  native_rectangle_t native_positioning_strategy_get_relative_rectangle(
+    int positioning_strategy,
+  ) {
+    return _native_positioning_strategy_get_relative_rectangle(
+      positioning_strategy,
+    );
+  }
+
+  late final _native_positioning_strategy_get_relative_rectanglePtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_rectangle_t Function(native_positioning_strategy_t)
+        >
+      >('native_positioning_strategy_get_relative_rectangle');
+  late final _native_positioning_strategy_get_relative_rectangle =
+      _native_positioning_strategy_get_relative_rectanglePtr
+          .asFunction<native_rectangle_t Function(int)>();
+
+  native_point_t native_positioning_strategy_get_relative_offset(
+    int positioning_strategy,
+  ) {
+    return _native_positioning_strategy_get_relative_offset(
+      positioning_strategy,
+    );
+  }
+
+  late final _native_positioning_strategy_get_relative_offsetPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_point_t Function(native_positioning_strategy_t)
+        >
+      >('native_positioning_strategy_get_relative_offset');
+  late final _native_positioning_strategy_get_relative_offset =
+      _native_positioning_strategy_get_relative_offsetPtr
+          .asFunction<native_point_t Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_positioning_strategy_free(int positioning_strategy) {
+    return _native_positioning_strategy_free(positioning_strategy);
   }
 
   late final _native_positioning_strategy_freePtr =
@@ -2177,61 +1860,43 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Void Function(native_positioning_strategy_t)>
       >('native_positioning_strategy_free');
   late final _native_positioning_strategy_free =
-      _native_positioning_strategy_freePtr
-          .asFunction<void Function(native_positioning_strategy_t)>();
+      _native_positioning_strategy_freePtr.asFunction<void Function(int)>();
 
-  /// Create a new menu item
-  /// @param label The display label for the menu item
-  /// @param type The type of menu item to create
-  /// @return Menu item handle, or NULL if creation failed
-  native_menu_item_t native_menu_item_create(
+  /// Creates a MenuItem instance; release it with native_menu_item_free().
+  Dartnative_menu_item_t native_menu_item_create_with_label_and_type(
     ffi.Pointer<ffi.Char> label,
     native_menu_item_type_t type,
   ) {
-    return _native_menu_item_create(label, type.value);
+    return _native_menu_item_create_with_label_and_type(label, type.value);
   }
 
-  late final _native_menu_item_createPtr =
+  late final _native_menu_item_create_with_label_and_typePtr =
       _lookup<
         ffi.NativeFunction<
           native_menu_item_t Function(ffi.Pointer<ffi.Char>, ffi.UnsignedInt)
         >
-      >('native_menu_item_create');
-  late final _native_menu_item_create = _native_menu_item_createPtr
-      .asFunction<native_menu_item_t Function(ffi.Pointer<ffi.Char>, int)>();
+      >('native_menu_item_create_with_label_and_type');
+  late final _native_menu_item_create_with_label_and_type =
+      _native_menu_item_create_with_label_and_typePtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>, int)>();
 
-  /// Create a separator menu item
-  /// @return Menu item handle, or NULL if creation failed
-  native_menu_item_t native_menu_item_create_separator() {
-    return _native_menu_item_create_separator();
+  /// Creates a MenuItem instance; release it with native_menu_item_free().
+  int native_menu_item_create_with_native_item(
+    ffi.Pointer<ffi.Void> native_item,
+  ) {
+    return _native_menu_item_create_with_native_item(native_item);
   }
 
-  late final _native_menu_item_create_separatorPtr =
-      _lookup<ffi.NativeFunction<native_menu_item_t Function()>>(
-        'native_menu_item_create_separator',
-      );
-  late final _native_menu_item_create_separator =
-      _native_menu_item_create_separatorPtr
-          .asFunction<native_menu_item_t Function()>();
+  late final _native_menu_item_create_with_native_itemPtr =
+      _lookup<
+        ffi.NativeFunction<native_menu_item_t Function(ffi.Pointer<ffi.Void>)>
+      >('native_menu_item_create_with_native_item');
+  late final _native_menu_item_create_with_native_item =
+      _native_menu_item_create_with_native_itemPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  /// Destroy a menu item and release its resources
-  /// @param item The menu item to destroy
-  void native_menu_item_destroy(native_menu_item_t item) {
-    return _native_menu_item_destroy(item);
-  }
-
-  late final _native_menu_item_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_t)>>(
-        'native_menu_item_destroy',
-      );
-  late final _native_menu_item_destroy = _native_menu_item_destroyPtr
-      .asFunction<void Function(native_menu_item_t)>();
-
-  /// Get the ID of a menu item
-  /// @param item The menu item
-  /// @return The menu item ID
-  int native_menu_item_get_id(native_menu_item_t item) {
-    return _native_menu_item_get_id(item);
+  int native_menu_item_get_id(int menu_item) {
+    return _native_menu_item_get_id(menu_item);
   }
 
   late final _native_menu_item_get_idPtr =
@@ -2239,13 +1904,14 @@ class CNativeApiBindings {
         ffi.NativeFunction<native_menu_item_id_t Function(native_menu_item_t)>
       >('native_menu_item_get_id');
   late final _native_menu_item_get_id = _native_menu_item_get_idPtr
-      .asFunction<int Function(native_menu_item_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Get the type of a menu item
-  /// @param item The menu item
-  /// @return The menu item type
-  native_menu_item_type_t native_menu_item_get_type(native_menu_item_t item) {
-    return native_menu_item_type_t.fromValue(_native_menu_item_get_type(item));
+  native_menu_item_type_t native_menu_item_get_type(
+    Dartnative_menu_item_t menu_item,
+  ) {
+    return native_menu_item_type_t.fromValue(
+      _native_menu_item_get_type(menu_item),
+    );
   }
 
   late final _native_menu_item_get_typePtr =
@@ -2253,16 +1919,10 @@ class CNativeApiBindings {
         'native_menu_item_get_type',
       );
   late final _native_menu_item_get_type = _native_menu_item_get_typePtr
-      .asFunction<int Function(native_menu_item_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Set the label of a menu item
-  /// @param item The menu item
-  /// @param label The label to set
-  void native_menu_item_set_label(
-    native_menu_item_t item,
-    ffi.Pointer<ffi.Char> label,
-  ) {
-    return _native_menu_item_set_label(item, label);
+  void native_menu_item_set_label(int menu_item, ffi.Pointer<ffi.Char> label) {
+    return _native_menu_item_set_label(menu_item, label);
   }
 
   late final _native_menu_item_set_labelPtr =
@@ -2272,13 +1932,11 @@ class CNativeApiBindings {
         >
       >('native_menu_item_set_label');
   late final _native_menu_item_set_label = _native_menu_item_set_labelPtr
-      .asFunction<void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the label of a menu item
-  /// @param item The menu item
-  /// @return The label string (caller must free), or NULL if item is invalid
-  ffi.Pointer<ffi.Char> native_menu_item_get_label(native_menu_item_t item) {
-    return _native_menu_item_get_label(item);
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_menu_item_get_label(int menu_item) {
+    return _native_menu_item_get_label(menu_item);
   }
 
   late final _native_menu_item_get_labelPtr =
@@ -2286,16 +1944,10 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>
       >('native_menu_item_get_label');
   late final _native_menu_item_get_label = _native_menu_item_get_labelPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the icon of a menu item using an Image object
-  /// @param item The menu item
-  /// @param image The Image object to set as the icon, or NULL to clear the icon
-  void native_menu_item_set_icon(
-    native_menu_item_t item,
-    native_image_t image,
-  ) {
-    return _native_menu_item_set_icon(item, image);
+  void native_menu_item_set_icon(int menu_item, int image) {
+    return _native_menu_item_set_icon(menu_item, image);
   }
 
   late final _native_menu_item_set_iconPtr =
@@ -2305,14 +1957,11 @@ class CNativeApiBindings {
         >
       >('native_menu_item_set_icon');
   late final _native_menu_item_set_icon = _native_menu_item_set_iconPtr
-      .asFunction<void Function(native_menu_item_t, native_image_t)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Get the current icon image of the menu item
-  /// @param item The menu item
-  /// @return The Image object, or NULL if no icon is set. Caller must call
-  /// native_image_destroy() when done.
-  native_image_t native_menu_item_get_icon(native_menu_item_t item) {
-    return _native_menu_item_get_icon(item);
+  /// Caller owns the returned handle; release it with native_image_free().
+  int native_menu_item_get_icon(int menu_item) {
+    return _native_menu_item_get_icon(menu_item);
   }
 
   late final _native_menu_item_get_iconPtr =
@@ -2320,16 +1969,13 @@ class CNativeApiBindings {
         'native_menu_item_get_icon',
       );
   late final _native_menu_item_get_icon = _native_menu_item_get_iconPtr
-      .asFunction<native_image_t Function(native_menu_item_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Set the tooltip of a menu item
-  /// @param item The menu item
-  /// @param tooltip The tooltip text to set
   void native_menu_item_set_tooltip(
-    native_menu_item_t item,
+    int menu_item,
     ffi.Pointer<ffi.Char> tooltip,
   ) {
-    return _native_menu_item_set_tooltip(item, tooltip);
+    return _native_menu_item_set_tooltip(menu_item, tooltip);
   }
 
   late final _native_menu_item_set_tooltipPtr =
@@ -2339,13 +1985,11 @@ class CNativeApiBindings {
         >
       >('native_menu_item_set_tooltip');
   late final _native_menu_item_set_tooltip = _native_menu_item_set_tooltipPtr
-      .asFunction<void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the tooltip of a menu item
-  /// @param item The menu item
-  /// @return The tooltip string (caller must free), or NULL if item is invalid or no tooltip set
-  ffi.Pointer<ffi.Char> native_menu_item_get_tooltip(native_menu_item_t item) {
-    return _native_menu_item_get_tooltip(item);
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_menu_item_get_tooltip(int menu_item) {
+    return _native_menu_item_get_tooltip(menu_item);
   }
 
   late final _native_menu_item_get_tooltipPtr =
@@ -2353,16 +1997,13 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>
       >('native_menu_item_get_tooltip');
   late final _native_menu_item_get_tooltip = _native_menu_item_get_tooltipPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_menu_item_t)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the keyboard accelerator for a menu item
-  /// @param item The menu item
-  /// @param accelerator The keyboard accelerator to set, or NULL to remove the accelerator
   void native_menu_item_set_accelerator(
-    native_menu_item_t item,
+    int menu_item,
     ffi.Pointer<native_keyboard_accelerator_t> accelerator,
   ) {
-    return _native_menu_item_set_accelerator(item, accelerator);
+    return _native_menu_item_set_accelerator(menu_item, accelerator);
   }
 
   late final _native_menu_item_set_acceleratorPtr =
@@ -2377,46 +2018,27 @@ class CNativeApiBindings {
   late final _native_menu_item_set_accelerator =
       _native_menu_item_set_acceleratorPtr
           .asFunction<
-            void Function(
-              native_menu_item_t,
-              ffi.Pointer<native_keyboard_accelerator_t>,
-            )
+            void Function(int, ffi.Pointer<native_keyboard_accelerator_t>)
           >();
 
-  /// Get the keyboard accelerator of a menu item
-  /// @param item The menu item
-  /// @param accelerator Pointer to store the accelerator (caller allocated)
-  /// @return true if accelerator exists, false otherwise
-  bool native_menu_item_get_accelerator(
-    native_menu_item_t item,
-    ffi.Pointer<native_keyboard_accelerator_t> accelerator,
+  native_keyboard_accelerator_t native_menu_item_get_accelerator(
+    int menu_item,
   ) {
-    return _native_menu_item_get_accelerator(item, accelerator);
+    return _native_menu_item_get_accelerator(menu_item);
   }
 
   late final _native_menu_item_get_acceleratorPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Bool Function(
-            native_menu_item_t,
-            ffi.Pointer<native_keyboard_accelerator_t>,
-          )
+          native_keyboard_accelerator_t Function(native_menu_item_t)
         >
       >('native_menu_item_get_accelerator');
   late final _native_menu_item_get_accelerator =
       _native_menu_item_get_acceleratorPtr
-          .asFunction<
-            bool Function(
-              native_menu_item_t,
-              ffi.Pointer<native_keyboard_accelerator_t>,
-            )
-          >();
+          .asFunction<native_keyboard_accelerator_t Function(int)>();
 
-  /// Set the enabled state of a menu item
-  /// @param item The menu item
-  /// @param enabled true to enable, false to disable
-  void native_menu_item_set_enabled(native_menu_item_t item, bool enabled) {
-    return _native_menu_item_set_enabled(item, enabled);
+  void native_menu_item_set_enabled(int menu_item, bool enabled) {
+    return _native_menu_item_set_enabled(menu_item, enabled);
   }
 
   late final _native_menu_item_set_enabledPtr =
@@ -2424,13 +2046,10 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Void Function(native_menu_item_t, ffi.Bool)>
       >('native_menu_item_set_enabled');
   late final _native_menu_item_set_enabled = _native_menu_item_set_enabledPtr
-      .asFunction<void Function(native_menu_item_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  /// Check if a menu item is enabled
-  /// @param item The menu item
-  /// @return true if enabled, false otherwise
-  bool native_menu_item_is_enabled(native_menu_item_t item) {
-    return _native_menu_item_is_enabled(item);
+  bool native_menu_item_is_enabled(int menu_item) {
+    return _native_menu_item_is_enabled(menu_item);
   }
 
   late final _native_menu_item_is_enabledPtr =
@@ -2438,16 +2057,13 @@ class CNativeApiBindings {
         'native_menu_item_is_enabled',
       );
   late final _native_menu_item_is_enabled = _native_menu_item_is_enabledPtr
-      .asFunction<bool Function(native_menu_item_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Set the state of a checkbox/radio menu item
-  /// @param item The menu item
-  /// @param state The state to set (unchecked, checked, or mixed)
   void native_menu_item_set_state(
-    native_menu_item_t item,
+    Dartnative_menu_item_t menu_item,
     native_menu_item_state_t state,
   ) {
-    return _native_menu_item_set_state(item, state.value);
+    return _native_menu_item_set_state(menu_item, state.value);
   }
 
   late final _native_menu_item_set_statePtr =
@@ -2457,14 +2073,13 @@ class CNativeApiBindings {
         >
       >('native_menu_item_set_state');
   late final _native_menu_item_set_state = _native_menu_item_set_statePtr
-      .asFunction<void Function(native_menu_item_t, int)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Get the state of a menu item
-  /// @param item The menu item
-  /// @return The current state of the menu item
-  native_menu_item_state_t native_menu_item_get_state(native_menu_item_t item) {
+  native_menu_item_state_t native_menu_item_get_state(
+    Dartnative_menu_item_t menu_item,
+  ) {
     return native_menu_item_state_t.fromValue(
-      _native_menu_item_get_state(item),
+      _native_menu_item_get_state(menu_item),
     );
   }
 
@@ -2473,13 +2088,10 @@ class CNativeApiBindings {
         'native_menu_item_get_state',
       );
   late final _native_menu_item_get_state = _native_menu_item_get_statePtr
-      .asFunction<int Function(native_menu_item_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Set the radio group ID for a radio menu item
-  /// @param item The menu item
-  /// @param group_id The radio group identifier
-  void native_menu_item_set_radio_group(native_menu_item_t item, int group_id) {
-    return _native_menu_item_set_radio_group(item, group_id);
+  void native_menu_item_set_radio_group(int menu_item, int group_id) {
+    return _native_menu_item_set_radio_group(menu_item, group_id);
   }
 
   late final _native_menu_item_set_radio_groupPtr =
@@ -2488,13 +2100,10 @@ class CNativeApiBindings {
       >('native_menu_item_set_radio_group');
   late final _native_menu_item_set_radio_group =
       _native_menu_item_set_radio_groupPtr
-          .asFunction<void Function(native_menu_item_t, int)>();
+          .asFunction<void Function(int, int)>();
 
-  /// Get the radio group ID of a menu item
-  /// @param item The menu item
-  /// @return The radio group ID, or -1 if not set
-  int native_menu_item_get_radio_group(native_menu_item_t item) {
-    return _native_menu_item_get_radio_group(item);
+  int native_menu_item_get_radio_group(int menu_item) {
+    return _native_menu_item_get_radio_group(menu_item);
   }
 
   late final _native_menu_item_get_radio_groupPtr =
@@ -2502,17 +2111,10 @@ class CNativeApiBindings {
         'native_menu_item_get_radio_group',
       );
   late final _native_menu_item_get_radio_group =
-      _native_menu_item_get_radio_groupPtr
-          .asFunction<int Function(native_menu_item_t)>();
+      _native_menu_item_get_radio_groupPtr.asFunction<int Function(int)>();
 
-  /// Set the submenu for a menu item
-  /// @param item The menu item
-  /// @param submenu The submenu to attach, or NULL to remove the submenu
-  void native_menu_item_set_submenu(
-    native_menu_item_t item,
-    native_menu_t submenu,
-  ) {
-    return _native_menu_item_set_submenu(item, submenu);
+  void native_menu_item_set_submenu(int menu_item, int submenu) {
+    return _native_menu_item_set_submenu(menu_item, submenu);
   }
 
   late final _native_menu_item_set_submenuPtr =
@@ -2520,13 +2122,11 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Void Function(native_menu_item_t, native_menu_t)>
       >('native_menu_item_set_submenu');
   late final _native_menu_item_set_submenu = _native_menu_item_set_submenuPtr
-      .asFunction<void Function(native_menu_item_t, native_menu_t)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Get the submenu of a menu item
-  /// @param item The menu item
-  /// @return The submenu handle, or NULL if no submenu
-  native_menu_t native_menu_item_get_submenu(native_menu_item_t item) {
-    return _native_menu_item_get_submenu(item);
+  /// Caller owns the returned handle; release it with native_menu_free().
+  int native_menu_item_get_submenu(int menu_item) {
+    return _native_menu_item_get_submenu(menu_item);
   }
 
   late final _native_menu_item_get_submenuPtr =
@@ -2534,71 +2134,106 @@ class CNativeApiBindings {
         'native_menu_item_get_submenu',
       );
   late final _native_menu_item_get_submenu = _native_menu_item_get_submenuPtr
-      .asFunction<native_menu_t Function(native_menu_item_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Add event listener for a menu item
-  /// @param item The menu item
-  /// @param event_type The type of event to listen for
-  /// @param callback The callback function
-  /// @param user_data User data passed to callback
-  /// @return A listener ID that can be used to remove the listener, or -1 on error
+  /// Platform-specific native object (NSScreen*, HMONITOR, ...).
+  ffi.Pointer<ffi.Void> native_menu_item_get_native_object(int menu_item) {
+    return _native_menu_item_get_native_object(menu_item);
+  }
+
+  late final _native_menu_item_get_native_objectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_menu_item_t)>
+      >('native_menu_item_get_native_object');
+  late final _native_menu_item_get_native_object =
+      _native_menu_item_get_native_objectPtr
+          .asFunction<ffi.Pointer<ffi.Void> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_menu_item_free(int menu_item) {
+    return _native_menu_item_free(menu_item);
+  }
+
+  late final _native_menu_item_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_t)>>(
+        'native_menu_item_free',
+      );
+  late final _native_menu_item_free = _native_menu_item_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Frees the array and releases every handle it contains.
+  void native_menu_item_list_free(ffi.Pointer<native_menu_item_list_t> list) {
+    return _native_menu_item_list_free(list);
+  }
+
+  late final _native_menu_item_list_freePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_menu_item_list_t>)
+        >
+      >('native_menu_item_list_free');
+  late final _native_menu_item_list_free = _native_menu_item_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_menu_item_list_t>)>();
+
+  /// Frees only the array; the caller takes over the handles.
+  void native_menu_item_list_release(
+    ffi.Pointer<native_menu_item_list_t> list,
+  ) {
+    return _native_menu_item_list_release(list);
+  }
+
+  late final _native_menu_item_list_releasePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_menu_item_list_t>)
+        >
+      >('native_menu_item_list_release');
+  late final _native_menu_item_list_release = _native_menu_item_list_releasePtr
+      .asFunction<void Function(ffi.Pointer<native_menu_item_list_t>)>();
+
+  /// Registers @p callback for every MenuEvent this MenuItem emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
   int native_menu_item_add_listener(
-    native_menu_item_t item,
-    native_menu_item_event_type_t event_type,
-    native_menu_item_event_callback_t callback,
+    int menu_item,
+    native_menu_event_callback_t callback,
     ffi.Pointer<ffi.Void> user_data,
   ) {
-    return _native_menu_item_add_listener(
-      item,
-      event_type.value,
-      callback,
-      user_data,
-    );
+    return _native_menu_item_add_listener(menu_item, callback, user_data);
   }
 
   late final _native_menu_item_add_listenerPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Int Function(
+          native_listener_id_t Function(
             native_menu_item_t,
-            ffi.UnsignedInt,
-            native_menu_item_event_callback_t,
+            native_menu_event_callback_t,
             ffi.Pointer<ffi.Void>,
           )
         >
       >('native_menu_item_add_listener');
   late final _native_menu_item_add_listener = _native_menu_item_add_listenerPtr
       .asFunction<
-        int Function(
-          native_menu_item_t,
-          int,
-          native_menu_item_event_callback_t,
-          ffi.Pointer<ffi.Void>,
-        )
+        int Function(int, native_menu_event_callback_t, ffi.Pointer<ffi.Void>)
       >();
 
-  /// Remove event listener from a menu item
-  /// @param item The menu item
-  /// @param listener_id The listener ID returned by native_menu_item_add_listener
-  /// @return true if removed successfully, false otherwise
-  bool native_menu_item_remove_listener(
-    native_menu_item_t item,
-    int listener_id,
-  ) {
-    return _native_menu_item_remove_listener(item, listener_id);
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_menu_item_remove_listener(int menu_item, int listener_id) {
+    return _native_menu_item_remove_listener(menu_item, listener_id);
   }
 
   late final _native_menu_item_remove_listenerPtr =
       _lookup<
-        ffi.NativeFunction<ffi.Bool Function(native_menu_item_t, ffi.Int)>
+        ffi.NativeFunction<
+          ffi.Bool Function(native_menu_item_t, native_listener_id_t)
+        >
       >('native_menu_item_remove_listener');
   late final _native_menu_item_remove_listener =
       _native_menu_item_remove_listenerPtr
-          .asFunction<bool Function(native_menu_item_t, int)>();
+          .asFunction<bool Function(int, int)>();
 
-  /// Create a new menu
-  /// @return Menu handle, or NULL if creation failed
-  native_menu_t native_menu_create() {
+  /// Creates a Menu instance; release it with native_menu_free().
+  int native_menu_create() {
     return _native_menu_create();
   }
 
@@ -2607,25 +2242,22 @@ class CNativeApiBindings {
         'native_menu_create',
       );
   late final _native_menu_create = _native_menu_createPtr
-      .asFunction<native_menu_t Function()>();
+      .asFunction<int Function()>();
 
-  /// Destroy a menu and release its resources
-  /// @param menu The menu to destroy
-  void native_menu_destroy(native_menu_t menu) {
-    return _native_menu_destroy(menu);
+  /// Creates a Menu instance; release it with native_menu_free().
+  int native_menu_create_with_native_menu(ffi.Pointer<ffi.Void> native_menu) {
+    return _native_menu_create_with_native_menu(native_menu);
   }
 
-  late final _native_menu_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t)>>(
-        'native_menu_destroy',
-      );
-  late final _native_menu_destroy = _native_menu_destroyPtr
-      .asFunction<void Function(native_menu_t)>();
+  late final _native_menu_create_with_native_menuPtr =
+      _lookup<
+        ffi.NativeFunction<native_menu_t Function(ffi.Pointer<ffi.Void>)>
+      >('native_menu_create_with_native_menu');
+  late final _native_menu_create_with_native_menu =
+      _native_menu_create_with_native_menuPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  /// Get the ID of a menu
-  /// @param menu The menu
-  /// @return The menu ID
-  int native_menu_get_id(native_menu_t menu) {
+  int native_menu_get_id(int menu) {
     return _native_menu_get_id(menu);
   }
 
@@ -2634,12 +2266,45 @@ class CNativeApiBindings {
         'native_menu_get_id',
       );
   late final _native_menu_get_id = _native_menu_get_idPtr
-      .asFunction<int Function(native_menu_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Add a menu item to the end of the menu
-  /// @param menu The menu
-  /// @param item The menu item to add
-  void native_menu_add_item(native_menu_t menu, native_menu_item_t item) {
+  bool native_menu_set_backend(
+    Dartnative_menu_t menu,
+    native_menu_backend_t backend,
+  ) {
+    return _native_menu_set_backend(menu, backend.value);
+  }
+
+  late final _native_menu_set_backendPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.UnsignedInt)>
+      >('native_menu_set_backend');
+  late final _native_menu_set_backend = _native_menu_set_backendPtr
+      .asFunction<bool Function(int, int)>();
+
+  native_menu_backend_t native_menu_get_backend(Dartnative_menu_t menu) {
+    return native_menu_backend_t.fromValue(_native_menu_get_backend(menu));
+  }
+
+  late final _native_menu_get_backendPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_menu_t)>>(
+        'native_menu_get_backend',
+      );
+  late final _native_menu_get_backend = _native_menu_get_backendPtr
+      .asFunction<int Function(int)>();
+
+  bool native_menu_is_backend_supported(native_menu_backend_t backend) {
+    return _native_menu_is_backend_supported(backend.value);
+  }
+
+  late final _native_menu_is_backend_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.UnsignedInt)>>(
+        'native_menu_is_backend_supported',
+      );
+  late final _native_menu_is_backend_supported =
+      _native_menu_is_backend_supportedPtr.asFunction<bool Function(int)>();
+
+  void native_menu_add_item(int menu, int item) {
     return _native_menu_add_item(menu, item);
   }
 
@@ -2648,34 +2313,22 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Void Function(native_menu_t, native_menu_item_t)>
       >('native_menu_add_item');
   late final _native_menu_add_item = _native_menu_add_itemPtr
-      .asFunction<void Function(native_menu_t, native_menu_item_t)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Insert a menu item at a specific position
-  /// @param menu The menu
-  /// @param item The menu item to insert
-  /// @param index The position to insert at (0-based)
-  void native_menu_insert_item(
-    native_menu_t menu,
-    native_menu_item_t item,
-    int index,
-  ) {
-    return _native_menu_insert_item(menu, item, index);
+  void native_menu_insert_item(int menu, int index, int item) {
+    return _native_menu_insert_item(menu, index, item);
   }
 
   late final _native_menu_insert_itemPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Void Function(native_menu_t, native_menu_item_t, ffi.Size)
+          ffi.Void Function(native_menu_t, ffi.UnsignedLong, native_menu_item_t)
         >
       >('native_menu_insert_item');
   late final _native_menu_insert_item = _native_menu_insert_itemPtr
-      .asFunction<void Function(native_menu_t, native_menu_item_t, int)>();
+      .asFunction<void Function(int, int, int)>();
 
-  /// Remove a menu item from the menu
-  /// @param menu The menu
-  /// @param item The menu item to remove
-  /// @return true if item was found and removed, false otherwise
-  bool native_menu_remove_item(native_menu_t menu, native_menu_item_t item) {
+  bool native_menu_remove_item(int menu, int item) {
     return _native_menu_remove_item(menu, item);
   }
 
@@ -2684,13 +2337,9 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Bool Function(native_menu_t, native_menu_item_t)>
       >('native_menu_remove_item');
   late final _native_menu_remove_item = _native_menu_remove_itemPtr
-      .asFunction<bool Function(native_menu_t, native_menu_item_t)>();
+      .asFunction<bool Function(int, int)>();
 
-  /// Remove a menu item by its ID
-  /// @param menu The menu
-  /// @param item_id The ID of the item to remove
-  /// @return true if item was found and removed, false otherwise
-  bool native_menu_remove_item_by_id(native_menu_t menu, int item_id) {
+  bool native_menu_remove_item_by_id(int menu, int item_id) {
     return _native_menu_remove_item_by_id(menu, item_id);
   }
 
@@ -2701,26 +2350,20 @@ class CNativeApiBindings {
         >
       >('native_menu_remove_item_by_id');
   late final _native_menu_remove_item_by_id = _native_menu_remove_item_by_idPtr
-      .asFunction<bool Function(native_menu_t, int)>();
+      .asFunction<bool Function(int, int)>();
 
-  /// Remove a menu item at a specific position
-  /// @param menu The menu
-  /// @param index The position of the item to remove (0-based)
-  /// @return true if item was removed, false if index out of bounds
-  bool native_menu_remove_item_at(native_menu_t menu, int index) {
+  bool native_menu_remove_item_at(int menu, int index) {
     return _native_menu_remove_item_at(menu, index);
   }
 
   late final _native_menu_remove_item_atPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.Size)>>(
-        'native_menu_remove_item_at',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.UnsignedLong)>
+      >('native_menu_remove_item_at');
   late final _native_menu_remove_item_at = _native_menu_remove_item_atPtr
-      .asFunction<bool Function(native_menu_t, int)>();
+      .asFunction<bool Function(int, int)>();
 
-  /// Remove all items from the menu
-  /// @param menu The menu
-  void native_menu_clear(native_menu_t menu) {
+  void native_menu_clear(int menu) {
     return _native_menu_clear(menu);
   }
 
@@ -2729,11 +2372,9 @@ class CNativeApiBindings {
         'native_menu_clear',
       );
   late final _native_menu_clear = _native_menu_clearPtr
-      .asFunction<void Function(native_menu_t)>();
+      .asFunction<void Function(int)>();
 
-  /// Add a separator to the end of the menu
-  /// @param menu The menu
-  void native_menu_add_separator(native_menu_t menu) {
+  void native_menu_add_separator(int menu) {
     return _native_menu_add_separator(menu);
   }
 
@@ -2742,59 +2383,46 @@ class CNativeApiBindings {
         'native_menu_add_separator',
       );
   late final _native_menu_add_separator = _native_menu_add_separatorPtr
-      .asFunction<void Function(native_menu_t)>();
+      .asFunction<void Function(int)>();
 
-  /// Insert a separator at a specific position
-  /// @param menu The menu
-  /// @param index The position to insert the separator at (0-based)
-  void native_menu_insert_separator(native_menu_t menu, int index) {
+  void native_menu_insert_separator(int menu, int index) {
     return _native_menu_insert_separator(menu, index);
   }
 
   late final _native_menu_insert_separatorPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t, ffi.Size)>>(
-        'native_menu_insert_separator',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_menu_t, ffi.UnsignedLong)>
+      >('native_menu_insert_separator');
   late final _native_menu_insert_separator = _native_menu_insert_separatorPtr
-      .asFunction<void Function(native_menu_t, int)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Get the number of items in the menu
-  /// @param menu The menu
-  /// @return The number of items
-  int native_menu_get_item_count(native_menu_t menu) {
+  int native_menu_get_item_count(int menu) {
     return _native_menu_get_item_count(menu);
   }
 
   late final _native_menu_get_item_countPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(native_menu_t)>>(
+      _lookup<ffi.NativeFunction<ffi.UnsignedLong Function(native_menu_t)>>(
         'native_menu_get_item_count',
       );
   late final _native_menu_get_item_count = _native_menu_get_item_countPtr
-      .asFunction<int Function(native_menu_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Get a menu item at a specific position
-  /// @param menu The menu
-  /// @param index The position of the item (0-based)
-  /// @return The menu item handle, or NULL if index out of bounds
-  native_menu_item_t native_menu_get_item_at(native_menu_t menu, int index) {
+  /// Caller owns the returned handle; release it with native_menu_item_free().
+  int native_menu_get_item_at(int menu, int index) {
     return _native_menu_get_item_at(menu, index);
   }
 
   late final _native_menu_get_item_atPtr =
       _lookup<
-        ffi.NativeFunction<native_menu_item_t Function(native_menu_t, ffi.Size)>
+        ffi.NativeFunction<
+          native_menu_item_t Function(native_menu_t, ffi.UnsignedLong)
+        >
       >('native_menu_get_item_at');
   late final _native_menu_get_item_at = _native_menu_get_item_atPtr
-      .asFunction<native_menu_item_t Function(native_menu_t, int)>();
+      .asFunction<int Function(int, int)>();
 
-  /// Get a menu item by its ID
-  /// @param menu The menu
-  /// @param item_id The ID of the item to find
-  /// @return The menu item handle, or NULL if not found
-  native_menu_item_t native_menu_get_item_by_id(
-    native_menu_t menu,
-    int item_id,
-  ) {
+  /// Caller owns the returned handle; release it with native_menu_item_free().
+  int native_menu_get_item_by_id(int menu, int item_id) {
     return _native_menu_get_item_by_id(menu, item_id);
   }
 
@@ -2805,12 +2433,9 @@ class CNativeApiBindings {
         >
       >('native_menu_get_item_by_id');
   late final _native_menu_get_item_by_id = _native_menu_get_item_by_idPtr
-      .asFunction<native_menu_item_t Function(native_menu_t, int)>();
+      .asFunction<int Function(int, int)>();
 
-  /// Get all menu items
-  /// @param menu The menu
-  /// @return List of menu items (caller must free with native_menu_item_list_free)
-  native_menu_item_list_t native_menu_get_all_items(native_menu_t menu) {
+  native_menu_item_list_t native_menu_get_all_items(int menu) {
     return _native_menu_get_all_items(menu);
   }
 
@@ -2819,17 +2444,11 @@ class CNativeApiBindings {
         ffi.NativeFunction<native_menu_item_list_t Function(native_menu_t)>
       >('native_menu_get_all_items');
   late final _native_menu_get_all_items = _native_menu_get_all_itemsPtr
-      .asFunction<native_menu_item_list_t Function(native_menu_t)>();
+      .asFunction<native_menu_item_list_t Function(int)>();
 
-  /// Open the menu as a context menu using the specified positioning strategy
-  /// @param menu The menu
-  /// @param strategy The positioning strategy determining where to display the menu
-  /// @param placement The placement option determining how the menu is positioned
-  /// relative to the reference point (default: NATIVE_PLACEMENT_BOTTOM_START)
-  /// @return true if menu was opened successfully, false otherwise
   bool native_menu_open(
-    native_menu_t menu,
-    native_positioning_strategy_t strategy,
+    Dartnative_menu_t menu,
+    Dartnative_positioning_strategy_t strategy,
     native_placement_t placement,
   ) {
     return _native_menu_open(menu, strategy, placement.value);
@@ -2846,14 +2465,9 @@ class CNativeApiBindings {
         >
       >('native_menu_open');
   late final _native_menu_open = _native_menu_openPtr
-      .asFunction<
-        bool Function(native_menu_t, native_positioning_strategy_t, int)
-      >();
+      .asFunction<bool Function(int, int, int)>();
 
-  /// Close the menu if it's currently showing
-  /// @param menu The menu
-  /// @return true if menu was closed, false otherwise
-  bool native_menu_close(native_menu_t menu) {
+  bool native_menu_close(int menu) {
     return _native_menu_close(menu);
   }
 
@@ -2862,34 +2476,48 @@ class CNativeApiBindings {
         'native_menu_close',
       );
   late final _native_menu_close = _native_menu_closePtr
-      .asFunction<bool Function(native_menu_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Add event listener for a menu
-  /// @param menu The menu
-  /// @param event_type The type of event to listen for
-  /// @param callback The callback function
-  /// @param user_data User data passed to callback
-  /// @return A listener ID that can be used to remove the listener, or -1 on error
+  /// Platform-specific native object (NSScreen*, HMONITOR, ...).
+  ffi.Pointer<ffi.Void> native_menu_get_native_object(int menu) {
+    return _native_menu_get_native_object(menu);
+  }
+
+  late final _native_menu_get_native_objectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_menu_t)>
+      >('native_menu_get_native_object');
+  late final _native_menu_get_native_object = _native_menu_get_native_objectPtr
+      .asFunction<ffi.Pointer<ffi.Void> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_menu_free(int menu) {
+    return _native_menu_free(menu);
+  }
+
+  late final _native_menu_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_t)>>(
+        'native_menu_free',
+      );
+  late final _native_menu_free = _native_menu_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Registers @p callback for every MenuEvent this Menu emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
   int native_menu_add_listener(
-    native_menu_t menu,
-    native_menu_event_type_t event_type,
+    int menu,
     native_menu_event_callback_t callback,
     ffi.Pointer<ffi.Void> user_data,
   ) {
-    return _native_menu_add_listener(
-      menu,
-      event_type.value,
-      callback,
-      user_data,
-    );
+    return _native_menu_add_listener(menu, callback, user_data);
   }
 
   late final _native_menu_add_listenerPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Int Function(
+          native_listener_id_t Function(
             native_menu_t,
-            ffi.UnsignedInt,
             native_menu_event_callback_t,
             ffi.Pointer<ffi.Void>,
           )
@@ -2897,72 +2525,1473 @@ class CNativeApiBindings {
       >('native_menu_add_listener');
   late final _native_menu_add_listener = _native_menu_add_listenerPtr
       .asFunction<
-        int Function(
-          native_menu_t,
-          int,
-          native_menu_event_callback_t,
-          ffi.Pointer<ffi.Void>,
-        )
+        int Function(int, native_menu_event_callback_t, ffi.Pointer<ffi.Void>)
       >();
 
-  /// Remove event listener from a menu
-  /// @param menu The menu
-  /// @param listener_id The listener ID returned by native_menu_add_listener
-  /// @return true if removed successfully, false otherwise
-  bool native_menu_remove_listener(native_menu_t menu, int listener_id) {
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_menu_remove_listener(int menu, int listener_id) {
     return _native_menu_remove_listener(menu, listener_id);
   }
 
   late final _native_menu_remove_listenerPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t, ffi.Int)>>(
-        'native_menu_remove_listener',
-      );
-  late final _native_menu_remove_listener = _native_menu_remove_listenerPtr
-      .asFunction<bool Function(native_menu_t, int)>();
-
-  /// Free a menu item list
-  /// @param list The list to free
-  void native_menu_item_list_free(native_menu_item_list_t list) {
-    return _native_menu_item_list_free(list);
-  }
-
-  late final _native_menu_item_list_freePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_menu_item_list_t)>>(
-        'native_menu_item_list_free',
-      );
-  late final _native_menu_item_list_free = _native_menu_item_list_freePtr
-      .asFunction<void Function(native_menu_item_list_t)>();
-
-  /// Convert keyboard accelerator to string representation
-  /// @param accelerator The accelerator
-  /// @return The string representation (caller must free), or NULL if accelerator is invalid
-  ffi.Pointer<ffi.Char> native_keyboard_accelerator_to_string(
-    ffi.Pointer<native_keyboard_accelerator_t> accelerator,
-  ) {
-    return _native_keyboard_accelerator_to_string(accelerator);
-  }
-
-  late final _native_keyboard_accelerator_to_stringPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-            ffi.Pointer<native_keyboard_accelerator_t>,
+          ffi.Bool Function(native_menu_t, native_listener_id_t)
+        >
+      >('native_menu_remove_listener');
+  late final _native_menu_remove_listener = _native_menu_remove_listenerPtr
+      .asFunction<bool Function(int, int)>();
+
+  int native_application_run() {
+    return _native_application_run();
+  }
+
+  late final _native_application_runPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('native_application_run');
+  late final _native_application_run = _native_application_runPtr
+      .asFunction<int Function()>();
+
+  int native_application_run_with_window(int window) {
+    return _native_application_run_with_window(window);
+  }
+
+  late final _native_application_run_with_windowPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(native_window_t)>>(
+        'native_application_run_with_window',
+      );
+  late final _native_application_run_with_window =
+      _native_application_run_with_windowPtr.asFunction<int Function(int)>();
+
+  void native_application_quit(int exit_code) {
+    return _native_application_quit(exit_code);
+  }
+
+  late final _native_application_quitPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>(
+        'native_application_quit',
+      );
+  late final _native_application_quit = _native_application_quitPtr
+      .asFunction<void Function(int)>();
+
+  bool native_application_is_running() {
+    return _native_application_is_running();
+  }
+
+  late final _native_application_is_runningPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_application_is_running',
+      );
+  late final _native_application_is_running = _native_application_is_runningPtr
+      .asFunction<bool Function()>();
+
+  bool native_application_is_single_instance() {
+    return _native_application_is_single_instance();
+  }
+
+  late final _native_application_is_single_instancePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_application_is_single_instance',
+      );
+  late final _native_application_is_single_instance =
+      _native_application_is_single_instancePtr.asFunction<bool Function()>();
+
+  bool native_application_set_icon(ffi.Pointer<ffi.Char> icon_path) {
+    return _native_application_set_icon(icon_path);
+  }
+
+  late final _native_application_set_iconPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_application_set_icon',
+      );
+  late final _native_application_set_icon = _native_application_set_iconPtr
+      .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  bool native_application_set_dock_icon_visible(bool visible) {
+    return _native_application_set_dock_icon_visible(visible);
+  }
+
+  late final _native_application_set_dock_icon_visiblePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Bool)>>(
+        'native_application_set_dock_icon_visible',
+      );
+  late final _native_application_set_dock_icon_visible =
+      _native_application_set_dock_icon_visiblePtr
+          .asFunction<bool Function(bool)>();
+
+  bool native_application_set_progress_bar(double progress) {
+    return _native_application_set_progress_bar(progress);
+  }
+
+  late final _native_application_set_progress_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Double)>>(
+        'native_application_set_progress_bar',
+      );
+  late final _native_application_set_progress_bar =
+      _native_application_set_progress_barPtr
+          .asFunction<bool Function(double)>();
+
+  bool native_application_set_badge_label(ffi.Pointer<ffi.Char> label) {
+    return _native_application_set_badge_label(label);
+  }
+
+  late final _native_application_set_badge_labelPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_application_set_badge_label',
+      );
+  late final _native_application_set_badge_label =
+      _native_application_set_badge_labelPtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  bool native_application_set_brightness(native_brightness_t brightness) {
+    return _native_application_set_brightness(brightness.value);
+  }
+
+  late final _native_application_set_brightnessPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.UnsignedInt)>>(
+        'native_application_set_brightness',
+      );
+  late final _native_application_set_brightness =
+      _native_application_set_brightnessPtr.asFunction<bool Function(int)>();
+
+  bool native_application_set_menu_bar(int menu) {
+    return _native_application_set_menu_bar(menu);
+  }
+
+  late final _native_application_set_menu_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_menu_t)>>(
+        'native_application_set_menu_bar',
+      );
+  late final _native_application_set_menu_bar =
+      _native_application_set_menu_barPtr.asFunction<bool Function(int)>();
+
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_application_get_primary_window() {
+    return _native_application_get_primary_window();
+  }
+
+  late final _native_application_get_primary_windowPtr =
+      _lookup<ffi.NativeFunction<native_window_t Function()>>(
+        'native_application_get_primary_window',
+      );
+  late final _native_application_get_primary_window =
+      _native_application_get_primary_windowPtr.asFunction<int Function()>();
+
+  void native_application_set_primary_window(int window) {
+    return _native_application_set_primary_window(window);
+  }
+
+  late final _native_application_set_primary_windowPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_t)>>(
+        'native_application_set_primary_window',
+      );
+  late final _native_application_set_primary_window =
+      _native_application_set_primary_windowPtr
+          .asFunction<void Function(int)>();
+
+  native_window_list_t native_application_get_all_windows() {
+    return _native_application_get_all_windows();
+  }
+
+  late final _native_application_get_all_windowsPtr =
+      _lookup<ffi.NativeFunction<native_window_list_t Function()>>(
+        'native_application_get_all_windows',
+      );
+  late final _native_application_get_all_windows =
+      _native_application_get_all_windowsPtr
+          .asFunction<native_window_list_t Function()>();
+
+  /// Registers @p callback for every ApplicationEvent this Application emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_application_add_listener(
+    native_application_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_application_add_listener(callback, user_data);
+  }
+
+  late final _native_application_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_application_event_callback_t,
+            ffi.Pointer<ffi.Void>,
           )
         >
-      >('native_keyboard_accelerator_to_string');
-  late final _native_keyboard_accelerator_to_string =
-      _native_keyboard_accelerator_to_stringPtr
+      >('native_application_add_listener');
+  late final _native_application_add_listener =
+      _native_application_add_listenerPtr
           .asFunction<
-            ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<native_keyboard_accelerator_t>,
+            int Function(
+              native_application_event_callback_t,
+              ffi.Pointer<ffi.Void>,
             )
           >();
 
-  /// Create a new message dialog with title and message
-  /// @param title The dialog title
-  /// @param message The dialog message
-  /// @return Message dialog handle, or NULL if creation failed
-  native_message_dialog_t native_message_dialog_create(
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_application_remove_listener(int listener_id) {
+    return _native_application_remove_listener(listener_id);
+  }
+
+  late final _native_application_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_listener_id_t)>>(
+        'native_application_remove_listener',
+      );
+  late final _native_application_remove_listener =
+      _native_application_remove_listenerPtr.asFunction<bool Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_name() {
+    return _native_device_info_get_name();
+  }
+
+  late final _native_device_info_get_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_name',
+      );
+  late final _native_device_info_get_name = _native_device_info_get_namePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_model() {
+    return _native_device_info_get_model();
+  }
+
+  late final _native_device_info_get_modelPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_model',
+      );
+  late final _native_device_info_get_model = _native_device_info_get_modelPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_manufacturer() {
+    return _native_device_info_get_manufacturer();
+  }
+
+  late final _native_device_info_get_manufacturerPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_manufacturer',
+      );
+  late final _native_device_info_get_manufacturer =
+      _native_device_info_get_manufacturerPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_os_name() {
+    return _native_device_info_get_os_name();
+  }
+
+  late final _native_device_info_get_os_namePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_os_name',
+      );
+  late final _native_device_info_get_os_name =
+      _native_device_info_get_os_namePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_os_version() {
+    return _native_device_info_get_os_version();
+  }
+
+  late final _native_device_info_get_os_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_os_version',
+      );
+  late final _native_device_info_get_os_version =
+      _native_device_info_get_os_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_kernel_version() {
+    return _native_device_info_get_kernel_version();
+  }
+
+  late final _native_device_info_get_kernel_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_kernel_version',
+      );
+  late final _native_device_info_get_kernel_version =
+      _native_device_info_get_kernel_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_device_info_get_architecture() {
+    return _native_device_info_get_architecture();
+  }
+
+  late final _native_device_info_get_architecturePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_device_info_get_architecture',
+      );
+  late final _native_device_info_get_architecture =
+      _native_device_info_get_architecturePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Creates a Display instance; release it with native_display_free().
+  int native_display_create(ffi.Pointer<ffi.Void> display) {
+    return _native_display_create(display);
+  }
+
+  late final _native_display_createPtr =
+      _lookup<
+        ffi.NativeFunction<native_display_t Function(ffi.Pointer<ffi.Void>)>
+      >('native_display_create');
+  late final _native_display_create = _native_display_createPtr
+      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
+
+  int native_display_get_id(int display) {
+    return _native_display_get_id(display);
+  }
+
+  late final _native_display_get_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_display_id_t Function(native_display_t)>
+      >('native_display_get_id');
+  late final _native_display_get_id = _native_display_get_idPtr
+      .asFunction<int Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_display_get_name(int display) {
+    return _native_display_get_name(display);
+  }
+
+  late final _native_display_get_namePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_display_t)>
+      >('native_display_get_name');
+  late final _native_display_get_name = _native_display_get_namePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  native_point_t native_display_get_position(int display) {
+    return _native_display_get_position(display);
+  }
+
+  late final _native_display_get_positionPtr =
+      _lookup<ffi.NativeFunction<native_point_t Function(native_display_t)>>(
+        'native_display_get_position',
+      );
+  late final _native_display_get_position = _native_display_get_positionPtr
+      .asFunction<native_point_t Function(int)>();
+
+  native_size_t native_display_get_size(int display) {
+    return _native_display_get_size(display);
+  }
+
+  late final _native_display_get_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_display_t)>>(
+        'native_display_get_size',
+      );
+  late final _native_display_get_size = _native_display_get_sizePtr
+      .asFunction<native_size_t Function(int)>();
+
+  native_rectangle_t native_display_get_work_area(int display) {
+    return _native_display_get_work_area(display);
+  }
+
+  late final _native_display_get_work_areaPtr =
+      _lookup<
+        ffi.NativeFunction<native_rectangle_t Function(native_display_t)>
+      >('native_display_get_work_area');
+  late final _native_display_get_work_area = _native_display_get_work_areaPtr
+      .asFunction<native_rectangle_t Function(int)>();
+
+  double native_display_get_scale_factor(int display) {
+    return _native_display_get_scale_factor(display);
+  }
+
+  late final _native_display_get_scale_factorPtr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(native_display_t)>>(
+        'native_display_get_scale_factor',
+      );
+  late final _native_display_get_scale_factor =
+      _native_display_get_scale_factorPtr.asFunction<double Function(int)>();
+
+  bool native_display_is_primary(int display) {
+    return _native_display_is_primary(display);
+  }
+
+  late final _native_display_is_primaryPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_display_t)>>(
+        'native_display_is_primary',
+      );
+  late final _native_display_is_primary = _native_display_is_primaryPtr
+      .asFunction<bool Function(int)>();
+
+  native_display_orientation_t native_display_get_orientation(
+    Dartnative_display_t display,
+  ) {
+    return native_display_orientation_t.fromValue(
+      _native_display_get_orientation(display),
+    );
+  }
+
+  late final _native_display_get_orientationPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_display_t)>>(
+        'native_display_get_orientation',
+      );
+  late final _native_display_get_orientation =
+      _native_display_get_orientationPtr.asFunction<int Function(int)>();
+
+  int native_display_get_refresh_rate(int display) {
+    return _native_display_get_refresh_rate(display);
+  }
+
+  late final _native_display_get_refresh_ratePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(native_display_t)>>(
+        'native_display_get_refresh_rate',
+      );
+  late final _native_display_get_refresh_rate =
+      _native_display_get_refresh_ratePtr.asFunction<int Function(int)>();
+
+  int native_display_get_bit_depth(int display) {
+    return _native_display_get_bit_depth(display);
+  }
+
+  late final _native_display_get_bit_depthPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(native_display_t)>>(
+        'native_display_get_bit_depth',
+      );
+  late final _native_display_get_bit_depth = _native_display_get_bit_depthPtr
+      .asFunction<int Function(int)>();
+
+  /// Platform-specific native object (NSScreen*, HMONITOR, ...).
+  ffi.Pointer<ffi.Void> native_display_get_native_object(int display) {
+    return _native_display_get_native_object(display);
+  }
+
+  late final _native_display_get_native_objectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_display_t)>
+      >('native_display_get_native_object');
+  late final _native_display_get_native_object =
+      _native_display_get_native_objectPtr
+          .asFunction<ffi.Pointer<ffi.Void> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_display_free(int display) {
+    return _native_display_free(display);
+  }
+
+  late final _native_display_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_display_t)>>(
+        'native_display_free',
+      );
+  late final _native_display_free = _native_display_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Frees the array and releases every handle it contains.
+  void native_display_list_free(ffi.Pointer<native_display_list_t> list) {
+    return _native_display_list_free(list);
+  }
+
+  late final _native_display_list_freePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_list_t>)
+        >
+      >('native_display_list_free');
+  late final _native_display_list_free = _native_display_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_display_list_t>)>();
+
+  /// Frees only the array; the caller takes over the handles.
+  void native_display_list_release(ffi.Pointer<native_display_list_t> list) {
+    return _native_display_list_release(list);
+  }
+
+  late final _native_display_list_releasePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_display_list_t>)
+        >
+      >('native_display_list_release');
+  late final _native_display_list_release = _native_display_list_releasePtr
+      .asFunction<void Function(ffi.Pointer<native_display_list_t>)>();
+
+  native_display_list_t native_display_manager_get_all() {
+    return _native_display_manager_get_all();
+  }
+
+  late final _native_display_manager_get_allPtr =
+      _lookup<ffi.NativeFunction<native_display_list_t Function()>>(
+        'native_display_manager_get_all',
+      );
+  late final _native_display_manager_get_all =
+      _native_display_manager_get_allPtr
+          .asFunction<native_display_list_t Function()>();
+
+  /// Caller owns the returned handle; release it with native_display_free().
+  int native_display_manager_get_primary() {
+    return _native_display_manager_get_primary();
+  }
+
+  late final _native_display_manager_get_primaryPtr =
+      _lookup<ffi.NativeFunction<native_display_t Function()>>(
+        'native_display_manager_get_primary',
+      );
+  late final _native_display_manager_get_primary =
+      _native_display_manager_get_primaryPtr.asFunction<int Function()>();
+
+  native_point_t native_display_manager_get_cursor_position() {
+    return _native_display_manager_get_cursor_position();
+  }
+
+  late final _native_display_manager_get_cursor_positionPtr =
+      _lookup<ffi.NativeFunction<native_point_t Function()>>(
+        'native_display_manager_get_cursor_position',
+      );
+  late final _native_display_manager_get_cursor_position =
+      _native_display_manager_get_cursor_positionPtr
+          .asFunction<native_point_t Function()>();
+
+  /// Registers @p callback for every DisplayEvent this DisplayManager emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_display_manager_add_listener(
+    native_display_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_display_manager_add_listener(callback, user_data);
+  }
+
+  late final _native_display_manager_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_display_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_display_manager_add_listener');
+  late final _native_display_manager_add_listener =
+      _native_display_manager_add_listenerPtr
+          .asFunction<
+            int Function(native_display_event_callback_t, ffi.Pointer<ffi.Void>)
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_display_manager_remove_listener(int listener_id) {
+    return _native_display_manager_remove_listener(listener_id);
+  }
+
+  late final _native_display_manager_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_listener_id_t)>>(
+        'native_display_manager_remove_listener',
+      );
+  late final _native_display_manager_remove_listener =
+      _native_display_manager_remove_listenerPtr
+          .asFunction<bool Function(int)>();
+
+  /// Free a C string allocated by to_c_str
+  /// @param str The string to free (can be nullptr)
+  void free_c_str(ffi.Pointer<ffi.Char> str) {
+    return _free_c_str(str);
+  }
+
+  late final _free_c_strPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'free_c_str',
+      );
+  late final _free_c_str = _free_c_strPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Free a string list allocated by to_c_string_list
+  /// @param list The list to free (can be nullptr)
+  void native_string_list_free(ffi.Pointer<native_string_list_t> list) {
+    return _native_string_list_free(list);
+  }
+
+  late final _native_string_list_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_string_list_t>)>
+      >('native_string_list_free');
+  late final _native_string_list_free = _native_string_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_string_list_t>)>();
+
+  /// Free a string map allocated by to_c_string_map
+  /// @param map The map to free (can be nullptr)
+  void native_string_map_free(ffi.Pointer<native_string_map_t> map) {
+    return _native_string_map_free(map);
+  }
+
+  late final _native_string_map_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<native_string_map_t>)>
+      >('native_string_map_free');
+  late final _native_string_map_free = _native_string_map_freePtr
+      .asFunction<void Function(ffi.Pointer<native_string_map_t>)>();
+
+  /// Creates a DragSource instance; release it with native_drag_source_free().
+  int native_drag_source_create() {
+    return _native_drag_source_create();
+  }
+
+  late final _native_drag_source_createPtr =
+      _lookup<ffi.NativeFunction<native_drag_source_t Function()>>(
+        'native_drag_source_create',
+      );
+  late final _native_drag_source_create = _native_drag_source_createPtr
+      .asFunction<int Function()>();
+
+  bool native_drag_source_is_supported() {
+    return _native_drag_source_is_supported();
+  }
+
+  late final _native_drag_source_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_drag_source_is_supported',
+      );
+  late final _native_drag_source_is_supported =
+      _native_drag_source_is_supportedPtr.asFunction<bool Function()>();
+
+  void native_drag_source_set_file_paths(
+    int drag_source,
+    native_string_list_t file_paths,
+  ) {
+    return _native_drag_source_set_file_paths(drag_source, file_paths);
+  }
+
+  late final _native_drag_source_set_file_pathsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, native_string_list_t)
+        >
+      >('native_drag_source_set_file_paths');
+  late final _native_drag_source_set_file_paths =
+      _native_drag_source_set_file_pathsPtr
+          .asFunction<void Function(int, native_string_list_t)>();
+
+  native_string_list_t native_drag_source_get_file_paths(int drag_source) {
+    return _native_drag_source_get_file_paths(drag_source);
+  }
+
+  late final _native_drag_source_get_file_pathsPtr =
+      _lookup<
+        ffi.NativeFunction<native_string_list_t Function(native_drag_source_t)>
+      >('native_drag_source_get_file_paths');
+  late final _native_drag_source_get_file_paths =
+      _native_drag_source_get_file_pathsPtr
+          .asFunction<native_string_list_t Function(int)>();
+
+  void native_drag_source_set_text(
+    int drag_source,
+    ffi.Pointer<ffi.Char> text,
+  ) {
+    return _native_drag_source_set_text(drag_source, text);
+  }
+
+  late final _native_drag_source_set_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_drag_source_set_text');
+  late final _native_drag_source_set_text = _native_drag_source_set_textPtr
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_drag_source_get_text(int drag_source) {
+    return _native_drag_source_get_text(drag_source);
+  }
+
+  late final _native_drag_source_get_textPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_drag_source_t)>
+      >('native_drag_source_get_text');
+  late final _native_drag_source_get_text = _native_drag_source_get_textPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  void native_drag_source_set_image(int drag_source, int image) {
+    return _native_drag_source_set_image(drag_source, image);
+  }
+
+  late final _native_drag_source_set_imagePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, native_image_t)
+        >
+      >('native_drag_source_set_image');
+  late final _native_drag_source_set_image = _native_drag_source_set_imagePtr
+      .asFunction<void Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_image_free().
+  int native_drag_source_get_image(int drag_source) {
+    return _native_drag_source_get_image(drag_source);
+  }
+
+  late final _native_drag_source_get_imagePtr =
+      _lookup<
+        ffi.NativeFunction<native_image_t Function(native_drag_source_t)>
+      >('native_drag_source_get_image');
+  late final _native_drag_source_get_image = _native_drag_source_get_imagePtr
+      .asFunction<int Function(int)>();
+
+  void native_drag_source_set_drag_operation(
+    Dartnative_drag_source_t drag_source,
+    native_drag_operation_t operation,
+  ) {
+    return _native_drag_source_set_drag_operation(drag_source, operation.value);
+  }
+
+  late final _native_drag_source_set_drag_operationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drag_source_t, ffi.UnsignedInt)
+        >
+      >('native_drag_source_set_drag_operation');
+  late final _native_drag_source_set_drag_operation =
+      _native_drag_source_set_drag_operationPtr
+          .asFunction<void Function(int, int)>();
+
+  native_drag_operation_t native_drag_source_get_drag_operation(
+    Dartnative_drag_source_t drag_source,
+  ) {
+    return native_drag_operation_t.fromValue(
+      _native_drag_source_get_drag_operation(drag_source),
+    );
+  }
+
+  late final _native_drag_source_get_drag_operationPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_drag_source_t)>
+      >('native_drag_source_get_drag_operation');
+  late final _native_drag_source_get_drag_operation =
+      _native_drag_source_get_drag_operationPtr.asFunction<int Function(int)>();
+
+  bool native_drag_source_start_dragging(int drag_source, int window) {
+    return _native_drag_source_start_dragging(drag_source, window);
+  }
+
+  late final _native_drag_source_start_draggingPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_drag_source_t, native_window_t)
+        >
+      >('native_drag_source_start_dragging');
+  late final _native_drag_source_start_dragging =
+      _native_drag_source_start_draggingPtr
+          .asFunction<bool Function(int, int)>();
+
+  bool native_drag_source_is_dragging(int drag_source) {
+    return _native_drag_source_is_dragging(drag_source);
+  }
+
+  late final _native_drag_source_is_draggingPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_drag_source_t)>>(
+        'native_drag_source_is_dragging',
+      );
+  late final _native_drag_source_is_dragging =
+      _native_drag_source_is_draggingPtr.asFunction<bool Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_drag_source_free(int drag_source) {
+    return _native_drag_source_free(drag_source);
+  }
+
+  late final _native_drag_source_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_drag_source_t)>>(
+        'native_drag_source_free',
+      );
+  late final _native_drag_source_free = _native_drag_source_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Registers @p callback for every DragSourceEvent this DragSource emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_drag_source_add_listener(
+    int drag_source,
+    native_drag_source_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_drag_source_add_listener(drag_source, callback, user_data);
+  }
+
+  late final _native_drag_source_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_drag_source_t,
+            native_drag_source_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_drag_source_add_listener');
+  late final _native_drag_source_add_listener =
+      _native_drag_source_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_drag_source_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_drag_source_remove_listener(int drag_source, int listener_id) {
+    return _native_drag_source_remove_listener(drag_source, listener_id);
+  }
+
+  late final _native_drag_source_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_drag_source_t, native_listener_id_t)
+        >
+      >('native_drag_source_remove_listener');
+  late final _native_drag_source_remove_listener =
+      _native_drag_source_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
+  /// Creates a DropTarget instance; release it with native_drop_target_free().
+  int native_drop_target_create(int window) {
+    return _native_drop_target_create(window);
+  }
+
+  late final _native_drop_target_createPtr =
+      _lookup<
+        ffi.NativeFunction<native_drop_target_t Function(native_window_t)>
+      >('native_drop_target_create');
+  late final _native_drop_target_create = _native_drop_target_createPtr
+      .asFunction<int Function(int)>();
+
+  bool native_drop_target_is_supported() {
+    return _native_drop_target_is_supported();
+  }
+
+  late final _native_drop_target_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_drop_target_is_supported',
+      );
+  late final _native_drop_target_is_supported =
+      _native_drop_target_is_supportedPtr.asFunction<bool Function()>();
+
+  int native_drop_target_get_window_id(int drop_target) {
+    return _native_drop_target_get_window_id(drop_target);
+  }
+
+  late final _native_drop_target_get_window_idPtr =
+      _lookup<
+        ffi.NativeFunction<native_window_id_t Function(native_drop_target_t)>
+      >('native_drop_target_get_window_id');
+  late final _native_drop_target_get_window_id =
+      _native_drop_target_get_window_idPtr.asFunction<int Function(int)>();
+
+  void native_drop_target_set_drop_operation(
+    Dartnative_drop_target_t drop_target,
+    native_drag_operation_t operation,
+  ) {
+    return _native_drop_target_set_drop_operation(drop_target, operation.value);
+  }
+
+  late final _native_drop_target_set_drop_operationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_drop_target_t, ffi.UnsignedInt)
+        >
+      >('native_drop_target_set_drop_operation');
+  late final _native_drop_target_set_drop_operation =
+      _native_drop_target_set_drop_operationPtr
+          .asFunction<void Function(int, int)>();
+
+  native_drag_operation_t native_drop_target_get_drop_operation(
+    Dartnative_drop_target_t drop_target,
+  ) {
+    return native_drag_operation_t.fromValue(
+      _native_drop_target_get_drop_operation(drop_target),
+    );
+  }
+
+  late final _native_drop_target_get_drop_operationPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_drop_target_t)>
+      >('native_drop_target_get_drop_operation');
+  late final _native_drop_target_get_drop_operation =
+      _native_drop_target_get_drop_operationPtr.asFunction<int Function(int)>();
+
+  bool native_drop_target_is_active(int drop_target) {
+    return _native_drop_target_is_active(drop_target);
+  }
+
+  late final _native_drop_target_is_activePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_drop_target_t)>>(
+        'native_drop_target_is_active',
+      );
+  late final _native_drop_target_is_active = _native_drop_target_is_activePtr
+      .asFunction<bool Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_drop_target_free(int drop_target) {
+    return _native_drop_target_free(drop_target);
+  }
+
+  late final _native_drop_target_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_drop_target_t)>>(
+        'native_drop_target_free',
+      );
+  late final _native_drop_target_free = _native_drop_target_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Registers @p callback for every DropTargetEvent this DropTarget emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_drop_target_add_listener(
+    int drop_target,
+    native_drop_target_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_drop_target_add_listener(drop_target, callback, user_data);
+  }
+
+  late final _native_drop_target_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_drop_target_t,
+            native_drop_target_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_drop_target_add_listener');
+  late final _native_drop_target_add_listener =
+      _native_drop_target_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_drop_target_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_drop_target_remove_listener(int drop_target, int listener_id) {
+    return _native_drop_target_remove_listener(drop_target, listener_id);
+  }
+
+  late final _native_drop_target_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_drop_target_t, native_listener_id_t)
+        >
+      >('native_drop_target_remove_listener');
+  late final _native_drop_target_remove_listener =
+      _native_drop_target_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
+  /// Creates a FileDialog instance; release it with native_file_dialog_free().
+  Dartnative_file_dialog_t native_file_dialog_create(
+    native_file_dialog_mode_t mode,
+  ) {
+    return _native_file_dialog_create(mode.value);
+  }
+
+  late final _native_file_dialog_createPtr =
+      _lookup<
+        ffi.NativeFunction<native_file_dialog_t Function(ffi.UnsignedInt)>
+      >('native_file_dialog_create');
+  late final _native_file_dialog_create = _native_file_dialog_createPtr
+      .asFunction<int Function(int)>();
+
+  bool native_file_dialog_is_supported() {
+    return _native_file_dialog_is_supported();
+  }
+
+  late final _native_file_dialog_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_file_dialog_is_supported',
+      );
+  late final _native_file_dialog_is_supported =
+      _native_file_dialog_is_supportedPtr.asFunction<bool Function()>();
+
+  bool native_file_dialog_set_parent_window(int file_dialog, int window) {
+    return _native_file_dialog_set_parent_window(file_dialog, window);
+  }
+
+  late final _native_file_dialog_set_parent_windowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_file_dialog_t, native_window_t)
+        >
+      >('native_file_dialog_set_parent_window');
+  late final _native_file_dialog_set_parent_window =
+      _native_file_dialog_set_parent_windowPtr
+          .asFunction<bool Function(int, int)>();
+
+  bool native_file_dialog_set_file_types(
+    int file_dialog,
+    native_string_list_t extensions,
+  ) {
+    return _native_file_dialog_set_file_types(file_dialog, extensions);
+  }
+
+  late final _native_file_dialog_set_file_typesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_file_dialog_t, native_string_list_t)
+        >
+      >('native_file_dialog_set_file_types');
+  late final _native_file_dialog_set_file_types =
+      _native_file_dialog_set_file_typesPtr
+          .asFunction<bool Function(int, native_string_list_t)>();
+
+  bool native_file_dialog_set_suggested_file_name(
+    int file_dialog,
+    ffi.Pointer<ffi.Char> name,
+  ) {
+    return _native_file_dialog_set_suggested_file_name(file_dialog, name);
+  }
+
+  late final _native_file_dialog_set_suggested_file_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_file_dialog_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_file_dialog_set_suggested_file_name');
+  late final _native_file_dialog_set_suggested_file_name =
+      _native_file_dialog_set_suggested_file_namePtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
+
+  native_dialog_modality_t native_file_dialog_get_modality(
+    Dartnative_file_dialog_t file_dialog,
+  ) {
+    return native_dialog_modality_t.fromValue(
+      _native_file_dialog_get_modality(file_dialog),
+    );
+  }
+
+  late final _native_file_dialog_get_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_file_dialog_t)>
+      >('native_file_dialog_get_modality');
+  late final _native_file_dialog_get_modality =
+      _native_file_dialog_get_modalityPtr.asFunction<int Function(int)>();
+
+  void native_file_dialog_set_modality(
+    Dartnative_file_dialog_t file_dialog,
+    native_dialog_modality_t modality,
+  ) {
+    return _native_file_dialog_set_modality(file_dialog, modality.value);
+  }
+
+  late final _native_file_dialog_set_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_file_dialog_t, ffi.UnsignedInt)
+        >
+      >('native_file_dialog_set_modality');
+  late final _native_file_dialog_set_modality =
+      _native_file_dialog_set_modalityPtr.asFunction<void Function(int, int)>();
+
+  bool native_file_dialog_open(int file_dialog) {
+    return _native_file_dialog_open(file_dialog);
+  }
+
+  late final _native_file_dialog_openPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_file_dialog_t)>>(
+        'native_file_dialog_open',
+      );
+  late final _native_file_dialog_open = _native_file_dialog_openPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_file_dialog_close(int file_dialog) {
+    return _native_file_dialog_close(file_dialog);
+  }
+
+  late final _native_file_dialog_closePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_file_dialog_t)>>(
+        'native_file_dialog_close',
+      );
+  late final _native_file_dialog_close = _native_file_dialog_closePtr
+      .asFunction<bool Function(int)>();
+
+  native_file_dialog_result_t native_file_dialog_get_result(
+    Dartnative_file_dialog_t file_dialog,
+  ) {
+    return native_file_dialog_result_t.fromValue(
+      _native_file_dialog_get_result(file_dialog),
+    );
+  }
+
+  late final _native_file_dialog_get_resultPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_file_dialog_t)>
+      >('native_file_dialog_get_result');
+  late final _native_file_dialog_get_result = _native_file_dialog_get_resultPtr
+      .asFunction<int Function(int)>();
+
+  native_string_list_t native_file_dialog_get_paths(int file_dialog) {
+    return _native_file_dialog_get_paths(file_dialog);
+  }
+
+  late final _native_file_dialog_get_pathsPtr =
+      _lookup<
+        ffi.NativeFunction<native_string_list_t Function(native_file_dialog_t)>
+      >('native_file_dialog_get_paths');
+  late final _native_file_dialog_get_paths = _native_file_dialog_get_pathsPtr
+      .asFunction<native_string_list_t Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_file_dialog_get_last_error(int file_dialog) {
+    return _native_file_dialog_get_last_error(file_dialog);
+  }
+
+  late final _native_file_dialog_get_last_errorPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_file_dialog_t)>
+      >('native_file_dialog_get_last_error');
+  late final _native_file_dialog_get_last_error =
+      _native_file_dialog_get_last_errorPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_file_dialog_free(int file_dialog) {
+    return _native_file_dialog_free(file_dialog);
+  }
+
+  late final _native_file_dialog_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_file_dialog_t)>>(
+        'native_file_dialog_free',
+      );
+  late final _native_file_dialog_free = _native_file_dialog_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Creates a KeyboardMonitor instance; release it with native_keyboard_monitor_free().
+  int native_keyboard_monitor_create() {
+    return _native_keyboard_monitor_create();
+  }
+
+  late final _native_keyboard_monitor_createPtr =
+      _lookup<ffi.NativeFunction<native_keyboard_monitor_t Function()>>(
+        'native_keyboard_monitor_create',
+      );
+  late final _native_keyboard_monitor_create =
+      _native_keyboard_monitor_createPtr.asFunction<int Function()>();
+
+  void native_keyboard_monitor_start(int keyboard_monitor) {
+    return _native_keyboard_monitor_start(keyboard_monitor);
+  }
+
+  late final _native_keyboard_monitor_startPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_keyboard_monitor_t)>>(
+        'native_keyboard_monitor_start',
+      );
+  late final _native_keyboard_monitor_start = _native_keyboard_monitor_startPtr
+      .asFunction<void Function(int)>();
+
+  void native_keyboard_monitor_stop(int keyboard_monitor) {
+    return _native_keyboard_monitor_stop(keyboard_monitor);
+  }
+
+  late final _native_keyboard_monitor_stopPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_keyboard_monitor_t)>>(
+        'native_keyboard_monitor_stop',
+      );
+  late final _native_keyboard_monitor_stop = _native_keyboard_monitor_stopPtr
+      .asFunction<void Function(int)>();
+
+  bool native_keyboard_monitor_is_monitoring(int keyboard_monitor) {
+    return _native_keyboard_monitor_is_monitoring(keyboard_monitor);
+  }
+
+  late final _native_keyboard_monitor_is_monitoringPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_keyboard_monitor_t)>>(
+        'native_keyboard_monitor_is_monitoring',
+      );
+  late final _native_keyboard_monitor_is_monitoring =
+      _native_keyboard_monitor_is_monitoringPtr
+          .asFunction<bool Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_keyboard_monitor_free(int keyboard_monitor) {
+    return _native_keyboard_monitor_free(keyboard_monitor);
+  }
+
+  late final _native_keyboard_monitor_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_keyboard_monitor_t)>>(
+        'native_keyboard_monitor_free',
+      );
+  late final _native_keyboard_monitor_free = _native_keyboard_monitor_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Registers @p callback for every KeyboardEvent this KeyboardMonitor emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_keyboard_monitor_add_listener(
+    int keyboard_monitor,
+    native_keyboard_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_keyboard_monitor_add_listener(
+      keyboard_monitor,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_keyboard_monitor_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_keyboard_monitor_t,
+            native_keyboard_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_keyboard_monitor_add_listener');
+  late final _native_keyboard_monitor_add_listener =
+      _native_keyboard_monitor_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_keyboard_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_keyboard_monitor_remove_listener(
+    int keyboard_monitor,
+    int listener_id,
+  ) {
+    return _native_keyboard_monitor_remove_listener(
+      keyboard_monitor,
+      listener_id,
+    );
+  }
+
+  late final _native_keyboard_monitor_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_keyboard_monitor_t, native_listener_id_t)
+        >
+      >('native_keyboard_monitor_remove_listener');
+  late final _native_keyboard_monitor_remove_listener =
+      _native_keyboard_monitor_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
+  /// Creates a LaunchAtLogin instance; release it with native_launch_at_login_free().
+  int native_launch_at_login_create() {
+    return _native_launch_at_login_create();
+  }
+
+  late final _native_launch_at_login_createPtr =
+      _lookup<ffi.NativeFunction<native_launch_at_login_t Function()>>(
+        'native_launch_at_login_create',
+      );
+  late final _native_launch_at_login_create = _native_launch_at_login_createPtr
+      .asFunction<int Function()>();
+
+  /// Creates a LaunchAtLogin instance; release it with native_launch_at_login_free().
+  int native_launch_at_login_create_with_id(ffi.Pointer<ffi.Char> id) {
+    return _native_launch_at_login_create_with_id(id);
+  }
+
+  late final _native_launch_at_login_create_with_idPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_launch_at_login_t Function(ffi.Pointer<ffi.Char>)
+        >
+      >('native_launch_at_login_create_with_id');
+  late final _native_launch_at_login_create_with_id =
+      _native_launch_at_login_create_with_idPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Creates a LaunchAtLogin instance; release it with native_launch_at_login_free().
+  int native_launch_at_login_create_with_id_and_display_name(
+    ffi.Pointer<ffi.Char> id,
+    ffi.Pointer<ffi.Char> display_name,
+  ) {
+    return _native_launch_at_login_create_with_id_and_display_name(
+      id,
+      display_name,
+    );
+  }
+
+  late final _native_launch_at_login_create_with_id_and_display_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_launch_at_login_t Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_launch_at_login_create_with_id_and_display_name');
+  late final _native_launch_at_login_create_with_id_and_display_name =
+      _native_launch_at_login_create_with_id_and_display_namePtr
+          .asFunction<
+            int Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
+          >();
+
+  bool native_launch_at_login_is_supported() {
+    return _native_launch_at_login_is_supported();
+  }
+
+  late final _native_launch_at_login_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_launch_at_login_is_supported',
+      );
+  late final _native_launch_at_login_is_supported =
+      _native_launch_at_login_is_supportedPtr.asFunction<bool Function()>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_launch_at_login_get_id(int launch_at_login) {
+    return _native_launch_at_login_get_id(launch_at_login);
+  }
+
+  late final _native_launch_at_login_get_idPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_id');
+  late final _native_launch_at_login_get_id = _native_launch_at_login_get_idPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_launch_at_login_get_display_name(
+    int launch_at_login,
+  ) {
+    return _native_launch_at_login_get_display_name(launch_at_login);
+  }
+
+  late final _native_launch_at_login_get_display_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_display_name');
+  late final _native_launch_at_login_get_display_name =
+      _native_launch_at_login_get_display_namePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  bool native_launch_at_login_set_display_name(
+    int launch_at_login,
+    ffi.Pointer<ffi.Char> display_name,
+  ) {
+    return _native_launch_at_login_set_display_name(
+      launch_at_login,
+      display_name,
+    );
+  }
+
+  late final _native_launch_at_login_set_display_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_launch_at_login_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_launch_at_login_set_display_name');
+  late final _native_launch_at_login_set_display_name =
+      _native_launch_at_login_set_display_namePtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
+
+  bool native_launch_at_login_set_program(
+    int launch_at_login,
+    ffi.Pointer<ffi.Char> executable_path,
+    native_string_list_t arguments,
+  ) {
+    return _native_launch_at_login_set_program(
+      launch_at_login,
+      executable_path,
+      arguments,
+    );
+  }
+
+  late final _native_launch_at_login_set_programPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_launch_at_login_t,
+            ffi.Pointer<ffi.Char>,
+            native_string_list_t,
+          )
+        >
+      >('native_launch_at_login_set_program');
+  late final _native_launch_at_login_set_program =
+      _native_launch_at_login_set_programPtr
+          .asFunction<
+            bool Function(int, ffi.Pointer<ffi.Char>, native_string_list_t)
+          >();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_launch_at_login_get_executable_path(
+    int launch_at_login,
+  ) {
+    return _native_launch_at_login_get_executable_path(launch_at_login);
+  }
+
+  late final _native_launch_at_login_get_executable_pathPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_executable_path');
+  late final _native_launch_at_login_get_executable_path =
+      _native_launch_at_login_get_executable_pathPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  native_string_list_t native_launch_at_login_get_arguments(
+    int launch_at_login,
+  ) {
+    return _native_launch_at_login_get_arguments(launch_at_login);
+  }
+
+  late final _native_launch_at_login_get_argumentsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_string_list_t Function(native_launch_at_login_t)
+        >
+      >('native_launch_at_login_get_arguments');
+  late final _native_launch_at_login_get_arguments =
+      _native_launch_at_login_get_argumentsPtr
+          .asFunction<native_string_list_t Function(int)>();
+
+  bool native_launch_at_login_enable(int launch_at_login) {
+    return _native_launch_at_login_enable(launch_at_login);
+  }
+
+  late final _native_launch_at_login_enablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_enable',
+      );
+  late final _native_launch_at_login_enable = _native_launch_at_login_enablePtr
+      .asFunction<bool Function(int)>();
+
+  bool native_launch_at_login_disable(int launch_at_login) {
+    return _native_launch_at_login_disable(launch_at_login);
+  }
+
+  late final _native_launch_at_login_disablePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_disable',
+      );
+  late final _native_launch_at_login_disable =
+      _native_launch_at_login_disablePtr.asFunction<bool Function(int)>();
+
+  bool native_launch_at_login_is_enabled(int launch_at_login) {
+    return _native_launch_at_login_is_enabled(launch_at_login);
+  }
+
+  late final _native_launch_at_login_is_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_is_enabled',
+      );
+  late final _native_launch_at_login_is_enabled =
+      _native_launch_at_login_is_enabledPtr.asFunction<bool Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_launch_at_login_free(int launch_at_login) {
+    return _native_launch_at_login_free(launch_at_login);
+  }
+
+  late final _native_launch_at_login_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_launch_at_login_t)>>(
+        'native_launch_at_login_free',
+      );
+  late final _native_launch_at_login_free = _native_launch_at_login_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Creates a MessageDialog instance; release it with native_message_dialog_free().
+  int native_message_dialog_create(
     ffi.Pointer<ffi.Char> title,
     ffi.Pointer<ffi.Char> message,
   ) {
@@ -2979,34 +4008,218 @@ class CNativeApiBindings {
         >
       >('native_message_dialog_create');
   late final _native_message_dialog_create = _native_message_dialog_createPtr
-      .asFunction<
-        native_message_dialog_t Function(
-          ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Char>,
-        )
-      >();
+      .asFunction<int Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
-  /// Destroy a message dialog and release its resources
-  /// @param dialog The message dialog to destroy
-  void native_message_dialog_destroy(native_message_dialog_t dialog) {
-    return _native_message_dialog_destroy(dialog);
+  bool native_message_dialog_is_extended_supported() {
+    return _native_message_dialog_is_extended_supported();
   }
 
-  late final _native_message_dialog_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_message_dialog_t)>>(
-        'native_message_dialog_destroy',
+  late final _native_message_dialog_is_extended_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_message_dialog_is_extended_supported',
       );
-  late final _native_message_dialog_destroy = _native_message_dialog_destroyPtr
-      .asFunction<void Function(native_message_dialog_t)>();
+  late final _native_message_dialog_is_extended_supported =
+      _native_message_dialog_is_extended_supportedPtr
+          .asFunction<bool Function()>();
 
-  /// Set the dialog title
-  /// @param dialog The message dialog
-  /// @param title The title to set
+  bool native_message_dialog_set_buttons(
+    int message_dialog,
+    ffi.Pointer<ffi.Char> primary,
+    ffi.Pointer<ffi.Char> secondary,
+    ffi.Pointer<ffi.Char> close,
+  ) {
+    return _native_message_dialog_set_buttons(
+      message_dialog,
+      primary,
+      secondary,
+      close,
+    );
+  }
+
+  late final _native_message_dialog_set_buttonsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_message_dialog_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_message_dialog_set_buttons');
+  late final _native_message_dialog_set_buttons =
+      _native_message_dialog_set_buttonsPtr
+          .asFunction<
+            bool Function(
+              int,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
+
+  bool native_message_dialog_set_default_button(
+    Dartnative_message_dialog_t message_dialog,
+    native_message_dialog_result_t button,
+  ) {
+    return _native_message_dialog_set_default_button(
+      message_dialog,
+      button.value,
+    );
+  }
+
+  late final _native_message_dialog_set_default_buttonPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, ffi.UnsignedInt)
+        >
+      >('native_message_dialog_set_default_button');
+  late final _native_message_dialog_set_default_button =
+      _native_message_dialog_set_default_buttonPtr
+          .asFunction<bool Function(int, int)>();
+
+  bool native_message_dialog_set_parent_window(int message_dialog, int window) {
+    return _native_message_dialog_set_parent_window(message_dialog, window);
+  }
+
+  late final _native_message_dialog_set_parent_windowPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, native_window_t)
+        >
+      >('native_message_dialog_set_parent_window');
+  late final _native_message_dialog_set_parent_window =
+      _native_message_dialog_set_parent_windowPtr
+          .asFunction<bool Function(int, int)>();
+
+  native_message_dialog_result_t native_message_dialog_get_result(
+    Dartnative_message_dialog_t message_dialog,
+  ) {
+    return native_message_dialog_result_t.fromValue(
+      _native_message_dialog_get_result(message_dialog),
+    );
+  }
+
+  late final _native_message_dialog_get_resultPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_message_dialog_t)>
+      >('native_message_dialog_get_result');
+  late final _native_message_dialog_get_result =
+      _native_message_dialog_get_resultPtr.asFunction<int Function(int)>();
+
+  bool native_message_dialog_is_open(int message_dialog) {
+    return _native_message_dialog_is_open(message_dialog);
+  }
+
+  late final _native_message_dialog_is_openPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t)>>(
+        'native_message_dialog_is_open',
+      );
+  late final _native_message_dialog_is_open = _native_message_dialog_is_openPtr
+      .asFunction<bool Function(int)>();
+
+  bool native_message_dialog_set_input_enabled(
+    int message_dialog,
+    bool enabled,
+  ) {
+    return _native_message_dialog_set_input_enabled(message_dialog, enabled);
+  }
+
+  late final _native_message_dialog_set_input_enabledPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t, ffi.Bool)>
+      >('native_message_dialog_set_input_enabled');
+  late final _native_message_dialog_set_input_enabled =
+      _native_message_dialog_set_input_enabledPtr
+          .asFunction<bool Function(int, bool)>();
+
+  bool native_message_dialog_set_input_text(
+    int message_dialog,
+    ffi.Pointer<ffi.Char> text,
+  ) {
+    return _native_message_dialog_set_input_text(message_dialog, text);
+  }
+
+  late final _native_message_dialog_set_input_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_message_dialog_set_input_text');
+  late final _native_message_dialog_set_input_text =
+      _native_message_dialog_set_input_textPtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_message_dialog_get_input_text(
+    int message_dialog,
+  ) {
+    return _native_message_dialog_get_input_text(message_dialog);
+  }
+
+  late final _native_message_dialog_get_input_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
+        >
+      >('native_message_dialog_get_input_text');
+  late final _native_message_dialog_get_input_text =
+      _native_message_dialog_get_input_textPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
+
+  bool native_message_dialog_set_checkbox(
+    int message_dialog,
+    ffi.Pointer<ffi.Char> label,
+    bool checked,
+  ) {
+    return _native_message_dialog_set_checkbox(message_dialog, label, checked);
+  }
+
+  late final _native_message_dialog_set_checkboxPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_message_dialog_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Bool,
+          )
+        >
+      >('native_message_dialog_set_checkbox');
+  late final _native_message_dialog_set_checkbox =
+      _native_message_dialog_set_checkboxPtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>, bool)>();
+
+  bool native_message_dialog_is_checkbox_checked(int message_dialog) {
+    return _native_message_dialog_is_checkbox_checked(message_dialog);
+  }
+
+  late final _native_message_dialog_is_checkbox_checkedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_message_dialog_t)>>(
+        'native_message_dialog_is_checkbox_checked',
+      );
+  late final _native_message_dialog_is_checkbox_checked =
+      _native_message_dialog_is_checkbox_checkedPtr
+          .asFunction<bool Function(int)>();
+
+  bool native_message_dialog_set_progress(int message_dialog, double value) {
+    return _native_message_dialog_set_progress(message_dialog, value);
+  }
+
+  late final _native_message_dialog_set_progressPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_message_dialog_t, ffi.Double)
+        >
+      >('native_message_dialog_set_progress');
+  late final _native_message_dialog_set_progress =
+      _native_message_dialog_set_progressPtr
+          .asFunction<bool Function(int, double)>();
+
   void native_message_dialog_set_title(
-    native_message_dialog_t dialog,
+    int message_dialog,
     ffi.Pointer<ffi.Char> title,
   ) {
-    return _native_message_dialog_set_title(dialog, title);
+    return _native_message_dialog_set_title(message_dialog, title);
   }
 
   late final _native_message_dialog_set_titlePtr =
@@ -3017,17 +4230,11 @@ class CNativeApiBindings {
       >('native_message_dialog_set_title');
   late final _native_message_dialog_set_title =
       _native_message_dialog_set_titlePtr
-          .asFunction<
-            void Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
-          >();
+          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the dialog title
-  /// @param dialog The message dialog
-  /// @return The title string (caller must free), or NULL if dialog is invalid
-  ffi.Pointer<ffi.Char> native_message_dialog_get_title(
-    native_message_dialog_t dialog,
-  ) {
-    return _native_message_dialog_get_title(dialog);
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_message_dialog_get_title(int message_dialog) {
+    return _native_message_dialog_get_title(message_dialog);
   }
 
   late final _native_message_dialog_get_titlePtr =
@@ -3038,18 +4245,13 @@ class CNativeApiBindings {
       >('native_message_dialog_get_title');
   late final _native_message_dialog_get_title =
       _native_message_dialog_get_titlePtr
-          .asFunction<
-            ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
-          >();
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the dialog message
-  /// @param dialog The message dialog
-  /// @param message The message to set
   void native_message_dialog_set_message(
-    native_message_dialog_t dialog,
+    int message_dialog,
     ffi.Pointer<ffi.Char> message,
   ) {
-    return _native_message_dialog_set_message(dialog, message);
+    return _native_message_dialog_set_message(message_dialog, message);
   }
 
   late final _native_message_dialog_set_messagePtr =
@@ -3060,17 +4262,11 @@ class CNativeApiBindings {
       >('native_message_dialog_set_message');
   late final _native_message_dialog_set_message =
       _native_message_dialog_set_messagePtr
-          .asFunction<
-            void Function(native_message_dialog_t, ffi.Pointer<ffi.Char>)
-          >();
+          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the dialog message
-  /// @param dialog The message dialog
-  /// @return The message string (caller must free), or NULL if dialog is invalid
-  ffi.Pointer<ffi.Char> native_message_dialog_get_message(
-    native_message_dialog_t dialog,
-  ) {
-    return _native_message_dialog_get_message(dialog);
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_message_dialog_get_message(int message_dialog) {
+    return _native_message_dialog_get_message(message_dialog);
   }
 
   late final _native_message_dialog_get_messagePtr =
@@ -3081,18 +4277,28 @@ class CNativeApiBindings {
       >('native_message_dialog_get_message');
   late final _native_message_dialog_get_message =
       _native_message_dialog_get_messagePtr
-          .asFunction<
-            ffi.Pointer<ffi.Char> Function(native_message_dialog_t)
-          >();
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the modality of the dialog
-  /// @param dialog The message dialog
-  /// @param modality The modality type to set
+  native_dialog_modality_t native_message_dialog_get_modality(
+    Dartnative_message_dialog_t message_dialog,
+  ) {
+    return native_dialog_modality_t.fromValue(
+      _native_message_dialog_get_modality(message_dialog),
+    );
+  }
+
+  late final _native_message_dialog_get_modalityPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedInt Function(native_message_dialog_t)>
+      >('native_message_dialog_get_modality');
+  late final _native_message_dialog_get_modality =
+      _native_message_dialog_get_modalityPtr.asFunction<int Function(int)>();
+
   void native_message_dialog_set_modality(
-    native_message_dialog_t dialog,
+    Dartnative_message_dialog_t message_dialog,
     native_dialog_modality_t modality,
   ) {
-    return _native_message_dialog_set_modality(dialog, modality.value);
+    return _native_message_dialog_set_modality(message_dialog, modality.value);
   }
 
   late final _native_message_dialog_set_modalityPtr =
@@ -3103,32 +4309,10 @@ class CNativeApiBindings {
       >('native_message_dialog_set_modality');
   late final _native_message_dialog_set_modality =
       _native_message_dialog_set_modalityPtr
-          .asFunction<void Function(native_message_dialog_t, int)>();
+          .asFunction<void Function(int, int)>();
 
-  /// Get the current modality setting of the dialog
-  /// @param dialog The message dialog
-  /// @return The current modality type
-  native_dialog_modality_t native_message_dialog_get_modality(
-    native_message_dialog_t dialog,
-  ) {
-    return native_dialog_modality_t.fromValue(
-      _native_message_dialog_get_modality(dialog),
-    );
-  }
-
-  late final _native_message_dialog_get_modalityPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.UnsignedInt Function(native_message_dialog_t)>
-      >('native_message_dialog_get_modality');
-  late final _native_message_dialog_get_modality =
-      _native_message_dialog_get_modalityPtr
-          .asFunction<int Function(native_message_dialog_t)>();
-
-  /// Open the dialog according to its modality setting
-  /// @param dialog The message dialog
-  /// @return true if the dialog was successfully opened, false otherwise
-  bool native_message_dialog_open(native_message_dialog_t dialog) {
-    return _native_message_dialog_open(dialog);
+  bool native_message_dialog_open(int message_dialog) {
+    return _native_message_dialog_open(message_dialog);
   }
 
   late final _native_message_dialog_openPtr =
@@ -3136,13 +4320,10 @@ class CNativeApiBindings {
         'native_message_dialog_open',
       );
   late final _native_message_dialog_open = _native_message_dialog_openPtr
-      .asFunction<bool Function(native_message_dialog_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Close the dialog programmatically
-  /// @param dialog The message dialog
-  /// @return true if the dialog was successfully closed, false otherwise
-  bool native_message_dialog_close(native_message_dialog_t dialog) {
-    return _native_message_dialog_close(dialog);
+  bool native_message_dialog_close(int message_dialog) {
+    return _native_message_dialog_close(message_dialog);
   }
 
   late final _native_message_dialog_closePtr =
@@ -3150,11 +4331,153 @@ class CNativeApiBindings {
         'native_message_dialog_close',
       );
   late final _native_message_dialog_close = _native_message_dialog_closePtr
-      .asFunction<bool Function(native_message_dialog_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// @brief Create a preferences storage with default scope.
-  /// @return Handle to preferences storage, or NULL on failure
-  native_preferences_t native_preferences_create() {
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_message_dialog_free(int message_dialog) {
+    return _native_message_dialog_free(message_dialog);
+  }
+
+  late final _native_message_dialog_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_message_dialog_t)>>(
+        'native_message_dialog_free',
+      );
+  late final _native_message_dialog_free = _native_message_dialog_freePtr
+      .asFunction<void Function(int)>();
+
+  bool native_notification_manager_is_supported() {
+    return _native_notification_manager_is_supported();
+  }
+
+  late final _native_notification_manager_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_notification_manager_is_supported',
+      );
+  late final _native_notification_manager_is_supported =
+      _native_notification_manager_is_supportedPtr
+          .asFunction<bool Function()>();
+
+  bool native_notification_manager_initialize() {
+    return _native_notification_manager_initialize();
+  }
+
+  late final _native_notification_manager_initializePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_notification_manager_initialize',
+      );
+  late final _native_notification_manager_initialize =
+      _native_notification_manager_initializePtr.asFunction<bool Function()>();
+
+  void native_notification_manager_shutdown() {
+    return _native_notification_manager_shutdown();
+  }
+
+  late final _native_notification_manager_shutdownPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+        'native_notification_manager_shutdown',
+      );
+  late final _native_notification_manager_shutdown =
+      _native_notification_manager_shutdownPtr.asFunction<void Function()>();
+
+  bool native_notification_manager_show(
+    ffi.Pointer<ffi.Char> title,
+    ffi.Pointer<ffi.Char> message,
+    ffi.Pointer<ffi.Char> tag,
+    ffi.Pointer<ffi.Char> button_label,
+  ) {
+    return _native_notification_manager_show(title, message, tag, button_label);
+  }
+
+  late final _native_notification_manager_showPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('native_notification_manager_show');
+  late final _native_notification_manager_show =
+      _native_notification_manager_showPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
+
+  bool native_notification_manager_remove(ffi.Pointer<ffi.Char> tag) {
+    return _native_notification_manager_remove(tag);
+  }
+
+  late final _native_notification_manager_removePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_notification_manager_remove',
+      );
+  late final _native_notification_manager_remove =
+      _native_notification_manager_removePtr
+          .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_notification_manager_get_last_error() {
+    return _native_notification_manager_get_last_error();
+  }
+
+  late final _native_notification_manager_get_last_errorPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+        'native_notification_manager_get_last_error',
+      );
+  late final _native_notification_manager_get_last_error =
+      _native_notification_manager_get_last_errorPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  /// Registers @p callback for every NotificationEvent this NotificationManager emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_notification_manager_add_listener(
+    native_notification_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_notification_manager_add_listener(callback, user_data);
+  }
+
+  late final _native_notification_manager_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_notification_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_notification_manager_add_listener');
+  late final _native_notification_manager_add_listener =
+      _native_notification_manager_add_listenerPtr
+          .asFunction<
+            int Function(
+              native_notification_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_notification_manager_remove_listener(int listener_id) {
+    return _native_notification_manager_remove_listener(listener_id);
+  }
+
+  late final _native_notification_manager_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_listener_id_t)>>(
+        'native_notification_manager_remove_listener',
+      );
+  late final _native_notification_manager_remove_listener =
+      _native_notification_manager_remove_listenerPtr
+          .asFunction<bool Function(int)>();
+
+  /// Creates a Preferences instance; release it with native_preferences_free().
+  int native_preferences_create() {
     return _native_preferences_create();
   }
 
@@ -3163,14 +4486,10 @@ class CNativeApiBindings {
         'native_preferences_create',
       );
   late final _native_preferences_create = _native_preferences_createPtr
-      .asFunction<native_preferences_t Function()>();
+      .asFunction<int Function()>();
 
-  /// @brief Create a preferences storage with custom scope.
-  /// @param scope Scope for isolating preferences
-  /// @return Handle to preferences storage, or NULL on failure
-  native_preferences_t native_preferences_create_with_scope(
-    ffi.Pointer<ffi.Char> scope,
-  ) {
+  /// Creates a Preferences instance; release it with native_preferences_free().
+  int native_preferences_create_with_scope(ffi.Pointer<ffi.Char> scope) {
     return _native_preferences_create_with_scope(scope);
   }
 
@@ -3180,32 +4499,14 @@ class CNativeApiBindings {
       >('native_preferences_create_with_scope');
   late final _native_preferences_create_with_scope =
       _native_preferences_create_with_scopePtr
-          .asFunction<native_preferences_t Function(ffi.Pointer<ffi.Char>)>();
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Destroy a preferences storage instance.
-  /// @param prefs Handle to preferences storage
-  void native_preferences_destroy(native_preferences_t prefs) {
-    return _native_preferences_destroy(prefs);
-  }
-
-  late final _native_preferences_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_preferences_t)>>(
-        'native_preferences_destroy',
-      );
-  late final _native_preferences_destroy = _native_preferences_destroyPtr
-      .asFunction<void Function(native_preferences_t)>();
-
-  /// @brief Set a key-value pair.
-  /// @param prefs Handle to preferences storage
-  /// @param key The key to set
-  /// @param value The value to store
-  /// @return true if successful, false otherwise
   bool native_preferences_set(
-    native_preferences_t prefs,
+    int preferences,
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Char> value,
   ) {
-    return _native_preferences_set(prefs, key, value);
+    return _native_preferences_set(preferences, key, value);
   }
 
   late final _native_preferences_setPtr =
@@ -3220,24 +4521,16 @@ class CNativeApiBindings {
       >('native_preferences_set');
   late final _native_preferences_set = _native_preferences_setPtr
       .asFunction<
-        bool Function(
-          native_preferences_t,
-          ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Char>,
-        )
+        bool Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
       >();
 
-  /// @brief Get the value for a given key.
-  /// @param prefs Handle to preferences storage
-  /// @param key The key to retrieve
-  /// @param default_value Default value if key doesn't exist
-  /// @return The stored value or default_value. Caller must free the returned string.
+  /// Caller owns the returned string; free it with free_c_str().
   ffi.Pointer<ffi.Char> native_preferences_get(
-    native_preferences_t prefs,
+    int preferences,
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Char> default_value,
   ) {
-    return _native_preferences_get(prefs, key, default_value);
+    return _native_preferences_get(preferences, key, default_value);
   }
 
   late final _native_preferences_getPtr =
@@ -3253,21 +4546,14 @@ class CNativeApiBindings {
   late final _native_preferences_get = _native_preferences_getPtr
       .asFunction<
         ffi.Pointer<ffi.Char> Function(
-          native_preferences_t,
+          int,
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
         )
       >();
 
-  /// @brief Remove a key-value pair.
-  /// @param prefs Handle to preferences storage
-  /// @param key The key to remove
-  /// @return true if successful, false if key doesn't exist
-  bool native_preferences_remove(
-    native_preferences_t prefs,
-    ffi.Pointer<ffi.Char> key,
-  ) {
-    return _native_preferences_remove(prefs, key);
+  bool native_preferences_remove(int preferences, ffi.Pointer<ffi.Char> key) {
+    return _native_preferences_remove(preferences, key);
   }
 
   late final _native_preferences_removePtr =
@@ -3277,13 +4563,10 @@ class CNativeApiBindings {
         >
       >('native_preferences_remove');
   late final _native_preferences_remove = _native_preferences_removePtr
-      .asFunction<bool Function(native_preferences_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Clear all key-value pairs.
-  /// @param prefs Handle to preferences storage
-  /// @return true if successful, false otherwise
-  bool native_preferences_clear(native_preferences_t prefs) {
-    return _native_preferences_clear(prefs);
+  bool native_preferences_clear(int preferences) {
+    return _native_preferences_clear(preferences);
   }
 
   late final _native_preferences_clearPtr =
@@ -3291,17 +4574,10 @@ class CNativeApiBindings {
         'native_preferences_clear',
       );
   late final _native_preferences_clear = _native_preferences_clearPtr
-      .asFunction<bool Function(native_preferences_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// @brief Check if a key exists.
-  /// @param prefs Handle to preferences storage
-  /// @param key The key to check
-  /// @return true if key exists, false otherwise
-  bool native_preferences_contains(
-    native_preferences_t prefs,
-    ffi.Pointer<ffi.Char> key,
-  ) {
-    return _native_preferences_contains(prefs, key);
+  bool native_preferences_contains(int preferences, ffi.Pointer<ffi.Char> key) {
+    return _native_preferences_contains(preferences, key);
   }
 
   late final _native_preferences_containsPtr =
@@ -3311,61 +4587,44 @@ class CNativeApiBindings {
         >
       >('native_preferences_contains');
   late final _native_preferences_contains = _native_preferences_containsPtr
-      .asFunction<bool Function(native_preferences_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Get all keys.
-  /// @param prefs Handle to preferences storage
-  /// @param out_keys Pointer to array of keys (allocated by function)
-  /// @param out_count Pointer to receive number of keys
-  /// @return true if successful, false otherwise. Caller must free each key and the array.
-  bool native_preferences_get_keys(
-    native_preferences_t prefs,
-    ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_keys,
-    ffi.Pointer<ffi.Size> out_count,
-  ) {
-    return _native_preferences_get_keys(prefs, out_keys, out_count);
+  native_string_list_t native_preferences_get_keys(int preferences) {
+    return _native_preferences_get_keys(preferences);
   }
 
   late final _native_preferences_get_keysPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(
-            native_preferences_t,
-            ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
-            ffi.Pointer<ffi.Size>,
-          )
-        >
+        ffi.NativeFunction<native_string_list_t Function(native_preferences_t)>
       >('native_preferences_get_keys');
   late final _native_preferences_get_keys = _native_preferences_get_keysPtr
-      .asFunction<
-        bool Function(
-          native_preferences_t,
-          ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
-          ffi.Pointer<ffi.Size>,
-        )
-      >();
+      .asFunction<native_string_list_t Function(int)>();
 
-  /// @brief Get the number of stored items.
-  /// @param prefs Handle to preferences storage
-  /// @return Number of key-value pairs
-  int native_preferences_get_size(native_preferences_t prefs) {
-    return _native_preferences_get_size(prefs);
+  int native_preferences_get_size(int preferences) {
+    return _native_preferences_get_size(preferences);
   }
 
   late final _native_preferences_get_sizePtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(native_preferences_t)>>(
-        'native_preferences_get_size',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedLong Function(native_preferences_t)>
+      >('native_preferences_get_size');
   late final _native_preferences_get_size = _native_preferences_get_sizePtr
-      .asFunction<int Function(native_preferences_t)>();
+      .asFunction<int Function(int)>();
 
-  /// @brief Get the scope.
-  /// @param prefs Handle to preferences storage
-  /// @return The scope. Caller must free the returned string.
-  ffi.Pointer<ffi.Char> native_preferences_get_scope(
-    native_preferences_t prefs,
-  ) {
-    return _native_preferences_get_scope(prefs);
+  native_string_map_t native_preferences_get_all(int preferences) {
+    return _native_preferences_get_all(preferences);
+  }
+
+  late final _native_preferences_get_allPtr =
+      _lookup<
+        ffi.NativeFunction<native_string_map_t Function(native_preferences_t)>
+      >('native_preferences_get_all');
+  late final _native_preferences_get_all = _native_preferences_get_allPtr
+      .asFunction<native_string_map_t Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_preferences_get_scope(int preferences) {
+    return _native_preferences_get_scope(preferences);
   }
 
   late final _native_preferences_get_scopePtr =
@@ -3373,45 +4632,23 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_preferences_t)>
       >('native_preferences_get_scope');
   late final _native_preferences_get_scope = _native_preferences_get_scopePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_preferences_t)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// @brief Free a string returned by preferences functions.
-  /// @param str String to free
-  void native_preferences_free_string(ffi.Pointer<ffi.Char> str) {
-    return _native_preferences_free_string(str);
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_preferences_free(int preferences) {
+    return _native_preferences_free(preferences);
   }
 
-  late final _native_preferences_free_stringPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-        'native_preferences_free_string',
+  late final _native_preferences_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_preferences_t)>>(
+        'native_preferences_free',
       );
-  late final _native_preferences_free_string =
-      _native_preferences_free_stringPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+  late final _native_preferences_free = _native_preferences_freePtr
+      .asFunction<void Function(int)>();
 
-  /// @brief Free a string array returned by preferences functions.
-  /// @param strings Array of strings to free
-  /// @param count Number of strings in the array
-  void native_preferences_free_string_array(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> strings,
-    int count,
-  ) {
-    return _native_preferences_free_string_array(strings, count);
-  }
-
-  late final _native_preferences_free_string_arrayPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Size)
-        >
-      >('native_preferences_free_string_array');
-  late final _native_preferences_free_string_array =
-      _native_preferences_free_string_arrayPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
-
-  /// @brief Create a secure storage with default scope.
-  /// @return Handle to secure storage, or NULL on failure
-  native_secure_storage_t native_secure_storage_create() {
+  /// Creates a SecureStorage instance; release it with native_secure_storage_free().
+  int native_secure_storage_create() {
     return _native_secure_storage_create();
   }
 
@@ -3420,14 +4657,10 @@ class CNativeApiBindings {
         'native_secure_storage_create',
       );
   late final _native_secure_storage_create = _native_secure_storage_createPtr
-      .asFunction<native_secure_storage_t Function()>();
+      .asFunction<int Function()>();
 
-  /// @brief Create a secure storage with custom scope.
-  /// @param scope Scope/application identifier
-  /// @return Handle to secure storage, or NULL on failure
-  native_secure_storage_t native_secure_storage_create_with_scope(
-    ffi.Pointer<ffi.Char> scope,
-  ) {
+  /// Creates a SecureStorage instance; release it with native_secure_storage_free().
+  int native_secure_storage_create_with_scope(ffi.Pointer<ffi.Char> scope) {
     return _native_secure_storage_create_with_scope(scope);
   }
 
@@ -3439,34 +4672,14 @@ class CNativeApiBindings {
       >('native_secure_storage_create_with_scope');
   late final _native_secure_storage_create_with_scope =
       _native_secure_storage_create_with_scopePtr
-          .asFunction<
-            native_secure_storage_t Function(ffi.Pointer<ffi.Char>)
-          >();
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Destroy a secure storage instance.
-  /// @param storage Handle to secure storage
-  void native_secure_storage_destroy(native_secure_storage_t storage) {
-    return _native_secure_storage_destroy(storage);
-  }
-
-  late final _native_secure_storage_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_secure_storage_t)>>(
-        'native_secure_storage_destroy',
-      );
-  late final _native_secure_storage_destroy = _native_secure_storage_destroyPtr
-      .asFunction<void Function(native_secure_storage_t)>();
-
-  /// @brief Set a key-value pair in secure storage.
-  /// @param storage Handle to secure storage
-  /// @param key The key to set
-  /// @param value The value to store
-  /// @return true if successful, false otherwise
   bool native_secure_storage_set(
-    native_secure_storage_t storage,
+    int secure_storage,
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Char> value,
   ) {
-    return _native_secure_storage_set(storage, key, value);
+    return _native_secure_storage_set(secure_storage, key, value);
   }
 
   late final _native_secure_storage_setPtr =
@@ -3481,24 +4694,16 @@ class CNativeApiBindings {
       >('native_secure_storage_set');
   late final _native_secure_storage_set = _native_secure_storage_setPtr
       .asFunction<
-        bool Function(
-          native_secure_storage_t,
-          ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Char>,
-        )
+        bool Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
       >();
 
-  /// @brief Get the value for a given key from secure storage.
-  /// @param storage Handle to secure storage
-  /// @param key The key to retrieve
-  /// @param default_value Default value if key doesn't exist
-  /// @return The stored value or default_value. Caller must free the returned string.
+  /// Caller owns the returned string; free it with free_c_str().
   ffi.Pointer<ffi.Char> native_secure_storage_get(
-    native_secure_storage_t storage,
+    int secure_storage,
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Char> default_value,
   ) {
-    return _native_secure_storage_get(storage, key, default_value);
+    return _native_secure_storage_get(secure_storage, key, default_value);
   }
 
   late final _native_secure_storage_getPtr =
@@ -3514,21 +4719,17 @@ class CNativeApiBindings {
   late final _native_secure_storage_get = _native_secure_storage_getPtr
       .asFunction<
         ffi.Pointer<ffi.Char> Function(
-          native_secure_storage_t,
+          int,
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
         )
       >();
 
-  /// @brief Remove a key-value pair from secure storage.
-  /// @param storage Handle to secure storage
-  /// @param key The key to remove
-  /// @return true if successful, false if key doesn't exist
   bool native_secure_storage_remove(
-    native_secure_storage_t storage,
+    int secure_storage,
     ffi.Pointer<ffi.Char> key,
   ) {
-    return _native_secure_storage_remove(storage, key);
+    return _native_secure_storage_remove(secure_storage, key);
   }
 
   late final _native_secure_storage_removePtr =
@@ -3538,15 +4739,10 @@ class CNativeApiBindings {
         >
       >('native_secure_storage_remove');
   late final _native_secure_storage_remove = _native_secure_storage_removePtr
-      .asFunction<
-        bool Function(native_secure_storage_t, ffi.Pointer<ffi.Char>)
-      >();
+      .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Clear all key-value pairs from secure storage.
-  /// @param storage Handle to secure storage
-  /// @return true if successful, false otherwise
-  bool native_secure_storage_clear(native_secure_storage_t storage) {
-    return _native_secure_storage_clear(storage);
+  bool native_secure_storage_clear(int secure_storage) {
+    return _native_secure_storage_clear(secure_storage);
   }
 
   late final _native_secure_storage_clearPtr =
@@ -3554,17 +4750,13 @@ class CNativeApiBindings {
         'native_secure_storage_clear',
       );
   late final _native_secure_storage_clear = _native_secure_storage_clearPtr
-      .asFunction<bool Function(native_secure_storage_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// @brief Check if a key exists in secure storage.
-  /// @param storage Handle to secure storage
-  /// @param key The key to check
-  /// @return true if key exists, false otherwise
   bool native_secure_storage_contains(
-    native_secure_storage_t storage,
+    int secure_storage,
     ffi.Pointer<ffi.Char> key,
   ) {
-    return _native_secure_storage_contains(storage, key);
+    return _native_secure_storage_contains(secure_storage, key);
   }
 
   late final _native_secure_storage_containsPtr =
@@ -3575,65 +4767,49 @@ class CNativeApiBindings {
       >('native_secure_storage_contains');
   late final _native_secure_storage_contains =
       _native_secure_storage_containsPtr
-          .asFunction<
-            bool Function(native_secure_storage_t, ffi.Pointer<ffi.Char>)
-          >();
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// @brief Get all keys from secure storage.
-  /// @param storage Handle to secure storage
-  /// @param out_keys Pointer to array of keys (allocated by function)
-  /// @param out_count Pointer to receive number of keys
-  /// @return true if successful, false otherwise. Caller must free each key and the array.
-  bool native_secure_storage_get_keys(
-    native_secure_storage_t storage,
-    ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>> out_keys,
-    ffi.Pointer<ffi.Size> out_count,
-  ) {
-    return _native_secure_storage_get_keys(storage, out_keys, out_count);
+  native_string_list_t native_secure_storage_get_keys(int secure_storage) {
+    return _native_secure_storage_get_keys(secure_storage);
   }
 
   late final _native_secure_storage_get_keysPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Bool Function(
-            native_secure_storage_t,
-            ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
-            ffi.Pointer<ffi.Size>,
-          )
+          native_string_list_t Function(native_secure_storage_t)
         >
       >('native_secure_storage_get_keys');
   late final _native_secure_storage_get_keys =
       _native_secure_storage_get_keysPtr
-          .asFunction<
-            bool Function(
-              native_secure_storage_t,
-              ffi.Pointer<ffi.Pointer<ffi.Pointer<ffi.Char>>>,
-              ffi.Pointer<ffi.Size>,
-            )
-          >();
+          .asFunction<native_string_list_t Function(int)>();
 
-  /// @brief Get the number of stored items in secure storage.
-  /// @param storage Handle to secure storage
-  /// @return Number of key-value pairs
-  int native_secure_storage_get_size(native_secure_storage_t storage) {
-    return _native_secure_storage_get_size(storage);
+  int native_secure_storage_get_size(int secure_storage) {
+    return _native_secure_storage_get_size(secure_storage);
   }
 
   late final _native_secure_storage_get_sizePtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(native_secure_storage_t)>>(
-        'native_secure_storage_get_size',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.UnsignedLong Function(native_secure_storage_t)>
+      >('native_secure_storage_get_size');
   late final _native_secure_storage_get_size =
-      _native_secure_storage_get_sizePtr
-          .asFunction<int Function(native_secure_storage_t)>();
+      _native_secure_storage_get_sizePtr.asFunction<int Function(int)>();
 
-  /// @brief Get the scope.
-  /// @param storage Handle to secure storage
-  /// @return The scope. Caller must free the returned string.
-  ffi.Pointer<ffi.Char> native_secure_storage_get_scope(
-    native_secure_storage_t storage,
-  ) {
-    return _native_secure_storage_get_scope(storage);
+  native_string_map_t native_secure_storage_get_all(int secure_storage) {
+    return _native_secure_storage_get_all(secure_storage);
+  }
+
+  late final _native_secure_storage_get_allPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_string_map_t Function(native_secure_storage_t)
+        >
+      >('native_secure_storage_get_all');
+  late final _native_secure_storage_get_all = _native_secure_storage_get_allPtr
+      .asFunction<native_string_map_t Function(int)>();
+
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_secure_storage_get_scope(int secure_storage) {
+    return _native_secure_storage_get_scope(secure_storage);
   }
 
   late final _native_secure_storage_get_scopePtr =
@@ -3644,12 +4820,8 @@ class CNativeApiBindings {
       >('native_secure_storage_get_scope');
   late final _native_secure_storage_get_scope =
       _native_secure_storage_get_scopePtr
-          .asFunction<
-            ffi.Pointer<ffi.Char> Function(native_secure_storage_t)
-          >();
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// @brief Check if secure storage is available on this platform.
-  /// @return true if platform supports secure storage, false otherwise
   bool native_secure_storage_is_available() {
     return _native_secure_storage_is_available();
   }
@@ -3661,44 +4833,94 @@ class CNativeApiBindings {
   late final _native_secure_storage_is_available =
       _native_secure_storage_is_availablePtr.asFunction<bool Function()>();
 
-  /// @brief Free a string returned by secure storage functions.
-  /// @param str String to free
-  void native_secure_storage_free_string(ffi.Pointer<ffi.Char> str) {
-    return _native_secure_storage_free_string(str);
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_secure_storage_free(int secure_storage) {
+    return _native_secure_storage_free(secure_storage);
   }
 
-  late final _native_secure_storage_free_stringPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-        'native_secure_storage_free_string',
+  late final _native_secure_storage_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_secure_storage_t)>>(
+        'native_secure_storage_free',
       );
-  late final _native_secure_storage_free_string =
-      _native_secure_storage_free_stringPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+  late final _native_secure_storage_free = _native_secure_storage_freePtr
+      .asFunction<void Function(int)>();
 
-  /// @brief Free a string array returned by secure storage functions.
-  /// @param strings Array of strings to free
-  /// @param count Number of strings in the array
-  void native_secure_storage_free_string_array(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> strings,
-    int count,
+  /// Frees everything the struct owns.
+  void native_shortcut_options_free(
+    ffi.Pointer<native_shortcut_options_t> value,
   ) {
-    return _native_secure_storage_free_string_array(strings, count);
+    return _native_shortcut_options_free(value);
   }
 
-  late final _native_secure_storage_free_string_arrayPtr =
+  late final _native_shortcut_options_freePtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Size)
+          ffi.Void Function(ffi.Pointer<native_shortcut_options_t>)
         >
-      >('native_secure_storage_free_string_array');
-  late final _native_secure_storage_free_string_array =
-      _native_secure_storage_free_string_arrayPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
+      >('native_shortcut_options_free');
+  late final _native_shortcut_options_free = _native_shortcut_options_freePtr
+      .asFunction<void Function(ffi.Pointer<native_shortcut_options_t>)>();
 
-  /// Get the unique ID of a shortcut
-  /// @param shortcut The shortcut handle
-  /// @return The shortcut ID
-  int native_shortcut_get_id(native_shortcut_t shortcut) {
+  /// Creates a Shortcut instance; release it with native_shortcut_free().
+  int native_shortcut_create_with_id_and_options(
+    int id,
+    native_shortcut_options_t options,
+  ) {
+    return _native_shortcut_create_with_id_and_options(id, options);
+  }
+
+  late final _native_shortcut_create_with_id_and_optionsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_shortcut_t Function(
+            native_shortcut_id_t,
+            native_shortcut_options_t,
+          )
+        >
+      >('native_shortcut_create_with_id_and_options');
+  late final _native_shortcut_create_with_id_and_options =
+      _native_shortcut_create_with_id_and_optionsPtr
+          .asFunction<int Function(int, native_shortcut_options_t)>();
+
+  /// Creates a Shortcut instance; release it with native_shortcut_free().
+  int native_shortcut_create_with_id_and_accelerator_and_callback(
+    int id,
+    ffi.Pointer<ffi.Char> accelerator,
+    native_shortcut_create_with_id_and_accelerator_and_callback_t callback,
+    ffi.Pointer<ffi.Void> callback_user_data,
+  ) {
+    return _native_shortcut_create_with_id_and_accelerator_and_callback(
+      id,
+      accelerator,
+      callback,
+      callback_user_data,
+    );
+  }
+
+  late final _native_shortcut_create_with_id_and_accelerator_and_callbackPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_shortcut_t Function(
+            native_shortcut_id_t,
+            ffi.Pointer<ffi.Char>,
+            native_shortcut_create_with_id_and_accelerator_and_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_shortcut_create_with_id_and_accelerator_and_callback');
+  late final _native_shortcut_create_with_id_and_accelerator_and_callback =
+      _native_shortcut_create_with_id_and_accelerator_and_callbackPtr
+          .asFunction<
+            int Function(
+              int,
+              ffi.Pointer<ffi.Char>,
+              native_shortcut_create_with_id_and_accelerator_and_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  int native_shortcut_get_id(int shortcut) {
     return _native_shortcut_get_id(shortcut);
   }
 
@@ -3707,14 +4929,10 @@ class CNativeApiBindings {
         ffi.NativeFunction<native_shortcut_id_t Function(native_shortcut_t)>
       >('native_shortcut_get_id');
   late final _native_shortcut_get_id = _native_shortcut_get_idPtr
-      .asFunction<int Function(native_shortcut_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Get the accelerator string of a shortcut
-  /// @param shortcut The shortcut handle
-  /// @return The accelerator string (caller must NOT free)
-  ffi.Pointer<ffi.Char> native_shortcut_get_accelerator(
-    native_shortcut_t shortcut,
-  ) {
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_shortcut_get_accelerator(int shortcut) {
     return _native_shortcut_get_accelerator(shortcut);
   }
 
@@ -3724,14 +4942,10 @@ class CNativeApiBindings {
       >('native_shortcut_get_accelerator');
   late final _native_shortcut_get_accelerator =
       _native_shortcut_get_acceleratorPtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_shortcut_t)>();
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Get the description of a shortcut
-  /// @param shortcut The shortcut handle
-  /// @return The description string (caller must NOT free)
-  ffi.Pointer<ffi.Char> native_shortcut_get_description(
-    native_shortcut_t shortcut,
-  ) {
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_shortcut_get_description(int shortcut) {
     return _native_shortcut_get_description(shortcut);
   }
 
@@ -3741,13 +4955,10 @@ class CNativeApiBindings {
       >('native_shortcut_get_description');
   late final _native_shortcut_get_description =
       _native_shortcut_get_descriptionPtr
-          .asFunction<ffi.Pointer<ffi.Char> Function(native_shortcut_t)>();
+          .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the description of a shortcut
-  /// @param shortcut The shortcut handle
-  /// @param description The new description
   void native_shortcut_set_description(
-    native_shortcut_t shortcut,
+    int shortcut,
     ffi.Pointer<ffi.Char> description,
   ) {
     return _native_shortcut_set_description(shortcut, description);
@@ -3761,15 +4972,10 @@ class CNativeApiBindings {
       >('native_shortcut_set_description');
   late final _native_shortcut_set_description =
       _native_shortcut_set_descriptionPtr
-          .asFunction<
-            void Function(native_shortcut_t, ffi.Pointer<ffi.Char>)
-          >();
+          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the scope of a shortcut
-  /// @param shortcut The shortcut handle
-  /// @return The shortcut scope
   native_shortcut_scope_t native_shortcut_get_scope(
-    native_shortcut_t shortcut,
+    Dartnative_shortcut_t shortcut,
   ) {
     return native_shortcut_scope_t.fromValue(
       _native_shortcut_get_scope(shortcut),
@@ -3781,12 +4987,9 @@ class CNativeApiBindings {
         'native_shortcut_get_scope',
       );
   late final _native_shortcut_get_scope = _native_shortcut_get_scopePtr
-      .asFunction<int Function(native_shortcut_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Enable or disable a shortcut
-  /// @param shortcut The shortcut handle
-  /// @param enabled true to enable, false to disable
-  void native_shortcut_set_enabled(native_shortcut_t shortcut, bool enabled) {
+  void native_shortcut_set_enabled(int shortcut, bool enabled) {
     return _native_shortcut_set_enabled(shortcut, enabled);
   }
 
@@ -3795,12 +4998,9 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Void Function(native_shortcut_t, ffi.Bool)>
       >('native_shortcut_set_enabled');
   late final _native_shortcut_set_enabled = _native_shortcut_set_enabledPtr
-      .asFunction<void Function(native_shortcut_t, bool)>();
+      .asFunction<void Function(int, bool)>();
 
-  /// Check if a shortcut is enabled
-  /// @param shortcut The shortcut handle
-  /// @return true if enabled, false otherwise
-  bool native_shortcut_is_enabled(native_shortcut_t shortcut) {
+  bool native_shortcut_is_enabled(int shortcut) {
     return _native_shortcut_is_enabled(shortcut);
   }
 
@@ -3809,11 +5009,9 @@ class CNativeApiBindings {
         'native_shortcut_is_enabled',
       );
   late final _native_shortcut_is_enabled = _native_shortcut_is_enabledPtr
-      .asFunction<bool Function(native_shortcut_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Manually invoke a shortcut's callback
-  /// @param shortcut The shortcut handle
-  void native_shortcut_invoke(native_shortcut_t shortcut) {
+  void native_shortcut_invoke(int shortcut) {
     return _native_shortcut_invoke(shortcut);
   }
 
@@ -3822,23 +5020,80 @@ class CNativeApiBindings {
         'native_shortcut_invoke',
       );
   late final _native_shortcut_invoke = _native_shortcut_invokePtr
-      .asFunction<void Function(native_shortcut_t)>();
+      .asFunction<void Function(int)>();
 
-  /// Free a shortcut list
-  /// @param list The list to free
-  void native_shortcut_list_free(native_shortcut_list_t list) {
+  void native_shortcut_set_callback(
+    int shortcut,
+    native_shortcut_set_callback_t callback,
+    ffi.Pointer<ffi.Void> callback_user_data,
+  ) {
+    return _native_shortcut_set_callback(
+      shortcut,
+      callback,
+      callback_user_data,
+    );
+  }
+
+  late final _native_shortcut_set_callbackPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            native_shortcut_t,
+            native_shortcut_set_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_shortcut_set_callback');
+  late final _native_shortcut_set_callback = _native_shortcut_set_callbackPtr
+      .asFunction<
+        void Function(
+          int,
+          native_shortcut_set_callback_t,
+          ffi.Pointer<ffi.Void>,
+        )
+      >();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_shortcut_free(int shortcut) {
+    return _native_shortcut_free(shortcut);
+  }
+
+  late final _native_shortcut_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_shortcut_t)>>(
+        'native_shortcut_free',
+      );
+  late final _native_shortcut_free = _native_shortcut_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Frees the array and releases every handle it contains.
+  void native_shortcut_list_free(ffi.Pointer<native_shortcut_list_t> list) {
     return _native_shortcut_list_free(list);
   }
 
   late final _native_shortcut_list_freePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_shortcut_list_t)>>(
-        'native_shortcut_list_free',
-      );
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_shortcut_list_t>)
+        >
+      >('native_shortcut_list_free');
   late final _native_shortcut_list_free = _native_shortcut_list_freePtr
-      .asFunction<void Function(native_shortcut_list_t)>();
+      .asFunction<void Function(ffi.Pointer<native_shortcut_list_t>)>();
 
-  /// Check if global shortcuts are supported on the current platform
-  /// @return true if supported, false otherwise
+  /// Frees only the array; the caller takes over the handles.
+  void native_shortcut_list_release(ffi.Pointer<native_shortcut_list_t> list) {
+    return _native_shortcut_list_release(list);
+  }
+
+  late final _native_shortcut_list_releasePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_shortcut_list_t>)
+        >
+      >('native_shortcut_list_release');
+  late final _native_shortcut_list_release = _native_shortcut_list_releasePtr
+      .asFunction<void Function(ffi.Pointer<native_shortcut_list_t>)>();
+
   bool native_shortcut_manager_is_supported() {
     return _native_shortcut_manager_is_supported();
   }
@@ -3850,110 +5105,82 @@ class CNativeApiBindings {
   late final _native_shortcut_manager_is_supported =
       _native_shortcut_manager_is_supportedPtr.asFunction<bool Function()>();
 
-  /// Register a new keyboard shortcut with a simple accelerator string
-  /// @param accelerator The keyboard shortcut string (e.g., "Ctrl+Shift+A")
-  /// @param callback The callback function to invoke when the shortcut is activated
-  /// @param user_data User data to pass to the callback
-  /// @return Shortcut handle, or NULL if registration failed
-  native_shortcut_t native_shortcut_manager_register(
+  /// Caller owns the returned handle; release it with native_shortcut_free().
+  int native_shortcut_manager_register_with_accelerator_and_callback(
     ffi.Pointer<ffi.Char> accelerator,
-    native_shortcut_callback_t callback,
-    ffi.Pointer<ffi.Void> user_data,
+    native_shortcut_manager_register_callback_t callback,
+    ffi.Pointer<ffi.Void> callback_user_data,
   ) {
-    return _native_shortcut_manager_register(accelerator, callback, user_data);
+    return _native_shortcut_manager_register_with_accelerator_and_callback(
+      accelerator,
+      callback,
+      callback_user_data,
+    );
   }
 
-  late final _native_shortcut_manager_registerPtr =
+  late final _native_shortcut_manager_register_with_accelerator_and_callbackPtr =
       _lookup<
         ffi.NativeFunction<
           native_shortcut_t Function(
             ffi.Pointer<ffi.Char>,
-            native_shortcut_callback_t,
+            native_shortcut_manager_register_callback_t,
             ffi.Pointer<ffi.Void>,
           )
         >
-      >('native_shortcut_manager_register');
-  late final _native_shortcut_manager_register =
-      _native_shortcut_manager_registerPtr
+      >('native_shortcut_manager_register_with_accelerator_and_callback');
+  late final _native_shortcut_manager_register_with_accelerator_and_callback =
+      _native_shortcut_manager_register_with_accelerator_and_callbackPtr
           .asFunction<
-            native_shortcut_t Function(
+            int Function(
               ffi.Pointer<ffi.Char>,
-              native_shortcut_callback_t,
+              native_shortcut_manager_register_callback_t,
               ffi.Pointer<ffi.Void>,
             )
           >();
 
-  /// Register a new keyboard shortcut with detailed options
-  /// @param options The shortcut options
-  /// @param callback The callback function to invoke when the shortcut is activated
-  /// @param user_data User data to pass to the callback
-  /// @return Shortcut handle, or NULL if registration failed
-  native_shortcut_t native_shortcut_manager_register_with_options(
-    ffi.Pointer<native_shortcut_options_t> options,
-    native_shortcut_callback_t callback,
-    ffi.Pointer<ffi.Void> user_data,
+  /// Caller owns the returned handle; release it with native_shortcut_free().
+  int native_shortcut_manager_register_with_options(
+    native_shortcut_options_t options,
   ) {
-    return _native_shortcut_manager_register_with_options(
-      options,
-      callback,
-      user_data,
-    );
+    return _native_shortcut_manager_register_with_options(options);
   }
 
   late final _native_shortcut_manager_register_with_optionsPtr =
       _lookup<
         ffi.NativeFunction<
-          native_shortcut_t Function(
-            ffi.Pointer<native_shortcut_options_t>,
-            native_shortcut_callback_t,
-            ffi.Pointer<ffi.Void>,
-          )
+          native_shortcut_t Function(native_shortcut_options_t)
         >
       >('native_shortcut_manager_register_with_options');
   late final _native_shortcut_manager_register_with_options =
       _native_shortcut_manager_register_with_optionsPtr
-          .asFunction<
-            native_shortcut_t Function(
-              ffi.Pointer<native_shortcut_options_t>,
-              native_shortcut_callback_t,
-              ffi.Pointer<ffi.Void>,
-            )
-          >();
+          .asFunction<int Function(native_shortcut_options_t)>();
 
-  /// Unregister a keyboard shortcut by its ID
-  /// @param shortcut_id The shortcut ID
-  /// @return true if unregistered successfully, false otherwise
-  bool native_shortcut_manager_unregister_by_id(int shortcut_id) {
-    return _native_shortcut_manager_unregister_by_id(shortcut_id);
+  bool native_shortcut_manager_unregister_with_id(int id) {
+    return _native_shortcut_manager_unregister_with_id(id);
   }
 
-  late final _native_shortcut_manager_unregister_by_idPtr =
+  late final _native_shortcut_manager_unregister_with_idPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(native_shortcut_id_t)>>(
-        'native_shortcut_manager_unregister_by_id',
+        'native_shortcut_manager_unregister_with_id',
       );
-  late final _native_shortcut_manager_unregister_by_id =
-      _native_shortcut_manager_unregister_by_idPtr
+  late final _native_shortcut_manager_unregister_with_id =
+      _native_shortcut_manager_unregister_with_idPtr
           .asFunction<bool Function(int)>();
 
-  /// Unregister a keyboard shortcut by its accelerator string
-  /// @param accelerator The keyboard shortcut string
-  /// @return true if unregistered successfully, false otherwise
-  bool native_shortcut_manager_unregister_by_accelerator(
+  bool native_shortcut_manager_unregister_with_accelerator(
     ffi.Pointer<ffi.Char> accelerator,
   ) {
-    return _native_shortcut_manager_unregister_by_accelerator(accelerator);
+    return _native_shortcut_manager_unregister_with_accelerator(accelerator);
   }
 
-  late final _native_shortcut_manager_unregister_by_acceleratorPtr =
+  late final _native_shortcut_manager_unregister_with_acceleratorPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
-        'native_shortcut_manager_unregister_by_accelerator',
+        'native_shortcut_manager_unregister_with_accelerator',
       );
-  late final _native_shortcut_manager_unregister_by_accelerator =
-      _native_shortcut_manager_unregister_by_acceleratorPtr
+  late final _native_shortcut_manager_unregister_with_accelerator =
+      _native_shortcut_manager_unregister_with_acceleratorPtr
           .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Unregister all keyboard shortcuts
-  /// @return Number of shortcuts that were unregistered
   int native_shortcut_manager_unregister_all() {
     return _native_shortcut_manager_unregister_all();
   }
@@ -3965,40 +5192,33 @@ class CNativeApiBindings {
   late final _native_shortcut_manager_unregister_all =
       _native_shortcut_manager_unregister_allPtr.asFunction<int Function()>();
 
-  /// Get a shortcut by its ID
-  /// @param shortcut_id The shortcut ID
-  /// @return Shortcut handle, or NULL if not found
-  native_shortcut_t native_shortcut_manager_get_by_id(int shortcut_id) {
-    return _native_shortcut_manager_get_by_id(shortcut_id);
+  /// Caller owns the returned handle; release it with native_shortcut_free().
+  int native_shortcut_manager_get_with_id(int id) {
+    return _native_shortcut_manager_get_with_id(id);
   }
 
-  late final _native_shortcut_manager_get_by_idPtr =
+  late final _native_shortcut_manager_get_with_idPtr =
       _lookup<
         ffi.NativeFunction<native_shortcut_t Function(native_shortcut_id_t)>
-      >('native_shortcut_manager_get_by_id');
-  late final _native_shortcut_manager_get_by_id =
-      _native_shortcut_manager_get_by_idPtr
-          .asFunction<native_shortcut_t Function(int)>();
+      >('native_shortcut_manager_get_with_id');
+  late final _native_shortcut_manager_get_with_id =
+      _native_shortcut_manager_get_with_idPtr.asFunction<int Function(int)>();
 
-  /// Get a shortcut by its accelerator string
-  /// @param accelerator The keyboard shortcut string
-  /// @return Shortcut handle, or NULL if not found
-  native_shortcut_t native_shortcut_manager_get_by_accelerator(
+  /// Caller owns the returned handle; release it with native_shortcut_free().
+  int native_shortcut_manager_get_with_accelerator(
     ffi.Pointer<ffi.Char> accelerator,
   ) {
-    return _native_shortcut_manager_get_by_accelerator(accelerator);
+    return _native_shortcut_manager_get_with_accelerator(accelerator);
   }
 
-  late final _native_shortcut_manager_get_by_acceleratorPtr =
+  late final _native_shortcut_manager_get_with_acceleratorPtr =
       _lookup<
         ffi.NativeFunction<native_shortcut_t Function(ffi.Pointer<ffi.Char>)>
-      >('native_shortcut_manager_get_by_accelerator');
-  late final _native_shortcut_manager_get_by_accelerator =
-      _native_shortcut_manager_get_by_acceleratorPtr
-          .asFunction<native_shortcut_t Function(ffi.Pointer<ffi.Char>)>();
+      >('native_shortcut_manager_get_with_accelerator');
+  late final _native_shortcut_manager_get_with_accelerator =
+      _native_shortcut_manager_get_with_acceleratorPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Get all registered shortcuts
-  /// @return List of all shortcuts (caller must free with native_shortcut_list_free)
   native_shortcut_list_t native_shortcut_manager_get_all() {
     return _native_shortcut_manager_get_all();
   }
@@ -4011,9 +5231,6 @@ class CNativeApiBindings {
       _native_shortcut_manager_get_allPtr
           .asFunction<native_shortcut_list_t Function()>();
 
-  /// Get shortcuts filtered by scope
-  /// @param scope The shortcut scope to filter by
-  /// @return List of matching shortcuts (caller must free with native_shortcut_list_free)
   native_shortcut_list_t native_shortcut_manager_get_by_scope(
     native_shortcut_scope_t scope,
   ) {
@@ -4028,9 +5245,6 @@ class CNativeApiBindings {
       _native_shortcut_manager_get_by_scopePtr
           .asFunction<native_shortcut_list_t Function(int)>();
 
-  /// Check if a specific accelerator is available for registration
-  /// @param accelerator The keyboard shortcut string to check
-  /// @return true if available, false if already in use
   bool native_shortcut_manager_is_available(ffi.Pointer<ffi.Char> accelerator) {
     return _native_shortcut_manager_is_available(accelerator);
   }
@@ -4043,9 +5257,6 @@ class CNativeApiBindings {
       _native_shortcut_manager_is_availablePtr
           .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Validate an accelerator string format
-  /// @param accelerator The keyboard shortcut string to validate
-  /// @return true if the format is valid, false otherwise
   bool native_shortcut_manager_is_valid_accelerator(
     ffi.Pointer<ffi.Char> accelerator,
   ) {
@@ -4060,8 +5271,6 @@ class CNativeApiBindings {
       _native_shortcut_manager_is_valid_acceleratorPtr
           .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Enable or disable shortcut processing
-  /// @param enabled true to enable, false to disable
   void native_shortcut_manager_set_enabled(bool enabled) {
     return _native_shortcut_manager_set_enabled(enabled);
   }
@@ -4073,8 +5282,6 @@ class CNativeApiBindings {
   late final _native_shortcut_manager_set_enabled =
       _native_shortcut_manager_set_enabledPtr.asFunction<void Function(bool)>();
 
-  /// Check if shortcut processing is enabled
-  /// @return true if enabled, false otherwise
   bool native_shortcut_manager_is_enabled() {
     return _native_shortcut_manager_is_enabled();
   }
@@ -4086,31 +5293,43 @@ class CNativeApiBindings {
   late final _native_shortcut_manager_is_enabled =
       _native_shortcut_manager_is_enabledPtr.asFunction<bool Function()>();
 
-  /// Register a callback for shortcut events
-  /// @param callback The callback function to register
-  /// @param user_data User data to pass to the callback
-  /// @return Registration ID, or -1 on failure
-  int native_shortcut_manager_register_event_callback(
+  void native_shortcut_manager_emit_shortcut_activated(
+    int id,
+    ffi.Pointer<ffi.Char> accelerator,
+  ) {
+    return _native_shortcut_manager_emit_shortcut_activated(id, accelerator);
+  }
+
+  late final _native_shortcut_manager_emit_shortcut_activatedPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_shortcut_id_t, ffi.Pointer<ffi.Char>)
+        >
+      >('native_shortcut_manager_emit_shortcut_activated');
+  late final _native_shortcut_manager_emit_shortcut_activated =
+      _native_shortcut_manager_emit_shortcut_activatedPtr
+          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+
+  /// Registers @p callback for every ShortcutEvent this ShortcutManager emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_shortcut_manager_add_listener(
     native_shortcut_event_callback_t callback,
     ffi.Pointer<ffi.Void> user_data,
   ) {
-    return _native_shortcut_manager_register_event_callback(
-      callback,
-      user_data,
-    );
+    return _native_shortcut_manager_add_listener(callback, user_data);
   }
 
-  late final _native_shortcut_manager_register_event_callbackPtr =
+  late final _native_shortcut_manager_add_listenerPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Int Function(
+          native_listener_id_t Function(
             native_shortcut_event_callback_t,
             ffi.Pointer<ffi.Void>,
           )
         >
-      >('native_shortcut_manager_register_event_callback');
-  late final _native_shortcut_manager_register_event_callback =
-      _native_shortcut_manager_register_event_callbackPtr
+      >('native_shortcut_manager_add_listener');
+  late final _native_shortcut_manager_add_listener =
+      _native_shortcut_manager_add_listenerPtr
           .asFunction<
             int Function(
               native_shortcut_event_callback_t,
@@ -4118,37 +5337,21 @@ class CNativeApiBindings {
             )
           >();
 
-  /// Unregister a shortcut event callback
-  /// @param registration_id The registration ID returned by register_event_callback
-  /// @return true if callback was found and unregistered, false otherwise
-  bool native_shortcut_manager_unregister_event_callback(int registration_id) {
-    return _native_shortcut_manager_unregister_event_callback(registration_id);
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_shortcut_manager_remove_listener(int listener_id) {
+    return _native_shortcut_manager_remove_listener(listener_id);
   }
 
-  late final _native_shortcut_manager_unregister_event_callbackPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int)>>(
-        'native_shortcut_manager_unregister_event_callback',
+  late final _native_shortcut_manager_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_listener_id_t)>>(
+        'native_shortcut_manager_remove_listener',
       );
-  late final _native_shortcut_manager_unregister_event_callback =
-      _native_shortcut_manager_unregister_event_callbackPtr
+  late final _native_shortcut_manager_remove_listener =
+      _native_shortcut_manager_remove_listenerPtr
           .asFunction<bool Function(int)>();
 
-  /// Free a C string allocated by to_c_str
-  /// @param str The string to free (can be nullptr)
-  void free_c_str(ffi.Pointer<ffi.Char> str) {
-    return _free_c_str(str);
-  }
-
-  late final _free_c_strPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-        'free_c_str',
-      );
-  late final _free_c_str = _free_c_strPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
-
-  /// Create a new tray icon
-  /// @return Tray icon handle, or NULL if creation failed
-  native_tray_icon_t native_tray_icon_create() {
+  /// Creates a TrayIcon instance; release it with native_tray_icon_free().
+  int native_tray_icon_create() {
     return _native_tray_icon_create();
   }
 
@@ -4157,42 +5360,22 @@ class CNativeApiBindings {
         'native_tray_icon_create',
       );
   late final _native_tray_icon_create = _native_tray_icon_createPtr
-      .asFunction<native_tray_icon_t Function()>();
+      .asFunction<int Function()>();
 
-  /// Create a tray icon from a native platform object
-  /// @param native_tray Pointer to platform-specific tray icon object
-  /// @return Tray icon handle, or NULL if creation failed
-  native_tray_icon_t native_tray_icon_create_from_native(
-    ffi.Pointer<ffi.Void> native_tray,
-  ) {
-    return _native_tray_icon_create_from_native(native_tray);
+  /// Creates a TrayIcon instance; release it with native_tray_icon_free().
+  int native_tray_icon_create_with_tray(ffi.Pointer<ffi.Void> tray) {
+    return _native_tray_icon_create_with_tray(tray);
   }
 
-  late final _native_tray_icon_create_from_nativePtr =
+  late final _native_tray_icon_create_with_trayPtr =
       _lookup<
         ffi.NativeFunction<native_tray_icon_t Function(ffi.Pointer<ffi.Void>)>
-      >('native_tray_icon_create_from_native');
-  late final _native_tray_icon_create_from_native =
-      _native_tray_icon_create_from_nativePtr
-          .asFunction<native_tray_icon_t Function(ffi.Pointer<ffi.Void>)>();
+      >('native_tray_icon_create_with_tray');
+  late final _native_tray_icon_create_with_tray =
+      _native_tray_icon_create_with_trayPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  /// Destroy a tray icon and release its resources
-  /// @param tray_icon The tray icon to destroy
-  void native_tray_icon_destroy(native_tray_icon_t tray_icon) {
-    return _native_tray_icon_destroy(tray_icon);
-  }
-
-  late final _native_tray_icon_destroyPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_tray_icon_t)>>(
-        'native_tray_icon_destroy',
-      );
-  late final _native_tray_icon_destroy = _native_tray_icon_destroyPtr
-      .asFunction<void Function(native_tray_icon_t)>();
-
-  /// Get the ID of a tray icon
-  /// @param tray_icon The tray icon
-  /// @return The tray icon ID
-  int native_tray_icon_get_id(native_tray_icon_t tray_icon) {
+  int native_tray_icon_get_id(int tray_icon) {
     return _native_tray_icon_get_id(tray_icon);
   }
 
@@ -4201,15 +5384,9 @@ class CNativeApiBindings {
         ffi.NativeFunction<native_tray_icon_id_t Function(native_tray_icon_t)>
       >('native_tray_icon_get_id');
   late final _native_tray_icon_get_id = _native_tray_icon_get_idPtr
-      .asFunction<int Function(native_tray_icon_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Set the icon image for the tray icon using an Image object
-  /// @param tray_icon The tray icon
-  /// @param image The Image object to set as the icon, or NULL to clear the icon
-  void native_tray_icon_set_icon(
-    native_tray_icon_t tray_icon,
-    native_image_t image,
-  ) {
+  void native_tray_icon_set_icon(int tray_icon, int image) {
     return _native_tray_icon_set_icon(tray_icon, image);
   }
 
@@ -4220,13 +5397,10 @@ class CNativeApiBindings {
         >
       >('native_tray_icon_set_icon');
   late final _native_tray_icon_set_icon = _native_tray_icon_set_iconPtr
-      .asFunction<void Function(native_tray_icon_t, native_image_t)>();
+      .asFunction<void Function(int, int)>();
 
-  /// Get the current icon image of the tray icon
-  /// @param tray_icon The tray icon
-  /// @return The Image object, or NULL if no icon is set. Caller must call
-  /// native_image_destroy() when done.
-  native_image_t native_tray_icon_get_icon(native_tray_icon_t tray_icon) {
+  /// Caller owns the returned handle; release it with native_image_free().
+  int native_tray_icon_get_icon(int tray_icon) {
     return _native_tray_icon_get_icon(tray_icon);
   }
 
@@ -4235,15 +5409,91 @@ class CNativeApiBindings {
         'native_tray_icon_get_icon',
       );
   late final _native_tray_icon_get_icon = _native_tray_icon_get_iconPtr
-      .asFunction<native_image_t Function(native_tray_icon_t)>();
+      .asFunction<int Function(int)>();
 
-  /// Set the title text for the tray icon
-  /// @param tray_icon The tray icon
-  /// @param title The title text to set, or NULL to clear the title
-  void native_tray_icon_set_title(
-    native_tray_icon_t tray_icon,
-    ffi.Pointer<ffi.Char> title,
+  void native_tray_icon_set_icon_template(
+    int tray_icon,
+    bool is_icon_template,
   ) {
+    return _native_tray_icon_set_icon_template(tray_icon, is_icon_template);
+  }
+
+  late final _native_tray_icon_set_icon_templatePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_tray_icon_t, ffi.Bool)>
+      >('native_tray_icon_set_icon_template');
+  late final _native_tray_icon_set_icon_template =
+      _native_tray_icon_set_icon_templatePtr
+          .asFunction<void Function(int, bool)>();
+
+  bool native_tray_icon_is_icon_template(int tray_icon) {
+    return _native_tray_icon_is_icon_template(tray_icon);
+  }
+
+  late final _native_tray_icon_is_icon_templatePtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t)>>(
+        'native_tray_icon_is_icon_template',
+      );
+  late final _native_tray_icon_is_icon_template =
+      _native_tray_icon_is_icon_templatePtr.asFunction<bool Function(int)>();
+
+  void native_tray_icon_set_icon_size(int tray_icon, native_size_t size) {
+    return _native_tray_icon_set_icon_size(tray_icon, size);
+  }
+
+  late final _native_tray_icon_set_icon_sizePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_tray_icon_t, native_size_t)>
+      >('native_tray_icon_set_icon_size');
+  late final _native_tray_icon_set_icon_size =
+      _native_tray_icon_set_icon_sizePtr
+          .asFunction<void Function(int, native_size_t)>();
+
+  native_size_t native_tray_icon_get_icon_size(int tray_icon) {
+    return _native_tray_icon_get_icon_size(tray_icon);
+  }
+
+  late final _native_tray_icon_get_icon_sizePtr =
+      _lookup<ffi.NativeFunction<native_size_t Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_icon_size',
+      );
+  late final _native_tray_icon_get_icon_size =
+      _native_tray_icon_get_icon_sizePtr
+          .asFunction<native_size_t Function(int)>();
+
+  void native_tray_icon_set_icon_position(
+    Dartnative_tray_icon_t tray_icon,
+    native_tray_icon_position_t position,
+  ) {
+    return _native_tray_icon_set_icon_position(tray_icon, position.value);
+  }
+
+  late final _native_tray_icon_set_icon_positionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(native_tray_icon_t, ffi.UnsignedInt)
+        >
+      >('native_tray_icon_set_icon_position');
+  late final _native_tray_icon_set_icon_position =
+      _native_tray_icon_set_icon_positionPtr
+          .asFunction<void Function(int, int)>();
+
+  native_tray_icon_position_t native_tray_icon_get_icon_position(
+    Dartnative_tray_icon_t tray_icon,
+  ) {
+    return native_tray_icon_position_t.fromValue(
+      _native_tray_icon_get_icon_position(tray_icon),
+    );
+  }
+
+  late final _native_tray_icon_get_icon_positionPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(native_tray_icon_t)>>(
+        'native_tray_icon_get_icon_position',
+      );
+  late final _native_tray_icon_get_icon_position =
+      _native_tray_icon_get_icon_positionPtr.asFunction<int Function(int)>();
+
+  void native_tray_icon_set_title(int tray_icon, ffi.Pointer<ffi.Char> title) {
     return _native_tray_icon_set_title(tray_icon, title);
   }
 
@@ -4254,15 +5504,10 @@ class CNativeApiBindings {
         >
       >('native_tray_icon_set_title');
   late final _native_tray_icon_set_title = _native_tray_icon_set_titlePtr
-      .asFunction<void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the title text of the tray icon
-  /// @param tray_icon The tray icon
-  /// @return The title text, or NULL if no title is set or error. Caller must free
-  /// the returned string.
-  ffi.Pointer<ffi.Char> native_tray_icon_get_title(
-    native_tray_icon_t tray_icon,
-  ) {
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_tray_icon_get_title(int tray_icon) {
     return _native_tray_icon_get_title(tray_icon);
   }
 
@@ -4271,13 +5516,10 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>
       >('native_tray_icon_get_title');
   late final _native_tray_icon_get_title = _native_tray_icon_get_titlePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the tooltip text for the tray icon
-  /// @param tray_icon The tray icon
-  /// @param tooltip The tooltip text to set, or NULL to clear the tooltip
   void native_tray_icon_set_tooltip(
-    native_tray_icon_t tray_icon,
+    int tray_icon,
     ffi.Pointer<ffi.Char> tooltip,
   ) {
     return _native_tray_icon_set_tooltip(tray_icon, tooltip);
@@ -4290,15 +5532,10 @@ class CNativeApiBindings {
         >
       >('native_tray_icon_set_tooltip');
   late final _native_tray_icon_set_tooltip = _native_tray_icon_set_tooltipPtr
-      .asFunction<void Function(native_tray_icon_t, ffi.Pointer<ffi.Char>)>();
+      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
-  /// Get the tooltip text of the tray icon
-  /// @param tray_icon The tray icon
-  /// @return The tooltip text, or NULL if no tooltip is set or error. Caller must
-  /// free the returned string.
-  ffi.Pointer<ffi.Char> native_tray_icon_get_tooltip(
-    native_tray_icon_t tray_icon,
-  ) {
+  /// Caller owns the returned string; free it with free_c_str().
+  ffi.Pointer<ffi.Char> native_tray_icon_get_tooltip(int tray_icon) {
     return _native_tray_icon_get_tooltip(tray_icon);
   }
 
@@ -4307,15 +5544,9 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>
       >('native_tray_icon_get_tooltip');
   late final _native_tray_icon_get_tooltip = _native_tray_icon_get_tooltipPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(native_tray_icon_t)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(int)>();
 
-  /// Set the context menu for the tray icon
-  /// @param tray_icon The tray icon
-  /// @param menu The context menu to set
-  void native_tray_icon_set_context_menu(
-    native_tray_icon_t tray_icon,
-    native_menu_t menu,
-  ) {
+  void native_tray_icon_set_context_menu(int tray_icon, int menu) {
     return _native_tray_icon_set_context_menu(tray_icon, menu);
   }
 
@@ -4325,14 +5556,10 @@ class CNativeApiBindings {
       >('native_tray_icon_set_context_menu');
   late final _native_tray_icon_set_context_menu =
       _native_tray_icon_set_context_menuPtr
-          .asFunction<void Function(native_tray_icon_t, native_menu_t)>();
+          .asFunction<void Function(int, int)>();
 
-  /// Get the context menu of the tray icon
-  /// @param tray_icon The tray icon
-  /// @return The context menu handle, or NULL if no menu set
-  native_menu_t native_tray_icon_get_context_menu(
-    native_tray_icon_t tray_icon,
-  ) {
+  /// Caller owns the returned handle; release it with native_menu_free().
+  int native_tray_icon_get_context_menu(int tray_icon) {
     return _native_tray_icon_get_context_menu(tray_icon);
   }
 
@@ -4341,14 +5568,10 @@ class CNativeApiBindings {
         'native_tray_icon_get_context_menu',
       );
   late final _native_tray_icon_get_context_menu =
-      _native_tray_icon_get_context_menuPtr
-          .asFunction<native_menu_t Function(native_tray_icon_t)>();
+      _native_tray_icon_get_context_menuPtr.asFunction<int Function(int)>();
 
-  /// Set the context menu trigger behavior
-  /// @param tray_icon The tray icon
-  /// @param trigger The desired trigger behavior
   void native_tray_icon_set_context_menu_trigger(
-    native_tray_icon_t tray_icon,
+    Dartnative_tray_icon_t tray_icon,
     native_context_menu_trigger_t trigger,
   ) {
     return _native_tray_icon_set_context_menu_trigger(tray_icon, trigger.value);
@@ -4362,13 +5585,10 @@ class CNativeApiBindings {
       >('native_tray_icon_set_context_menu_trigger');
   late final _native_tray_icon_set_context_menu_trigger =
       _native_tray_icon_set_context_menu_triggerPtr
-          .asFunction<void Function(native_tray_icon_t, int)>();
+          .asFunction<void Function(int, int)>();
 
-  /// Get the current context menu trigger behavior
-  /// @param tray_icon The tray icon
-  /// @return The current trigger behavior
   native_context_menu_trigger_t native_tray_icon_get_context_menu_trigger(
-    native_tray_icon_t tray_icon,
+    Dartnative_tray_icon_t tray_icon,
   ) {
     return native_context_menu_trigger_t.fromValue(
       _native_tray_icon_get_context_menu_trigger(tray_icon),
@@ -4381,38 +5601,20 @@ class CNativeApiBindings {
       );
   late final _native_tray_icon_get_context_menu_trigger =
       _native_tray_icon_get_context_menu_triggerPtr
-          .asFunction<int Function(native_tray_icon_t)>();
+          .asFunction<int Function(int)>();
 
-  /// Get the screen bounds of the tray icon
-  /// @param tray_icon The tray icon
-  /// @param bounds Pointer to store the bounds (caller allocated)
-  /// @return true if bounds were retrieved successfully, false otherwise
-  bool native_tray_icon_get_bounds(
-    native_tray_icon_t tray_icon,
-    ffi.Pointer<native_rectangle_t> bounds,
-  ) {
-    return _native_tray_icon_get_bounds(tray_icon, bounds);
+  native_rectangle_t native_tray_icon_get_bounds(int tray_icon) {
+    return _native_tray_icon_get_bounds(tray_icon);
   }
 
   late final _native_tray_icon_get_boundsPtr =
       _lookup<
-        ffi.NativeFunction<
-          ffi.Bool Function(native_tray_icon_t, ffi.Pointer<native_rectangle_t>)
-        >
+        ffi.NativeFunction<native_rectangle_t Function(native_tray_icon_t)>
       >('native_tray_icon_get_bounds');
   late final _native_tray_icon_get_bounds = _native_tray_icon_get_boundsPtr
-      .asFunction<
-        bool Function(native_tray_icon_t, ffi.Pointer<native_rectangle_t>)
-      >();
+      .asFunction<native_rectangle_t Function(int)>();
 
-  /// Set the visibility of the tray icon in the system tray
-  /// @param tray_icon The tray icon
-  /// @param visible true to show the icon, false to hide it
-  /// @return true if visibility was changed successfully, false otherwise
-  bool native_tray_icon_set_visible(
-    native_tray_icon_t tray_icon,
-    bool visible,
-  ) {
+  bool native_tray_icon_set_visible(int tray_icon, bool visible) {
     return _native_tray_icon_set_visible(tray_icon, visible);
   }
 
@@ -4421,12 +5623,9 @@ class CNativeApiBindings {
         ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t, ffi.Bool)>
       >('native_tray_icon_set_visible');
   late final _native_tray_icon_set_visible = _native_tray_icon_set_visiblePtr
-      .asFunction<bool Function(native_tray_icon_t, bool)>();
+      .asFunction<bool Function(int, bool)>();
 
-  /// Check if the tray icon is currently visible
-  /// @param tray_icon The tray icon
-  /// @return true if visible, false otherwise
-  bool native_tray_icon_is_visible(native_tray_icon_t tray_icon) {
+  bool native_tray_icon_is_visible(int tray_icon) {
     return _native_tray_icon_is_visible(tray_icon);
   }
 
@@ -4435,72 +5634,9 @@ class CNativeApiBindings {
         'native_tray_icon_is_visible',
       );
   late final _native_tray_icon_is_visible = _native_tray_icon_is_visiblePtr
-      .asFunction<bool Function(native_tray_icon_t)>();
+      .asFunction<bool Function(int)>();
 
-  /// Add an event listener for tray icon events
-  /// @param tray_icon The tray icon
-  /// @param event_type The type of event to listen for
-  /// @param callback The callback function
-  /// @param user_data User data to pass to callback
-  /// @return Listener ID that can be used to remove the listener, or -1 on error
-  int native_tray_icon_add_listener(
-    native_tray_icon_t tray_icon,
-    native_tray_icon_event_type_t event_type,
-    native_tray_icon_event_callback_t callback,
-    ffi.Pointer<ffi.Void> user_data,
-  ) {
-    return _native_tray_icon_add_listener(
-      tray_icon,
-      event_type.value,
-      callback,
-      user_data,
-    );
-  }
-
-  late final _native_tray_icon_add_listenerPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Int Function(
-            native_tray_icon_t,
-            ffi.UnsignedInt,
-            native_tray_icon_event_callback_t,
-            ffi.Pointer<ffi.Void>,
-          )
-        >
-      >('native_tray_icon_add_listener');
-  late final _native_tray_icon_add_listener = _native_tray_icon_add_listenerPtr
-      .asFunction<
-        int Function(
-          native_tray_icon_t,
-          int,
-          native_tray_icon_event_callback_t,
-          ffi.Pointer<ffi.Void>,
-        )
-      >();
-
-  /// Remove an event listener
-  /// @param tray_icon The tray icon
-  /// @param listener_id The listener ID returned by add_listener
-  /// @return true if the listener was found and removed, false otherwise
-  bool native_tray_icon_remove_listener(
-    native_tray_icon_t tray_icon,
-    int listener_id,
-  ) {
-    return _native_tray_icon_remove_listener(tray_icon, listener_id);
-  }
-
-  late final _native_tray_icon_remove_listenerPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Bool Function(native_tray_icon_t, ffi.Int)>
-      >('native_tray_icon_remove_listener');
-  late final _native_tray_icon_remove_listener =
-      _native_tray_icon_remove_listenerPtr
-          .asFunction<bool Function(native_tray_icon_t, int)>();
-
-  /// Open the context menu at default location
-  /// @param tray_icon The tray icon
-  /// @return true if menu was opened successfully, false otherwise
-  bool native_tray_icon_open_context_menu(native_tray_icon_t tray_icon) {
+  bool native_tray_icon_open_context_menu(int tray_icon) {
     return _native_tray_icon_open_context_menu(tray_icon);
   }
 
@@ -4509,14 +5645,9 @@ class CNativeApiBindings {
         'native_tray_icon_open_context_menu',
       );
   late final _native_tray_icon_open_context_menu =
-      _native_tray_icon_open_context_menuPtr
-          .asFunction<bool Function(native_tray_icon_t)>();
+      _native_tray_icon_open_context_menuPtr.asFunction<bool Function(int)>();
 
-  /// Close the currently displayed context menu
-  /// @param tray_icon The tray icon
-  /// @return true if menu was closed successfully or wasn't visible, false on
-  /// error
-  bool native_tray_icon_close_context_menu(native_tray_icon_t tray_icon) {
+  bool native_tray_icon_close_context_menu(int tray_icon) {
     return _native_tray_icon_close_context_menu(tray_icon);
   }
 
@@ -4525,11 +5656,108 @@ class CNativeApiBindings {
         'native_tray_icon_close_context_menu',
       );
   late final _native_tray_icon_close_context_menu =
-      _native_tray_icon_close_context_menuPtr
-          .asFunction<bool Function(native_tray_icon_t)>();
+      _native_tray_icon_close_context_menuPtr.asFunction<bool Function(int)>();
 
-  /// Check if system tray is supported on the current platform
-  /// @return true if system tray is supported, false otherwise
+  /// Platform-specific native object (NSScreen*, HMONITOR, ...).
+  ffi.Pointer<ffi.Void> native_tray_icon_get_native_object(int tray_icon) {
+    return _native_tray_icon_get_native_object(tray_icon);
+  }
+
+  late final _native_tray_icon_get_native_objectPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(native_tray_icon_t)>
+      >('native_tray_icon_get_native_object');
+  late final _native_tray_icon_get_native_object =
+      _native_tray_icon_get_native_objectPtr
+          .asFunction<ffi.Pointer<ffi.Void> Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_tray_icon_free(int tray_icon) {
+    return _native_tray_icon_free(tray_icon);
+  }
+
+  late final _native_tray_icon_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_tray_icon_t)>>(
+        'native_tray_icon_free',
+      );
+  late final _native_tray_icon_free = _native_tray_icon_freePtr
+      .asFunction<void Function(int)>();
+
+  /// Frees the array and releases every handle it contains.
+  void native_tray_icon_list_free(ffi.Pointer<native_tray_icon_list_t> list) {
+    return _native_tray_icon_list_free(list);
+  }
+
+  late final _native_tray_icon_list_freePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_tray_icon_list_t>)
+        >
+      >('native_tray_icon_list_free');
+  late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
+      .asFunction<void Function(ffi.Pointer<native_tray_icon_list_t>)>();
+
+  /// Frees only the array; the caller takes over the handles.
+  void native_tray_icon_list_release(
+    ffi.Pointer<native_tray_icon_list_t> list,
+  ) {
+    return _native_tray_icon_list_release(list);
+  }
+
+  late final _native_tray_icon_list_releasePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_tray_icon_list_t>)
+        >
+      >('native_tray_icon_list_release');
+  late final _native_tray_icon_list_release = _native_tray_icon_list_releasePtr
+      .asFunction<void Function(ffi.Pointer<native_tray_icon_list_t>)>();
+
+  /// Registers @p callback for every TrayIconEvent this TrayIcon emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_tray_icon_add_listener(
+    int tray_icon,
+    native_tray_icon_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_tray_icon_add_listener(tray_icon, callback, user_data);
+  }
+
+  late final _native_tray_icon_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_tray_icon_t,
+            native_tray_icon_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_tray_icon_add_listener');
+  late final _native_tray_icon_add_listener = _native_tray_icon_add_listenerPtr
+      .asFunction<
+        int Function(
+          int,
+          native_tray_icon_event_callback_t,
+          ffi.Pointer<ffi.Void>,
+        )
+      >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_tray_icon_remove_listener(int tray_icon, int listener_id) {
+    return _native_tray_icon_remove_listener(tray_icon, listener_id);
+  }
+
+  late final _native_tray_icon_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_tray_icon_t, native_listener_id_t)
+        >
+      >('native_tray_icon_remove_listener');
+  late final _native_tray_icon_remove_listener =
+      _native_tray_icon_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
   bool native_tray_manager_is_supported() {
     return _native_tray_manager_is_supported();
   }
@@ -4541,11 +5769,9 @@ class CNativeApiBindings {
   late final _native_tray_manager_is_supported =
       _native_tray_manager_is_supportedPtr.asFunction<bool Function()>();
 
-  /// Get a tray icon by its ID
-  /// @param tray_icon_id The tray icon ID
-  /// @return Tray icon handle, or NULL if not found
-  native_tray_icon_t native_tray_manager_get(int tray_icon_id) {
-    return _native_tray_manager_get(tray_icon_id);
+  /// Caller owns the returned handle; release it with native_tray_icon_free().
+  int native_tray_manager_get(int id) {
+    return _native_tray_manager_get(id);
   }
 
   late final _native_tray_manager_getPtr =
@@ -4553,10 +5779,8 @@ class CNativeApiBindings {
         ffi.NativeFunction<native_tray_icon_t Function(native_tray_icon_id_t)>
       >('native_tray_manager_get');
   late final _native_tray_manager_get = _native_tray_manager_getPtr
-      .asFunction<native_tray_icon_t Function(int)>();
+      .asFunction<int Function(int)>();
 
-  /// Get all managed tray icons
-  /// @return List of all tray icons (caller must free with native_tray_icon_list_free)
   native_tray_icon_list_t native_tray_manager_get_all() {
     return _native_tray_manager_get_all();
   }
@@ -4568,24 +5792,218 @@ class CNativeApiBindings {
   late final _native_tray_manager_get_all = _native_tray_manager_get_allPtr
       .asFunction<native_tray_icon_list_t Function()>();
 
-  /// Free a tray icon list
-  /// @param list The list to free
-  void native_tray_icon_list_free(native_tray_icon_list_t list) {
-    return _native_tray_icon_list_free(list);
+  /// Frees everything the struct owns.
+  void native_url_open_result_free(
+    ffi.Pointer<native_url_open_result_t> value,
+  ) {
+    return _native_url_open_result_free(value);
   }
 
-  late final _native_tray_icon_list_freePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(native_tray_icon_list_t)>>(
-        'native_tray_icon_list_free',
-      );
-  late final _native_tray_icon_list_free = _native_tray_icon_list_freePtr
-      .asFunction<void Function(native_tray_icon_list_t)>();
+  late final _native_url_open_result_freePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<native_url_open_result_t>)
+        >
+      >('native_url_open_result_free');
+  late final _native_url_open_result_free = _native_url_open_result_freePtr
+      .asFunction<void Function(ffi.Pointer<native_url_open_result_t>)>();
 
-  /// Get a window by its ID
-  /// @param window_id The window ID
-  /// @return Window handle, or NULL if not found
-  native_window_t native_window_manager_get(int window_id) {
-    return _native_window_manager_get(window_id);
+  bool native_url_opener_is_supported() {
+    return _native_url_opener_is_supported();
+  }
+
+  late final _native_url_opener_is_supportedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+        'native_url_opener_is_supported',
+      );
+  late final _native_url_opener_is_supported =
+      _native_url_opener_is_supportedPtr.asFunction<bool Function()>();
+
+  bool native_url_opener_can_open(ffi.Pointer<ffi.Char> url) {
+    return _native_url_opener_can_open(url);
+  }
+
+  late final _native_url_opener_can_openPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Char>)>>(
+        'native_url_opener_can_open',
+      );
+  late final _native_url_opener_can_open = _native_url_opener_can_openPtr
+      .asFunction<bool Function(ffi.Pointer<ffi.Char>)>();
+
+  native_url_open_result_t native_url_opener_open(ffi.Pointer<ffi.Char> url) {
+    return _native_url_opener_open(url);
+  }
+
+  late final _native_url_opener_openPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_url_open_result_t Function(ffi.Pointer<ffi.Char>)
+        >
+      >('native_url_opener_open');
+  late final _native_url_opener_open = _native_url_opener_openPtr
+      .asFunction<native_url_open_result_t Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Creates a WindowDragSession instance; release it with native_window_drag_session_free().
+  int native_window_drag_session_create() {
+    return _native_window_drag_session_create();
+  }
+
+  late final _native_window_drag_session_createPtr =
+      _lookup<ffi.NativeFunction<native_window_drag_session_t Function()>>(
+        'native_window_drag_session_create',
+      );
+  late final _native_window_drag_session_create =
+      _native_window_drag_session_createPtr.asFunction<int Function()>();
+
+  bool native_window_drag_session_start(
+    int window_drag_session,
+    int window,
+    native_point_t anchor,
+  ) {
+    return _native_window_drag_session_start(
+      window_drag_session,
+      window,
+      anchor,
+    );
+  }
+
+  late final _native_window_drag_session_startPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(
+            native_window_drag_session_t,
+            native_window_t,
+            native_point_t,
+          )
+        >
+      >('native_window_drag_session_start');
+  late final _native_window_drag_session_start =
+      _native_window_drag_session_startPtr
+          .asFunction<bool Function(int, int, native_point_t)>();
+
+  void native_window_drag_session_cancel(int window_drag_session) {
+    return _native_window_drag_session_cancel(window_drag_session);
+  }
+
+  late final _native_window_drag_session_cancelPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_drag_session_t)>
+      >('native_window_drag_session_cancel');
+  late final _native_window_drag_session_cancel =
+      _native_window_drag_session_cancelPtr.asFunction<void Function(int)>();
+
+  bool native_window_drag_session_is_active(int window_drag_session) {
+    return _native_window_drag_session_is_active(window_drag_session);
+  }
+
+  late final _native_window_drag_session_is_activePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Bool Function(native_window_drag_session_t)>
+      >('native_window_drag_session_is_active');
+  late final _native_window_drag_session_is_active =
+      _native_window_drag_session_is_activePtr.asFunction<bool Function(int)>();
+
+  int native_window_drag_session_get_window_id(int window_drag_session) {
+    return _native_window_drag_session_get_window_id(window_drag_session);
+  }
+
+  late final _native_window_drag_session_get_window_idPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_window_id_t Function(native_window_drag_session_t)
+        >
+      >('native_window_drag_session_get_window_id');
+  late final _native_window_drag_session_get_window_id =
+      _native_window_drag_session_get_window_idPtr
+          .asFunction<int Function(int)>();
+
+  native_point_t native_window_drag_session_get_anchor(
+    int window_drag_session,
+  ) {
+    return _native_window_drag_session_get_anchor(window_drag_session);
+  }
+
+  late final _native_window_drag_session_get_anchorPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_point_t Function(native_window_drag_session_t)
+        >
+      >('native_window_drag_session_get_anchor');
+  late final _native_window_drag_session_get_anchor =
+      _native_window_drag_session_get_anchorPtr
+          .asFunction<native_point_t Function(int)>();
+
+  /// Releases the caller's reference. Safe to call with an invalid or
+  /// already-released handle.
+  void native_window_drag_session_free(int window_drag_session) {
+    return _native_window_drag_session_free(window_drag_session);
+  }
+
+  late final _native_window_drag_session_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(native_window_drag_session_t)>
+      >('native_window_drag_session_free');
+  late final _native_window_drag_session_free =
+      _native_window_drag_session_freePtr.asFunction<void Function(int)>();
+
+  /// Registers @p callback for every WindowDragEvent this WindowDragSession emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_window_drag_session_add_listener(
+    int window_drag_session,
+    native_window_drag_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_window_drag_session_add_listener(
+      window_drag_session,
+      callback,
+      user_data,
+    );
+  }
+
+  late final _native_window_drag_session_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_window_drag_session_t,
+            native_window_drag_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_drag_session_add_listener');
+  late final _native_window_drag_session_add_listener =
+      _native_window_drag_session_add_listenerPtr
+          .asFunction<
+            int Function(
+              int,
+              native_window_drag_event_callback_t,
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_window_drag_session_remove_listener(
+    int window_drag_session,
+    int listener_id,
+  ) {
+    return _native_window_drag_session_remove_listener(
+      window_drag_session,
+      listener_id,
+    );
+  }
+
+  late final _native_window_drag_session_remove_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Bool Function(native_window_drag_session_t, native_listener_id_t)
+        >
+      >('native_window_drag_session_remove_listener');
+  late final _native_window_drag_session_remove_listener =
+      _native_window_drag_session_remove_listenerPtr
+          .asFunction<bool Function(int, int)>();
+
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_window_manager_get(int id) {
+    return _native_window_manager_get(id);
   }
 
   late final _native_window_manager_getPtr =
@@ -4593,10 +6011,8 @@ class CNativeApiBindings {
         'native_window_manager_get',
       );
   late final _native_window_manager_get = _native_window_manager_getPtr
-      .asFunction<native_window_t Function(int)>();
+      .asFunction<int Function(int)>();
 
-  /// Get all managed windows
-  /// @return List of all windows (caller must free with native_window_list_free)
   native_window_list_t native_window_manager_get_all() {
     return _native_window_manager_get_all();
   }
@@ -4608,9 +6024,8 @@ class CNativeApiBindings {
   late final _native_window_manager_get_all = _native_window_manager_get_allPtr
       .asFunction<native_window_list_t Function()>();
 
-  /// Get the currently active/focused window
-  /// @return Current window handle, or NULL if no window is active
-  native_window_t native_window_manager_get_current() {
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_window_manager_get_current() {
     return _native_window_manager_get_current();
   }
 
@@ -4619,78 +6034,41 @@ class CNativeApiBindings {
         'native_window_manager_get_current',
       );
   late final _native_window_manager_get_current =
-      _native_window_manager_get_currentPtr
-          .asFunction<native_window_t Function()>();
+      _native_window_manager_get_currentPtr.asFunction<int Function()>();
 
-  /// Register a callback for window events
-  /// @param callback The callback function to register
-  /// @param user_data User data to pass to the callback
-  /// @return Registration ID, or -1 on failure
-  int native_window_manager_register_event_callback(
-    native_window_event_callback_t callback,
-    ffi.Pointer<ffi.Void> user_data,
+  /// Caller owns the returned handle; release it with native_window_free().
+  int native_window_manager_get_window_at_point(
+    native_point_t point,
+    int excluded_window_id,
   ) {
-    return _native_window_manager_register_event_callback(callback, user_data);
+    return _native_window_manager_get_window_at_point(
+      point,
+      excluded_window_id,
+    );
   }
 
-  late final _native_window_manager_register_event_callbackPtr =
+  late final _native_window_manager_get_window_at_pointPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Int Function(
-            native_window_event_callback_t,
-            ffi.Pointer<ffi.Void>,
-          )
+          native_window_t Function(native_point_t, native_window_id_t)
         >
-      >('native_window_manager_register_event_callback');
-  late final _native_window_manager_register_event_callback =
-      _native_window_manager_register_event_callbackPtr
-          .asFunction<
-            int Function(native_window_event_callback_t, ffi.Pointer<ffi.Void>)
-          >();
+      >('native_window_manager_get_window_at_point');
+  late final _native_window_manager_get_window_at_point =
+      _native_window_manager_get_window_at_pointPtr
+          .asFunction<int Function(native_point_t, int)>();
 
-  /// Unregister a window event callback
-  /// @param registration_id The registration ID returned by register_event_callback
-  /// @return true if callback was found and unregistered, false otherwise
-  bool native_window_manager_unregister_event_callback(int registration_id) {
-    return _native_window_manager_unregister_event_callback(registration_id);
-  }
-
-  late final _native_window_manager_unregister_event_callbackPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int)>>(
-        'native_window_manager_unregister_event_callback',
-      );
-  late final _native_window_manager_unregister_event_callback =
-      _native_window_manager_unregister_event_callbackPtr
-          .asFunction<bool Function(int)>();
-
-  /// Shutdown the window manager and cleanup resources
-  void native_window_manager_shutdown() {
-    return _native_window_manager_shutdown();
-  }
-
-  late final _native_window_manager_shutdownPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-        'native_window_manager_shutdown',
-      );
-  late final _native_window_manager_shutdown =
-      _native_window_manager_shutdownPtr.asFunction<void Function()>();
-
-  /// Set (or clear) the "will show" hook.
-  /// @param callback Function called before window is shown (e.g., makeKeyAndOrderFront: on macOS).
-  /// NULL to clear.
-  /// @param user_data Opaque pointer passed back to callback.
   void native_window_manager_set_will_show_hook(
-    native_window_will_show_callback_t callback,
-    ffi.Pointer<ffi.Void> user_data,
+    native_window_manager_set_will_show_hook_callback_t hook,
+    ffi.Pointer<ffi.Void> hook_user_data,
   ) {
-    return _native_window_manager_set_will_show_hook(callback, user_data);
+    return _native_window_manager_set_will_show_hook(hook, hook_user_data);
   }
 
   late final _native_window_manager_set_will_show_hookPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
-            native_window_will_show_callback_t,
+            native_window_manager_set_will_show_hook_callback_t,
             ffi.Pointer<ffi.Void>,
           )
         >
@@ -4699,27 +6077,23 @@ class CNativeApiBindings {
       _native_window_manager_set_will_show_hookPtr
           .asFunction<
             void Function(
-              native_window_will_show_callback_t,
+              native_window_manager_set_will_show_hook_callback_t,
               ffi.Pointer<ffi.Void>,
             )
           >();
 
-  /// Set (or clear) the "will hide" hook.
-  /// @param callback Function called before window is hidden (e.g., orderOut: on macOS). NULL to
-  /// clear.
-  /// @param user_data Opaque pointer passed back to callback.
   void native_window_manager_set_will_hide_hook(
-    native_window_will_hide_callback_t callback,
-    ffi.Pointer<ffi.Void> user_data,
+    native_window_manager_set_will_hide_hook_callback_t hook,
+    ffi.Pointer<ffi.Void> hook_user_data,
   ) {
-    return _native_window_manager_set_will_hide_hook(callback, user_data);
+    return _native_window_manager_set_will_hide_hook(hook, hook_user_data);
   }
 
   late final _native_window_manager_set_will_hide_hookPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
-            native_window_will_hide_callback_t,
+            native_window_manager_set_will_hide_hook_callback_t,
             ffi.Pointer<ffi.Void>,
           )
         >
@@ -4728,13 +6102,11 @@ class CNativeApiBindings {
       _native_window_manager_set_will_hide_hookPtr
           .asFunction<
             void Function(
-              native_window_will_hide_callback_t,
+              native_window_manager_set_will_hide_hook_callback_t,
               ffi.Pointer<ffi.Void>,
             )
           >();
 
-  /// Check if the "will show" hook is set.
-  /// @return true if hook is set, false otherwise.
   bool native_window_manager_has_will_show_hook() {
     return _native_window_manager_has_will_show_hook();
   }
@@ -4747,8 +6119,6 @@ class CNativeApiBindings {
       _native_window_manager_has_will_show_hookPtr
           .asFunction<bool Function()>();
 
-  /// Check if the "will hide" hook is set.
-  /// @return true if hook is set, false otherwise.
   bool native_window_manager_has_will_hide_hook() {
     return _native_window_manager_has_will_hide_hook();
   }
@@ -4761,11 +6131,32 @@ class CNativeApiBindings {
       _native_window_manager_has_will_hide_hookPtr
           .asFunction<bool Function()>();
 
-  /// Call the original native show implementation for the specified window.
-  /// This bypasses the swizzled hook path on macOS.
-  /// @return true on success, false if the window wasn't found or unsupported.
-  bool native_window_manager_call_original_show(int window_id) {
-    return _native_window_manager_call_original_show(window_id);
+  void native_window_manager_handle_will_show(int id) {
+    return _native_window_manager_handle_will_show(id);
+  }
+
+  late final _native_window_manager_handle_will_showPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_id_t)>>(
+        'native_window_manager_handle_will_show',
+      );
+  late final _native_window_manager_handle_will_show =
+      _native_window_manager_handle_will_showPtr
+          .asFunction<void Function(int)>();
+
+  void native_window_manager_handle_will_hide(int id) {
+    return _native_window_manager_handle_will_hide(id);
+  }
+
+  late final _native_window_manager_handle_will_hidePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(native_window_id_t)>>(
+        'native_window_manager_handle_will_hide',
+      );
+  late final _native_window_manager_handle_will_hide =
+      _native_window_manager_handle_will_hidePtr
+          .asFunction<void Function(int)>();
+
+  bool native_window_manager_call_original_show(int id) {
+    return _native_window_manager_call_original_show(id);
   }
 
   late final _native_window_manager_call_original_showPtr =
@@ -4776,11 +6167,8 @@ class CNativeApiBindings {
       _native_window_manager_call_original_showPtr
           .asFunction<bool Function(int)>();
 
-  /// Call the original native hide implementation for the specified window.
-  /// This bypasses the swizzled hook path on macOS.
-  /// @return true on success, false if the window wasn't found or unsupported.
-  bool native_window_manager_call_original_hide(int window_id) {
-    return _native_window_manager_call_original_hide(window_id);
+  bool native_window_manager_call_original_hide(int id) {
+    return _native_window_manager_call_original_hide(id);
   }
 
   late final _native_window_manager_call_original_hidePtr =
@@ -4790,31 +6178,45 @@ class CNativeApiBindings {
   late final _native_window_manager_call_original_hide =
       _native_window_manager_call_original_hidePtr
           .asFunction<bool Function(int)>();
+
+  /// Registers @p callback for every WindowEvent this WindowManager emits.
+  /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+  int native_window_manager_add_listener(
+    native_window_event_callback_t callback,
+    ffi.Pointer<ffi.Void> user_data,
+  ) {
+    return _native_window_manager_add_listener(callback, user_data);
+  }
+
+  late final _native_window_manager_add_listenerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          native_listener_id_t Function(
+            native_window_event_callback_t,
+            ffi.Pointer<ffi.Void>,
+          )
+        >
+      >('native_window_manager_add_listener');
+  late final _native_window_manager_add_listener =
+      _native_window_manager_add_listenerPtr
+          .asFunction<
+            int Function(native_window_event_callback_t, ffi.Pointer<ffi.Void>)
+          >();
+
+  /// Unregisters a listener. Returns false if unknown.
+  bool native_window_manager_remove_listener(int listener_id) {
+    return _native_window_manager_remove_listener(listener_id);
+  }
+
+  late final _native_window_manager_remove_listenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(native_listener_id_t)>>(
+        'native_window_manager_remove_listener',
+      );
+  late final _native_window_manager_remove_listener =
+      _native_window_manager_remove_listenerPtr
+          .asFunction<bool Function(int)>();
 }
 
-/// @struct native_color_t
-/// @brief Representation of a color with RGBA components
-///
-/// Each component is represented as an unsigned byte (0-255).
-/// Alpha value: 0 = fully transparent, 255 = fully opaque
-final class native_color_t extends ffi.Struct {
-  @ffi.UnsignedChar()
-  external int r;
-
-  /// Red component (0-255)
-  @ffi.UnsignedChar()
-  external int g;
-
-  /// Green component (0-255)
-  @ffi.UnsignedChar()
-  external int b;
-
-  /// Blue component (0-255)
-  @ffi.UnsignedChar()
-  external int a;
-}
-
-/// Representation of a point
 final class native_point_t extends ffi.Struct {
   @ffi.Double()
   external double x;
@@ -4823,7 +6225,6 @@ final class native_point_t extends ffi.Struct {
   external double y;
 }
 
-/// Representation of a point
 final class native_size_t extends ffi.Struct {
   @ffi.Double()
   external double width;
@@ -4832,7 +6233,6 @@ final class native_size_t extends ffi.Struct {
   external double height;
 }
 
-/// Representation of a rectangle
 final class native_rectangle_t extends ffi.Struct {
   @ffi.Double()
   external double x;
@@ -4847,211 +6247,20 @@ final class native_rectangle_t extends ffi.Struct {
   external double height;
 }
 
-/// Placement options for positioning UI elements relative to an anchor.
-enum native_placement_t {
-  /// Position above the anchor, horizontally centered.
-  NATIVE_PLACEMENT_TOP(0),
+/// Opaque Image handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_IMAGE rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_image_t = ffi.Uint64;
+typedef Dartnative_image_t = int;
 
-  /// Position above the anchor, aligned to the start (left).
-  NATIVE_PLACEMENT_TOP_START(1),
-
-  /// Position above the anchor, aligned to the end (right).
-  NATIVE_PLACEMENT_TOP_END(2),
-
-  /// Position to the right of the anchor, vertically centered.
-  NATIVE_PLACEMENT_RIGHT(3),
-
-  /// Position to the right of the anchor, aligned to the start (top).
-  NATIVE_PLACEMENT_RIGHT_START(4),
-
-  /// Position to the right of the anchor, aligned to the end (bottom).
-  NATIVE_PLACEMENT_RIGHT_END(5),
-
-  /// Position below the anchor, horizontally centered.
-  NATIVE_PLACEMENT_BOTTOM(6),
-
-  /// Position below the anchor, aligned to the start (left).
-  NATIVE_PLACEMENT_BOTTOM_START(7),
-
-  /// Position below the anchor, aligned to the end (right).
-  NATIVE_PLACEMENT_BOTTOM_END(8),
-
-  /// Position to the left of the anchor, vertically centered.
-  NATIVE_PLACEMENT_LEFT(9),
-
-  /// Position to the left of the anchor, aligned to the start (top).
-  NATIVE_PLACEMENT_LEFT_START(10),
-
-  /// Position to the left of the anchor, aligned to the end (bottom).
-  NATIVE_PLACEMENT_LEFT_END(11);
-
-  final int value;
-  const native_placement_t(this.value);
-
-  static native_placement_t fromValue(int value) => switch (value) {
-    0 => NATIVE_PLACEMENT_TOP,
-    1 => NATIVE_PLACEMENT_TOP_START,
-    2 => NATIVE_PLACEMENT_TOP_END,
-    3 => NATIVE_PLACEMENT_RIGHT,
-    4 => NATIVE_PLACEMENT_RIGHT_START,
-    5 => NATIVE_PLACEMENT_RIGHT_END,
-    6 => NATIVE_PLACEMENT_BOTTOM,
-    7 => NATIVE_PLACEMENT_BOTTOM_START,
-    8 => NATIVE_PLACEMENT_BOTTOM_END,
-    9 => NATIVE_PLACEMENT_LEFT,
-    10 => NATIVE_PLACEMENT_LEFT_START,
-    11 => NATIVE_PLACEMENT_LEFT_END,
-    _ => throw ArgumentError("Unknown value for native_placement_t: $value"),
-  };
-}
-
-/// Window list structure
-final class native_window_list_t extends ffi.Struct {
-  external ffi.Pointer<native_window_t> windows;
-
-  @ffi.Long()
-  external int count;
-}
-
-/// Opaque window handle
-typedef native_window_t = ffi.Pointer<ffi.Void>;
-
-/// Title bar style enumeration
-enum native_title_bar_style_t {
-  NATIVE_TITLE_BAR_STYLE_NORMAL(0),
-  NATIVE_TITLE_BAR_STYLE_HIDDEN(1);
-
-  final int value;
-  const native_title_bar_style_t(this.value);
-
-  static native_title_bar_style_t fromValue(int value) => switch (value) {
-    0 => NATIVE_TITLE_BAR_STYLE_NORMAL,
-    1 => NATIVE_TITLE_BAR_STYLE_HIDDEN,
-    _ => throw ArgumentError(
-      "Unknown value for native_title_bar_style_t: $value",
-    ),
-  };
-}
-
-/// Visual effect styles for window background
-enum native_visual_effect_t {
-  NATIVE_VISUAL_EFFECT_NONE(0),
-  NATIVE_VISUAL_EFFECT_BLUR(1),
-  NATIVE_VISUAL_EFFECT_ACRYLIC(2),
-  NATIVE_VISUAL_EFFECT_MICA(3);
-
-  final int value;
-  const native_visual_effect_t(this.value);
-
-  static native_visual_effect_t fromValue(int value) => switch (value) {
-    0 => NATIVE_VISUAL_EFFECT_NONE,
-    1 => NATIVE_VISUAL_EFFECT_BLUR,
-    2 => NATIVE_VISUAL_EFFECT_ACRYLIC,
-    3 => NATIVE_VISUAL_EFFECT_MICA,
-    _ => throw ArgumentError(
-      "Unknown value for native_visual_effect_t: $value",
-    ),
-  };
-}
-
-/// Window ID type
-typedef native_window_id_t = ffi.Long;
-typedef Dartnative_window_id_t = int;
-
-/// @brief Application event types
-enum native_application_event_type_t {
-  NATIVE_APPLICATION_EVENT_STARTED(0),
-  NATIVE_APPLICATION_EVENT_EXITING(1),
-  NATIVE_APPLICATION_EVENT_ACTIVATED(2),
-  NATIVE_APPLICATION_EVENT_DEACTIVATED(3),
-  NATIVE_APPLICATION_EVENT_QUIT_REQUESTED(4);
-
-  final int value;
-  const native_application_event_type_t(this.value);
-
-  static native_application_event_type_t fromValue(int value) =>
-      switch (value) {
-        0 => NATIVE_APPLICATION_EVENT_STARTED,
-        1 => NATIVE_APPLICATION_EVENT_EXITING,
-        2 => NATIVE_APPLICATION_EVENT_ACTIVATED,
-        3 => NATIVE_APPLICATION_EVENT_DEACTIVATED,
-        4 => NATIVE_APPLICATION_EVENT_QUIT_REQUESTED,
-        _ => throw ArgumentError(
-          "Unknown value for native_application_event_type_t: $value",
-        ),
-      };
-}
-
-/// @brief Application event structure
-final class native_application_event_t extends ffi.Struct {
-  @ffi.UnsignedInt()
-  external int type;
-
-  /// For EXITING event
-  @ffi.Int()
-  external int exit_code;
-}
-
-/// @brief Opaque handle for the Application instance
-typedef native_application_t = ffi.Pointer<ffi.Void>;
-
-/// @brief Application event callback function type
-typedef native_application_event_callback_t =
-    ffi.Pointer<
-      ffi.NativeFunction<native_application_event_callback_tFunction>
-    >;
-typedef native_application_event_callback_tFunction =
-    ffi.Void Function(ffi.Pointer<native_application_event_t> event);
-typedef Dartnative_application_event_callback_tFunction =
-    void Function(ffi.Pointer<native_application_event_t> event);
-
-/// Opaque handle type for AutoStart instance.
-typedef native_autostart_t = ffi.Pointer<ffi.Void>;
-
-/// Display orientation enumeration
-enum native_display_orientation_t {
-  NATIVE_DISPLAY_ORIENTATION_PORTRAIT(0),
-  NATIVE_DISPLAY_ORIENTATION_LANDSCAPE(90),
-  NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED(180),
-  NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED(270);
-
-  final int value;
-  const native_display_orientation_t(this.value);
-
-  static native_display_orientation_t fromValue(int value) => switch (value) {
-    0 => NATIVE_DISPLAY_ORIENTATION_PORTRAIT,
-    90 => NATIVE_DISPLAY_ORIENTATION_LANDSCAPE,
-    180 => NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED,
-    270 => NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED,
-    _ => throw ArgumentError(
-      "Unknown value for native_display_orientation_t: $value",
-    ),
-  };
-}
-
-/// Display list structure
-final class native_display_list_t extends ffi.Struct {
-  external ffi.Pointer<native_display_t> displays;
-
-  @ffi.Long()
-  external int count;
-}
-
-/// Opaque display handle
-/// Align with window handle design: use a raw pointer to underlying C++ type
-typedef native_display_t = ffi.Pointer<ffi.Void>;
-
-/// Opaque handle for image objects
-typedef native_image_t = ffi.Pointer<ffi.Void>;
-
-/// Modifier key enumeration for C API
 enum native_modifier_key_t {
   NATIVE_MODIFIER_KEY_NONE(0),
   NATIVE_MODIFIER_KEY_SHIFT(1),
   NATIVE_MODIFIER_KEY_CTRL(2),
   NATIVE_MODIFIER_KEY_ALT(4),
-
-  /// Windows key or Cmd key
   NATIVE_MODIFIER_KEY_META(8),
   NATIVE_MODIFIER_KEY_FN(16),
   NATIVE_MODIFIER_KEY_CAPS_LOCK(32),
@@ -5075,67 +6284,312 @@ enum native_modifier_key_t {
   };
 }
 
-final class native_keyboard_monitor_t extends ffi.Opaque {}
+final class native_keyboard_accelerator_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int modifiers;
 
-/// Callback function type for key pressed events
-/// @param keycode The key code that was pressed
-/// @param user_data User-provided data passed to the callback
-typedef native_key_pressed_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_key_pressed_callback_tFunction>>;
-typedef native_key_pressed_callback_tFunction =
-    ffi.Void Function(ffi.Int keycode, ffi.Pointer<ffi.Void> user_data);
-typedef Dartnative_key_pressed_callback_tFunction =
-    void Function(int keycode, ffi.Pointer<ffi.Void> user_data);
+  external ffi.Pointer<ffi.Char> key;
+}
 
-/// Callback function type for key released events
-/// @param keycode The key code that was released
-/// @param user_data User-provided data passed to the callback
-typedef native_key_released_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_key_released_callback_tFunction>>;
-typedef native_key_released_callback_tFunction =
-    ffi.Void Function(ffi.Int keycode, ffi.Pointer<ffi.Void> user_data);
-typedef Dartnative_key_released_callback_tFunction =
-    void Function(int keycode, ffi.Pointer<ffi.Void> user_data);
+/// Which concrete KeyboardEvent arrived.
+enum native_keyboard_event_type_t {
+  NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED(0),
+  NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED(1),
+  NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED(2);
 
-/// Callback function type for modifier keys changed events
-/// @param modifier_keys Bitwise OR of active modifier keys
-/// @param user_data User-provided data passed to the callback
-typedef native_modifier_keys_changed_callback_t =
-    ffi.Pointer<
-      ffi.NativeFunction<native_modifier_keys_changed_callback_tFunction>
-    >;
-typedef native_modifier_keys_changed_callback_tFunction =
-    ffi.Void Function(
-      ffi.Uint32 modifier_keys,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_modifier_keys_changed_callback_tFunction =
-    void Function(int modifier_keys, ffi.Pointer<ffi.Void> user_data);
+  final int value;
+  const native_keyboard_event_type_t(this.value);
 
-/// Type of positioning strategy
+  static native_keyboard_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED,
+    1 => NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED,
+    2 => NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED,
+    _ => throw ArgumentError(
+      "Unknown value for native_keyboard_event_type_t: $value",
+    ),
+  };
+}
+
+/// One KeyboardEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_keyboard_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @ffi.Int()
+  external int keycode;
+
+  external UnnamedUnion1 data;
+}
+
+final class UnnamedUnion1 extends ffi.Union {
+  external UnnamedStruct1 modifier_keys_changed;
+}
+
+final class UnnamedStruct1 extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int modifier_keys;
+}
+
+enum native_placement_t {
+  NATIVE_PLACEMENT_TOP(0),
+  NATIVE_PLACEMENT_TOP_START(1),
+  NATIVE_PLACEMENT_TOP_END(2),
+  NATIVE_PLACEMENT_RIGHT(3),
+  NATIVE_PLACEMENT_RIGHT_START(4),
+  NATIVE_PLACEMENT_RIGHT_END(5),
+  NATIVE_PLACEMENT_BOTTOM(6),
+  NATIVE_PLACEMENT_BOTTOM_START(7),
+  NATIVE_PLACEMENT_BOTTOM_END(8),
+  NATIVE_PLACEMENT_LEFT(9),
+  NATIVE_PLACEMENT_LEFT_START(10),
+  NATIVE_PLACEMENT_LEFT_END(11);
+
+  final int value;
+  const native_placement_t(this.value);
+
+  static native_placement_t fromValue(int value) => switch (value) {
+    0 => NATIVE_PLACEMENT_TOP,
+    1 => NATIVE_PLACEMENT_TOP_START,
+    2 => NATIVE_PLACEMENT_TOP_END,
+    3 => NATIVE_PLACEMENT_RIGHT,
+    4 => NATIVE_PLACEMENT_RIGHT_START,
+    5 => NATIVE_PLACEMENT_RIGHT_END,
+    6 => NATIVE_PLACEMENT_BOTTOM,
+    7 => NATIVE_PLACEMENT_BOTTOM_START,
+    8 => NATIVE_PLACEMENT_BOTTOM_END,
+    9 => NATIVE_PLACEMENT_LEFT,
+    10 => NATIVE_PLACEMENT_LEFT_START,
+    11 => NATIVE_PLACEMENT_LEFT_END,
+    _ => throw ArgumentError("Unknown value for native_placement_t: $value"),
+  };
+}
+
+final class native_color_t extends ffi.Struct {
+  @ffi.UnsignedChar()
+  external int r;
+
+  @ffi.UnsignedChar()
+  external int g;
+
+  @ffi.UnsignedChar()
+  external int b;
+
+  @ffi.UnsignedChar()
+  external int a;
+}
+
+/// Opaque WindowShadow handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHADOW rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_shadow_t = ffi.Uint64;
+typedef Dartnative_window_shadow_t = int;
+
+/// Opaque WindowShape handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHAPE rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_shape_t = ffi.Uint64;
+typedef Dartnative_window_shape_t = int;
+
+enum native_title_bar_style_t {
+  NATIVE_TITLE_BAR_STYLE_NORMAL(0),
+  NATIVE_TITLE_BAR_STYLE_HIDDEN(1);
+
+  final int value;
+  const native_title_bar_style_t(this.value);
+
+  static native_title_bar_style_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TITLE_BAR_STYLE_NORMAL,
+    1 => NATIVE_TITLE_BAR_STYLE_HIDDEN,
+    _ => throw ArgumentError(
+      "Unknown value for native_title_bar_style_t: $value",
+    ),
+  };
+}
+
+enum native_visual_effect_t {
+  NATIVE_VISUAL_EFFECT_NONE(0),
+  NATIVE_VISUAL_EFFECT_BLUR(1),
+  NATIVE_VISUAL_EFFECT_ACRYLIC(2),
+  NATIVE_VISUAL_EFFECT_MICA(3),
+  NATIVE_VISUAL_EFFECT_MICA_ALT(4),
+  NATIVE_VISUAL_EFFECT_HUD(5),
+  NATIVE_VISUAL_EFFECT_POPOVER(6),
+  NATIVE_VISUAL_EFFECT_MENU(7);
+
+  final int value;
+  const native_visual_effect_t(this.value);
+
+  static native_visual_effect_t fromValue(int value) => switch (value) {
+    0 => NATIVE_VISUAL_EFFECT_NONE,
+    1 => NATIVE_VISUAL_EFFECT_BLUR,
+    2 => NATIVE_VISUAL_EFFECT_ACRYLIC,
+    3 => NATIVE_VISUAL_EFFECT_MICA,
+    4 => NATIVE_VISUAL_EFFECT_MICA_ALT,
+    5 => NATIVE_VISUAL_EFFECT_HUD,
+    6 => NATIVE_VISUAL_EFFECT_POPOVER,
+    7 => NATIVE_VISUAL_EFFECT_MENU,
+    _ => throw ArgumentError(
+      "Unknown value for native_visual_effect_t: $value",
+    ),
+  };
+}
+
+enum native_resize_edge_t {
+  NATIVE_RESIZE_EDGE_TOP(0),
+  NATIVE_RESIZE_EDGE_LEFT(1),
+  NATIVE_RESIZE_EDGE_RIGHT(2),
+  NATIVE_RESIZE_EDGE_BOTTOM(3),
+  NATIVE_RESIZE_EDGE_TOP_LEFT(4),
+  NATIVE_RESIZE_EDGE_TOP_RIGHT(5),
+  NATIVE_RESIZE_EDGE_BOTTOM_LEFT(6),
+  NATIVE_RESIZE_EDGE_BOTTOM_RIGHT(7);
+
+  final int value;
+  const native_resize_edge_t(this.value);
+
+  static native_resize_edge_t fromValue(int value) => switch (value) {
+    0 => NATIVE_RESIZE_EDGE_TOP,
+    1 => NATIVE_RESIZE_EDGE_LEFT,
+    2 => NATIVE_RESIZE_EDGE_RIGHT,
+    3 => NATIVE_RESIZE_EDGE_BOTTOM,
+    4 => NATIVE_RESIZE_EDGE_TOP_LEFT,
+    5 => NATIVE_RESIZE_EDGE_TOP_RIGHT,
+    6 => NATIVE_RESIZE_EDGE_BOTTOM_LEFT,
+    7 => NATIVE_RESIZE_EDGE_BOTTOM_RIGHT,
+    _ => throw ArgumentError("Unknown value for native_resize_edge_t: $value"),
+  };
+}
+
+/// Owning list of Window handles.
+final class native_window_list_t extends ffi.Struct {
+  external ffi.Pointer<native_window_t> windows;
+
+  @ffi.Long()
+  external int count;
+}
+
+/// Opaque Window handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_t = ffi.Uint64;
+typedef Dartnative_window_t = int;
+
+/// Which concrete WindowEvent arrived.
+enum native_window_event_type_t {
+  NATIVE_WINDOW_EVENT_TYPE_FOCUSED(0),
+  NATIVE_WINDOW_EVENT_TYPE_BLURRED(1),
+  NATIVE_WINDOW_EVENT_TYPE_MINIMIZED(2),
+  NATIVE_WINDOW_EVENT_TYPE_MAXIMIZED(3),
+  NATIVE_WINDOW_EVENT_TYPE_RESTORED(4),
+  NATIVE_WINDOW_EVENT_TYPE_MOVED(5),
+  NATIVE_WINDOW_EVENT_TYPE_RESIZED(6),
+  NATIVE_WINDOW_EVENT_TYPE_CREATED(7),
+  NATIVE_WINDOW_EVENT_TYPE_CLOSED(8);
+
+  final int value;
+  const native_window_event_type_t(this.value);
+
+  static native_window_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_WINDOW_EVENT_TYPE_FOCUSED,
+    1 => NATIVE_WINDOW_EVENT_TYPE_BLURRED,
+    2 => NATIVE_WINDOW_EVENT_TYPE_MINIMIZED,
+    3 => NATIVE_WINDOW_EVENT_TYPE_MAXIMIZED,
+    4 => NATIVE_WINDOW_EVENT_TYPE_RESTORED,
+    5 => NATIVE_WINDOW_EVENT_TYPE_MOVED,
+    6 => NATIVE_WINDOW_EVENT_TYPE_RESIZED,
+    7 => NATIVE_WINDOW_EVENT_TYPE_CREATED,
+    8 => NATIVE_WINDOW_EVENT_TYPE_CLOSED,
+    _ => throw ArgumentError(
+      "Unknown value for native_window_event_type_t: $value",
+    ),
+  };
+}
+
+/// One WindowEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_window_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external UnnamedUnion2 data;
+}
+
+typedef native_window_id_t = ffi.UnsignedInt;
+typedef Dartnative_window_id_t = int;
+
+final class UnnamedUnion2 extends ffi.Union {
+  external UnnamedStruct2 moved;
+
+  external UnnamedStruct3 resized;
+}
+
+final class UnnamedStruct2 extends ffi.Struct {
+  external native_point_t new_position;
+}
+
+final class UnnamedStruct3 extends ffi.Struct {
+  external native_size_t new_size;
+}
+
 enum native_positioning_strategy_type_t {
-  NATIVE_POSITIONING_ABSOLUTE(0),
-  NATIVE_POSITIONING_CURSOR_POSITION(1),
-  NATIVE_POSITIONING_RELATIVE(2);
+  NATIVE_POSITIONING_STRATEGY_TYPE_ABSOLUTE(0),
+  NATIVE_POSITIONING_STRATEGY_TYPE_CURSOR_POSITION(1),
+  NATIVE_POSITIONING_STRATEGY_TYPE_RELATIVE(2);
 
   final int value;
   const native_positioning_strategy_type_t(this.value);
 
   static native_positioning_strategy_type_t fromValue(int value) =>
       switch (value) {
-        0 => NATIVE_POSITIONING_ABSOLUTE,
-        1 => NATIVE_POSITIONING_CURSOR_POSITION,
-        2 => NATIVE_POSITIONING_RELATIVE,
+        0 => NATIVE_POSITIONING_STRATEGY_TYPE_ABSOLUTE,
+        1 => NATIVE_POSITIONING_STRATEGY_TYPE_CURSOR_POSITION,
+        2 => NATIVE_POSITIONING_STRATEGY_TYPE_RELATIVE,
         _ => throw ArgumentError(
           "Unknown value for native_positioning_strategy_type_t: $value",
         ),
       };
 }
 
-/// Opaque handle for positioning strategy
-typedef native_positioning_strategy_t = ffi.Pointer<ffi.Void>;
+/// Opaque PositioningStrategy handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_POSITIONING_STRATEGY rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_positioning_strategy_t = ffi.Uint64;
+typedef Dartnative_positioning_strategy_t = int;
 
-/// Menu item types
+enum native_menu_backend_t {
+  NATIVE_MENU_BACKEND_NATIVE(0),
+  NATIVE_MENU_BACKEND_WIN_UI3(1);
+
+  final int value;
+  const native_menu_backend_t(this.value);
+
+  static native_menu_backend_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MENU_BACKEND_NATIVE,
+    1 => NATIVE_MENU_BACKEND_WIN_UI3,
+    _ => throw ArgumentError("Unknown value for native_menu_backend_t: $value"),
+  };
+}
+
 enum native_menu_item_type_t {
   NATIVE_MENU_ITEM_TYPE_NORMAL(0),
   NATIVE_MENU_ITEM_TYPE_CHECKBOX(1),
@@ -5158,7 +6612,6 @@ enum native_menu_item_type_t {
   };
 }
 
-/// Menu item states
 enum native_menu_item_state_t {
   NATIVE_MENU_ITEM_STATE_UNCHECKED(0),
   NATIVE_MENU_ITEM_STATE_CHECKED(1),
@@ -5177,145 +6630,196 @@ enum native_menu_item_state_t {
   };
 }
 
-/// Keyboard accelerator modifier flags
-enum native_accelerator_modifier_t {
-  NATIVE_ACCELERATOR_MODIFIER_NONE(0),
-  NATIVE_ACCELERATOR_MODIFIER_CTRL(1),
-  NATIVE_ACCELERATOR_MODIFIER_ALT(2),
-  NATIVE_ACCELERATOR_MODIFIER_SHIFT(4),
-  NATIVE_ACCELERATOR_MODIFIER_META(8);
-
-  final int value;
-  const native_accelerator_modifier_t(this.value);
-
-  static native_accelerator_modifier_t fromValue(int value) => switch (value) {
-    0 => NATIVE_ACCELERATOR_MODIFIER_NONE,
-    1 => NATIVE_ACCELERATOR_MODIFIER_CTRL,
-    2 => NATIVE_ACCELERATOR_MODIFIER_ALT,
-    4 => NATIVE_ACCELERATOR_MODIFIER_SHIFT,
-    8 => NATIVE_ACCELERATOR_MODIFIER_META,
-    _ => throw ArgumentError(
-      "Unknown value for native_accelerator_modifier_t: $value",
-    ),
-  };
-}
-
-/// Keyboard accelerator structure
-final class native_keyboard_accelerator_t extends ffi.Struct {
-  @ffi.Int()
-  external int modifiers;
-
-  @ffi.Array.multi([64])
-  external ffi.Array<ffi.Char> key;
-}
-
-/// Menu item clicked event
-final class native_menu_item_clicked_event_t extends ffi.Struct {
-  @native_menu_item_id_t()
-  external int item_id;
-}
-
-typedef native_menu_item_id_t = ffi.Long;
-typedef Dartnative_menu_item_id_t = int;
-
-/// Menu item submenu opened event
-final class native_menu_item_submenu_opened_event_t extends ffi.Struct {
-  @native_menu_item_id_t()
-  external int item_id;
-}
-
-/// Menu item submenu closed event
-final class native_menu_item_submenu_closed_event_t extends ffi.Struct {
-  @native_menu_item_id_t()
-  external int item_id;
-}
-
-/// Menu item list structure
+/// Owning list of MenuItem handles.
 final class native_menu_item_list_t extends ffi.Struct {
-  external ffi.Pointer<native_menu_item_t> items;
+  external ffi.Pointer<native_menu_item_t> menu_items;
 
-  @ffi.Size()
+  @ffi.Long()
   external int count;
 }
 
-typedef native_menu_item_t = ffi.Pointer<ffi.Void>;
+/// Opaque MenuItem handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_MENU_ITEM rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_menu_item_t = ffi.Uint64;
+typedef Dartnative_menu_item_t = int;
 
-/// Menu opened event
-final class native_menu_opened_event_t extends ffi.Struct {
-  @native_menu_id_t()
-  external int menu_id;
-}
-
-/// Menu and menu item identifiers
-typedef native_menu_id_t = ffi.Long;
-typedef Dartnative_menu_id_t = int;
-
-/// Menu closed event
-final class native_menu_closed_event_t extends ffi.Struct {
-  @native_menu_id_t()
-  external int menu_id;
-}
-
-/// Event types for menu item events
-enum native_menu_item_event_type_t {
-  NATIVE_MENU_ITEM_EVENT_CLICKED(0),
-  NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED(1),
-  NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED(2);
-
-  final int value;
-  const native_menu_item_event_type_t(this.value);
-
-  static native_menu_item_event_type_t fromValue(int value) => switch (value) {
-    0 => NATIVE_MENU_ITEM_EVENT_CLICKED,
-    1 => NATIVE_MENU_ITEM_EVENT_SUBMENU_OPENED,
-    2 => NATIVE_MENU_ITEM_EVENT_SUBMENU_CLOSED,
-    _ => throw ArgumentError(
-      "Unknown value for native_menu_item_event_type_t: $value",
-    ),
-  };
-}
-
-/// Event types for menu events
+/// Which concrete MenuEvent arrived.
 enum native_menu_event_type_t {
-  NATIVE_MENU_EVENT_OPENED(0),
-  NATIVE_MENU_EVENT_CLOSED(1);
+  NATIVE_MENU_EVENT_TYPE_OPENED(0),
+  NATIVE_MENU_EVENT_TYPE_CLOSED(1),
+  NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED(2),
+  NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_OPENED(3),
+  NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_CLOSED(4);
 
   final int value;
   const native_menu_event_type_t(this.value);
 
   static native_menu_event_type_t fromValue(int value) => switch (value) {
-    0 => NATIVE_MENU_EVENT_OPENED,
-    1 => NATIVE_MENU_EVENT_CLOSED,
+    0 => NATIVE_MENU_EVENT_TYPE_OPENED,
+    1 => NATIVE_MENU_EVENT_TYPE_CLOSED,
+    2 => NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED,
+    3 => NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_OPENED,
+    4 => NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_CLOSED,
     _ => throw ArgumentError(
       "Unknown value for native_menu_event_type_t: $value",
     ),
   };
 }
 
-/// Opaque handles for menu objects
-typedef native_menu_t = ffi.Pointer<ffi.Void>;
+/// One MenuEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_menu_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
 
-/// Event listener registration function types
-typedef native_menu_item_event_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_menu_item_event_callback_tFunction>>;
-typedef native_menu_item_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<ffi.Void> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_menu_item_event_callback_tFunction =
-    void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+  external UnnamedUnion3 data;
+}
+
+final class UnnamedUnion3 extends ffi.Union {
+  external UnnamedStruct4 opened;
+
+  external UnnamedStruct5 closed;
+
+  external UnnamedStruct6 item_clicked;
+
+  external UnnamedStruct7 item_submenu_opened;
+
+  external UnnamedStruct8 item_submenu_closed;
+}
+
+final class UnnamedStruct4 extends ffi.Struct {
+  @native_menu_id_t()
+  external int menu_id;
+}
+
+typedef native_menu_id_t = ffi.UnsignedInt;
+typedef Dartnative_menu_id_t = int;
+
+final class UnnamedStruct5 extends ffi.Struct {
+  @native_menu_id_t()
+  external int menu_id;
+}
+
+final class UnnamedStruct6 extends ffi.Struct {
+  @native_menu_item_id_t()
+  external int item_id;
+}
+
+typedef native_menu_item_id_t = ffi.UnsignedInt;
+typedef Dartnative_menu_item_id_t = int;
+
+final class UnnamedStruct7 extends ffi.Struct {
+  @native_menu_item_id_t()
+  external int item_id;
+}
+
+final class UnnamedStruct8 extends ffi.Struct {
+  @native_menu_item_id_t()
+  external int item_id;
+}
+
+/// Opaque Menu handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_MENU rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_menu_t = ffi.Uint64;
+typedef Dartnative_menu_t = int;
+
+/// Identifies one registered event listener.
+typedef native_listener_id_t = ffi.Uint64;
+typedef Dartnative_listener_id_t = int;
 typedef native_menu_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_menu_event_callback_tFunction>>;
-typedef native_menu_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<ffi.Void> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_menu_event_callback_tFunction =
-    void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
+typedef native_menu_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_menu_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_menu_event_callback_tFunction = void Function(
+  ffi.Pointer<native_menu_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
-/// Dialog modality types
+enum native_brightness_t {
+  NATIVE_BRIGHTNESS_SYSTEM(0),
+  NATIVE_BRIGHTNESS_LIGHT(1),
+  NATIVE_BRIGHTNESS_DARK(2);
+
+  final int value;
+  const native_brightness_t(this.value);
+
+  static native_brightness_t fromValue(int value) => switch (value) {
+    0 => NATIVE_BRIGHTNESS_SYSTEM,
+    1 => NATIVE_BRIGHTNESS_LIGHT,
+    2 => NATIVE_BRIGHTNESS_DARK,
+    _ => throw ArgumentError("Unknown value for native_brightness_t: $value"),
+  };
+}
+
+/// Which concrete ApplicationEvent arrived.
+enum native_application_event_type_t {
+  NATIVE_APPLICATION_EVENT_TYPE_STARTED(0),
+  NATIVE_APPLICATION_EVENT_TYPE_EXITING(1),
+  NATIVE_APPLICATION_EVENT_TYPE_ACTIVATED(2),
+  NATIVE_APPLICATION_EVENT_TYPE_DEACTIVATED(3),
+  NATIVE_APPLICATION_EVENT_TYPE_QUIT_REQUESTED(4);
+
+  final int value;
+  const native_application_event_type_t(this.value);
+
+  static native_application_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_APPLICATION_EVENT_TYPE_STARTED,
+        1 => NATIVE_APPLICATION_EVENT_TYPE_EXITING,
+        2 => NATIVE_APPLICATION_EVENT_TYPE_ACTIVATED,
+        3 => NATIVE_APPLICATION_EVENT_TYPE_DEACTIVATED,
+        4 => NATIVE_APPLICATION_EVENT_TYPE_QUIT_REQUESTED,
+        _ => throw ArgumentError(
+          "Unknown value for native_application_event_type_t: $value",
+        ),
+      };
+}
+
+/// One ApplicationEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_application_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  external UnnamedUnion4 data;
+}
+
+final class UnnamedUnion4 extends ffi.Union {
+  external UnnamedStruct9 exiting;
+}
+
+final class UnnamedStruct9 extends ffi.Struct {
+  @ffi.Int()
+  external int exit_code;
+}
+
+typedef native_application_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_application_event_callback_tFunction>
+    >;
+typedef native_application_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_application_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_application_event_callback_tFunction = void Function(
+  ffi.Pointer<native_application_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
 enum native_dialog_modality_t {
   NATIVE_DIALOG_MODALITY_NONE(0),
   NATIVE_DIALOG_MODALITY_APPLICATION(1),
@@ -5334,16 +6838,433 @@ enum native_dialog_modality_t {
   };
 }
 
-/// Opaque handle for message dialog objects
-typedef native_message_dialog_t = ffi.Pointer<ffi.Void>;
+enum native_display_orientation_t {
+  NATIVE_DISPLAY_ORIENTATION_PORTRAIT(0),
+  NATIVE_DISPLAY_ORIENTATION_LANDSCAPE(90),
+  NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED(180),
+  NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED(270);
 
-/// Opaque handle type
-typedef native_preferences_t = ffi.Pointer<ffi.Void>;
+  final int value;
+  const native_display_orientation_t(this.value);
 
-/// Opaque handle type
-typedef native_secure_storage_t = ffi.Pointer<ffi.Void>;
+  static native_display_orientation_t fromValue(int value) => switch (value) {
+    0 => NATIVE_DISPLAY_ORIENTATION_PORTRAIT,
+    90 => NATIVE_DISPLAY_ORIENTATION_LANDSCAPE,
+    180 => NATIVE_DISPLAY_ORIENTATION_PORTRAIT_FLIPPED,
+    270 => NATIVE_DISPLAY_ORIENTATION_LANDSCAPE_FLIPPED,
+    _ => throw ArgumentError(
+      "Unknown value for native_display_orientation_t: $value",
+    ),
+  };
+}
 
-/// Shortcut scope enumeration
+/// Owning list of Display handles.
+final class native_display_list_t extends ffi.Struct {
+  external ffi.Pointer<native_display_t> displays;
+
+  @ffi.Long()
+  external int count;
+}
+
+/// Opaque Display handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_DISPLAY rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_display_t = ffi.Uint64;
+typedef Dartnative_display_t = int;
+
+/// Which concrete DisplayEvent arrived.
+enum native_display_event_type_t {
+  NATIVE_DISPLAY_EVENT_TYPE_ADDED(0),
+  NATIVE_DISPLAY_EVENT_TYPE_REMOVED(1),
+  NATIVE_DISPLAY_EVENT_TYPE_CHANGED(2);
+
+  final int value;
+  const native_display_event_type_t(this.value);
+
+  static native_display_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_DISPLAY_EVENT_TYPE_ADDED,
+    1 => NATIVE_DISPLAY_EVENT_TYPE_REMOVED,
+    2 => NATIVE_DISPLAY_EVENT_TYPE_CHANGED,
+    _ => throw ArgumentError(
+      "Unknown value for native_display_event_type_t: $value",
+    ),
+  };
+}
+
+/// One DisplayEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_display_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_display_t()
+  external int display;
+}
+
+typedef native_display_id_t = ffi.UnsignedInt;
+typedef Dartnative_display_id_t = int;
+typedef native_display_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_display_event_callback_tFunction>>;
+typedef native_display_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_display_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_display_event_callback_tFunction = void Function(
+  ffi.Pointer<native_display_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+/// An owning list of strings.
+///
+/// Free with native_string_list_free(); it releases every item and the array.
+final class native_string_list_t extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<ffi.Char>> items;
+
+  @ffi.Long()
+  external int count;
+}
+
+/// An owning list of string key/value pairs. `keys[i]` corresponds to
+/// `values[i]`.
+///
+/// Free with native_string_map_free(); it releases every entry and the arrays.
+final class native_string_map_t extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<ffi.Char>> keys;
+
+  external ffi.Pointer<ffi.Pointer<ffi.Char>> values;
+
+  @ffi.Long()
+  external int count;
+}
+
+enum native_drag_operation_t {
+  NATIVE_DRAG_OPERATION_NONE(0),
+  NATIVE_DRAG_OPERATION_COPY(1),
+  NATIVE_DRAG_OPERATION_MOVE(2),
+  NATIVE_DRAG_OPERATION_LINK(3);
+
+  final int value;
+  const native_drag_operation_t(this.value);
+
+  static native_drag_operation_t fromValue(int value) => switch (value) {
+    0 => NATIVE_DRAG_OPERATION_NONE,
+    1 => NATIVE_DRAG_OPERATION_COPY,
+    2 => NATIVE_DRAG_OPERATION_MOVE,
+    3 => NATIVE_DRAG_OPERATION_LINK,
+    _ => throw ArgumentError(
+      "Unknown value for native_drag_operation_t: $value",
+    ),
+  };
+}
+
+/// Which concrete DragSourceEvent arrived.
+enum native_drag_source_event_type_t {
+  NATIVE_DRAG_SOURCE_EVENT_TYPE_ENDED(0);
+
+  final int value;
+  const native_drag_source_event_type_t(this.value);
+
+  static native_drag_source_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_DRAG_SOURCE_EVENT_TYPE_ENDED,
+        _ => throw ArgumentError(
+          "Unknown value for native_drag_source_event_type_t: $value",
+        ),
+      };
+}
+
+/// One DragSourceEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_drag_source_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external native_point_t position;
+
+  external UnnamedUnion5 data;
+}
+
+final class UnnamedUnion5 extends ffi.Union {
+  external UnnamedStruct10 ended;
+}
+
+final class UnnamedStruct10 extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int operation;
+}
+
+/// Opaque DragSource handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_DRAG_SOURCE rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_drag_source_t = ffi.Uint64;
+typedef Dartnative_drag_source_t = int;
+typedef native_drag_source_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_drag_source_event_callback_tFunction>
+    >;
+typedef native_drag_source_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_drag_source_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_drag_source_event_callback_tFunction = void Function(
+  ffi.Pointer<native_drag_source_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+/// Which concrete DropTargetEvent arrived.
+enum native_drop_target_event_type_t {
+  NATIVE_DROP_TARGET_EVENT_TYPE_ENTERED(0),
+  NATIVE_DROP_TARGET_EVENT_TYPE_MOVED(1),
+  NATIVE_DROP_TARGET_EVENT_TYPE_EXITED(2),
+  NATIVE_DROP_TARGET_EVENT_TYPE_DROPPED(3);
+
+  final int value;
+  const native_drop_target_event_type_t(this.value);
+
+  static native_drop_target_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_DROP_TARGET_EVENT_TYPE_ENTERED,
+        1 => NATIVE_DROP_TARGET_EVENT_TYPE_MOVED,
+        2 => NATIVE_DROP_TARGET_EVENT_TYPE_EXITED,
+        3 => NATIVE_DROP_TARGET_EVENT_TYPE_DROPPED,
+        _ => throw ArgumentError(
+          "Unknown value for native_drop_target_event_type_t: $value",
+        ),
+      };
+}
+
+/// One DropTargetEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_drop_target_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  @native_window_id_t()
+  external int window_id;
+
+  external native_point_t position;
+
+  external UnnamedUnion6 data;
+}
+
+final class UnnamedUnion6 extends ffi.Union {
+  external UnnamedStruct11 dropped;
+}
+
+final class UnnamedStruct11 extends ffi.Struct {
+  external native_string_list_t file_paths;
+
+  external ffi.Pointer<ffi.Char> text;
+}
+
+/// Opaque DropTarget handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_DROP_TARGET rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_drop_target_t = ffi.Uint64;
+typedef Dartnative_drop_target_t = int;
+typedef native_drop_target_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_drop_target_event_callback_tFunction>
+    >;
+typedef native_drop_target_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_drop_target_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_drop_target_event_callback_tFunction = void Function(
+  ffi.Pointer<native_drop_target_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+enum native_file_dialog_mode_t {
+  NATIVE_FILE_DIALOG_MODE_OPEN_FILE(0),
+  NATIVE_FILE_DIALOG_MODE_OPEN_FILES(1),
+  NATIVE_FILE_DIALOG_MODE_SAVE_FILE(2),
+  NATIVE_FILE_DIALOG_MODE_SELECT_FOLDER(3);
+
+  final int value;
+  const native_file_dialog_mode_t(this.value);
+
+  static native_file_dialog_mode_t fromValue(int value) => switch (value) {
+    0 => NATIVE_FILE_DIALOG_MODE_OPEN_FILE,
+    1 => NATIVE_FILE_DIALOG_MODE_OPEN_FILES,
+    2 => NATIVE_FILE_DIALOG_MODE_SAVE_FILE,
+    3 => NATIVE_FILE_DIALOG_MODE_SELECT_FOLDER,
+    _ => throw ArgumentError(
+      "Unknown value for native_file_dialog_mode_t: $value",
+    ),
+  };
+}
+
+enum native_file_dialog_result_t {
+  NATIVE_FILE_DIALOG_RESULT_NONE(0),
+  NATIVE_FILE_DIALOG_RESULT_ACCEPTED(1),
+  NATIVE_FILE_DIALOG_RESULT_CANCELLED(2),
+  NATIVE_FILE_DIALOG_RESULT_FAILED(3);
+
+  final int value;
+  const native_file_dialog_result_t(this.value);
+
+  static native_file_dialog_result_t fromValue(int value) => switch (value) {
+    0 => NATIVE_FILE_DIALOG_RESULT_NONE,
+    1 => NATIVE_FILE_DIALOG_RESULT_ACCEPTED,
+    2 => NATIVE_FILE_DIALOG_RESULT_CANCELLED,
+    3 => NATIVE_FILE_DIALOG_RESULT_FAILED,
+    _ => throw ArgumentError(
+      "Unknown value for native_file_dialog_result_t: $value",
+    ),
+  };
+}
+
+/// Opaque FileDialog handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_FILE_DIALOG rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_file_dialog_t = ffi.Uint64;
+typedef Dartnative_file_dialog_t = int;
+
+/// Opaque KeyboardMonitor handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_KEYBOARD_MONITOR rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_keyboard_monitor_t = ffi.Uint64;
+typedef Dartnative_keyboard_monitor_t = int;
+typedef native_keyboard_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_keyboard_event_callback_tFunction>>;
+typedef native_keyboard_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_keyboard_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_keyboard_event_callback_tFunction = void Function(
+  ffi.Pointer<native_keyboard_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+/// Opaque LaunchAtLogin handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_LAUNCH_AT_LOGIN rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_launch_at_login_t = ffi.Uint64;
+typedef Dartnative_launch_at_login_t = int;
+
+enum native_message_dialog_result_t {
+  NATIVE_MESSAGE_DIALOG_RESULT_NONE(0),
+  NATIVE_MESSAGE_DIALOG_RESULT_PRIMARY(1),
+  NATIVE_MESSAGE_DIALOG_RESULT_SECONDARY(2),
+  NATIVE_MESSAGE_DIALOG_RESULT_CLOSE(3);
+
+  final int value;
+  const native_message_dialog_result_t(this.value);
+
+  static native_message_dialog_result_t fromValue(int value) => switch (value) {
+    0 => NATIVE_MESSAGE_DIALOG_RESULT_NONE,
+    1 => NATIVE_MESSAGE_DIALOG_RESULT_PRIMARY,
+    2 => NATIVE_MESSAGE_DIALOG_RESULT_SECONDARY,
+    3 => NATIVE_MESSAGE_DIALOG_RESULT_CLOSE,
+    _ => throw ArgumentError(
+      "Unknown value for native_message_dialog_result_t: $value",
+    ),
+  };
+}
+
+/// Opaque MessageDialog handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_MESSAGE_DIALOG rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_message_dialog_t = ffi.Uint64;
+typedef Dartnative_message_dialog_t = int;
+
+/// Which concrete NotificationEvent arrived.
+enum native_notification_event_type_t {
+  NATIVE_NOTIFICATION_EVENT_TYPE_ACTIVATED(0);
+
+  final int value;
+  const native_notification_event_type_t(this.value);
+
+  static native_notification_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_NOTIFICATION_EVENT_TYPE_ACTIVATED,
+        _ => throw ArgumentError(
+          "Unknown value for native_notification_event_type_t: $value",
+        ),
+      };
+}
+
+/// One NotificationEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_notification_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  external UnnamedUnion7 data;
+}
+
+final class UnnamedUnion7 extends ffi.Union {
+  external UnnamedStruct12 activated;
+}
+
+final class UnnamedStruct12 extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> argument;
+}
+
+typedef native_notification_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_notification_event_callback_tFunction>
+    >;
+typedef native_notification_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_notification_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_notification_event_callback_tFunction = void Function(
+  ffi.Pointer<native_notification_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+/// Opaque Preferences handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_PREFERENCES rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_preferences_t = ffi.Uint64;
+typedef Dartnative_preferences_t = int;
+
+/// Opaque SecureStorage handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_SECURE_STORAGE rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_secure_storage_t = ffi.Uint64;
+typedef Dartnative_secure_storage_t = int;
+
 enum native_shortcut_scope_t {
   NATIVE_SHORTCUT_SCOPE_GLOBAL(0),
   NATIVE_SHORTCUT_SCOPE_APPLICATION(1);
@@ -5360,9 +7281,12 @@ enum native_shortcut_scope_t {
   };
 }
 
-/// Shortcut options structure
 final class native_shortcut_options_t extends ffi.Struct {
   external ffi.Pointer<ffi.Char> accelerator;
+
+  external native_shortcut_options_callback_t callback;
+
+  external ffi.Pointer<ffi.Void> callback_user_data;
 
   external ffi.Pointer<ffi.Char> description;
 
@@ -5373,35 +7297,57 @@ final class native_shortcut_options_t extends ffi.Struct {
   external bool enabled;
 }
 
-/// Shortcut ID type
-typedef native_shortcut_id_t = ffi.Uint64;
-typedef Dartnative_shortcut_id_t = int;
+typedef native_shortcut_options_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_shortcut_options_callback_tFunction>>;
+typedef native_shortcut_options_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_options_callback_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
 
-/// Opaque handle to a Shortcut instance
-typedef native_shortcut_t = ffi.Pointer<ffi.Void>;
+/// Owning list of Shortcut handles.
+final class native_shortcut_list_t extends ffi.Struct {
+  external ffi.Pointer<native_shortcut_t> shortcuts;
 
-/// Shortcut event types
+  @ffi.Long()
+  external int count;
+}
+
+/// Opaque Shortcut handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_SHORTCUT rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_shortcut_t = ffi.Uint64;
+typedef Dartnative_shortcut_t = int;
+
+/// Which concrete ShortcutEvent arrived.
 enum native_shortcut_event_type_t {
-  NATIVE_SHORTCUT_EVENT_ACTIVATED(0),
-  NATIVE_SHORTCUT_EVENT_REGISTERED(1),
-  NATIVE_SHORTCUT_EVENT_UNREGISTERED(2),
-  NATIVE_SHORTCUT_EVENT_REGISTRATION_FAILED(3);
+  NATIVE_SHORTCUT_EVENT_TYPE_ACTIVATED(0),
+  NATIVE_SHORTCUT_EVENT_TYPE_REGISTERED(1),
+  NATIVE_SHORTCUT_EVENT_TYPE_UNREGISTERED(2),
+  NATIVE_SHORTCUT_EVENT_TYPE_REGISTRATION_FAILED(3);
 
   final int value;
   const native_shortcut_event_type_t(this.value);
 
   static native_shortcut_event_type_t fromValue(int value) => switch (value) {
-    0 => NATIVE_SHORTCUT_EVENT_ACTIVATED,
-    1 => NATIVE_SHORTCUT_EVENT_REGISTERED,
-    2 => NATIVE_SHORTCUT_EVENT_UNREGISTERED,
-    3 => NATIVE_SHORTCUT_EVENT_REGISTRATION_FAILED,
+    0 => NATIVE_SHORTCUT_EVENT_TYPE_ACTIVATED,
+    1 => NATIVE_SHORTCUT_EVENT_TYPE_REGISTERED,
+    2 => NATIVE_SHORTCUT_EVENT_TYPE_UNREGISTERED,
+    3 => NATIVE_SHORTCUT_EVENT_TYPE_REGISTRATION_FAILED,
     _ => throw ArgumentError(
       "Unknown value for native_shortcut_event_type_t: $value",
     ),
   };
 }
 
-/// Shortcut event structure
+/// One ShortcutEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
 final class native_shortcut_event_t extends ffi.Struct {
   @ffi.UnsignedInt()
   external int type;
@@ -5411,107 +7357,63 @@ final class native_shortcut_event_t extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> accelerator;
 
-  external UnnamedUnion1 data;
+  external UnnamedUnion8 data;
 }
 
-final class UnnamedUnion1 extends ffi.Union {
-  external UnnamedStruct1 registration_failed;
+typedef native_shortcut_id_t = ffi.UnsignedInt;
+typedef Dartnative_shortcut_id_t = int;
+
+final class UnnamedUnion8 extends ffi.Union {
+  external UnnamedStruct13 registration_failed;
 }
 
-final class UnnamedStruct1 extends ffi.Struct {
+final class UnnamedStruct13 extends ffi.Struct {
   external ffi.Pointer<ffi.Char> error_message;
 }
 
-/// Shortcut list structure
-final class native_shortcut_list_t extends ffi.Struct {
-  external ffi.Pointer<native_shortcut_t> shortcuts;
-
-  @ffi.Size()
-  external int count;
-}
-
-/// Shortcut callback function type
-typedef native_shortcut_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_shortcut_callback_tFunction>>;
-typedef native_shortcut_callback_tFunction =
-    ffi.Void Function(
-      native_shortcut_id_t shortcut_id,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_shortcut_callback_tFunction =
-    void Function(
-      Dartnative_shortcut_id_t shortcut_id,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-
-/// Shortcut event callback function type
+typedef native_shortcut_create_with_id_and_accelerator_and_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<
+        native_shortcut_create_with_id_and_accelerator_and_callback_tFunction
+      >
+    >;
+typedef native_shortcut_create_with_id_and_accelerator_and_callback_tFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
+typedef Dartnative_shortcut_create_with_id_and_accelerator_and_callback_tFunction =
+    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef native_shortcut_set_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_shortcut_set_callback_tFunction>>;
+typedef native_shortcut_set_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_set_callback_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef native_shortcut_manager_register_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_shortcut_manager_register_callback_tFunction>
+    >;
+typedef native_shortcut_manager_register_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_manager_register_callback_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
 typedef native_shortcut_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_shortcut_event_callback_tFunction>>;
-typedef native_shortcut_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_shortcut_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_shortcut_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_shortcut_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_shortcut_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_shortcut_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_shortcut_event_callback_tFunction = void Function(
+  ffi.Pointer<native_shortcut_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
-/// Tray icon clicked event
-final class native_tray_icon_clicked_event_t extends ffi.Struct {
-  @native_tray_icon_id_t()
-  external int tray_icon_id;
-}
-
-/// Tray icon identifier
-typedef native_tray_icon_id_t = ffi.Long;
-typedef Dartnative_tray_icon_id_t = int;
-
-/// Tray icon right-clicked event
-final class native_tray_icon_right_clicked_event_t extends ffi.Struct {
-  @native_tray_icon_id_t()
-  external int tray_icon_id;
-}
-
-/// Tray icon double-clicked event
-final class native_tray_icon_double_clicked_event_t extends ffi.Struct {
-  @native_tray_icon_id_t()
-  external int tray_icon_id;
-}
-
-/// Event types for tray icon events
-enum native_tray_icon_event_type_t {
-  NATIVE_TRAY_ICON_EVENT_CLICKED(0),
-  NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED(1),
-  NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED(2);
-
-  final int value;
-  const native_tray_icon_event_type_t(this.value);
-
-  static native_tray_icon_event_type_t fromValue(int value) => switch (value) {
-    0 => NATIVE_TRAY_ICON_EVENT_CLICKED,
-    1 => NATIVE_TRAY_ICON_EVENT_RIGHT_CLICKED,
-    2 => NATIVE_TRAY_ICON_EVENT_DOUBLE_CLICKED,
-    _ => throw ArgumentError(
-      "Unknown value for native_tray_icon_event_type_t: $value",
-    ),
-  };
-}
-
-/// Context menu trigger modes
-/// Defines how the context menu is triggered for a tray icon
 enum native_context_menu_trigger_t {
-  /// Manual control only
   NATIVE_CONTEXT_MENU_TRIGGER_NONE(0),
-
-  /// Left click triggers menu
   NATIVE_CONTEXT_MENU_TRIGGER_CLICKED(1),
-
-  /// Right click triggers menu
   NATIVE_CONTEXT_MENU_TRIGGER_RIGHT_CLICKED(2),
-
-  /// Double click triggers menu
   NATIVE_CONTEXT_MENU_TRIGGER_DOUBLE_CLICKED(3);
 
   final int value;
@@ -5528,117 +7430,261 @@ enum native_context_menu_trigger_t {
   };
 }
 
-/// Opaque handle for tray icon objects
-typedef native_tray_icon_t = ffi.Pointer<ffi.Void>;
-
-/// Event callback function type
-typedef native_tray_icon_event_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_tray_icon_event_callback_tFunction>>;
-typedef native_tray_icon_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<ffi.Void> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_tray_icon_event_callback_tFunction =
-    void Function(ffi.Pointer<ffi.Void> event, ffi.Pointer<ffi.Void> user_data);
-
-/// Tray icon list structure
-final class native_tray_icon_list_t extends ffi.Struct {
-  external ffi.Pointer<native_tray_icon_t> tray_icons;
-
-  @ffi.Size()
-  external int count;
-}
-
-/// Window event types
-enum native_window_event_type_t {
-  NATIVE_WINDOW_EVENT_FOCUSED(0),
-  NATIVE_WINDOW_EVENT_BLURRED(1),
-  NATIVE_WINDOW_EVENT_MINIMIZED(2),
-  NATIVE_WINDOW_EVENT_MAXIMIZED(3),
-  NATIVE_WINDOW_EVENT_RESTORED(4),
-  NATIVE_WINDOW_EVENT_MOVED(5),
-  NATIVE_WINDOW_EVENT_RESIZED(6);
+enum native_tray_icon_position_t {
+  NATIVE_TRAY_ICON_POSITION_LEFT(0),
+  NATIVE_TRAY_ICON_POSITION_RIGHT(1);
 
   final int value;
-  const native_window_event_type_t(this.value);
+  const native_tray_icon_position_t(this.value);
 
-  static native_window_event_type_t fromValue(int value) => switch (value) {
-    0 => NATIVE_WINDOW_EVENT_FOCUSED,
-    1 => NATIVE_WINDOW_EVENT_BLURRED,
-    2 => NATIVE_WINDOW_EVENT_MINIMIZED,
-    3 => NATIVE_WINDOW_EVENT_MAXIMIZED,
-    4 => NATIVE_WINDOW_EVENT_RESTORED,
-    5 => NATIVE_WINDOW_EVENT_MOVED,
-    6 => NATIVE_WINDOW_EVENT_RESIZED,
+  static native_tray_icon_position_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TRAY_ICON_POSITION_LEFT,
+    1 => NATIVE_TRAY_ICON_POSITION_RIGHT,
     _ => throw ArgumentError(
-      "Unknown value for native_window_event_type_t: $value",
+      "Unknown value for native_tray_icon_position_t: $value",
     ),
   };
 }
 
-/// Window event structure
-final class native_window_event_t extends ffi.Struct {
+/// Owning list of TrayIcon handles.
+final class native_tray_icon_list_t extends ffi.Struct {
+  external ffi.Pointer<native_tray_icon_t> tray_icons;
+
+  @ffi.Long()
+  external int count;
+}
+
+/// Opaque TrayIcon handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_TRAY_ICON rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_tray_icon_t = ffi.Uint64;
+typedef Dartnative_tray_icon_t = int;
+
+/// Which concrete TrayIconEvent arrived.
+enum native_tray_icon_event_type_t {
+  NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED(0),
+  NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED(1),
+  NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED(2);
+
+  final int value;
+  const native_tray_icon_event_type_t(this.value);
+
+  static native_tray_icon_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED,
+    1 => NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED,
+    2 => NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED,
+    _ => throw ArgumentError(
+      "Unknown value for native_tray_icon_event_type_t: $value",
+    ),
+  };
+}
+
+/// One TrayIconEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_tray_icon_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int type;
+
+  external UnnamedUnion9 data;
+}
+
+final class UnnamedUnion9 extends ffi.Union {
+  external UnnamedStruct14 clicked;
+
+  external UnnamedStruct15 right_clicked;
+
+  external UnnamedStruct16 double_clicked;
+}
+
+final class UnnamedStruct14 extends ffi.Struct {
+  @native_tray_icon_id_t()
+  external int tray_icon_id;
+}
+
+typedef native_tray_icon_id_t = ffi.UnsignedInt;
+typedef Dartnative_tray_icon_id_t = int;
+
+final class UnnamedStruct15 extends ffi.Struct {
+  @native_tray_icon_id_t()
+  external int tray_icon_id;
+}
+
+final class UnnamedStruct16 extends ffi.Struct {
+  @native_tray_icon_id_t()
+  external int tray_icon_id;
+}
+
+typedef native_tray_icon_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_tray_icon_event_callback_tFunction>>;
+typedef native_tray_icon_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_tray_icon_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_tray_icon_event_callback_tFunction = void Function(
+  ffi.Pointer<native_tray_icon_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+enum native_url_open_error_code_t {
+  NATIVE_URL_OPEN_ERROR_CODE_NONE(0),
+  NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_EMPTY(1),
+  NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_MISSING_SCHEME(2),
+  NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_UNSUPPORTED_SCHEME(3),
+  NATIVE_URL_OPEN_ERROR_CODE_UNSUPPORTED_PLATFORM(4),
+  NATIVE_URL_OPEN_ERROR_CODE_INVOCATION_FAILED(5);
+
+  final int value;
+  const native_url_open_error_code_t(this.value);
+
+  static native_url_open_error_code_t fromValue(int value) => switch (value) {
+    0 => NATIVE_URL_OPEN_ERROR_CODE_NONE,
+    1 => NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_EMPTY,
+    2 => NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_MISSING_SCHEME,
+    3 => NATIVE_URL_OPEN_ERROR_CODE_INVALID_URL_UNSUPPORTED_SCHEME,
+    4 => NATIVE_URL_OPEN_ERROR_CODE_UNSUPPORTED_PLATFORM,
+    5 => NATIVE_URL_OPEN_ERROR_CODE_INVOCATION_FAILED,
+    _ => throw ArgumentError(
+      "Unknown value for native_url_open_error_code_t: $value",
+    ),
+  };
+}
+
+final class native_url_open_result_t extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.UnsignedInt()
+  external int error_code;
+
+  external ffi.Pointer<ffi.Char> error_message;
+}
+
+/// Which concrete WindowDragEvent arrived.
+enum native_window_drag_event_type_t {
+  NATIVE_WINDOW_DRAG_EVENT_TYPE_MOVED(0),
+  NATIVE_WINDOW_DRAG_EVENT_TYPE_ENDED(1),
+  NATIVE_WINDOW_DRAG_EVENT_TYPE_CANCELLED(2);
+
+  final int value;
+  const native_window_drag_event_type_t(this.value);
+
+  static native_window_drag_event_type_t fromValue(int value) =>
+      switch (value) {
+        0 => NATIVE_WINDOW_DRAG_EVENT_TYPE_MOVED,
+        1 => NATIVE_WINDOW_DRAG_EVENT_TYPE_ENDED,
+        2 => NATIVE_WINDOW_DRAG_EVENT_TYPE_CANCELLED,
+        _ => throw ArgumentError(
+          "Unknown value for native_window_drag_event_type_t: $value",
+        ),
+      };
+}
+
+/// One WindowDragEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_window_drag_event_t extends ffi.Struct {
   @ffi.UnsignedInt()
   external int type;
 
   @native_window_id_t()
   external int window_id;
 
-  external UnnamedUnion2 data;
+  external native_point_t cursor_position;
 }
 
-final class UnnamedUnion2 extends ffi.Union {
-  external UnnamedStruct2 moved;
-
-  external UnnamedStruct3 resized;
-}
-
-final class UnnamedStruct2 extends ffi.Struct {
-  external native_point_t position;
-}
-
-final class UnnamedStruct3 extends ffi.Struct {
-  external native_size_t size;
-}
-
-/// Window event callback function type
+/// Opaque WindowDragSession handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_WINDOW_DRAG_SESSION rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_window_drag_session_t = ffi.Uint64;
+typedef Dartnative_window_drag_session_t = int;
+typedef native_window_drag_event_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<native_window_drag_event_callback_tFunction>
+    >;
+typedef native_window_drag_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_window_drag_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_window_drag_event_callback_tFunction = void Function(
+  ffi.Pointer<native_window_drag_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef native_window_manager_set_will_show_hook_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<
+        native_window_manager_set_will_show_hook_callback_tFunction
+      >
+    >;
+typedef native_window_manager_set_will_show_hook_callback_tFunction =
+    ffi.Void Function(ffi.UnsignedInt arg0, ffi.Pointer<ffi.Void> user_data);
+typedef Dartnative_window_manager_set_will_show_hook_callback_tFunction =
+    void Function(int arg0, ffi.Pointer<ffi.Void> user_data);
+typedef native_window_manager_set_will_hide_hook_callback_t =
+    ffi.Pointer<
+      ffi.NativeFunction<
+        native_window_manager_set_will_hide_hook_callback_tFunction
+      >
+    >;
+typedef native_window_manager_set_will_hide_hook_callback_tFunction =
+    ffi.Void Function(ffi.UnsignedInt arg0, ffi.Pointer<ffi.Void> user_data);
+typedef Dartnative_window_manager_set_will_hide_hook_callback_tFunction =
+    void Function(int arg0, ffi.Pointer<ffi.Void> user_data);
 typedef native_window_event_callback_t =
     ffi.Pointer<ffi.NativeFunction<native_window_event_callback_tFunction>>;
-typedef native_window_event_callback_tFunction =
-    ffi.Void Function(
-      ffi.Pointer<native_window_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_window_event_callback_tFunction =
-    void Function(
-      ffi.Pointer<native_window_event_t> event,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+typedef native_window_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_window_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_window_event_callback_tFunction = void Function(
+  ffi.Pointer<native_window_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
 
-/// Hooks called BEFORE a native window is shown/hidden.
-/// Passing NULL clears the corresponding hook.
-typedef native_window_will_show_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_window_will_show_callback_tFunction>>;
-typedef native_window_will_show_callback_tFunction =
-    ffi.Void Function(
-      native_window_id_t window_id,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_window_will_show_callback_tFunction =
-    void Function(
-      Dartnative_window_id_t window_id,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef native_window_will_hide_callback_t =
-    ffi.Pointer<ffi.NativeFunction<native_window_will_hide_callback_tFunction>>;
-typedef native_window_will_hide_callback_tFunction =
-    ffi.Void Function(
-      native_window_id_t window_id,
-      ffi.Pointer<ffi.Void> user_data,
-    );
-typedef Dartnative_window_will_hide_callback_tFunction =
-    void Function(
-      Dartnative_window_id_t window_id,
-      ffi.Pointer<ffi.Void> user_data,
-    );
+const int NATIVE_INVALID_LISTENER_ID = 0;
+
+const int NATIVE_INVALID_IMAGE = 0;
+
+const int NATIVE_INVALID_WINDOW_SHADOW = 0;
+
+const int NATIVE_INVALID_WINDOW_SHAPE = 0;
+
+const int NATIVE_INVALID_WINDOW = 0;
+
+const int NATIVE_INVALID_POSITIONING_STRATEGY = 0;
+
+const int NATIVE_INVALID_MENU_ITEM = 0;
+
+const int NATIVE_INVALID_MENU = 0;
+
+const int NATIVE_INVALID_DISPLAY = 0;
+
+const int NATIVE_INVALID_DRAG_SOURCE = 0;
+
+const int NATIVE_INVALID_DROP_TARGET = 0;
+
+const int NATIVE_INVALID_FILE_DIALOG = 0;
+
+const int NATIVE_INVALID_KEYBOARD_MONITOR = 0;
+
+const int NATIVE_INVALID_LAUNCH_AT_LOGIN = 0;
+
+const int NATIVE_INVALID_MESSAGE_DIALOG = 0;
+
+const int NATIVE_INVALID_PREFERENCES = 0;
+
+const int NATIVE_INVALID_SECURE_STORAGE = 0;
+
+const int NATIVE_INVALID_SHORTCUT = 0;
+
+const int NATIVE_INVALID_TRAY_ICON = 0;
+
+const int NATIVE_INVALID_WINDOW_DRAG_SESSION = 0;
