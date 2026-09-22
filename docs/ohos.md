@@ -2,7 +2,10 @@
 
 `ohos-main` merges the Flutter binding's `main` API and keeps the OHOS plugin
 and application projects. The OHOS workspace contains `cnativeapi`, `nativeapi`,
-`packages/cnativeapi/example`, and `examples/display_example`.
+`packages/cnativeapi/example`, `packages/nativeapi/example`, and
+`examples/display_example`. The nativeapi example is included for Flutter
+workspace dependency discovery; the two projects with OHOS runners are the
+cnativeapi and display examples.
 
 ## SDK
 
