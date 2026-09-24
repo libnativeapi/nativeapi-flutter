@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "bindings/csharp/**"
+      - "examples/csharp_*/**"
       - ".github/workflows/csharp-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "bindings/csharp/**"
+      - "examples/csharp_*/**"
       - ".github/workflows/csharp-ci.yml"
   workflow_dispatch:
 

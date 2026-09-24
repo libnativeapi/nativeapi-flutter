@@ -280,7 +280,7 @@ function Invoke-Scenario($app, [string]$Backend) {
 }
 
 Assert-Idle
-$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\menu_example") -MinViews 1
+$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_menu_example") -MinViews 1
 try {
   $win = Get-Wins $app | ? { $_.Title -eq "menu_example" } | Select-Object -First 1
   $area = [System.Windows.Forms.Screen]::FromHandle([IntPtr]$win.Hwnd).WorkingArea
@@ -297,7 +297,7 @@ try {
   if ($winui) {
     # Restart for a clean menu state, then switch the backend.
     Stop-GuiApp $app | Out-Null
-    $app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\menu_example") -MinViews 1
+    $app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_menu_example") -MinViews 1
     $win = Get-Wins $app | ? { $_.Title -eq "menu_example" } | Select-Object -First 1
     [WInput]::SetBounds($win.Hwnd, $area.Left + 10, $area.Top + 10, [int](1100 * $win.Scale), $height)
     Pause 1

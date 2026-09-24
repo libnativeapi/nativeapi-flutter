@@ -32,8 +32,8 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `flutter_tray_icon_demo.py` | `tray_icon_example` | macOS | the tray demo video: the example moves its window next to its tray icon ("Window to icon") so the real icon and the magnified preview are in one picture; gallery, widget capture, 10 → 60 fps, Pause / Step, scenes, three icons at once, menu opened and closed from code, checklist |
 | `flutter_window_shape_demo.py` / `.ps1` / `_linux.py` | `shaped_window_example` | macOS / Windows / Linux | the shape demo video: every one of the twelve gallery silhouettes once, left to right / top to bottom, then the five contour-shadow presets (None, Soft, Float, Sharp, Glow); ends held on the last silhouette with its shadow. The recorder starts after the app is up and arranged, so the take opens on the app. `DEMO_DRY_RUN=1` (or `-DryRun`) on Windows, and no `--record` on macOS, play it without recording; `--only shapes|shadow` runs one scene. Linux: the app must be a **Wayland client** (the GNOME/Xwayland path dies with a multi-window GLX `BadAccess`), so the windows cannot be measured through Xlib — the scenario locates them in a captured frame instead, drives the pointer from the probe's rects, and prints `RECORD_FRAMES <dir>` for the wrapper to pull and encode |
 
-`common.py` points the macOS scripts at the skills' harness and at
-`bindings/flutter/examples`. The Linux scripts import `guiapp` straight from the flat
+`common.py` points the macOS scripts at the skills' harness and at the Flutter examples
+(`examples/flutter_*`; the scripts name them without the prefix). The Linux scripts import `guiapp` straight from the flat
 kit the `remote-hosts` skill pushes, and find the example through `$REMOTE_SCRATCH`.
 
 ## Running
@@ -91,8 +91,8 @@ $R linux desktop tools/gui/flutter_window_shape_demo_linux.py 240   # dry run: n
 ```
 
 The shape demo runs against a debug build of the example in the host's scratch dir
-(`$REMOTE_SCRATCH/shape-flutter-linux/examples/shaped_window_example`, or `SHAPE_EXAMPLE_DIR`);
-put one there with `git archive <sha>:bindings/flutter | ssh <host> "mkdir -p ... && tar -x -C ..."`
+(`$REMOTE_SCRATCH/shape-flutter-linux/examples/flutter_shaped_window_example`, or `SHAPE_EXAMPLE_DIR`);
+put one there with `git archive <sha> pubspec.yaml bindings/flutter examples/flutter_shaped_window_example | ssh <host> "mkdir -p ... && tar -x -C ..."` (the example resolves through the root pub workspace, so all three paths are needed)
 when the host cannot reach its own remote, then `--build`. A host with **no monitor attached**
 cannot record it at all — see the Linux section of `record-demo/SKILL.md` and
 `remote-hosts/references/linux.md#no-display-attached`.
@@ -124,9 +124,9 @@ A Windows host encodes the MP4 itself (ffmpeg must be installed there);
 ## Naming
 
 `<binding>_<example>_test.<ext>` for tests and `<binding>_<what it shows>_demo.<ext>` for
-recording scenarios, where `<example>` is the example's directory name without its
-`_example` suffix (`flutter_…` for `bindings/flutter/examples`, `core_…` for
-`core/examples`); a test exists once per platform it runs on: `.py` runs on macOS,
+recording scenarios, where `<binding>_<example>` is the example's directory name under
+`examples/` without its `_example` suffix (`examples/flutter_menu_example` →
+`flutter_menu_test`), and `core_<example>` for the C++ examples in `core/examples`; a test exists once per platform it runs on: `.py` runs on macOS,
 `.ps1` on Windows, `…_linux.py` on Linux (both are Python, and names must be unique:
 remote hosts receive them in one flat directory).
 

@@ -14,7 +14,7 @@ Start-Result "$RemoteScratch\flutter_visual_effect_test.result.txt"
 Add-Type -AssemblyName System.Drawing
 
 $name = "visual_effect_example"
-$dirs = @("$RemoteScratch\ve-flutter\examples\$name", "$RemoteWorkspace\bindings\flutter\examples\$name")
+$dirs = @("$RemoteScratch\ve-flutter\examples\flutter_$name", "$RemoteWorkspace\examples\flutter_$name")
 $dir = $dirs | ? { Test-Path (Get-FlutterExe $_) } | Select-Object -First 1
 if (-not $dir) { throw "$name is not built in any of: $($dirs -join ', ')" }
 

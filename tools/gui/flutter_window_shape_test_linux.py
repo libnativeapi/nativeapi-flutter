@@ -19,7 +19,7 @@ from guiapp import flutter_executable
 from uiprobe import App
 
 scratch = Path(os.environ.get('REMOTE_SCRATCH', Path(__file__).parent))
-project = Path(os.environ.get('SHAPE_EXAMPLE_DIR', scratch / 'shape-flutter-linux/examples/shaped_window_example'))
+project = Path(os.environ.get('SHAPE_EXAMPLE_DIR', scratch / 'shape-flutter-linux/examples/flutter_shaped_window_example'))
 
 
 def preview_input_region(trace, *, history=False):

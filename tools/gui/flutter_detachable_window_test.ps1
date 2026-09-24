@@ -13,7 +13,7 @@ function Look($app) {
 }
 
 Assert-Idle
-$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\detachable_window_example") -MinViews 2
+$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_detachable_window_example") -MinViews 2
 try {
   $wa = Get-Win $app "*Window A"; $wb = Get-Win $app "*Window B"
   Invoke-Activate $app $wb; Invoke-Activate $app $wa

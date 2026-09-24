@@ -5,13 +5,13 @@ param(
   [switch]$BuildOnly
 )
 $ErrorActionPreference = 'Stop'
-$repo = (Resolve-Path "$PSScriptRoot/..").Path
+$repo = (Resolve-Path "$PSScriptRoot/..").Path  # bindings/flutter; examples are in ../../examples
 $core = Join-Path $repo 'packages/cnativeapi/cxx_impl'
 $paths = @{
   desktop = 'packages/nativeapi/example'
-  window = 'examples/window_example'
-  menu = 'examples/menu_example'
-  tray = 'examples/tray_icon_example'
+  window = '../../examples/flutter_window_example'
+  menu = '../../examples/flutter_menu_example'
+  tray = '../../examples/flutter_tray_icon_example'
 }
 $names = @('NATIVEAPI_ENABLE_WINUI3', 'NATIVEAPI_WINAPPSDK_DIR',
            'NATIVEAPI_CPPWINRT_EXE', 'NATIVEAPI_WEBVIEW2_DIR')

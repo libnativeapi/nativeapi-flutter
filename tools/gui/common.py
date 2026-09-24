@@ -6,7 +6,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 WORKSPACE = os.path.dirname(os.path.dirname(HERE))
 SKILLS = os.path.join(WORKSPACE, '.agents', 'skills')
-EXAMPLES = os.path.join(WORKSPACE, 'bindings', 'flutter', 'examples')
+EXAMPLES = os.path.join(WORKSPACE, 'examples')
 OUTPUT = os.path.join(HERE, 'output')  # recordings; git-ignored
 CORE_BUILD = os.path.join(WORKSPACE, 'core', 'build')  # ignored by core's .gitignore
 sys.path.insert(0, os.path.join(SKILLS, 'gui-test', 'scripts', 'macos'))
@@ -20,12 +20,12 @@ from guiapp import GuiApp, build_flutter, flutter_executable  # noqa: E402
 
 
 def example(name, args=()):
-    """A GuiApp for a Flutter example of bindings/flutter."""
-    return GuiApp(flutter_executable(os.path.join(EXAMPLES, name)), args=args)
+    """A GuiApp for the Flutter example examples/flutter_<name>."""
+    return GuiApp(flutter_executable(os.path.join(EXAMPLES, 'flutter_' + name)), args=args)
 
 
 def build_example(name):
-    build_flutter(os.path.join(EXAMPLES, name))
+    build_flutter(os.path.join(EXAMPLES, 'flutter_' + name))
 
 
 

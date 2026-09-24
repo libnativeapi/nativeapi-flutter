@@ -22,7 +22,7 @@ function Scaled([int]$ms, [int]$min = 120) { [int][math]::Max($min, $ms * $Pace)
 function Beat([double]$s) { Pause ([math]::Max($s * $Pace, $(if ($s -ge 1) { 0.7 } else { 0.2 }))) }
 
 $example = "floating_toolbar_example"
-$dirs = @("$RemoteScratch\toolbar-flutter\examples\$example", "$RemoteWorkspace\bindings\flutter\examples\$example")
+$dirs = @("$RemoteScratch\toolbar-flutter\examples\flutter_$example", "$RemoteWorkspace\examples\flutter_$example")
 $dir = $dirs | ? { Test-Path (Get-FlutterExe $_) } | Select-Object -First 1
 if (-not $dir) { throw "$example is not built in any of: $($dirs -join ', ')" }
 

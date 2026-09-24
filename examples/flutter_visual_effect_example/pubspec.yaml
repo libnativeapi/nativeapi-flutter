@@ -1,0 +1,22 @@
+name: visual_effect_example
+description: "Translucent window materials with Window.setVisualEffect: a Flutter window that shows what is behind it."
+publish_to: "none"
+version: 1.0.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nativeapi:
+    path: ../../bindings/flutter/packages/nativeapi
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: false

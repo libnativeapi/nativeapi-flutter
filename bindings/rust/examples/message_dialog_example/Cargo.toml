@@ -1,7 +1,0 @@
-[package]
-name = "message_dialog_example"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-nativeapi = { path = "../../crates/nativeapi" }

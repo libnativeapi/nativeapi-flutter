@@ -303,7 +303,7 @@ def chips(view):
 
 def play(keep_open, only, output=None):
     project = Path(os.environ.get('SHAPE_EXAMPLE_DIR',
-                                  SCRATCH / 'shape-flutter-linux/examples/shaped_window_example'))
+                                  SCRATCH / 'shape-flutter-linux/examples/flutter_shaped_window_example'))
     app = PacedApp(flutter_executable(str(project)), backend='wayland')
     app.keep_open = keep_open
     # GuiApp's input session is created here, before the app launches: it owns the one
@@ -565,7 +565,7 @@ def main():
     PACE = args.pace
 
     project = Path(os.environ.get('SHAPE_EXAMPLE_DIR',
-                                  SCRATCH / 'shape-flutter-linux/examples/shaped_window_example'))
+                                  SCRATCH / 'shape-flutter-linux/examples/flutter_shaped_window_example'))
     if args.build:
         build_flutter(str(project))
     try:

@@ -107,9 +107,9 @@ Files without the banner are never overwritten, so they are also never updated:
 
 | Repo | Hand-written | When to touch it |
 |---|---|---|
-| `bindings/flutter` | `packages/nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, examples | new module → add the export; user-visible change → CHANGELOG entry |
-| `bindings/rust` | `crates/nativeapi/src/lib.rs`, examples | `modules.rs` is generated now, so a new module needs no manual `pub mod`; re-exports in `lib.rs` still do |
-| `bindings/csharp` | examples, tests | when a rename breaks them |
+| `bindings/flutter` | `packages/nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, `examples/flutter_*` | new module → add the export; user-visible change → CHANGELOG entry |
+| `bindings/rust` | `crates/nativeapi/src/lib.rs`, `examples/rust_*` | `modules.rs` is generated now, so a new module needs no manual `pub mod`; re-exports in `lib.rs` still do |
+| `bindings/csharp` | `examples/csharp_*`, tests | when a rename breaks them |
 | core | `examples/<module>_example/`, `<module>_c_example/` | new module or a behaviour worth demonstrating |
 
 A rename or removal in core breaks hand-written callers in these places — grep each
@@ -119,7 +119,7 @@ binding for the old name.
 
 ```bash
 ./codegen check                                         # generated files are current
-(cd bindings/rust && cargo check --workspace)
+cargo check --workspace                                 # Rust crates + examples (root workspace)
 (cd bindings/flutter/packages/nativeapi && dart analyze)
 (cd bindings/csharp && dotnet build NativeAPI.slnx)
 ```

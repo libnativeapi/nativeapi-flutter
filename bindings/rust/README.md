@@ -37,7 +37,7 @@ fn main() {
 
 ## Examples
 
-See [`examples/`](examples). Each directory is a crate covering one module:
+The examples are the `rust_*` directories in the repository's [`examples/`](../../examples), members of the cargo workspace at the repository root. Each is a crate covering one module:
 
 ```bash
 cargo run -p display_example

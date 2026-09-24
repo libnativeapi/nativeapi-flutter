@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/examples/">
-    <Project Path="examples/DisplayExample/DisplayExample.csproj" />
-    <Project Path="examples/PreferencesExample/PreferencesExample.csproj" />
+    <Project Path="../../examples/csharp_display_example/DisplayExample.csproj" />
+    <Project Path="../../examples/csharp_preferences_example/PreferencesExample.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/CNativeAPI/CNativeAPI.csproj" />

@@ -36,8 +36,8 @@ def example_dir():
     scratch = os.environ.get('REMOTE_SCRATCH', '')
     candidates = [
         os.environ.get('TOOLBAR_EXAMPLE_DIR', ''),
-        os.path.join(scratch, 'toolbar-flutter', 'examples', NAME) if scratch else '',
-        os.path.join(os.environ.get('REMOTE_WORKSPACE', ''), 'bindings', 'flutter', 'examples', NAME),
+        os.path.join(scratch, 'toolbar-flutter', 'examples', 'flutter_' + NAME) if scratch else '',
+        os.path.join(os.environ.get('REMOTE_WORKSPACE', ''), 'examples', 'flutter_' + NAME),
     ]
     for candidate in candidates:
         if candidate and os.path.isdir(os.path.join(candidate, 'build')):

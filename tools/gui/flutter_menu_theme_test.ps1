@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\env.ps1"
 . "$PSScriptRoot\winput.ps1"
 . "$PSScriptRoot\guiapp.ps1"
-if (-not $Exe) { $Exe = "$RemoteWorkspace\bindings\flutter\examples\menu_example\build\windows\x64\runner\Debug\menu_example.exe" }
+if (-not $Exe) { $Exe = "$RemoteWorkspace\examples\flutter_menu_example\build\windows\x64\runner\Debug\menu_example.exe" }
 Start-Result "$RemoteScratch\flutter_menu_theme_test.result.txt"
 Add-Type @'
 using System;

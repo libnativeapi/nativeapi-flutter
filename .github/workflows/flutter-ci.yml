@@ -5,16 +5,16 @@ on:
     branches: [ main, ohos-main ]
     paths:
       - "bindings/flutter/**"
+      - "examples/flutter_*/**"
+      - "pubspec.yaml"
       - ".github/workflows/flutter-ci.yml"
   pull_request:
     branches: [ main, ohos-main ]
     paths:
       - "bindings/flutter/**"
+      - "examples/flutter_*/**"
+      - "pubspec.yaml"
       - ".github/workflows/flutter-ci.yml"
-
-defaults:
-  run:
-    working-directory: bindings/flutter
 
 jobs:
   lint:
@@ -28,7 +28,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
         
       - name: Setup Flutter
@@ -71,7 +70,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
         
       - name: Setup Flutter
@@ -115,7 +113,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
@@ -142,12 +139,12 @@ jobs:
           
       - name: Build cnativeapi example Android
         run: |
-          cd packages/cnativeapi/example
+          cd bindings/flutter/packages/cnativeapi/example
           flutter build apk --release
           
       - name: Build nativeapi example Android
         run: |
-          cd packages/nativeapi/example
+          cd bindings/flutter/packages/nativeapi/example
           flutter build apk --release
 
   # iOS build
@@ -163,7 +160,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
@@ -184,12 +180,12 @@ jobs:
           
       - name: Build cnativeapi example iOS
         run: |
-          cd packages/cnativeapi/example
+          cd bindings/flutter/packages/cnativeapi/example
           flutter build ios --release --no-codesign
           
       - name: Build nativeapi example iOS
         run: |
-          cd packages/nativeapi/example
+          cd bindings/flutter/packages/nativeapi/example
           flutter build ios --release --no-codesign
 
   # Linux build
@@ -205,7 +201,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
@@ -240,12 +235,12 @@ jobs:
           
       - name: Build cnativeapi example Linux
         run: |
-          cd packages/cnativeapi/example
+          cd bindings/flutter/packages/cnativeapi/example
           flutter build linux --release
           
       - name: Build nativeapi example Linux
         run: |
-          cd packages/nativeapi/example
+          cd bindings/flutter/packages/nativeapi/example
           flutter build linux --release
 
   # macOS build
@@ -261,7 +256,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
@@ -282,12 +276,12 @@ jobs:
           
       - name: Build cnativeapi example macOS
         run: |
-          cd packages/cnativeapi/example
+          cd bindings/flutter/packages/cnativeapi/example
           flutter build macos --release
           
       - name: Build nativeapi example macOS
         run: |
-          cd packages/nativeapi/example
+          cd bindings/flutter/packages/nativeapi/example
           flutter build macos --release
 
   # Windows build
@@ -303,7 +297,6 @@ jobs:
       # Only the Flutter binding's submodules: the root ones (core, other
       # bindings) are not needed here and some use SSH URLs.
       - name: Checkout Flutter submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
@@ -325,10 +318,10 @@ jobs:
           
       - name: Build cnativeapi example Windows
         run: |
-          cd packages/cnativeapi/example
+          cd bindings/flutter/packages/cnativeapi/example
           flutter build windows --release
           
       - name: Build nativeapi example Windows
         run: |
-          cd packages/nativeapi/example
+          cd bindings/flutter/packages/nativeapi/example
           flutter build windows --release

@@ -31,7 +31,7 @@ function Invoke-DragCard($app, [string]$card) {
 }
 
 Assert-Idle
-$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\drag_drop_example") -MinViews 1
+$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_drag_drop_example") -MinViews 1
 try {
   $now = Look $app
   Invoke-Activate $app $now.Win

@@ -12,6 +12,7 @@ This repository was `nativeapi-flutter` until 2026-09; its history, issues and s
 | [bindings/flutter](bindings/flutter) | Flutter binding (packages `nativeapi`, `cnativeapi`) |
 | [bindings/rust](bindings/rust) | Rust binding (crates `nativeapi`, `cnativeapi`) |
 | [bindings/csharp](bindings/csharp) | C# binding |
+| [examples](examples) | example apps of every binding: `flutter_*`, `rust_*`, `csharp_*` |
 | `tools/codegen` | the C ABI and binding generators |
 | `specs` | design rules for the core's public API |
 
@@ -26,6 +27,8 @@ Already cloned without `--recursive`?
 ```bash
 git submodule update --init --recursive
 ```
+
+The root `pubspec.yaml` is the pub workspace (and melos) root for the Flutter packages and examples, and the root `Cargo.toml` is the cargo workspace for the Rust crates and examples, so `flutter pub get` and `cargo build` run from the repository root.
 
 ## Code generation
 

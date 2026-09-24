@@ -39,12 +39,12 @@ foreach (var display in DisplayManager.Shared.GetAll())
 
 ## Examples
 
-See [`examples/`](examples):
+The examples are the `csharp_*` directories in the repository's [`examples/`](../../examples); from this directory:
 
 ```bash
 export NATIVEAPI_LIBRARY_PATH=$PWD/build/native/libnativeapi.dylib
-dotnet run --project examples/DisplayExample
-dotnet run --project examples/PreferencesExample
+dotnet run --project ../../examples/csharp_display_example
+dotnet run --project ../../examples/csharp_preferences_example
 ```
 
 ## Contributing

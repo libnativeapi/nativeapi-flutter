@@ -2,3 +2,14 @@
 tools/codegen/target/
 *.mp4
 __pycache__/
+
+# Rust (cargo workspace at the root)
+/target/
+
+# Dart / Flutter (pub workspace at the root)
+/.dart_tool/
+/pubspec.lock
+
+# C# examples
+examples/csharp_*/bin/
+examples/csharp_*/obj/

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / '.agents/skills/gui-test/scripts/macos'))
 from guiapp import GuiApp, flutter_executable
 
-project = ROOT / 'bindings/flutter/examples/shaped_window_example'
+project = ROOT / 'examples/flutter_shaped_window_example'
 app = GuiApp(flutter_executable(str(project)))
 output = Path(tempfile.mkdtemp(prefix='window-shape-smoke-'))
 

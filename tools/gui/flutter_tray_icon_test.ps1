@@ -73,7 +73,7 @@ function Test-Menu($app, [string]$Backend) {
 }
 
 Assert-Idle
-$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\tray_icon_example") -MinViews 1
+$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_tray_icon_example") -MinViews 1
 try {
   $now = Look $app
   Invoke-Activate $app $now.Win

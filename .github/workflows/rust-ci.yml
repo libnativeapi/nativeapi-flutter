@@ -5,11 +5,17 @@ on:
     branches: [main]
     paths:
       - "bindings/rust/**"
+      - "examples/rust_*/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
       - ".github/workflows/rust-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "bindings/rust/**"
+      - "examples/rust_*/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
       - ".github/workflows/rust-ci.yml"
   workflow_dispatch:
 
@@ -23,10 +29,6 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
 
-defaults:
-  run:
-    working-directory: bindings/rust
-
 jobs:
   lint:
     name: Format & Clippy
@@ -35,7 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Checkout Rust binding submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/rust
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -43,8 +44,6 @@ jobs:
       - name: Install native dependencies
         run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libgtk-3-dev libx11-dev libxi-dev
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: bindings/rust
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Clippy
@@ -61,15 +60,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Checkout Rust binding submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/rust
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libgtk-3-dev libx11-dev libxi-dev
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: bindings/rust
       - name: Build libraries and all examples
         run: cargo build --workspace --all-targets --release --locked
       - name: Run unit and native integration tests

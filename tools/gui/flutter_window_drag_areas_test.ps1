@@ -72,7 +72,7 @@ function Check-ShowsSize([string]$what, $look) {
 }
 
 Assert-Idle
-$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\window_drag_areas_example") -MinViews 1
+$app = Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_window_drag_areas_example") -MinViews 1
 try {
   $now = Look $app
   Invoke-Activate $app $now.Win -ClientY 110  # no title bar: an empty strip below the move area

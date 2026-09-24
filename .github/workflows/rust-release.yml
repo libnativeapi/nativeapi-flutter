@@ -14,10 +14,6 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
-defaults:
-  run:
-    working-directory: bindings/rust
-
 jobs:
   release:
     runs-on: ubuntu-22.04
@@ -27,7 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Checkout Rust binding submodules
-        working-directory: .
         run: git submodule update --init --recursive -- bindings/rust
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-python@v5
@@ -39,7 +34,7 @@ jobs:
         run: |
           python - <<'PY'
           import os, pathlib, re, tomllib
-          crates = [tomllib.loads(pathlib.Path(f'crates/{name}/Cargo.toml').read_text()) for name in ('cnativeapi', 'nativeapi')]
+          crates = [tomllib.loads(pathlib.Path(f'bindings/rust/crates/{name}/Cargo.toml').read_text()) for name in ('cnativeapi', 'nativeapi')]
           version = crates[0]['package']['version']
           assert re.fullmatch(r'\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?', version), version
           assert crates[1]['package']['version'] == version, 'Crate versions must match'
@@ -50,8 +45,6 @@ jobs:
       - name: Install native dependencies
         run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libgtk-3-dev libx11-dev libxi-dev
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: bindings/rust
       - name: Test release sources
         run: cargo test --workspace --release --locked
       - name: Verify packaged native sources build outside the checkout
@@ -67,7 +60,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: crates
-          path: bindings/rust/target/package/*.crate
+          path: target/package/*.crate
           if-no-files-found: error
       - name: Create GitHub Release
         if: github.event_name == 'push' && github.ref_type == 'tag'

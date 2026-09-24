@@ -20,7 +20,7 @@ function Probe($app) { Get-Views $app }
 function Has($view, $text) { Test-ViewText $view $text }
 function Center($view, $text, [switch]$Strip) { if ($Strip) { Get-TextCenter $view $text -MaxY 40 } else { Get-TextCenter $view $text } }
 function ToScreen($win, $pt) { ConvertTo-Screen $win $pt }
-function Launch($name) { Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\bindings\flutter\examples\$name") -MinViews 2 }
+function Launch($name) { Start-GuiApp (Get-FlutterExe "$RemoteWorkspace\examples\flutter_$name") -MinViews 2 }
 function Wins($app) { Get-Wins $app }
 function Glide($pt, [int]$ms = 600) { Move-Cursor $pt (Scaled $ms) }
 function Click($app, $pt, [int]$ms = 450) { Invoke-Click $app $pt (Scaled $ms) }

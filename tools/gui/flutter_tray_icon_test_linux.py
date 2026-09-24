@@ -38,7 +38,7 @@ def executable():
     workspace = os.environ.get('REMOTE_WORKSPACE') or os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     return flutter_executable(
-        os.path.join(workspace, 'bindings', 'flutter', 'examples', NAME))
+        os.path.join(workspace, 'examples', 'flutter_' + NAME))
 
 
 def registered_items(pid):

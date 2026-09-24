@@ -30,7 +30,7 @@ $example = "shaped_window_example"
 $shapes = @('circle', 'star', 'bubble', 'heart', 'flower', 'hexagon',
             'squircle', 'blob', 'burst', 'droplet', 'diamond', 'shield')
 $presets = @('None', 'Soft', 'Float', 'Sharp', 'Glow')
-$dirs = @("$RemoteWorkspace\bindings\flutter\examples\$example")
+$dirs = @("$RemoteWorkspace\examples\flutter_$example")
 $dir = $dirs | ? { Test-Path (Get-FlutterExe $_) } | Select-Object -First 1
 if (-not $dir) { throw "$example is not built in any of: $($dirs -join ', ')" }
 
