@@ -50,14 +50,15 @@ tools/codegen/
 
 1. 全量重新生成（C ABI + 三端绑定）
 2. 提交 core（消息用 `-m` 指定，默认 `Update API`）
-3. 对每个 binding 仓库：把内嵌的 core submodule（`cxx_impl`）
+3. 对每个 binding：把内嵌的 core submodule（`cxx_impl`）
    更新到 core 的最新提交（从本地 core 取，不要求先 push）；rust 额外重跑
-   bindgen 刷新 `crates/cnativeapi/src/bindings.rs`；flutter 额外执行仓库自带的
+   bindgen 刷新 `crates/cnativeapi/src/bindings.rs`；flutter 额外执行 binding 自带的
    `codegen.py`（.mm include、umbrella header、ffigen.yaml、dart ffigen）
-4. 有变化的 binding 仓库各提交一个 `Sync with core <sha>`
-5. 提交 workspace 的 submodule 指针
+4. 有变化的 submodule binding（rust、csharp）各提交一个 `Sync with core <sha>`
+5. 提交 workspace（同样的消息）：core 和 submodule binding 的指针，以及
+   `bindings/flutter` 下的全部改动（flutter binding 就在 workspace 仓库里）
 
-默认只提交不推送；`--push` 会按 core → bindings → workspace 的顺序推送
+默认只提交不推送；`--push` 会按 core → submodule bindings → workspace 的顺序推送
 （保证远端的 submodule 指针不悬空）。任一仓库处于 detached HEAD 会直接报错。
 bindgen / dart 未安装时对应步骤跳过并告警。
 

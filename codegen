@@ -17,8 +17,9 @@ Orchestrates the Rust generators in tools/codegen against the workspace layout:
     ./codegen --dump-ir ir.json  # also keep the intermediate IR at this path
 
 The C ABI generator parses the C++ headers in core/ with libclang and emits an
-IR JSON; the bindings generator consumes that IR. Binding repos whose submodule
-is not initialized are skipped automatically.
+IR JSON; the bindings generator consumes that IR. A binding either lives
+directly in this repository (flutter) or in a submodule (rust, csharp); binding
+submodules that are not initialized are skipped automatically.
 """
 
 import argparse
@@ -33,7 +34,7 @@ CORE = WORKSPACE / "core"
 CODEGEN = WORKSPACE / "tools" / "codegen"
 DEFAULT_IR = CODEGEN / "target" / "ir.json"
 
-# lang -> (cli flag of codegen-bindings, binding repo path)
+# lang -> (cli flag of codegen-bindings, binding directory)
 BINDINGS = {
     "rust": ("--rust", WORKSPACE / "bindings" / "rust"),
     "dart": ("--dart", WORKSPACE / "bindings" / "flutter"),
@@ -56,9 +57,21 @@ def run(binary: str, *extra: str) -> None:
         sys.exit(result.returncode)
 
 
+def is_submodule(repo: Path) -> bool:
+    """Whether a binding lives in its own submodule rather than in this repo."""
+    return is_gitlink(WORKSPACE, str(repo.relative_to(WORKSPACE)))
+
+
 def initialized(repo: Path) -> bool:
     """An uninitialized submodule leaves an empty directory behind."""
-    return (repo / ".git").exists()
+    if is_submodule(repo):
+        return (repo / ".git").exists()
+    return repo.is_dir()
+
+
+def git_root(repo: Path) -> Path:
+    """The git repository that commits a binding's files."""
+    return repo if is_submodule(repo) else WORKSPACE
 
 
 def binding_flags(langs: list[str]) -> list[str]:
@@ -173,10 +186,13 @@ def current_branch(repo: Path) -> str:
 
 
 def core_dep_paths(repo: Path) -> list[str]:
-    """Paths of submodules inside `repo` that point at the nativeapi repo."""
-    if not (repo / ".gitmodules").exists():
+    """Submodules under the binding `repo` that point at the nativeapi repo,
+    as paths relative to `git_root(repo)`."""
+    root = git_root(repo)
+    prefix = "" if root == repo else f"{repo.relative_to(root).as_posix()}/"
+    if not (root / ".gitmodules").exists():
         return []
-    out = git(repo, "config", "-f", ".gitmodules", "--get-regexp",
+    out = git(root, "config", "-f", ".gitmodules", "--get-regexp",
               r"submodule\..*\.(path|url)", capture=True)
     entries: dict[str, dict[str, str]] = {}
     for line in out.splitlines():
@@ -187,6 +203,7 @@ def core_dep_paths(repo: Path) -> list[str]:
         entry["path"]
         for entry in entries.values()
         if "path" in entry
+        and entry["path"].startswith(prefix)
         and entry.get("url", "").rstrip("/").removesuffix(".git").endswith("/nativeapi")
     ]
 
@@ -271,8 +288,10 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
 
     # Fail early on detached HEADs: sync commits into every repo.
     core_branch = current_branch(CORE)
+    current_branch(WORKSPACE)
     for repo in repos:
-        current_branch(repo)
+        if git_root(repo) == repo:
+            current_branch(repo)
 
     print("==> regenerating C ABI and bindings")
     run_capi(ir, check=False)
@@ -291,20 +310,23 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
     for repo in repos:
         name = str(repo.relative_to(WORKSPACE))
         print(f"==> syncing {name}")
-        deps = [p for p in core_dep_paths(repo) if is_gitlink(repo, p)]
+        root = git_root(repo)
+        deps = [p for p in core_dep_paths(repo) if is_gitlink(root, p)]
         if not deps:
             print(f"warning: no core submodule gitlink found in {name}",
                   file=sys.stderr)
         for path in deps:
-            update_core_dep(repo, path, core_sha, core_branch)
+            update_core_dep(root, path, core_sha, core_branch)
         if repo == BINDINGS["rust"][1]:
             regen_rust_raw_ffi(repo)
         if repo == BINDINGS["dart"][1]:
             regen_flutter_ffi(repo)
-        if commit_if_dirty(repo, sync_message):
+        # A binding in this repo is committed together with the pointers below.
+        if root == repo and commit_if_dirty(repo, sync_message):
             committed.append(repo)
 
-    print("==> committing workspace submodule pointers")
+    # Submodule pointers, plus everything under the in-repo bindings.
+    print("==> committing workspace")
     pointers = [str(CORE.relative_to(WORKSPACE))] + [
         str(repo.relative_to(WORKSPACE)) for repo in repos
     ]

@@ -1,12 +1,12 @@
 ---
 name: core-api-change
-description: Carry a change to the C++ public API in core/ all the way downstream — design check, header edit, six platform implementations, C ABI + Rust/Dart/C# regeneration, per-binding verification, and the commits in core, each binding repo and the workspace. Use this whenever a task adds, renames, removes or reshapes anything in core/src/*.h ("add SetSkipTaskbar to Window", "expose X to Flutter", "new module for Y"), whenever generated bindings are stale or `./codegen check` fails, and whenever the user says "sync the bindings", "regenerate", "propagate core", or asks why an API is missing from Dart / Rust / C#. Also use it before running `./codegen sync` for any reason — the script commits with `git add -A` in four repos and this skill is the pre-flight that keeps unrelated work out of those commits.
+description: Carry a change to the C++ public API in core/ all the way downstream — design check, header edit, six platform implementations, C ABI + Rust/Dart/C# regeneration, per-binding verification, and the commits in core, each submodule binding and the workspace. Use this whenever a task adds, renames, removes or reshapes anything in core/src/*.h ("add SetSkipTaskbar to Window", "expose X to Flutter", "new module for Y"), whenever generated bindings are stale or `./codegen check` fails, and whenever the user says "sync the bindings", "regenerate", "propagate core", or asks why an API is missing from Dart / Rust / C#. Also use it before running `./codegen sync` for any reason — the script commits with `git add -A` in core and each submodule binding, and stages all of bindings/flutter in the workspace commit, and this skill is the pre-flight that keeps unrelated work out of those commits.
 ---
 
 # core-api-change
 
 `./codegen sync` does the mechanical half: regenerate, bump each binding's embedded core,
-rerun bindgen / ffigen, commit four repos. This skill is the other half — the decisions
+rerun bindgen / ffigen, commit core, the submodule bindings and the workspace. This skill is the other half — the decisions
 and checks the script cannot make. Work through the phases in order; each one ends in
 something you can verify before moving on.
 
@@ -28,20 +28,23 @@ the nearest neighbour.
 
 ## 2. Pre-flight: look before the script commits
 
-`./codegen sync` runs `git add -A` in core and in every binding repo. Anything lying
-around in those working trees lands in a commit titled `Sync with core <sha>`.
+`./codegen sync` runs `git add -A` in core and in the submodule bindings (rust, csharp),
+and `git add bindings/flutter` in the workspace, since the Flutter binding lives in the
+workspace itself. Anything lying around in those trees lands in a commit titled
+`Sync with core <sha>`.
 
 ```bash
 make status                                   # dirty files + branch of every submodule
 git status --short                            # workspace itself
-for r in core bindings/*; do
+for r in core bindings/rust bindings/csharp; do
   printf '%-18s %s  behind origin/main: %s\n' "$r" \
     "$(git -C "$r" branch --show-current || echo DETACHED)" \
     "$(git -C "$r" rev-list --count HEAD..origin/main 2>/dev/null)"
 done
 ```
 
-- **A binding repo is dirty with unrelated work** → do not run `sync`. Use the manual
+- **A binding is dirty with unrelated work** (for Flutter: `git status --short bindings/flutter`)
+  → do not run `sync`. Use the manual
   path in §7. Ask the user only if you cannot tell whether the work is related.
 - **A submodule is on a detached HEAD or behind `origin/main`** → check out `main` and
   fast-forward first. `sync` refuses detached HEADs, but it does not notice "on main,
@@ -111,7 +114,7 @@ Files without the banner are never overwritten, so they are also never updated:
 | core | `examples/<module>_example/`, `<module>_c_example/` | new module or a behaviour worth demonstrating |
 
 A rename or removal in core breaks hand-written callers in these places — grep each
-binding repo for the old name.
+binding for the old name.
 
 ## 6. Verify each binding
 
@@ -137,26 +140,28 @@ skill rather than trusting the compile.
 ./codegen sync -m "<imperative core commit message>"
 ```
 
-It commits core with your message, each changed binding as `Sync with core <sha9>`, and
-the workspace pointers. It does not push.
+It commits core with your message, each changed submodule binding (rust, csharp) as
+`Sync with core <sha9>`, and the workspace with the same message: submodule pointers plus
+the regenerated Flutter binding and its `cxx_impl` gitlink. It does not push.
 
-**A binding repo has unrelated work — manual path.** Same steps, staged narrowly:
+**A binding has unrelated work — manual path.** Same steps, staged narrowly:
 
 1. Commit core yourself (`git -C core add <paths> && git -C core commit -m ...`).
-2. In each binding repo: update the embedded core submodule (`cxx_impl`) to that sha,
+2. In each binding: update the embedded core submodule (`cxx_impl`) to that sha,
    fetching from the local `core/`; rust → rerun bindgen (command in
    `tools/codegen/README.md`); flutter → `python3 codegen.py --no-submodule-update` in
    `packages/cnativeapi`.
-3. `git add` only the generated paths and the `cxx_impl` gitlink; commit as
-   `Sync with core <sha9>`.
-4. Workspace: `git add core bindings/<changed>` and commit the same message.
+3. rust / csharp: `git add` only the generated paths and the `cxx_impl` gitlink; commit
+   as `Sync with core <sha9>`.
+4. Workspace: `git add core bindings/<changed submodule>` plus only the generated Flutter
+   paths and `bindings/flutter/packages/cnativeapi/cxx_impl`; commit the same message.
 
 Either way: no Co-Authored-By trailers; after staging, read `git status --short` and
 `git diff --cached --stat` in each repo **before** committing — a file you did not write
 showing up there is the signal to stop and unstage.
 
 Push only when asked, and in this order so no remote pointer dangles:
-core → bindings → workspace (`./codegen sync --push` does exactly this).
+core → submodule bindings → workspace (`./codegen sync --push` does exactly this).
 
 ## 8. Report
 

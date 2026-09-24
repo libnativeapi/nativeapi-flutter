@@ -1,9 +1,9 @@
 ## Contributing
 
-This repository is developed from the [workspace](https://github.com/libnativeapi/workspace), which checks out the core library, every binding and the code generator together:
+This repository is developed from the [nativeapi-workspace](https://github.com/libnativeapi/nativeapi-workspace), which checks out the core library, every binding and the code generator together:
 
 ```bash
-git clone --recursive https://github.com/libnativeapi/workspace.git
+git clone --recursive https://github.com/libnativeapi/nativeapi-workspace.git
 ```
 
 Files marked `AUTO-GENERATED. DO NOT EDIT.` are generated from the C++ headers in [nativeapi](https://github.com/libnativeapi/nativeapi). To change the API, send a pull request there; maintainers regenerate the bindings.

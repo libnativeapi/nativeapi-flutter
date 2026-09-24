@@ -31,7 +31,7 @@ struct CliArgs {
     #[arg(long)]
     rust: Option<PathBuf>,
 
-    /// Path to the nativeapi-flutter repository. Dart bindings are skipped
+    /// Path to the Flutter binding (bindings/flutter). Dart bindings are skipped
     /// when this is absent.
     #[arg(long)]
     dart: Option<PathBuf>,

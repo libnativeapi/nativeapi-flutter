@@ -64,7 +64,7 @@ $ErrorActionPreference = "Stop"
   `analysis_options.yaml` files. Judge real changes with
   `git diff --ignore-cr-at-eol --stat`.
 - **Leave it as you found it.** Record `git status --short` for the workspace,
-  `core`, `bindings/flutter` (and its `cxx_impl`) *before* you start; at the end
+  `core` and `bindings/flutter/packages/cnativeapi/cxx_impl` *before* you start; at the end
   `git checkout --` only the files you touched and compare. Pre-existing local
   changes on that machine are the user's — do not revert them.
 

@@ -1,9 +1,9 @@
 ## 参与贡献
 
-本仓库在 [workspace](https://github.com/libnativeapi/workspace) 中开发，它把核心库、所有绑定和代码生成器放在一起：
+本仓库在 [nativeapi-workspace](https://github.com/libnativeapi/nativeapi-workspace) 中开发，它把核心库、所有绑定和代码生成器放在一起：
 
 ```bash
-git clone --recursive https://github.com/libnativeapi/workspace.git
+git clone --recursive https://github.com/libnativeapi/nativeapi-workspace.git
 ```
 
 标有 `AUTO-GENERATED. DO NOT EDIT.` 的文件由 [nativeapi](https://github.com/libnativeapi/nativeapi) 的 C++ 头文件生成。如需修改 API，请向该仓库提交 PR，绑定由维护者重新生成。
