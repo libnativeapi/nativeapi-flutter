@@ -1,3 +1,15 @@
+[submodule "nativeapi"]
+	path = core
+	url = ../nativeapi.git
+	branch = main
+[submodule "nativeapi-rust"]
+	path = bindings/rust
+	url = ../nativeapi-rust.git
+	branch = main
+[submodule "bindings/csharp"]
+	path = bindings/csharp
+	url = ../nativeapi-csharp.git
+	branch = main
 [submodule "packages/cnativeapi/cxx_impl"]
 	path = bindings/flutter/packages/cnativeapi/cxx_impl
 	url = https://github.com/libnativeapi/nativeapi.git

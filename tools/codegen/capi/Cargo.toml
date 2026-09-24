@@ -1,0 +1,10 @@
+[package]
+name = "codegen-capi"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+codegen-shared.workspace = true
+heck.workspace = true

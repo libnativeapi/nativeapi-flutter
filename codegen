@@ -1,0 +1,377 @@
+#!/usr/bin/env python3
+"""Run the nativeapi code generators.
+
+Orchestrates the Rust generators in tools/codegen against the workspace layout:
+
+    ./codegen                    # full run: C ABI, then all bindings
+    ./codegen capi               # C ABI + umbrella header only
+    ./codegen bindings           # bindings only (parses headers, writes no C ABI)
+    ./codegen bindings --lang rust,swift
+    ./codegen check              # verify everything is up to date (CI mode)
+    ./codegen readme             # copy the shared README sections into every repo
+    ./codegen sync               # after a core change: regenerate everything,
+                                 #   update every binding's embedded core
+                                 #   submodule, rerun bindgen/ffigen, and commit
+                                 #   core, bindings, and workspace pointers
+    ./codegen sync -m "Add Foo API" --push
+    ./codegen --dump-ir ir.json  # also keep the intermediate IR at this path
+
+The C ABI generator parses the C++ headers in core/ with libclang and emits an
+IR JSON; the bindings generator consumes that IR. Binding repos whose submodule
+is not initialized are skipped automatically.
+"""
+
+import argparse
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+WORKSPACE = Path(__file__).resolve().parent
+CORE = WORKSPACE / "core"
+CODEGEN = WORKSPACE / "tools" / "codegen"
+DEFAULT_IR = CODEGEN / "target" / "ir.json"
+
+# lang -> (cli flag of codegen-bindings, binding repo path)
+BINDINGS = {
+    "rust": ("--rust", WORKSPACE / "bindings" / "rust"),
+    "dart": ("--dart", WORKSPACE / "bindings" / "flutter"),
+    "csharp": ("--csharp", WORKSPACE / "bindings" / "csharp"),
+}
+
+# Binding repos without a generator that still embed core and need dependency
+# bumps during sync.
+SYNC_ONLY: list[Path] = []
+
+
+def run(binary: str, *extra: str) -> None:
+    cmd = [
+        "cargo", "run", "--quiet", "--release",
+        "--manifest-path", str(CODEGEN / "Cargo.toml"),
+        "-p", binary, "--", *extra,
+    ]
+    result = subprocess.run(cmd)
+    if result.returncode != 0:
+        sys.exit(result.returncode)
+
+
+def initialized(repo: Path) -> bool:
+    """An uninitialized submodule leaves an empty directory behind."""
+    return (repo / ".git").exists()
+
+
+def binding_flags(langs: list[str]) -> list[str]:
+    flags = []
+    for lang in langs:
+        flag, repo = BINDINGS[lang]
+        if initialized(repo):
+            flags += [flag, str(repo)]
+        else:
+            print(f"  {lang:<11} (skipped, submodule {repo.name} not initialized)",
+                  file=sys.stderr)
+    return flags
+
+
+def run_capi(ir: Path, check: bool, parse_only: bool = False) -> None:
+    extra = ["--repo", str(CORE), "--emit-ir", str(ir)]
+    if parse_only:
+        extra.append("--parse-only")
+    if check:
+        extra.append("--check")
+    run("codegen-capi", *extra)
+
+
+def run_bindings(ir: Path, langs: list[str], check: bool) -> None:
+    extra = ["--ir", str(ir), "--repo", str(CORE), *binding_flags(langs)]
+    if check:
+        extra.append("--check")
+    run("codegen-bindings", *extra)
+
+
+# ---------------------------------------------------------------------------
+# readme: keep the shared README sections identical in every repo
+# ---------------------------------------------------------------------------
+
+README_SNIPPETS = WORKSPACE / "tools" / "readme"
+
+# snippet file -> READMEs (relative to the workspace) carrying that section.
+# A snippet starts with its own `## Heading` line; the section with the same
+# heading in each README is replaced wholesale, the rest is hand-written.
+README_SECTIONS = {
+    "contributing.md": [
+        "core/README.md",
+        "bindings/flutter/README.md",
+        "bindings/rust/README.md",
+        "bindings/csharp/README.md",
+    ],
+    "contributing.zh.md": [
+        "bindings/flutter/README-ZH.md",
+    ],
+}
+
+
+def sync_readmes(check: bool) -> bool:
+    """Returns True when every README already matched its snippets."""
+    clean = True
+    for snippet_name, readmes in README_SECTIONS.items():
+        snippet = (README_SNIPPETS / snippet_name).read_text().rstrip("\n") + "\n"
+        heading = snippet.split("\n", 1)[0]
+        section = re.compile(rf"^{re.escape(heading)}\n.*?(?=^## |\Z)", re.S | re.M)
+        for rel in readmes:
+            path = WORKSPACE / rel
+            if not path.exists():
+                print(f"  {rel:<32} (skipped, not checked out)", file=sys.stderr)
+                continue
+            text = path.read_text()
+            if not section.search(text):
+                print(f"error: {rel} has no `{heading}` section", file=sys.stderr)
+                clean = False
+                continue
+            # Keep a blank line before the next heading, none at end of file.
+            updated = section.sub(
+                lambda m: snippet if m.end() == len(text) else snippet + "\n",
+                text, count=1)
+            if updated == text:
+                continue
+            clean = False
+            if check:
+                print(f"stale: {rel} (`{heading}`); run ./codegen readme",
+                      file=sys.stderr)
+            else:
+                path.write_text(updated)
+                print(f"  updated {rel}")
+    return clean
+
+
+# ---------------------------------------------------------------------------
+# sync: propagate a core change through every binding repo
+# ---------------------------------------------------------------------------
+
+def git(repo: Path, *args: str, capture: bool = False, check: bool = True) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        capture_output=capture, text=True,
+    )
+    if check and result.returncode != 0:
+        if capture and result.stderr:
+            print(result.stderr, file=sys.stderr, end="")
+        sys.exit(f"error: git {' '.join(args)} failed in {repo}")
+    return (result.stdout or "").strip() if capture else ""
+
+
+def dirty(repo: Path) -> bool:
+    return bool(git(repo, "status", "--porcelain", capture=True))
+
+
+def current_branch(repo: Path) -> str:
+    branch = git(repo, "branch", "--show-current", capture=True)
+    if not branch:
+        sys.exit(f"error: {repo.relative_to(WORKSPACE)} is on a detached HEAD; "
+                 "check out a branch first")
+    return branch
+
+
+def core_dep_paths(repo: Path) -> list[str]:
+    """Paths of submodules inside `repo` that point at the nativeapi repo."""
+    if not (repo / ".gitmodules").exists():
+        return []
+    out = git(repo, "config", "-f", ".gitmodules", "--get-regexp",
+              r"submodule\..*\.(path|url)", capture=True)
+    entries: dict[str, dict[str, str]] = {}
+    for line in out.splitlines():
+        key, _, value = line.partition(" ")
+        name, _, attr = key.rpartition(".")
+        entries.setdefault(name, {})[attr] = value
+    return [
+        entry["path"]
+        for entry in entries.values()
+        if "path" in entry
+        and entry.get("url", "").rstrip("/").removesuffix(".git").endswith("/nativeapi")
+    ]
+
+
+def is_gitlink(repo: Path, path: str) -> bool:
+    entry = git(repo, "ls-files", "-s", "--", path, capture=True)
+    return entry.startswith("160000")
+
+
+def update_core_dep(repo: Path, path: str, sha: str, branch: str) -> None:
+    git(repo, "submodule", "update", "--init", "--", path)
+    sub = repo / path
+    # Fetch from the local core checkout so sync works before core is pushed.
+    git(sub, "fetch", "--quiet", str(CORE), branch)
+    git(sub, "checkout", "--quiet", "--detach", sha)
+
+
+def regen_rust_raw_ffi(repo: Path) -> bool:
+    if shutil.which("bindgen") is None:
+        print("warning: bindgen not installed, skipped regenerating "
+              "crates/cnativeapi/src/bindings.rs", file=sys.stderr)
+        return False
+    clang_args = ["-x", "c"]
+    if sys.platform == "darwin":
+        sysroot = subprocess.run(
+            ["xcrun", "--show-sdk-path"], capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        clang_args += ["-isysroot", sysroot]
+    cmd = [
+        "bindgen", str(CORE / "include" / "nativeapi.h"),
+        "--allowlist-function", "native_.*|free_c_str",
+        "--allowlist-type", "native_.*",
+        "--allowlist-var", "NATIVE_.*",
+        "--with-derive-default", "--no-layout-tests", "--no-prepend-enum-name",
+        "--raw-line", "#![allow(non_upper_case_globals)]",
+        "--raw-line", "#![allow(non_camel_case_types)]",
+        "--raw-line", "#![allow(non_snake_case)]",
+        "-o", str(repo / "crates" / "cnativeapi" / "src" / "bindings.rs"),
+        "--", *clang_args,
+        f"-I{CORE / 'src'}", f"-I{CORE / 'include'}",
+    ]
+    if subprocess.run(cmd).returncode != 0:
+        print("warning: bindgen failed; bindings.rs may be stale", file=sys.stderr)
+        return False
+    return True
+
+
+def regen_flutter_ffi(repo: Path) -> bool:
+    """Run the flutter repo's own codegen.py (mm includes, umbrella headers,
+    ffigen.yaml, dart ffigen)."""
+    package = repo / "packages" / "cnativeapi"
+    if shutil.which("dart") is None:
+        print("warning: dart not installed, skipped flutter ffigen regeneration",
+              file=sys.stderr)
+        return False
+    if subprocess.run(["dart", "pub", "get"], cwd=package).returncode != 0:
+        print("warning: dart pub get failed; skipped flutter ffigen regeneration",
+              file=sys.stderr)
+        return False
+    result = subprocess.run(
+        [sys.executable, "codegen.py", "--no-submodule-update"], cwd=package,
+    )
+    if result.returncode != 0:
+        print("warning: flutter codegen.py failed; its outputs may be stale",
+              file=sys.stderr)
+        return False
+    return True
+
+
+def commit_if_dirty(repo: Path, message: str) -> bool:
+    if not dirty(repo):
+        return False
+    git(repo, "add", "-A")
+    git(repo, "commit", "-m", message)
+    return True
+
+
+def cmd_sync(args, langs: list[str], ir: Path) -> None:
+    repos = [repo for _, repo in (BINDINGS[lang] for lang in langs)]
+    repos += [repo for repo in SYNC_ONLY if repo not in repos]
+    repos = [repo for repo in repos if initialized(repo)]
+
+    # Fail early on detached HEADs: sync commits into every repo.
+    core_branch = current_branch(CORE)
+    for repo in repos:
+        current_branch(repo)
+
+    print("==> regenerating C ABI and bindings")
+    run_capi(ir, check=False)
+    run_bindings(ir, langs, check=False)
+
+    sync_readmes(check=False)
+
+    print("==> committing core")
+    committed = []
+    if commit_if_dirty(CORE, args.message):
+        committed.append(CORE)
+    core_sha = git(CORE, "rev-parse", "HEAD", capture=True)
+    short = core_sha[:9]
+
+    sync_message = f"Sync with core {short}"
+    for repo in repos:
+        name = str(repo.relative_to(WORKSPACE))
+        print(f"==> syncing {name}")
+        deps = [p for p in core_dep_paths(repo) if is_gitlink(repo, p)]
+        if not deps:
+            print(f"warning: no core submodule gitlink found in {name}",
+                  file=sys.stderr)
+        for path in deps:
+            update_core_dep(repo, path, core_sha, core_branch)
+        if repo == BINDINGS["rust"][1]:
+            regen_rust_raw_ffi(repo)
+        if repo == BINDINGS["dart"][1]:
+            regen_flutter_ffi(repo)
+        if commit_if_dirty(repo, sync_message):
+            committed.append(repo)
+
+    print("==> committing workspace submodule pointers")
+    pointers = [str(CORE.relative_to(WORKSPACE))] + [
+        str(repo.relative_to(WORKSPACE)) for repo in repos
+    ]
+    git(WORKSPACE, "add", "--", *pointers)
+    if git(WORKSPACE, "diff", "--cached", "--name-only", capture=True):
+        git(WORKSPACE, "commit", "-m", sync_message)
+        committed.append(WORKSPACE)
+
+    if not committed:
+        print("nothing to commit; everything already in sync")
+        return
+
+    names = ", ".join(
+        "workspace" if repo == WORKSPACE else str(repo.relative_to(WORKSPACE))
+        for repo in committed
+    )
+    print(f"committed: {names}")
+
+    if args.push:
+        # Core first so binding submodule pointers never dangle remotely.
+        for repo in committed:
+            name = "workspace" if repo == WORKSPACE else str(repo.relative_to(WORKSPACE))
+            print(f"==> pushing {name}")
+            git(repo, "push")
+    else:
+        print("not pushed; rerun with --push, or push manually (core first, "
+              "then bindings, then the workspace repo)")
+
+
+def main() -> None:
+    cli = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+    cli.add_argument("command", nargs="?", default="all",
+                     choices=["all", "capi", "bindings", "check", "readme", "sync"])
+    cli.add_argument("--lang", default=",".join(BINDINGS),
+                     help="comma-separated subset of: " + ",".join(BINDINGS))
+    cli.add_argument("--dump-ir", type=Path, metavar="PATH",
+                     help="keep the intermediate IR JSON at this path")
+    cli.add_argument("-m", "--message", default="Update API",
+                     metavar="MSG", help="sync: commit message for the core repo")
+    cli.add_argument("--push", action="store_true",
+                     help="sync: also push every repo that received a commit")
+    args = cli.parse_args()
+
+    langs = [lang.strip() for lang in args.lang.split(",") if lang.strip()]
+    unknown = [lang for lang in langs if lang not in BINDINGS]
+    if unknown:
+        cli.error(f"unknown --lang value(s): {', '.join(unknown)}")
+
+    ir = args.dump_ir or DEFAULT_IR
+    check = args.command == "check"
+
+    if args.command in ("all", "check"):
+        readmes_clean = sync_readmes(check)
+        run_capi(ir, check)
+        run_bindings(ir, langs, check)
+        if check and not readmes_clean:
+            sys.exit(1)
+    elif args.command == "readme":
+        sync_readmes(check=False)
+    elif args.command == "capi":
+        run_capi(ir, check=False)
+    elif args.command == "bindings":
+        run_capi(ir, check=False, parse_only=True)
+        run_bindings(ir, langs, check=False)
+    elif args.command == "sync":
+        cmd_sync(args, langs, ir)
+
+
+if __name__ == "__main__":
+    main()

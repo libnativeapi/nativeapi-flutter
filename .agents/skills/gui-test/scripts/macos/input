@@ -1,0 +1,10 @@
+#!/bin/bash
+# Compiles input.m when needed and runs it: `input <command> [args…]` (see input.m).
+set -e
+here=$(cd "$(dirname "$0")" && pwd)
+bin="$here/.build/input"
+if [ ! -x "$bin" ] || [ "$here/input.m" -nt "$bin" ]; then
+  mkdir -p "$here/.build"
+  clang -fobjc-arc -O2 -framework AppKit -framework ApplicationServices "$here/input.m" -o "$bin"
+fi
+exec "$bin" "$@"
