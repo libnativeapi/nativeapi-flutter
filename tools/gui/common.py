@@ -8,6 +8,11 @@ WORKSPACE = os.path.dirname(os.path.dirname(HERE))
 SKILLS = os.path.join(WORKSPACE, '.agents', 'skills')
 EXAMPLES = os.path.join(WORKSPACE, 'examples')
 OUTPUT = os.path.join(HERE, 'output')  # recordings; git-ignored
+# Checkouts of the leanflutter packages (tray_manager, window_manager, …), which live in
+# their own repositories: by default next to the libnativeapi checkouts, i.e.
+# ~/Projects/leanflutter for ~/Projects/libnativeapi/<workspace>.
+LEANFLUTTER = os.environ.get(
+    'LEANFLUTTER_DIR', os.path.join(os.path.dirname(os.path.dirname(WORKSPACE)), 'leanflutter'))
 CORE_BUILD = os.path.join(WORKSPACE, 'core', 'build')  # ignored by core's .gitignore
 sys.path.insert(0, os.path.join(SKILLS, 'gui-test', 'scripts', 'macos'))
 sys.path.insert(0, os.path.join(SKILLS, 'record-demo', 'scripts', 'macos'))

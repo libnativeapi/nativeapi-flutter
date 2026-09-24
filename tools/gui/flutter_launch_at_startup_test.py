@@ -15,11 +15,10 @@ Built on the gui-test skill (.agents/skills). It takes over the mouse for ~15 s.
 import os
 import sys
 
-from common import WORKSPACE
+from common import LEANFLUTTER
 from guiapp import Checks, GuiApp, assert_idle, build_flutter, flutter_executable, pause
 
-PROJECT = os.path.join(WORKSPACE, 'bindings', 'flutter', 'packages',
-                       'launch_at_startup', 'example')
+PROJECT = os.path.join(LEANFLUTTER, 'launch_at_startup', 'example')  # see LEANFLUTTER in common.py
 NAME = 'launch_at_startup_example'
 
 
