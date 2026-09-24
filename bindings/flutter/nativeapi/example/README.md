@@ -5,20 +5,19 @@ Run the same page directly with `flutter run -d windows --target lib/desktop_fea
 
 ## Windows WinUI 3 tests
 
-From the Flutter repository root (`bindings/flutter` in the workspace):
+WinUI 3 is a build-time option of core (`NATIVEAPI_ENABLE_WINUI3` and the package
+paths it needs are CMake cache variables; see
+[core's WinUI guide](https://github.com/libnativeapi/nativeapi-core/blob/main/docs/winui3.md)).
+The Flutter plugin does not forward them to core's build yet, so a Flutter build is
+always the Win32 backend; test the WinUI 3 backends through core's C++ examples until
+it does. The checks below apply to both backends. The `window`, `menu` and `tray`
+rows are the repository's `examples/flutter_window_example`,
+`examples/flutter_menu_example` and `examples/flutter_tray_icon_example`; `desktop`
+is this example:
 
 ```powershell
-./tools/run_windows_example.ps1 -Example desktop -WinUI3
-./tools/run_windows_example.ps1 -Example window -WinUI3
-./tools/run_windows_example.ps1 -Example menu -WinUI3
-./tools/run_windows_example.ps1 -Example tray -WinUI3
+flutter run -d windows --target lib/desktop_features.dart
 ```
-
-The launcher restores core's pinned build packages and bundles the bootstrap DLL
-beside the executable. Visual Studio with desktop C++ tools and Windows App Runtime
-1.6 are required. See [core's WinUI guide](../../cnativeapi/cxx_impl/docs/winui3.md)
-for runtime setup. Omit `-WinUI3` to test Win32; add `-BuildOnly` to compile without
-launching. The launcher restores the caller's environment variables when it exits.
 
 | Example | What to test |
 | --- | --- |
