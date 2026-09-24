@@ -2,10 +2,6 @@
 	path = core
 	url = ../nativeapi.git
 	branch = main
-[submodule "nativeapi-flutter"]
-	path = bindings/flutter
-	url = ../nativeapi-flutter.git
-	branch = main
 [submodule "nativeapi-rust"]
 	path = bindings/rust
 	url = ../nativeapi-rust.git
