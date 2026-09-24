@@ -1,10 +1,16 @@
-name: CI
+name: C# CI
 
 on:
   push:
     branches: [main]
+    paths:
+      - "bindings/csharp/**"
+      - ".github/workflows/csharp-ci.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "bindings/csharp/**"
+      - ".github/workflows/csharp-ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -18,6 +24,10 @@ env:
   DOTNET_NOLOGO: 'true'
   DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
 
+defaults:
+  run:
+    working-directory: bindings/csharp
+
 jobs:
   lint:
     name: Format & Analyze
@@ -25,8 +35,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - name: Checkout C# binding submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/csharp
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -54,8 +65,9 @@ jobs:
             library: build/native/Release/nativeapi.dll
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - name: Checkout C# binding submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/csharp
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -72,11 +84,11 @@ jobs:
         run: dotnet build NativeAPI.slnx -c Release -warnaserror
       - name: Run native integration tests
         env:
-          NATIVEAPI_LIBRARY_PATH: ${{ github.workspace }}/${{ matrix.library }}
+          NATIVEAPI_LIBRARY_PATH: ${{ github.workspace }}/bindings/csharp/${{ matrix.library }}
         run: dotnet test NativeAPI.slnx -c Release --no-build --logger trx --results-directory TestResults
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results-${{ matrix.os }}
-          path: TestResults/*.trx
+          path: bindings/csharp/TestResults/*.trx
           if-no-files-found: ignore
