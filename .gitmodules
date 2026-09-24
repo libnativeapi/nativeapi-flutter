@@ -40,3 +40,6 @@
 [submodule "crates/cnativeapi/cxx_impl"]
 	path = bindings/rust/crates/cnativeapi/cxx_impl
 	url = https://github.com/libnativeapi/nativeapi.git
+[submodule "cxx_impl"]
+	path = bindings/csharp/src/CNativeAPI/cxx_impl
+	url = https://github.com/libnativeapi/nativeapi.git
