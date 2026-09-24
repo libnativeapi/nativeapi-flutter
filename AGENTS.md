@@ -87,7 +87,8 @@ scenarios for *this project's* examples live in [tools/gui/](tools/gui/README.md
 
 ## Conventions
 
-- `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer. The bindings' own submodules (each `cxx_impl`, the leanflutter packages) are moved by `./codegen sync` or by hand, never by `make`.
+- `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer. Each binding's embedded core (`cxx_impl`) is moved by `./codegen sync` or by hand, never by `make`.
+- The leanflutter packages built on nativeapi (`tray_manager`, `window_manager`, `launch_at_startup`, …) live in their own repos under github.com/leanflutter and depend on the published `nativeapi`; they are not part of this repo. To try one against local changes, point a `dependency_overrides` entry in that package at `bindings/flutter/packages/nativeapi` (and `cnativeapi`) and never commit the override.
 - Commit workspace submodule pointer updates only when the combination is compatible (a known-good snapshot).
 - CI is one workflow per binding (`flutter-ci.yml`, `rust-ci.yml`, `csharp-ci.yml`), each running only for changes under its `bindings/<lang>/`. Release tags are per binding: `v*` publishes Flutter (`flutter-publish.yml`), `rust-v*` publishes the crates (`rust-release.yml`); never push a bare `v*` tag for anything but Flutter.
 - Never commit in a submodule while on a detached HEAD — check out `main` first (`./codegen sync` enforces this).
