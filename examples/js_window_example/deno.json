@@ -1,5 +1,5 @@
 {
   "tasks": {
-    "start": "deno run --allow-ffi --allow-read --allow-env main.ts"
+    "start": "deno run --conditions=source --allow-ffi --allow-read --allow-env main.ts"
   }
 }

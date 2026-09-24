@@ -13,8 +13,6 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "deno": "./lib/index.ts",
-      "bun": "./lib/index.ts",
       "source": "./lib/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
@@ -24,6 +22,7 @@
     "dist",
     "lib",
     "src",
+    "scripts",
     "cxx_impl",
     "CMakeLists.txt",
     "prebuilds"

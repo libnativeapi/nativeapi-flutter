@@ -47,9 +47,12 @@ event loop instead, so `await Application.run()` resolves with the exit code onc
 
 | Runtime | Entry | Notes |
 | --- | --- | --- |
-| Node.js ≥ 22.18 | `dist/` (compiled), or `lib/` with `--conditions=source` | |
-| Deno 2 | `lib/` | needs `--allow-ffi --allow-read --allow-env` |
-| Bun | `lib/` | |
+| Node.js ≥ 22.18 | `dist/` | |
+| Deno 2 | `dist/` | needs `--allow-ffi --allow-read --allow-env` |
+| Bun | `dist/` | |
+
+Inside this repository, `--conditions=source` resolves the package to `lib/`
+instead, so the examples run without building `dist/`.
 
 Under hosts that own the UI thread and run JavaScript on another one —
 `deno desktop` does — every native call hops to the UI thread and events arrive
