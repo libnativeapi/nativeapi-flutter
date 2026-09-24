@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,8 +33,8 @@ class DisplayManagerPage extends StatefulWidget {
 }
 
 class _DisplayManagerPageState extends State<DisplayManagerPage> {
-  List<Display> _displays = [];
-  Display? _selectedDisplay;
+  List<na.Display> _displays = [];
+  na.Display? _selectedDisplay;
   bool _isLoading = true;
   String? _errorMessage;
   Window? _currentWindow;
@@ -89,7 +90,7 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
 
     if (mounted) {
       setState(() {
-        _cursorPosition = cursorPos;
+        _cursorPosition = cursorPos.toOffset();
         _currentWindow = currentWindow;
       });
     }
@@ -133,7 +134,7 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
     }
   }
 
-  void _selectDisplay(Display display) {
+  void _selectDisplay(na.Display display) {
     setState(() {
       _selectedDisplay = display;
     });
@@ -297,9 +298,9 @@ class _DisplayManagerPageState extends State<DisplayManagerPage> {
 }
 
 class DisplayCanvas extends StatelessWidget {
-  final List<Display> displays;
-  final Display? selectedDisplay;
-  final Function(Display) onDisplayTap;
+  final List<na.Display> displays;
+  final na.Display? selectedDisplay;
+  final Function(na.Display) onDisplayTap;
   final Window? currentWindow;
   final Offset cursorPosition;
 
@@ -372,7 +373,7 @@ class DisplayCanvas extends StatelessWidget {
     double maxY = double.negativeInfinity;
 
     for (final display in displays) {
-      final position = display.position;
+      final position = display.position.toOffset();
       final size = display.size;
       minX = minX < position.dx ? minX : position.dx;
       minY = minY < position.dy ? minY : position.dy;
@@ -387,9 +388,9 @@ class DisplayCanvas extends StatelessWidget {
     return Rect.fromLTWH(minX, minY, maxX - minX, maxY - minY);
   }
 
-  Widget _buildDisplay(Display display, Rect bounds, double scale) {
-    final workArea = display.workArea;
-    final position = display.position;
+  Widget _buildDisplay(na.Display display, Rect bounds, double scale) {
+    final workArea = display.workArea.toRect();
+    final position = display.position.toOffset();
     final size = display.size;
     final isSelected = selectedDisplay?.id == display.id;
     final isPrimary = display.isPrimary;
@@ -480,7 +481,7 @@ class DisplayCanvas extends StatelessWidget {
   }
 
   Widget _buildDisplayContent(
-    Display display,
+    na.Display display,
     double width,
     double height,
     bool isSelected,
@@ -555,7 +556,7 @@ class DisplayCanvas extends StatelessWidget {
 
   Widget _buildWindow(Window window, Rect bounds, double scale) {
     try {
-      final windowBounds = window.bounds;
+      final windowBounds = window.bounds.toRect();
       final windowLeft = (windowBounds.left - bounds.left) * scale;
       final windowTop = (windowBounds.top - bounds.top) * scale;
       final windowWidth = windowBounds.width * scale;
@@ -674,7 +675,7 @@ class DisplayCanvas extends StatelessWidget {
 }
 
 class DisplayDetails extends StatelessWidget {
-  final Display display;
+  final na.Display display;
 
   const DisplayDetails({super.key, required this.display});
 
@@ -823,7 +824,11 @@ class DisplayDetails extends StatelessWidget {
 
       _buildSection('Geometry', [
         _DetailItem(Icons.place, 'Position', _formatPosition()),
-        _DetailItem(Icons.fullscreen, 'Full Size', _formatSize(display.size)),
+        _DetailItem(
+          Icons.fullscreen,
+          'Full Size',
+          _formatSize(display.size.toSize()),
+        ),
         _DetailItem(
           Icons.crop_free,
           'Work Area Size',
@@ -929,7 +934,7 @@ class DisplayDetails extends StatelessWidget {
   }
 
   String _formatPosition() {
-    return '(${display.position.dx.toInt()}, ${display.position.dy.toInt()})';
+    return '(${display.position.x.toInt()}, ${display.position.y.toInt()})';
   }
 
   String _formatSize(Size size) {
@@ -937,13 +942,13 @@ class DisplayDetails extends StatelessWidget {
   }
 
   String _formatWorkAreaPosition() {
-    final workArea = display.workArea;
+    final workArea = display.workArea.toRect();
     return '(${workArea.left.toInt()}, ${workArea.top.toInt()})';
   }
 
   String _calculateSystemMargins() {
     final size = display.size;
-    final workArea = display.workArea;
+    final workArea = display.workArea.toRect();
 
     final topMargin = workArea.top;
     final bottomMargin = size.height - workArea.bottom;

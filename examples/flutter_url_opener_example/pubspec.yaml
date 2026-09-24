@@ -32,8 +32,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  nativeapi:
-    path: ../../bindings/dart/nativeapi
+  nativeapi_flutter:
+    path: ../../bindings/dart/nativeapi_flutter
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

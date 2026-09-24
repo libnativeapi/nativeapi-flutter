@@ -14,15 +14,25 @@
 
 | 包 | 说明 |
 | --- | --- |
-| [`nativeapi`](nativeapi) | API 本身：窗口、托盘图标、菜单、显示器、键盘、对话框、存储等。 |
-| [`cnativeapi`](cnativeapi) | 面向 core C ABI 的原始 FFI 绑定和原生构建，供 `nativeapi` 使用。 |
-| [`nativeapi_flutter`](nativeapi_flutter) | 面向 Flutter 的包，目前直接重新导出 `nativeapi`。 |
+| [`nativeapi`](nativeapi) | API 本身：窗口、托盘图标、菜单、显示器、键盘、对话框、存储等。纯 Dart，不依赖 Flutter。 |
+| [`cnativeapi`](cnativeapi) | 面向 core C ABI 的原始 FFI 绑定，由 build hook 编译 core，供 `nativeapi` 使用。 |
+| [`nativeapi_flutter`](nativeapi_flutter) | 给 Flutter 应用用：重新导出 `nativeapi`，并提供 widget、与 `dart:ui` 类型的互转和多窗口桥接。 |
 
 ## 安装
 
+Flutter 应用：
+
 ```bash
-flutter pub add nativeapi
+flutter pub add nativeapi_flutter
 ```
+
+Dart 应用（命令行或其他 Dart 宿主）：
+
+```bash
+dart pub add nativeapi
+```
+
+`nativeapi` 有自己的 `Point`、`Size`、`Rectangle`、`Color` 类型。`nativeapi_flutter` 提供它们与 `dart:ui` 类型的互转（`window.bounds.toRect()`、`Offset(10, 20).toNative()`），并且不重新导出与 Flutter 重名的 nativeapi 名字（`Brightness`、`Color`、`Display`、`Image`、`ModifierKey`、`ShortcutManager`、`Size`）；需要写出这些类型时，给 `package:nativeapi/nativeapi.dart` 加 import 前缀。
 
 ## 快速开始
 
@@ -36,7 +46,7 @@ for (final display in DisplayManager.instance.getAll()) {
 
 ### 自定义窗口标题栏
 
-用 `DragToMoveArea` 包裹自定义标题栏即可拖动窗口（双击最大化/还原），用 `DragToResizeArea` 包裹窗口内容即可从边缘和四角调整大小：
+引入 `package:nativeapi_flutter/nativeapi_flutter.dart` 后，用 `DragToMoveArea` 包裹自定义标题栏即可拖动窗口（双击最大化/还原），用 `DragToResizeArea` 包裹窗口内容即可从边缘和四角调整大小：
 
 ```dart
 DragToResizeArea(
@@ -61,8 +71,8 @@ DragToResizeArea(
 ```dart
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart';
-import 'package:nativeapi/windowing.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
+import 'package:nativeapi_flutter/windowing.dart';
 
 // 在 WidgetsFlutterBinding.ensureInitialized() 之前：stable 没有
 // `flutter config --enable-windowing`，所以由应用自己打开这个开关。
@@ -80,7 +90,7 @@ window?.titleBarStyle = TitleBarStyle.hidden;
 window?.isAlwaysOnTop = true;
 ```
 
-所有窗口共用一个 engine 和一个 isolate，窗口之间直接通过普通 Dart 对象通信——不需要改 runner，也不需要消息通道。Flutter 的多窗口 API 仍是实验性的、属于框架内部接口，因此这个桥接单独放在 `package:nativeapi/windowing.dart` 里。它针对 **stable** channel 编写（已在 3.47.5 上验证）；stable 不提供 `flutter config --enable-windowing`，所以示例在 `main()` 里直接打开 Flutter 内部的 `isWindowingEnabled`。子窗口的完整例子见 [`floating_toolbar_example`](../../examples/flutter_floating_toolbar_example)，另见 [`browser_tabs_example`](../../examples/flutter_browser_tabs_example) 和 [`detachable_window_example`](../../examples/flutter_detachable_window_example)。
+所有窗口共用一个 engine 和一个 isolate，窗口之间直接通过普通 Dart 对象通信——不需要改 runner，也不需要消息通道。Flutter 的多窗口 API 仍是实验性的、属于框架内部接口，因此这个桥接单独放在 `package:nativeapi_flutter/windowing.dart` 里。它针对 **stable** channel 编写（已在 3.47.5 上验证）；stable 不提供 `flutter config --enable-windowing`，所以示例在 `main()` 里直接打开 Flutter 内部的 `isWindowingEnabled`。子窗口的完整例子见 [`floating_toolbar_example`](../../examples/flutter_floating_toolbar_example)，另见 [`browser_tabs_example`](../../examples/flutter_browser_tabs_example) 和 [`detachable_window_example`](../../examples/flutter_detachable_window_example)。
 
 ## 示例
 

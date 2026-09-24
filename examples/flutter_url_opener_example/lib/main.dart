@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void main() {
   runApp(const UrlOpenerExampleApp());

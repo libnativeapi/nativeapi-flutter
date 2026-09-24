@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart' hide Image;
-import 'package:nativeapi/nativeapi.dart';
+import 'package:flutter/material.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
 
 /// A generator for creating animated icons for MenuItem.
 ///
@@ -47,7 +47,7 @@ class AnimatedIconGenerator {
   /// The animation continuously rotates a circular loader. Update interval
   /// controls how fast the animation runs (lower = faster).
   Future<void> startSpinner({
-    required Future<void> Function(Image) onFrame,
+    required Future<void> Function(na.Image) onFrame,
     Duration updateInterval = const Duration(milliseconds: 100),
   }) async {
     stop();
@@ -62,7 +62,7 @@ class AnimatedIconGenerator {
   ///
   /// Creates a pulsing circular dot that expands and contracts.
   Future<void> startPulse({
-    required Future<void> Function(Image) onFrame,
+    required Future<void> Function(na.Image) onFrame,
     Duration updateInterval = const Duration(milliseconds: 150),
   }) async {
     stop();
@@ -77,7 +77,7 @@ class AnimatedIconGenerator {
   ///
   /// Creates a simple on/off blinking effect.
   Future<void> startBlink({
-    required Future<void> Function(Image) onFrame,
+    required Future<void> Function(na.Image) onFrame,
     Duration updateInterval = const Duration(milliseconds: 500),
   }) async {
     stop();
@@ -92,7 +92,7 @@ class AnimatedIconGenerator {
   ///
   /// Shows a horizontal progress bar that fills from left to right.
   Future<void> startProgress({
-    required Future<void> Function(Image) onFrame,
+    required Future<void> Function(na.Image) onFrame,
     Duration updateInterval = const Duration(milliseconds: 80),
   }) async {
     stop();
@@ -107,7 +107,7 @@ class AnimatedIconGenerator {
   ///
   /// Creates a vertical wave pattern that moves left to right.
   Future<void> startWave({
-    required Future<void> Function(Image) onFrame,
+    required Future<void> Function(na.Image) onFrame,
     Duration updateInterval = const Duration(milliseconds: 100),
   }) async {
     stop();
@@ -122,7 +122,7 @@ class AnimatedIconGenerator {
   ///
   /// Rotates a square icon continuously.
   Future<void> startRotatingSquare({
-    required Future<void> Function(Image) onFrame,
+    required Future<void> Function(na.Image) onFrame,
     Duration updateInterval = const Duration(milliseconds: 100),
   }) async {
     stop();
@@ -151,7 +151,7 @@ class AnimatedIconGenerator {
   }
 
   // Generate spinner frame
-  Future<Image> _generateSpinnerFrame() async {
+  Future<na.Image> _generateSpinnerFrame() async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     _setupCanvas(canvas);
@@ -187,7 +187,7 @@ class AnimatedIconGenerator {
   }
 
   // Generate pulse frame
-  Future<Image> _generatePulseFrame() async {
+  Future<na.Image> _generatePulseFrame() async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     _setupCanvas(canvas);
@@ -209,7 +209,7 @@ class AnimatedIconGenerator {
   }
 
   // Generate blink frame
-  Future<Image> _generateBlinkFrame() async {
+  Future<na.Image> _generateBlinkFrame() async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     _setupCanvas(canvas);
@@ -228,7 +228,7 @@ class AnimatedIconGenerator {
   }
 
   // Generate progress frame
-  Future<Image> _generateProgressFrame() async {
+  Future<na.Image> _generateProgressFrame() async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     _setupCanvas(canvas);
@@ -250,7 +250,7 @@ class AnimatedIconGenerator {
   }
 
   // Generate wave frame
-  Future<Image> _generateWaveFrame() async {
+  Future<na.Image> _generateWaveFrame() async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     _setupCanvas(canvas);
@@ -281,7 +281,7 @@ class AnimatedIconGenerator {
   }
 
   // Generate rotating square frame
-  Future<Image> _generateRotatingSquareFrame() async {
+  Future<na.Image> _generateRotatingSquareFrame() async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     _setupCanvas(canvas);
@@ -318,7 +318,7 @@ class AnimatedIconGenerator {
   }
 
   // Convert canvas to Image object with high DPI support
-  Future<Image> _imageFromCanvas(ui.PictureRecorder recorder) async {
+  Future<na.Image> _imageFromCanvas(ui.PictureRecorder recorder) async {
     final picture = recorder.endRecording();
 
     // Calculate high DPI image size (canvas already scaled by devicePixelRatio)
@@ -337,6 +337,6 @@ class AnimatedIconGenerator {
 
     _currentFrame++;
 
-    return Image.fromBase64(base64String)!;
+    return na.Image.fromBase64(base64String)!;
   }
 }

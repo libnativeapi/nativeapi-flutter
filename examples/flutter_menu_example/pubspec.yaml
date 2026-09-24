@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Native API for native menu functionality
+  nativeapi_flutter:
+    path: ../../bindings/dart/nativeapi_flutter
   nativeapi:
     path: ../../bindings/dart/nativeapi
 

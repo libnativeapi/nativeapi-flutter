@@ -1,3 +1,17 @@
+## Unreleased
+
+* cnativeapi is now a plain Dart package instead of a Flutter FFI plugin, so it
+  works in Dart command-line apps as well as Flutter apps. A build hook
+  (`hook/build.dart`) compiles the nativeapi core with the target's toolchain
+  in place of the per-platform CMake, CocoaPods and SwiftPM projects.
+* **Breaking:** the bindings are top-level `@Native` functions. The
+  `CNativeApiBindings` class and the `cnativeApiBindings` instance are gone;
+  call `native_window_create()` instead of
+  `cnativeApiBindings.native_window_create()`. Enum-typed struct fields are
+  now also readable as the Dart enum; the raw value is `<field>AsInt`.
+* The WinUI 3 backend on Windows (`NATIVEAPI_ENABLE_WINUI3`) is not built by
+  the hook; the Win32 implementations are used.
+
 ## 0.3.1
 
 * `native_window_set_content_under_title_bar`,

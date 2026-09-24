@@ -29,17 +29,13 @@ jobs:
           channel: stable
           version: 3.47.5
 
-      # The cnativeapi package must carry core's sources: copy them into
-      # cxx_impl/ (untracked; the CMake build prefers it when present) and point
-      # the Apple source wrappers there. The rewritten wrappers go into a local
-      # commit that is never pushed, because `dart pub publish` warns about
-      # modified checked-in files.
+      # The cnativeapi package must carry core's sources: its build hook
+      # compiles cxx_impl/ when present (untracked, so the checkout stays clean
+      # and `dart pub publish` still ships it).
       - name: Vendor core into cnativeapi
         run: |
           mkdir bindings/dart/cnativeapi/cxx_impl
           git -C core archive HEAD | tar -x -C bindings/dart/cnativeapi/cxx_impl
-          python3 bindings/dart/cnativeapi/codegen.py --core-dir bindings/dart/cnativeapi/cxx_impl --sources-only
-          git -c user.name=release -c user.email=release@localhost commit -qam "Point cnativeapi at its vendored core (not pushed)"
 
       # Publish cnativeapi
       - name: Install dependencies (cnativeapi)

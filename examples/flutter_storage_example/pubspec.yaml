@@ -37,8 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   
   # Native API for native storage functionality
-  nativeapi:
-    path: ../../bindings/dart/nativeapi
+  nativeapi_flutter:
+    path: ../../bindings/dart/nativeapi_flutter
 
 dev_dependencies:
   flutter_test:

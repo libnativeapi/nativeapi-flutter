@@ -1,22 +1,22 @@
 name: nativeapi
-description: "Flutter bindings for nativeapi - providing seamless, unified access to native system APIs."
+description: "Dart bindings for nativeapi - providing seamless, unified access to native system APIs."
 version: 0.3.1
 homepage: https://github.com/libnativeapi/nativeapi-flutter
 resolution: workspace
 
 environment:
   sdk: ^3.13.0
-  flutter: ">=3.47.0"
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
 
 dependencies:
-  ffi: ">=1.2.1 <3.0.0"
-  flutter:
-    sdk: flutter
   cnativeapi: ^0.3.1
-  path: ^1.9.1
-  meta: ^1.16.0
+  ffi: ">=1.2.1 <3.0.0"
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
+  lints: ^5.1.1

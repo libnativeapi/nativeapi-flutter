@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as na;
 
 import 'src/browser_window.dart';
 import 'src/tabs_controller.dart';
@@ -51,7 +51,7 @@ class _BrowserTabsAppState extends State<BrowserTabsApp> {
   }
 
   void _placeSideBySide(List<BrowserWindow> windows) {
-    final area = na.DisplayManager.instance.getPrimary()?.workArea;
+    final area = na.DisplayManager.instance.getPrimary()?.workArea.toRect();
     if (area == null) return;
     for (var i = 0; i < windows.length; i++) {
       final native = windows[i].nativeWindow;
@@ -65,7 +65,7 @@ class _BrowserTabsAppState extends State<BrowserTabsApp> {
           area.left +
           (area.width - width - step * (windows.length - 1)) / 2 +
           step * i;
-      native.position = Offset(left, area.top + 80 + 60.0 * i);
+      native.position = Offset(left, area.top + 80 + 60.0 * i).toNative();
     }
   }
 

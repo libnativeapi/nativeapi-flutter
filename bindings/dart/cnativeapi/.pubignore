@@ -1,4 +1,4 @@
 cxx_impl/.cursor
 cxx_impl/.github
 cxx_impl/examples
-codegen.py
+ffigen.yaml

@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -14,8 +13,6 @@ import 'image.dart';
 import 'menu.dart';
 
 import 'support.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 typedef TrayIconId = int;
 
@@ -64,14 +61,14 @@ sealed class TrayIconEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static TrayIconEvent? fromNative(c.native_tray_icon_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_tray_icon_event_type_t
             .NATIVE_TRAY_ICON_EVENT_TYPE_CLICKED
             .value) {
       return TrayIconClickedEvent(trayIconId: raw.data.clicked.tray_icon_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_tray_icon_event_type_t
             .NATIVE_TRAY_ICON_EVENT_TYPE_RIGHT_CLICKED
@@ -80,7 +77,7 @@ sealed class TrayIconEvent {
         trayIconId: raw.data.right_clicked.tray_icon_id,
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_tray_icon_event_type_t
             .NATIVE_TRAY_ICON_EVENT_TYPE_DOUBLE_CLICKED
@@ -125,70 +122,68 @@ class TrayIcon {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_tray_icon_free(handle),
+    (handle) => c.native_tray_icon_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_tray_icon_free(nativeHandle);
+    c.native_tray_icon_free(nativeHandle);
   }
 
   /// Creates a new `TrayIcon`; returns null if the native side failed.
   static TrayIcon? create() {
-    final handle = _bindings.native_tray_icon_create();
+    final handle = c.native_tray_icon_create();
     if (handle == 0) return null;
     return TrayIcon.fromHandle(handle);
   }
 
   /// Creates a new `TrayIcon`; returns null if the native side failed.
   static TrayIcon? createWithTray(ffi.Pointer<ffi.Void> tray) {
-    final handle = _bindings.native_tray_icon_create_with_tray(tray);
+    final handle = c.native_tray_icon_create_with_tray(tray);
     if (handle == 0) return null;
     return TrayIcon.fromHandle(handle);
   }
 
   TrayIconId getId() {
-    return _bindings.native_tray_icon_get_id(nativeHandle);
+    return c.native_tray_icon_get_id(nativeHandle);
   }
 
   set icon(Image? value) {
-    _bindings.native_tray_icon_set_icon(nativeHandle, value?.nativeHandle ?? 0);
+    c.native_tray_icon_set_icon(nativeHandle, value?.nativeHandle ?? 0);
   }
 
   Image? get icon {
-    final handle = _bindings.native_tray_icon_get_icon(nativeHandle);
+    final handle = c.native_tray_icon_get_icon(nativeHandle);
     if (handle == 0) return null;
     return Image.fromHandle(handle);
   }
 
   set isIconTemplate(bool value) {
-    _bindings.native_tray_icon_set_icon_template(nativeHandle, value);
+    c.native_tray_icon_set_icon_template(nativeHandle, value);
   }
 
   bool get isIconTemplate {
-    return _bindings.native_tray_icon_is_icon_template(nativeHandle);
+    return c.native_tray_icon_is_icon_template(nativeHandle);
   }
 
   set iconSize(Size value) {
-    final valuePointer = pkg_ffi.calloc<c.native_size_t>();
-    valuePointer.ref.width = value.width;
-    valuePointer.ref.height = value.height;
-    _bindings.native_tray_icon_set_icon_size(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+    final valuePointer = value.allocNative();
+    c.native_tray_icon_set_icon_size(nativeHandle, valuePointer.ref);
+    Size.freeNative(valuePointer);
   }
 
   Size get iconSize {
-    final raw = _bindings.native_tray_icon_get_icon_size(nativeHandle);
-    return Size(raw.width, raw.height);
+    final raw = c.native_tray_icon_get_icon_size(nativeHandle);
+    return Size.fromNative(raw);
   }
 
   set iconPosition(TrayIconPosition value) {
-    _bindings.native_tray_icon_set_icon_position(nativeHandle, value.raw);
+    c.native_tray_icon_set_icon_position(nativeHandle, value.raw);
   }
 
   TrayIconPosition get iconPosition {
-    final raw = _bindings.native_tray_icon_get_icon_position(nativeHandle);
+    final raw = c.native_tray_icon_get_icon_position(nativeHandle);
     return TrayIconPosition.fromValue(raw.value);
   }
 
@@ -196,15 +191,15 @@ class TrayIcon {
     final titleNative = title == null
         ? ffi.nullptr
         : title.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_tray_icon_set_title(nativeHandle, titleNative);
+    c.native_tray_icon_set_title(nativeHandle, titleNative);
     if (titleNative != ffi.nullptr) pkg_ffi.calloc.free(titleNative);
   }
 
   String? getTitle() {
-    final resultPointer = _bindings.native_tray_icon_get_title(nativeHandle);
+    final resultPointer = c.native_tray_icon_get_title(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
@@ -212,69 +207,61 @@ class TrayIcon {
     final tooltipNative = tooltip == null
         ? ffi.nullptr
         : tooltip.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_tray_icon_set_tooltip(nativeHandle, tooltipNative);
+    c.native_tray_icon_set_tooltip(nativeHandle, tooltipNative);
     if (tooltipNative != ffi.nullptr) pkg_ffi.calloc.free(tooltipNative);
   }
 
   String? getTooltip() {
-    final resultPointer = _bindings.native_tray_icon_get_tooltip(nativeHandle);
+    final resultPointer = c.native_tray_icon_get_tooltip(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
   void setContextMenu(Menu? menu) {
-    _bindings.native_tray_icon_set_context_menu(
-      nativeHandle,
-      menu?.nativeHandle ?? 0,
-    );
+    c.native_tray_icon_set_context_menu(nativeHandle, menu?.nativeHandle ?? 0);
   }
 
   Menu? getContextMenu() {
-    final handle = _bindings.native_tray_icon_get_context_menu(nativeHandle);
+    final handle = c.native_tray_icon_get_context_menu(nativeHandle);
     if (handle == 0) return null;
     return Menu.fromHandle(handle);
   }
 
   void setContextMenuTrigger(ContextMenuTrigger trigger) {
-    _bindings.native_tray_icon_set_context_menu_trigger(
-      nativeHandle,
-      trigger.raw,
-    );
+    c.native_tray_icon_set_context_menu_trigger(nativeHandle, trigger.raw);
   }
 
   ContextMenuTrigger getContextMenuTrigger() {
-    final raw = _bindings.native_tray_icon_get_context_menu_trigger(
-      nativeHandle,
-    );
+    final raw = c.native_tray_icon_get_context_menu_trigger(nativeHandle);
     return ContextMenuTrigger.fromValue(raw.value);
   }
 
-  Rect getBounds() {
-    final raw = _bindings.native_tray_icon_get_bounds(nativeHandle);
-    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+  Rectangle getBounds() {
+    final raw = c.native_tray_icon_get_bounds(nativeHandle);
+    return Rectangle.fromNative(raw);
   }
 
   bool setVisible(bool visible) {
-    return _bindings.native_tray_icon_set_visible(nativeHandle, visible);
+    return c.native_tray_icon_set_visible(nativeHandle, visible);
   }
 
   bool isVisible() {
-    return _bindings.native_tray_icon_is_visible(nativeHandle);
+    return c.native_tray_icon_is_visible(nativeHandle);
   }
 
   bool openContextMenu() {
-    return _bindings.native_tray_icon_open_context_menu(nativeHandle);
+    return c.native_tray_icon_open_context_menu(nativeHandle);
   }
 
   bool closeContextMenu() {
-    return _bindings.native_tray_icon_close_context_menu(nativeHandle);
+    return c.native_tray_icon_close_context_menu(nativeHandle);
   }
 
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
-      _bindings.native_tray_icon_get_native_object(nativeHandle);
+      c.native_tray_icon_get_native_object(nativeHandle);
 
   /// Registers [callback] for every `TrayIconEvent` this `TrayIcon` emits.
   ///
@@ -298,7 +285,7 @@ class TrayIcon {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_tray_icon_add_listener(
+    return c.native_tray_icon_add_listener(
       nativeHandle,
       callable.nativeFunction,
       ffi.nullptr,
@@ -307,7 +294,7 @@ class TrayIcon {
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
-      _bindings.native_tray_icon_remove_listener(nativeHandle, listenerId);
+      c.native_tray_icon_remove_listener(nativeHandle, listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];

@@ -8,6 +8,7 @@ Orchestrates the Rust generators in tools/codegen against the workspace layout:
     ./codegen bindings           # bindings only (parses headers, writes no C ABI)
     ./codegen bindings --lang rust,swift
     ./codegen check              # verify everything is up to date (CI mode)
+    ./codegen ffigen             # Dart bindings, then ffigen (cnativeapi's raw FFI)
     ./codegen readme             # copy the shared README sections into every repo
     ./codegen sync               # after a core change: regenerate everything,
                                  #   rerun bindgen/ffigen, and commit core,
@@ -21,10 +22,13 @@ repository under bindings/ and builds against the core/ submodule directly.
 """
 
 import argparse
+import json
+import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 WORKSPACE = Path(__file__).resolve().parent
@@ -191,23 +195,40 @@ def regen_rust_raw_ffi(repo: Path) -> bool:
     return True
 
 
-def regen_flutter_ffi(repo: Path) -> bool:
-    """Run the Dart binding's own codegen.py (mm includes, umbrella headers,
-    ffigen.yaml, dart ffigen)."""
+def regen_dart_ffi(repo: Path) -> bool:
+    """Run ffigen over bindings/dart/cnativeapi/ffigen.yaml (written by the
+    bindings generator), refreshing lib/src/bindings_generated.dart."""
     package = repo / "cnativeapi"
     if shutil.which("dart") is None:
-        print("warning: dart not installed, skipped flutter ffigen regeneration",
-              file=sys.stderr)
+        print("warning: dart not installed, skipped ffigen", file=sys.stderr)
         return False
     if subprocess.run(["dart", "pub", "get"], cwd=package).returncode != 0:
-        print("warning: dart pub get failed; skipped flutter ffigen regeneration",
-              file=sys.stderr)
+        print("warning: dart pub get failed; skipped ffigen", file=sys.stderr)
         return False
-    result = subprocess.run(
-        [sys.executable, "codegen.py"], cwd=package,
-    )
+    config = package / "ffigen.yaml"
+    temporary = None
+    try:
+        # LIBCLANG_PATH names libclang or its directory; ffigen wants the LLVM
+        # root in llvm-path. Keep that machine-specific path out of the
+        # checked-in configuration by passing it through a temporary copy.
+        if os.environ.get("LIBCLANG_PATH"):
+            llvm = Path(os.environ["LIBCLANG_PATH"])
+            if llvm.is_file():
+                llvm = llvm.parent
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", dir=package,
+                                             encoding="utf-8", delete=False) as out:
+                out.write(config.read_text(encoding="utf-8"))
+                out.write("\nllvm-path:\n")
+                for candidate in (llvm, llvm.parent):
+                    out.write("  - " + json.dumps(str(candidate)) + "\n")
+            temporary = config = Path(out.name)
+        result = subprocess.run(["dart", "run", "ffigen", "--config", str(config)],
+                                cwd=package)
+    finally:
+        if temporary:
+            temporary.unlink()
     if result.returncode != 0:
-        print("warning: flutter codegen.py failed; its outputs may be stale",
+        print("warning: ffigen failed; bindings_generated.dart may be stale",
               file=sys.stderr)
         return False
     return True
@@ -247,7 +268,7 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
         if binding == BINDINGS["rust"][1]:
             regen_rust_raw_ffi(binding)
         if binding == BINDINGS["dart"][1]:
-            regen_flutter_ffi(binding)
+            regen_dart_ffi(binding)
 
     # The core pointer, plus everything under the synced bindings.
     print("==> committing workspace")
@@ -283,7 +304,7 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
 def main() -> None:
     cli = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     cli.add_argument("command", nargs="?", default="all",
-                     choices=["all", "capi", "bindings", "check", "readme", "sync"])
+                     choices=["all", "capi", "bindings", "check", "ffigen", "readme", "sync"])
     cli.add_argument("--lang", default=",".join(BINDINGS),
                      help="comma-separated subset of: " + ",".join(BINDINGS))
     cli.add_argument("--dump-ir", type=Path, metavar="PATH",
@@ -315,6 +336,11 @@ def main() -> None:
     elif args.command == "bindings":
         run_capi(ir, check=False, parse_only=True)
         run_bindings(ir, langs, check=False)
+    elif args.command == "ffigen":
+        run_capi(ir, check=False, parse_only=True)
+        run_bindings(ir, ["dart"], check=False)
+        if not regen_dart_ffi(BINDINGS["dart"][1]):
+            sys.exit(1)
     elif args.command == "sync":
         cmd_sync(args, langs, ir)
 

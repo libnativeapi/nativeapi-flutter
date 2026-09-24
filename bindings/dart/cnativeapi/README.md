@@ -1,8 +1,10 @@
 # cnativeapi
 
-Native API C bindings for Flutter, auto-generated via [ffigen](https://pub.dev/packages/ffigen) from the [libnativeapi](https://github.com/libnativeapi/nativeapi-core) C library.
+Raw Dart FFI bindings to the C API of [libnativeapi](https://github.com/libnativeapi/nativeapi-core), generated with [ffigen](https://pub.dev/packages/ffigen).
 
 > This package provides low-level FFI bindings and is typically used as an internal dependency of [`nativeapi`](https://pub.dev/packages/nativeapi). You generally don't need to depend on it directly.
+
+It is a plain Dart package and does not depend on Flutter. Its [build hook](https://dart.dev/tools/hooks) (`hook/build.dart`) compiles the nativeapi core into a shared library whenever a Dart or Flutter app that depends on it is built, and every function is an `@Native` external bound to that library.
 
 ## Platform Support
 
@@ -10,28 +12,27 @@ Native API C bindings for Flutter, auto-generated via [ffigen](https://pub.dev/p
 |:-------:|:---:|:-----:|:-----:|:-------:|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-## Usage
+Building needs a C++17 toolchain for the target: Xcode on macOS and iOS, the Android NDK, Visual Studio on Windows, and on Linux clang or GCC plus the GTK 3, X11 and Xi development packages (found with `pkg-config`).
 
-If you need to use the raw C bindings directly:
+## Usage
 
 ```dart
 import 'package:cnativeapi/cnativeapi.dart';
 ```
 
+See [example/cnativeapi_example.dart](example/cnativeapi_example.dart); run it with `dart run example/cnativeapi_example.dart`.
+
 For higher-level Dart APIs, use the [`nativeapi`](https://pub.dev/packages/nativeapi) package instead.
 
 ## Regenerating Bindings
 
-Bindings are generated from C headers using `ffigen`. To regenerate:
+Bindings are generated from the C headers in `core/src/capi/`. From the repository root:
 
 ```bash
-cd bindings/dart/cnativeapi
-dart run ffigen --config ffigen.yaml
+./codegen
 ```
 
-Regeneration is needed when:
-- The native C library ([libnativeapi/nativeapi-core](https://github.com/libnativeapi/nativeapi-core)) is updated
-- The `ffigen.yaml` configuration is modified
+or, for this package alone, `./codegen ffigen` (set `LIBCLANG_PATH` if ffigen cannot find libclang).
 
 ## License
 

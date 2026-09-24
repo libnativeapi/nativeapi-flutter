@@ -6,6 +6,8 @@ name: CNativeApiBindings
 description: |
   Bindings for `nativeapi capi`.
 output: "lib/src/bindings_generated.dart"
+ffi-native:
+  asset-id: "package:cnativeapi/cnativeapi.dart"
 headers:
   entry-points:
     - "../../../core/src/capi/accessibility_manager_c.h"

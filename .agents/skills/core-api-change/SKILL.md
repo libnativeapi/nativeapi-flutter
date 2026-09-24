@@ -145,8 +145,8 @@ core pointer plus everything regenerated under `bindings/`. The bindings build a
 **A binding has unrelated work — manual path.** Same steps, staged narrowly:
 
 1. Commit core yourself (`git -C core add <paths> && git -C core commit -m ...`).
-2. `./codegen`; rust → rerun bindgen (command in `tools/codegen/README.md`); flutter →
-   `python3 codegen.py` in `bindings/dart/cnativeapi`.
+2. `./codegen`; rust → rerun bindgen (command in `tools/codegen/README.md`); dart →
+   `./codegen ffigen`.
 3. Workspace: `git add core` plus only the generated paths under `bindings/`; commit as
    `Sync with core <sha9>`.
 

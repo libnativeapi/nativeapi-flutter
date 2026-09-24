@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -14,8 +13,6 @@ import 'window.dart';
 
 import 'support.dart';
 
-final _bindings = c.cnativeApiBindings;
-
 class WindowManager {
   const WindowManager._();
 
@@ -23,13 +20,13 @@ class WindowManager {
   static const WindowManager instance = WindowManager._();
 
   Window? get(WindowId id) {
-    final handle = _bindings.native_window_manager_get(id);
+    final handle = c.native_window_manager_get(id);
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
 
   List<Window> getAll() {
-    final list = _bindings.native_window_manager_get_all();
+    final list = c.native_window_manager_get_all();
     final items = <Window>[];
     for (var i = 0; i < list.count; i++) {
       items.add(Window.fromHandle(list.windows[i]));
@@ -37,26 +34,24 @@ class WindowManager {
     final listPointer = pkg_ffi.calloc<c.native_window_list_t>();
     listPointer.ref = list;
     // The handles now belong to `items`; free just the array.
-    _bindings.native_window_list_release(listPointer);
+    c.native_window_list_release(listPointer);
     pkg_ffi.calloc.free(listPointer);
     return items;
   }
 
   Window? getCurrent() {
-    final handle = _bindings.native_window_manager_get_current();
+    final handle = c.native_window_manager_get_current();
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
 
-  Window? getWindowAtPoint(Offset point, WindowId excludedWindowId) {
-    final pointPointer = pkg_ffi.calloc<c.native_point_t>();
-    pointPointer.ref.x = point.dx;
-    pointPointer.ref.y = point.dy;
-    final handle = _bindings.native_window_manager_get_window_at_point(
+  Window? getWindowAtPoint(Point point, WindowId excludedWindowId) {
+    final pointPointer = point.allocNative();
+    final handle = c.native_window_manager_get_window_at_point(
       pointPointer.ref,
       excludedWindowId,
     );
-    pkg_ffi.calloc.free(pointPointer);
+    Point.freeNative(pointPointer);
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
@@ -70,7 +65,7 @@ class WindowManager {
             hook(arg0);
           });
     if (hookCallable != null) _listeners.add(hookCallable);
-    _bindings.native_window_manager_set_will_show_hook(
+    c.native_window_manager_set_will_show_hook(
       hookCallable?.nativeFunction ?? ffi.nullptr,
       ffi.nullptr,
     );
@@ -85,34 +80,34 @@ class WindowManager {
             hook(arg0);
           });
     if (hookCallable != null) _listeners.add(hookCallable);
-    _bindings.native_window_manager_set_will_hide_hook(
+    c.native_window_manager_set_will_hide_hook(
       hookCallable?.nativeFunction ?? ffi.nullptr,
       ffi.nullptr,
     );
   }
 
   bool hasWillShowHook() {
-    return _bindings.native_window_manager_has_will_show_hook();
+    return c.native_window_manager_has_will_show_hook();
   }
 
   bool hasWillHideHook() {
-    return _bindings.native_window_manager_has_will_hide_hook();
+    return c.native_window_manager_has_will_hide_hook();
   }
 
   void handleWillShow(WindowId id) {
-    _bindings.native_window_manager_handle_will_show(id);
+    c.native_window_manager_handle_will_show(id);
   }
 
   void handleWillHide(WindowId id) {
-    _bindings.native_window_manager_handle_will_hide(id);
+    c.native_window_manager_handle_will_hide(id);
   }
 
   bool callOriginalShow(WindowId id) {
-    return _bindings.native_window_manager_call_original_show(id);
+    return c.native_window_manager_call_original_show(id);
   }
 
   bool callOriginalHide(WindowId id) {
-    return _bindings.native_window_manager_call_original_hide(id);
+    return c.native_window_manager_call_original_hide(id);
   }
 
   /// Registers [callback] for every `WindowEvent` this `WindowManager` emits.
@@ -137,7 +132,7 @@ class WindowManager {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_window_manager_add_listener(
+    return c.native_window_manager_add_listener(
       callable.nativeFunction,
       ffi.nullptr,
     );
@@ -145,7 +140,7 @@ class WindowManager {
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
-      _bindings.native_window_manager_remove_listener(listenerId);
+      c.native_window_manager_remove_listener(listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];

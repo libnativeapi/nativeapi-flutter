@@ -4,12 +4,9 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
-
-final _bindings = c.cnativeApiBindings;
 
 typedef ShortcutId = int;
 
@@ -45,6 +42,22 @@ class ShortcutOptions {
   final ShortcutScope scope;
   final bool enabled;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ShortcutOptions &&
+          other.accelerator == accelerator &&
+          other.description == description &&
+          other.scope == scope &&
+          other.enabled == enabled);
+
+  @override
+  int get hashCode => Object.hash(accelerator, description, scope, enabled);
+
+  @override
+  String toString() =>
+      'ShortcutOptions(accelerator: $accelerator, description: $description, scope: $scope, enabled: $enabled)';
+
   factory ShortcutOptions.fromNative(c.native_shortcut_options_t raw) =>
       ShortcutOptions(
         accelerator: raw.accelerator == ffi.nullptr
@@ -53,7 +66,7 @@ class ShortcutOptions {
         description: raw.description == ffi.nullptr
             ? null
             : raw.description.cast<pkg_ffi.Utf8>().toDartString(),
-        scope: ShortcutScope.fromValue(raw.scope),
+        scope: ShortcutScope.fromValue(raw.scopeAsInt),
         enabled: raw.enabled,
       );
 
@@ -67,7 +80,7 @@ class ShortcutOptions {
     pointer.ref.description = description == null
         ? ffi.nullptr
         : description!.toNativeUtf8().cast<ffi.Char>();
-    pointer.ref.scope = scope.value;
+    pointer.ref.scopeAsInt = scope.value;
     pointer.ref.enabled = enabled;
     return pointer;
   }
@@ -93,7 +106,7 @@ sealed class ShortcutEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static ShortcutEvent? fromNative(c.native_shortcut_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_shortcut_event_type_t
             .NATIVE_SHORTCUT_EVENT_TYPE_ACTIVATED
@@ -105,7 +118,7 @@ sealed class ShortcutEvent {
             : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_shortcut_event_type_t
             .NATIVE_SHORTCUT_EVENT_TYPE_REGISTERED
@@ -117,7 +130,7 @@ sealed class ShortcutEvent {
             : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_shortcut_event_type_t
             .NATIVE_SHORTCUT_EVENT_TYPE_UNREGISTERED
@@ -129,7 +142,7 @@ sealed class ShortcutEvent {
             : raw.accelerator.cast<pkg_ffi.Utf8>().toDartString(),
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_shortcut_event_type_t
             .NATIVE_SHORTCUT_EVENT_TYPE_REGISTRATION_FAILED
@@ -214,13 +227,13 @@ class Shortcut {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_shortcut_free(handle),
+    (handle) => c.native_shortcut_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_shortcut_free(nativeHandle);
+    c.native_shortcut_free(nativeHandle);
   }
 
   /// Creates a new `Shortcut`; returns null if the native side failed.
@@ -229,7 +242,7 @@ class Shortcut {
     ShortcutOptions options,
   ) {
     final optionsPointer = options.allocNative();
-    final handle = _bindings.native_shortcut_create_with_id_and_options(
+    final handle = c.native_shortcut_create_with_id_and_options(
       id,
       optionsPointer.ref,
     );
@@ -252,7 +265,7 @@ class Shortcut {
           callback();
         });
     _listeners.add(callbackCallable);
-    final handle = _bindings
+    final handle = c
         .native_shortcut_create_with_id_and_accelerator_and_callback(
           id,
           acceleratorNative,
@@ -265,50 +278,46 @@ class Shortcut {
   }
 
   ShortcutId get id {
-    return _bindings.native_shortcut_get_id(nativeHandle);
+    return c.native_shortcut_get_id(nativeHandle);
   }
 
   String? get accelerator {
-    final resultPointer = _bindings.native_shortcut_get_accelerator(
-      nativeHandle,
-    );
+    final resultPointer = c.native_shortcut_get_accelerator(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
   String? get description {
-    final resultPointer = _bindings.native_shortcut_get_description(
-      nativeHandle,
-    );
+    final resultPointer = c.native_shortcut_get_description(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
   set description(String value) {
     final valueNative = value.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_shortcut_set_description(nativeHandle, valueNative);
+    c.native_shortcut_set_description(nativeHandle, valueNative);
     pkg_ffi.calloc.free(valueNative);
   }
 
   ShortcutScope get scope {
-    final raw = _bindings.native_shortcut_get_scope(nativeHandle);
+    final raw = c.native_shortcut_get_scope(nativeHandle);
     return ShortcutScope.fromValue(raw.value);
   }
 
   set isEnabled(bool value) {
-    _bindings.native_shortcut_set_enabled(nativeHandle, value);
+    c.native_shortcut_set_enabled(nativeHandle, value);
   }
 
   bool get isEnabled {
-    return _bindings.native_shortcut_is_enabled(nativeHandle);
+    return c.native_shortcut_is_enabled(nativeHandle);
   }
 
   void invoke() {
-    _bindings.native_shortcut_invoke(nativeHandle);
+    c.native_shortcut_invoke(nativeHandle);
   }
 
   void setCallback(void Function() callback) {
@@ -319,7 +328,7 @@ class Shortcut {
           callback();
         });
     _listeners.add(callbackCallable);
-    _bindings.native_shortcut_set_callback(
+    c.native_shortcut_set_callback(
       nativeHandle,
       callbackCallable.nativeFunction,
       ffi.nullptr,

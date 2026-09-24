@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart' hide Brightness, Image;
-import 'package:nativeapi/nativeapi.dart';
+import 'package:flutter/material.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 import 'animated_icon_generator.dart';
 
@@ -84,8 +85,8 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   late final Menu _submenu;
 
   // Store icon for demonstration
-  Image? _testIcon;
-  Image? _iconFromWidget;
+  na.Image? _testIcon;
+  na.Image? _iconFromWidget;
 
   // Animated icon generator
   AnimatedIconGenerator? _animatedIconGenerator;
@@ -122,7 +123,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
   }
 
   /// Convert a Flutter Icon widget to a base64 image
-  Future<Image?> _iconToImage(
+  Future<na.Image?> _iconToImage(
     IconData iconData, {
     double size = 24.0,
     Color color = Colors.black,
@@ -162,7 +163,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
       final base64String = 'data:image/png;base64,${base64Encode(pngBytes)}';
 
       // Use base64 to create nativeapi Image
-      return Image.fromBase64(base64String);
+      return na.Image.fromBase64(base64String);
     } catch (e) {
       _addToHistory('Error converting icon to image: $e');
       return null;
@@ -741,7 +742,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   void _showMenuAtAbsolutePosition(Offset position) {
     _positioningMenu.open(
-      PositioningStrategy.absolute(position)!,
+      PositioningStrategy.absolute(position.toNative())!,
       Placement.bottomStart,
     );
     _addToHistory('Opened menu at absolute position: $position');
@@ -798,7 +799,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
     });
     menu.addItem(exitItem);
 
-    menu.open(PositioningStrategy.absolute(position)!, Placement.bottomStart);
+    menu.open(
+      PositioningStrategy.absolute(position.toNative())!,
+      Placement.bottomStart,
+    );
 
     _addToHistory('');
     _addToHistory('=== BUG REPRODUCTION (Issue #4) ===');
@@ -885,9 +889,9 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                       onChanged: (mode) {
                         if (mode == null) return;
                         final brightness = switch (mode) {
-                          ThemeMode.system => Brightness.system,
-                          ThemeMode.light => Brightness.light,
-                          ThemeMode.dark => Brightness.dark,
+                          ThemeMode.system => na.Brightness.system,
+                          ThemeMode.light => na.Brightness.light,
+                          ThemeMode.dark => na.Brightness.dark,
                         };
                         final applied = Application.instance.setBrightness(
                           brightness,

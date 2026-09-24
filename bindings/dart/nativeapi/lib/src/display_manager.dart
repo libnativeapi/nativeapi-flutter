@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -14,8 +13,6 @@ import 'foundation/geometry.dart';
 
 import 'support.dart';
 
-final _bindings = c.cnativeApiBindings;
-
 class DisplayManager {
   const DisplayManager._();
 
@@ -23,7 +20,7 @@ class DisplayManager {
   static const DisplayManager instance = DisplayManager._();
 
   List<Display> getAll() {
-    final list = _bindings.native_display_manager_get_all();
+    final list = c.native_display_manager_get_all();
     final items = <Display>[];
     for (var i = 0; i < list.count; i++) {
       items.add(Display.fromHandle(list.displays[i]));
@@ -31,20 +28,20 @@ class DisplayManager {
     final listPointer = pkg_ffi.calloc<c.native_display_list_t>();
     listPointer.ref = list;
     // The handles now belong to `items`; free just the array.
-    _bindings.native_display_list_release(listPointer);
+    c.native_display_list_release(listPointer);
     pkg_ffi.calloc.free(listPointer);
     return items;
   }
 
   Display? getPrimary() {
-    final handle = _bindings.native_display_manager_get_primary();
+    final handle = c.native_display_manager_get_primary();
     if (handle == 0) return null;
     return Display.fromHandle(handle);
   }
 
-  Offset getCursorPosition() {
-    final raw = _bindings.native_display_manager_get_cursor_position();
-    return Offset(raw.x, raw.y);
+  Point getCursorPosition() {
+    final raw = c.native_display_manager_get_cursor_position();
+    return Point.fromNative(raw);
   }
 
   /// Registers [callback] for every `DisplayEvent` this `DisplayManager` emits.
@@ -69,7 +66,7 @@ class DisplayManager {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_display_manager_add_listener(
+    return c.native_display_manager_add_listener(
       callable.nativeFunction,
       ffi.nullptr,
     );
@@ -77,7 +74,7 @@ class DisplayManager {
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
-      _bindings.native_display_manager_remove_listener(listenerId);
+      c.native_display_manager_remove_listener(listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];

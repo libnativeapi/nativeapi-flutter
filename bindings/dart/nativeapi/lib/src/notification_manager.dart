@@ -4,14 +4,11 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'support.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 /// One `NotificationEvent`, in its concrete form.
 sealed class NotificationEvent {
@@ -20,7 +17,7 @@ sealed class NotificationEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static NotificationEvent? fromNative(c.native_notification_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_notification_event_type_t
             .NATIVE_NOTIFICATION_EVENT_TYPE_ACTIVATED
@@ -48,15 +45,15 @@ class NotificationManager {
   static const NotificationManager instance = NotificationManager._();
 
   bool isSupported() {
-    return _bindings.native_notification_manager_is_supported();
+    return c.native_notification_manager_is_supported();
   }
 
   bool initialize() {
-    return _bindings.native_notification_manager_initialize();
+    return c.native_notification_manager_initialize();
   }
 
   void shutdown() {
-    _bindings.native_notification_manager_shutdown();
+    c.native_notification_manager_shutdown();
   }
 
   bool show(String title, String message, String tag, String buttonLabel) {
@@ -64,7 +61,7 @@ class NotificationManager {
     final messageNative = message.toNativeUtf8().cast<ffi.Char>();
     final tagNative = tag.toNativeUtf8().cast<ffi.Char>();
     final buttonLabelNative = buttonLabel.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_notification_manager_show(
+    final result = c.native_notification_manager_show(
       titleNative,
       messageNative,
       tagNative,
@@ -79,17 +76,16 @@ class NotificationManager {
 
   bool remove(String tag) {
     final tagNative = tag.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_notification_manager_remove(tagNative);
+    final result = c.native_notification_manager_remove(tagNative);
     pkg_ffi.calloc.free(tagNative);
     return result;
   }
 
   String? getLastError() {
-    final resultPointer = _bindings
-        .native_notification_manager_get_last_error();
+    final resultPointer = c.native_notification_manager_get_last_error();
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
@@ -115,7 +111,7 @@ class NotificationManager {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_notification_manager_add_listener(
+    return c.native_notification_manager_add_listener(
       callable.nativeFunction,
       ffi.nullptr,
     );
@@ -123,7 +119,7 @@ class NotificationManager {
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
-      _bindings.native_notification_manager_remove_listener(listenerId);
+      c.native_notification_manager_remove_listener(listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];

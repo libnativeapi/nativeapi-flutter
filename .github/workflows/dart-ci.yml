@@ -133,14 +133,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           
-      - name: Build cnativeapi example Android
-        run: |
-          cd bindings/dart/cnativeapi/example
-          flutter build apk --release
-          
       - name: Build nativeapi example Android
         run: |
-          cd bindings/dart/nativeapi/example
+          cd bindings/dart/nativeapi_flutter/example
           flutter build apk --release
 
   # iOS build
@@ -172,14 +167,9 @@ jobs:
       - name: Bootstrap melos
         run: dart pub global run melos bootstrap
           
-      - name: Build cnativeapi example iOS
-        run: |
-          cd bindings/dart/cnativeapi/example
-          flutter build ios --release --no-codesign
-          
       - name: Build nativeapi example iOS
         run: |
-          cd bindings/dart/nativeapi/example
+          cd bindings/dart/nativeapi_flutter/example
           flutter build ios --release --no-codesign
 
   # Linux build
@@ -225,14 +215,14 @@ jobs:
             libx11-dev \
             libxi-dev
           
-      - name: Build cnativeapi example Linux
-        run: |
-          cd bindings/dart/cnativeapi/example
-          flutter build linux --release
+      # cnativeapi is a plain Dart package: its build hook compiles core.
+      - name: Run cnativeapi example Linux
+        working-directory: bindings/dart/cnativeapi
+        run: dart run example/cnativeapi_example.dart
           
       - name: Build nativeapi example Linux
         run: |
-          cd bindings/dart/nativeapi/example
+          cd bindings/dart/nativeapi_flutter/example
           flutter build linux --release
 
   # macOS build
@@ -264,14 +254,14 @@ jobs:
       - name: Bootstrap melos
         run: dart pub global run melos bootstrap
           
-      - name: Build cnativeapi example macOS
-        run: |
-          cd bindings/dart/cnativeapi/example
-          flutter build macos --release
+      # cnativeapi is a plain Dart package: its build hook compiles core.
+      - name: Run cnativeapi example macOS
+        working-directory: bindings/dart/cnativeapi
+        run: dart run example/cnativeapi_example.dart
           
       - name: Build nativeapi example macOS
         run: |
-          cd bindings/dart/nativeapi/example
+          cd bindings/dart/nativeapi_flutter/example
           flutter build macos --release
 
   # Windows build
@@ -304,12 +294,12 @@ jobs:
       - name: Bootstrap melos
         run: dart pub global run melos bootstrap
           
-      - name: Build cnativeapi example Windows
-        run: |
-          cd bindings/dart/cnativeapi/example
-          flutter build windows --release
+      # cnativeapi is a plain Dart package: its build hook compiles core.
+      - name: Run cnativeapi example Windows
+        working-directory: bindings/dart/cnativeapi
+        run: dart run example/cnativeapi_example.dart
           
       - name: Build nativeapi example Windows
         run: |
-          cd bindings/dart/nativeapi/example
+          cd bindings/dart/nativeapi_flutter/example
           flutter build windows --release

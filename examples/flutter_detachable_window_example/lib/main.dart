@@ -7,7 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as na;
 
 import 'src/demo/panels.dart';
 import 'src/detachable/detachable.dart';
@@ -91,7 +91,7 @@ class _DetachableWindowAppState extends State<DetachableWindowApp> {
   }
 
   void _placeMainWindowsSideBySide() {
-    final area = na.DisplayManager.instance.getPrimary()?.workArea;
+    final area = na.DisplayManager.instance.getPrimary()?.workArea.toRect();
     if (area == null) return;
     const gap = 24.0;
     final count = _mainWindows.length;
@@ -103,7 +103,10 @@ class _DetachableWindowAppState extends State<DetachableWindowApp> {
     final step = ((area.width - width) / (count - 1)).clamp(0.0, width + gap);
     final left = area.left + (area.width - width - step * (count - 1)) / 2;
     for (var i = 0; i < count; i++) {
-      frames[i]?.position = Offset(left + step * i, area.top + 60 + 40.0 * i);
+      frames[i]?.position = Offset(
+        left + step * i,
+        area.top + 60 + 40.0 * i,
+      ).toNative();
     }
   }
 

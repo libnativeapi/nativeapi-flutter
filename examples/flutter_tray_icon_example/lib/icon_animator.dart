@@ -3,9 +3,9 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:ui' as ui;
 
-import 'package:flutter/widgets.dart' hide Image;
+import 'package:flutter/widgets.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
 import 'package:flutter/rendering.dart';
-import 'package:nativeapi/nativeapi.dart';
 
 import 'icon_animations.dart';
 
@@ -22,7 +22,7 @@ class IconAnimator extends ChangeNotifier {
   IconAnimator({required this.onFrame, this.onMilestone});
 
   /// Receives each finished frame; the caller assigns it to the tray icon.
-  final void Function(Image image) onFrame;
+  final void Function(na.Image image) onFrame;
 
   /// Called once per run when [kMilestoneFrames] frames have been pushed.
   final void Function(IconAnimator animator)? onMilestone;
@@ -69,7 +69,7 @@ class IconAnimator extends ChangeNotifier {
   bool _busy = false;
   int _run = 0;
   bool _milestoneReported = false;
-  Image? _lastNative;
+  na.Image? _lastNative;
   final Queue<int> _stamps = Queue<int>();
   final Stopwatch _clock = Stopwatch()..start();
 
@@ -184,7 +184,7 @@ class IconAnimator extends ChangeNotifier {
         frame.dispose();
         return;
       }
-      final native = Image.fromBase64(
+      final native = na.Image.fromBase64(
         'data:image/png;base64,${base64Encode(png.buffer.asUint8List())}',
       );
       if (native == null) {

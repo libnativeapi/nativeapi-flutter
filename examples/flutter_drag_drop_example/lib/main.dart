@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Image;
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 /// Drag and drop with the two widgets of `nativeapi`:
 ///
@@ -59,7 +59,7 @@ class _DragDropPageState extends State<DragDropPage> {
     final window = WindowManager.instance.getCurrent();
     if (window == null) return;
     window.title = 'nativeapi · Drag and drop';
-    window.contentSize = const Size(760, 460);
+    window.contentSize = const Size(760, 460).toNative();
     window.center();
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 /// Thickness of the resize handles and their distance from the window edge.
 ///
@@ -52,8 +52,8 @@ class _DragAreasPageState extends State<DragAreasPage> {
     if (window == null) return;
     window.title = 'nativeapi · Drag areas';
     window.titleBarStyle = TitleBarStyle.hidden;
-    window.minimumSize = const Size(480, 320);
-    window.contentSize = const Size(720, 480);
+    window.minimumSize = const Size(480, 320).toNative();
+    window.contentSize = const Size(720, 480).toNative();
     window.center();
   }
 

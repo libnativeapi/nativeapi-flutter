@@ -1,34 +1,28 @@
 name: cnativeapi
-description: "Native API C bindings for Flutter"
+description: "Raw Dart FFI bindings to the nativeapi C API. The native library is built from source by a build hook."
 version: 0.3.1
-homepage: https://github.com/libnativeapi/nativeapi-flutter
+homepage: https://github.com/libnativeapi/nativeapi
+repository: https://github.com/libnativeapi/nativeapi/tree/main/bindings/dart/cnativeapi
 resolution: workspace
 
 environment:
   sdk: ^3.13.0
-  flutter: ">=3.47.0"
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
 
 dependencies:
+  code_assets: any
   ffi: ">=1.2.1 <3.0.0"
-  flutter:
-    sdk: flutter
+  hooks: any
+  logging: any
+  native_toolchain_c: any
 
 dev_dependencies:
-  ffigen: ^13.0.0
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
-
-flutter:
-  plugin:
-    platforms:
-      android:
-        ffiPlugin: true
-      ios:
-        ffiPlugin: true
-      linux:
-        ffiPlugin: true
-      macos:
-        ffiPlugin: true
-      windows:
-        ffiPlugin: true
+  ffigen: any
+  lints: any
+  test: any

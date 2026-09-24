@@ -4,14 +4,11 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'foundation/geometry.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 typedef DisplayId = int;
 
@@ -45,15 +42,15 @@ sealed class DisplayEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static DisplayEvent? fromNative(c.native_display_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_ADDED.value) {
       return DisplayAddedEvent(display: Display.borrowed(raw.display));
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_REMOVED.value) {
       return DisplayRemovedEvent(display: Display.borrowed(raw.display));
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_display_event_type_t.NATIVE_DISPLAY_EVENT_TYPE_CHANGED.value) {
       return DisplayChangedEvent(display: Display.borrowed(raw.display));
     }
@@ -96,71 +93,71 @@ class Display {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_display_free(handle),
+    (handle) => c.native_display_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_display_free(nativeHandle);
+    c.native_display_free(nativeHandle);
   }
 
   /// Creates a new `Display`; returns null if the native side failed.
   static Display? create(ffi.Pointer<ffi.Void> display) {
-    final handle = _bindings.native_display_create(display);
+    final handle = c.native_display_create(display);
     if (handle == 0) return null;
     return Display.fromHandle(handle);
   }
 
   DisplayId get id {
-    return _bindings.native_display_get_id(nativeHandle);
+    return c.native_display_get_id(nativeHandle);
   }
 
   String? get name {
-    final resultPointer = _bindings.native_display_get_name(nativeHandle);
+    final resultPointer = c.native_display_get_name(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
-  Offset get position {
-    final raw = _bindings.native_display_get_position(nativeHandle);
-    return Offset(raw.x, raw.y);
+  Point get position {
+    final raw = c.native_display_get_position(nativeHandle);
+    return Point.fromNative(raw);
   }
 
   Size get size {
-    final raw = _bindings.native_display_get_size(nativeHandle);
-    return Size(raw.width, raw.height);
+    final raw = c.native_display_get_size(nativeHandle);
+    return Size.fromNative(raw);
   }
 
-  Rect get workArea {
-    final raw = _bindings.native_display_get_work_area(nativeHandle);
-    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+  Rectangle get workArea {
+    final raw = c.native_display_get_work_area(nativeHandle);
+    return Rectangle.fromNative(raw);
   }
 
   double get scaleFactor {
-    return _bindings.native_display_get_scale_factor(nativeHandle);
+    return c.native_display_get_scale_factor(nativeHandle);
   }
 
   bool get isPrimary {
-    return _bindings.native_display_is_primary(nativeHandle);
+    return c.native_display_is_primary(nativeHandle);
   }
 
   DisplayOrientation get orientation {
-    final raw = _bindings.native_display_get_orientation(nativeHandle);
+    final raw = c.native_display_get_orientation(nativeHandle);
     return DisplayOrientation.fromValue(raw.value);
   }
 
   int get refreshRate {
-    return _bindings.native_display_get_refresh_rate(nativeHandle);
+    return c.native_display_get_refresh_rate(nativeHandle);
   }
 
   int get bitDepth {
-    return _bindings.native_display_get_bit_depth(nativeHandle);
+    return c.native_display_get_bit_depth(nativeHandle);
   }
 
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
-      _bindings.native_display_get_native_object(nativeHandle);
+      c.native_display_get_native_object(nativeHandle);
 }

@@ -4,15 +4,12 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'dialog.dart';
 import 'window.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 enum FileDialogMode {
   openFile(0),
@@ -70,28 +67,28 @@ class FileDialog {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_file_dialog_free(handle),
+    (handle) => c.native_file_dialog_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_file_dialog_free(nativeHandle);
+    c.native_file_dialog_free(nativeHandle);
   }
 
   /// Creates a new `FileDialog`; returns null if the native side failed.
   static FileDialog? create(FileDialogMode mode) {
-    final handle = _bindings.native_file_dialog_create(mode.raw);
+    final handle = c.native_file_dialog_create(mode.raw);
     if (handle == 0) return null;
     return FileDialog.fromHandle(handle);
   }
 
   static bool isSupported() {
-    return _bindings.native_file_dialog_is_supported();
+    return c.native_file_dialog_is_supported();
   }
 
   bool setParentWindow(Window? window) {
-    return _bindings.native_file_dialog_set_parent_window(
+    return c.native_file_dialog_set_parent_window(
       nativeHandle,
       window?.nativeHandle ?? 0,
     );
@@ -107,7 +104,7 @@ class FileDialog {
     final extensionsList = pkg_ffi.calloc<c.native_string_list_t>();
     extensionsList.ref.items = extensionsItems;
     extensionsList.ref.count = extensions.length;
-    final result = _bindings.native_file_dialog_set_file_types(
+    final result = c.native_file_dialog_set_file_types(
       nativeHandle,
       extensionsList.ref,
     );
@@ -121,7 +118,7 @@ class FileDialog {
 
   bool setSuggestedFileName(String name) {
     final nameNative = name.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_file_dialog_set_suggested_file_name(
+    final result = c.native_file_dialog_set_suggested_file_name(
       nativeHandle,
       nameNative,
     );
@@ -130,29 +127,29 @@ class FileDialog {
   }
 
   DialogModality get modality {
-    final raw = _bindings.native_file_dialog_get_modality(nativeHandle);
+    final raw = c.native_file_dialog_get_modality(nativeHandle);
     return DialogModality.fromValue(raw.value);
   }
 
   set modality(DialogModality value) {
-    _bindings.native_file_dialog_set_modality(nativeHandle, value.raw);
+    c.native_file_dialog_set_modality(nativeHandle, value.raw);
   }
 
   bool open() {
-    return _bindings.native_file_dialog_open(nativeHandle);
+    return c.native_file_dialog_open(nativeHandle);
   }
 
   bool close() {
-    return _bindings.native_file_dialog_close(nativeHandle);
+    return c.native_file_dialog_close(nativeHandle);
   }
 
   FileDialogResult get result {
-    final raw = _bindings.native_file_dialog_get_result(nativeHandle);
+    final raw = c.native_file_dialog_get_result(nativeHandle);
     return FileDialogResult.fromValue(raw.value);
   }
 
   List<String> get paths {
-    final list = _bindings.native_file_dialog_get_paths(nativeHandle);
+    final list = c.native_file_dialog_get_paths(nativeHandle);
     final items = <String>[];
     for (var i = 0; i < list.count; i++) {
       final item = list.items[i];
@@ -161,18 +158,16 @@ class FileDialog {
     }
     final listPointer = pkg_ffi.calloc<c.native_string_list_t>();
     listPointer.ref = list;
-    _bindings.native_string_list_free(listPointer);
+    c.native_string_list_free(listPointer);
     pkg_ffi.calloc.free(listPointer);
     return items;
   }
 
   String? get lastError {
-    final resultPointer = _bindings.native_file_dialog_get_last_error(
-      nativeHandle,
-    );
+    final resultPointer = c.native_file_dialog_get_last_error(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 }

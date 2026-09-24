@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -45,9 +44,22 @@ class KeyboardAccelerator {
   final ModifierKey modifiers;
   final String? key;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is KeyboardAccelerator &&
+          other.modifiers == modifiers &&
+          other.key == key);
+
+  @override
+  int get hashCode => Object.hash(modifiers, key);
+
+  @override
+  String toString() => 'KeyboardAccelerator(modifiers: $modifiers, key: $key)';
+
   factory KeyboardAccelerator.fromNative(c.native_keyboard_accelerator_t raw) =>
       KeyboardAccelerator(
-        modifiers: ModifierKey.fromValue(raw.modifiers),
+        modifiers: ModifierKey.fromValue(raw.modifiersAsInt),
         key: raw.key == ffi.nullptr
             ? null
             : raw.key.cast<pkg_ffi.Utf8>().toDartString(),
@@ -56,7 +68,7 @@ class KeyboardAccelerator {
   /// Allocates the C form; free it with [freeNative].
   ffi.Pointer<c.native_keyboard_accelerator_t> allocNative() {
     final pointer = pkg_ffi.calloc<c.native_keyboard_accelerator_t>();
-    pointer.ref.modifiers = modifiers.value;
+    pointer.ref.modifiersAsInt = modifiers.value;
     pointer.ref.key = key == null
         ? ffi.nullptr
         : key!.toNativeUtf8().cast<ffi.Char>();
@@ -80,21 +92,21 @@ sealed class KeyboardEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static KeyboardEvent? fromNative(c.native_keyboard_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_keyboard_event_type_t
             .NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED
             .value) {
       return KeyboardKeyPressedEvent(keycode: raw.keycode);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_keyboard_event_type_t
             .NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED
             .value) {
       return KeyboardKeyReleasedEvent(keycode: raw.keycode);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_keyboard_event_type_t
             .NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED

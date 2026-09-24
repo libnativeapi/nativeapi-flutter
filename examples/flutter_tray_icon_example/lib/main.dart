@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' show WindowManager;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart'
+    show SizeToNative, WindowManager;
 
 import 'tabs/animate_tab.dart';
 import 'tabs/checklist_tab.dart';
@@ -66,7 +67,10 @@ class _ShellState extends State<Shell> {
     // The layout is made for exactly this content size, and the runners' default
     // size does not always give it: on Windows it includes the title bar.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      WindowManager.instance.getCurrent()?.contentSize = const Size(400, 640);
+      WindowManager.instance.getCurrent()?.contentSize = const Size(
+        400,
+        640,
+      ).toNative();
     });
   }
 

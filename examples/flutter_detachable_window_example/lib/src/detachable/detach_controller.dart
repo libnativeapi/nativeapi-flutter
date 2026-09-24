@@ -5,9 +5,9 @@ import 'dart:math' as math;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/src/widgets/_window.dart' as fw;
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as na;
 
-import 'package:nativeapi/windowing.dart';
+import 'package:nativeapi_flutter/windowing.dart';
 
 /// A piece of UI that can live docked in a [DockSlot] or float in a window of
 /// its own.
@@ -221,7 +221,10 @@ class DetachController extends ChangeNotifier {
       if (window == null) return false;
       // The item fills its window, so the pointer's position in the view is
       // its position in the content.
-      if (!session.start(window, window.contentInset + pointerInView)) {
+      if (!session.start(
+        window,
+        (window.contentInset + pointerInView).toNative(),
+      )) {
         return false;
       }
       _drag = _Drag(
@@ -236,13 +239,15 @@ class DetachController extends ChangeNotifier {
 
     // Docked: follow the pointer until it has moved far enough to pop out.
     final hostWindow = _nativeWindowsByView[View.of(context).viewId];
-    if (hostWindow == null || !session.start(null, Offset.zero)) return false;
+    if (hostWindow == null || !session.start(null, Offset.zero.toNative())) {
+      return false;
+    }
     _drag = _Drag(
       item: item,
       pointerInItem: pointerInItem,
       itemSize: box.size,
       restoreSlotId: _dockedIn[itemId],
-      pressPosition: hostWindow.contentBounds.topLeft + pointerInView,
+      pressPosition: hostWindow.contentBounds.toRect().topLeft + pointerInView,
     );
     return true;
   }
@@ -265,7 +270,8 @@ class DetachController extends ChangeNotifier {
     final window = floating.nativeWindow;
     if (window != null && slotRect != null) {
       window.position =
-          slotRect.topLeft - window.contentInset + const Offset(32, 32);
+          (slotRect.topLeft - window.contentInset + const Offset(32, 32))
+              .toNative();
     }
     window?.focus();
   }
@@ -333,13 +339,14 @@ class DetachController extends ChangeNotifier {
     if (drag == null) return;
     switch (event) {
       case na.WindowDragMovedEvent(:final cursorPosition):
+        final cursor = cursorPosition.toOffset();
         if (!drag.tornOff) {
           final press = drag.pressPosition!;
-          if ((cursorPosition - press).distance < popOutDistance) return;
+          if ((cursor - press).distance < popOutDistance) return;
           if (!_popOut(drag)) return;
         }
         final floating = _floating[drag.item.id];
-        _setHoveredSlot(_dropTarget(cursorPosition, floating), floating);
+        _setHoveredSlot(_dropTarget(cursor, floating), floating);
       case na.WindowDragEndedEvent():
         _drag = null;
         if (!drag.tornOff) return; // Released before popping out.
@@ -380,7 +387,10 @@ class DetachController extends ChangeNotifier {
     // Keep the point of the item that was pressed under the cursor. The
     // session moves the window there immediately and keeps it there.
     if (window == null ||
-        !_session!.start(window, window.contentInset + drag.pointerInItem)) {
+        !_session!.start(
+          window,
+          (window.contentInset + drag.pointerInItem).toNative(),
+        )) {
       _drag = null;
       _session?.cancel();
       final restore = drag.restoreSlotId;
@@ -397,7 +407,10 @@ class DetachController extends ChangeNotifier {
   /// under the cursor in whichever window is frontmost there, if any.
   String? _dropTarget(Offset cursor, FloatingWindow? moving) {
     final excluded = moving?.nativeWindow?.id ?? 0;
-    final target = na.WindowManager.instance.getWindowAtPoint(cursor, excluded);
+    final target = na.WindowManager.instance.getWindowAtPoint(
+      cursor.toNative(),
+      excluded,
+    );
     if (target == null) return null;
     return _emptySlotAt(cursor, target.id);
   }
@@ -418,7 +431,9 @@ class DetachController extends ChangeNotifier {
       _nativeWindowsByView[controller.rootView.viewId] = window;
       // The requested size is only a hint to the platform; the content area
       // must match the item exactly so it does not reflow when torn off.
-      if (window.contentSize != size) window.contentSize = size;
+      if (window.contentSize.toSize() != size) {
+        window.contentSize = size.toNative();
+      }
     }
     final floating = FloatingWindow._(item, controller, window);
     _floating[item.id] = floating;
@@ -458,7 +473,7 @@ class DetachController extends ChangeNotifier {
     if (window == null) return null;
     // `localToGlobal` is relative to the slot's own view.
     final origin =
-        window.contentBounds.topLeft + box.localToGlobal(Offset.zero);
+        window.contentBounds.toRect().topLeft + box.localToGlobal(Offset.zero);
     return origin & box.size;
   }
 

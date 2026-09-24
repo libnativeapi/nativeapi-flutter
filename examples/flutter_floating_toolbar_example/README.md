@@ -37,7 +37,7 @@ flutter run -d macos   # or windows, linux
 
 1. Both windows are created with Flutter's `WindowController` and put into a
    `ViewCollection`.
-2. `controller.nativeWindow` (`package:nativeapi/windowing.dart`) turns each controller
+2. `controller.nativeWindow` (`package:nativeapi_flutter/windowing.dart`) turns each controller
    into a nativeapi `Window`.
 3. The toolbar window is dressed from Dart: `titleBarStyle = hidden` (which
    takes the window buttons with it), `backgroundColor = transparent`,

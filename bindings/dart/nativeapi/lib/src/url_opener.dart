@@ -4,12 +4,9 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
-
-final _bindings = c.cnativeApiBindings;
 
 enum UrlOpenErrorCode {
   none(0),
@@ -47,10 +44,25 @@ class UrlOpenResult {
   final UrlOpenErrorCode errorCode;
   final String? errorMessage;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UrlOpenResult &&
+          other.success == success &&
+          other.errorCode == errorCode &&
+          other.errorMessage == errorMessage);
+
+  @override
+  int get hashCode => Object.hash(success, errorCode, errorMessage);
+
+  @override
+  String toString() =>
+      'UrlOpenResult(success: $success, errorCode: $errorCode, errorMessage: $errorMessage)';
+
   factory UrlOpenResult.fromNative(c.native_url_open_result_t raw) =>
       UrlOpenResult(
         success: raw.success,
-        errorCode: UrlOpenErrorCode.fromValue(raw.error_code),
+        errorCode: UrlOpenErrorCode.fromValue(raw.error_codeAsInt),
         errorMessage: raw.error_message == ffi.nullptr
             ? null
             : raw.error_message.cast<pkg_ffi.Utf8>().toDartString(),
@@ -60,7 +72,7 @@ class UrlOpenResult {
   ffi.Pointer<c.native_url_open_result_t> allocNative() {
     final pointer = pkg_ffi.calloc<c.native_url_open_result_t>();
     pointer.ref.success = success;
-    pointer.ref.error_code = errorCode.value;
+    pointer.ref.error_codeAsInt = errorCode.value;
     pointer.ref.error_message = errorMessage == null
         ? ffi.nullptr
         : errorMessage!.toNativeUtf8().cast<ffi.Char>();
@@ -82,24 +94,24 @@ class UrlOpener {
   static const UrlOpener instance = UrlOpener._();
 
   bool isSupported() {
-    return _bindings.native_url_opener_is_supported();
+    return c.native_url_opener_is_supported();
   }
 
   bool canOpen(String url) {
     final urlNative = url.toNativeUtf8().cast<ffi.Char>();
-    final result = _bindings.native_url_opener_can_open(urlNative);
+    final result = c.native_url_opener_can_open(urlNative);
     pkg_ffi.calloc.free(urlNative);
     return result;
   }
 
   UrlOpenResult open(String url) {
     final urlNative = url.toNativeUtf8().cast<ffi.Char>();
-    final raw = _bindings.native_url_opener_open(urlNative);
+    final raw = c.native_url_opener_open(urlNative);
     pkg_ffi.calloc.free(urlNative);
     final result = UrlOpenResult.fromNative(raw);
     final rawPointer = pkg_ffi.calloc<c.native_url_open_result_t>();
     rawPointer.ref = raw;
-    _bindings.native_url_open_result_free(rawPointer);
+    c.native_url_open_result_free(rawPointer);
     pkg_ffi.calloc.free(rawPointer);
     return result;
   }

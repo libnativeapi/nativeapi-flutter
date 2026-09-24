@@ -3,62 +3,30 @@ use std::path::{Path, PathBuf};
 
 use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 
+use codegen_shared::ir::{
+    Api, Class, Constructor, Enum, EventGroup, Header, Method, Param, Struct, TypeRef,
+};
 use codegen_shared::naming::{
-    c_add_listener_symbol, c_constructor_symbol, c_event_variant,
-    c_event_variant_field, c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol,
-    c_native_object_symbol, c_remove_listener_symbol, c_type_name, constructor_suffix,
-    foreign_types, is_binding_accessor, struct_has_owned_fields, swift_method_name, TypeOrigins,
-    STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_MAP_FREE_FN,
+    c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
+    c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol, c_native_object_symbol,
+    c_remove_listener_symbol, c_type_name, constructor_suffix, foreign_types, is_binding_accessor,
+    struct_has_owned_fields, swift_method_name, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN,
+    STRING_MAP_FREE_FN,
 };
 use codegen_shared::GeneratedFile;
-use codegen_shared::ir::{Api, Class, Constructor, Enum, EventGroup, Header, Method, Param, Struct, TypeRef};
 
 /// Alias for the raw ffigen bindings inside every generated file.
 const C: &str = "c";
 
-/// Structs that `dart:ui` already provides, and how to convert them.
-///
-/// Generating our own `Color` and `Size` would collide with the ones every
-/// Flutter app already has: `Colors.blue` is a `MaterialColor`, which is a
-/// `dart:ui` `Color` and not ours, so the two cannot meet. Reusing the host
-/// types also means a caller can pass an `Offset` straight from a gesture
-/// callback instead of converting first.
+/// Structs a binding could map onto types its host already provides, and how
+/// to convert them. Empty: package:nativeapi is plain Dart, so `Point`, `Size`,
+/// `Rectangle` and `Color` are generated like every other value type, and
+/// package:nativeapi_flutter converts them to and from `dart:ui`.
 ///
 /// Tuple: C++ struct name, Dart type, how to build it from the raw struct
 /// (`{}` is the raw expression), and how each C field is read back out of the
 /// Dart value (`{}` is the Dart expression).
-const HOST_TYPES: &[(&str, &str, &str, &[(&str, &str)])] = &[
-    ("Point", "Offset", "Offset({}.x, {}.y)", &[("x", "{}.dx"), ("y", "{}.dy")]),
-    (
-        "Size",
-        "Size",
-        "Size({}.width, {}.height)",
-        &[("width", "{}.width"), ("height", "{}.height")],
-    ),
-    (
-        "Rectangle",
-        "Rect",
-        "Rect.fromLTWH({}.x, {}.y, {}.width, {}.height)",
-        &[
-            ("x", "{}.left"),
-            ("y", "{}.top"),
-            ("width", "{}.width"),
-            ("height", "{}.height"),
-        ],
-    ),
-    (
-        "Color",
-        "Color",
-        "Color.fromARGB({}.a, {}.r, {}.g, {}.b)",
-        &[
-            // Flutter's components are doubles in 0..1; the C ABI wants bytes.
-            ("r", "({}.r * 255).round()"),
-            ("g", "({}.g * 255).round()"),
-            ("b", "({}.b * 255).round()"),
-            ("a", "({}.a * 255).round()"),
-        ],
-    ),
-];
+const HOST_TYPES: &[(&str, &str, &str, &[(&str, &str)])] = &[];
 
 struct HostType {
     dart: &'static str,
@@ -100,6 +68,10 @@ pub fn generate_ffigen_config(api: &Api, cnativeapi_root: &Path, core_rel: &str)
     writeln!(out, "description: |").unwrap();
     writeln!(out, "  Bindings for `nativeapi capi`.").unwrap();
     writeln!(out, "output: \"lib/src/bindings_generated.dart\"").unwrap();
+    // `@Native` functions, resolved against the code asset that the package's
+    // build hook (hook/build.dart) compiles from core.
+    writeln!(out, "ffi-native:").unwrap();
+    writeln!(out, "  asset-id: \"package:cnativeapi/cnativeapi.dart\"").unwrap();
 
     let mut headers: Vec<String> = api
         .headers
@@ -171,7 +143,11 @@ pub fn generate_barrel(api: &Api, dart_out: &Path) -> GeneratedFile {
     let mut paths: Vec<String> = api
         .headers
         .iter()
-        .map(|header| dart_relative_path(header).to_string_lossy().replace('\\', "/"))
+        .map(|header| {
+            dart_relative_path(header)
+                .to_string_lossy()
+                .replace('\\', "/")
+        })
         .collect();
     paths.push("support.dart".to_string());
     paths.sort();
@@ -213,7 +189,6 @@ fn generate_dart(api: &Api, header: &Header, origins: &TypeOrigins, prefix: &str
     writeln!(out, "// ignore_for_file: unused_import, unnecessary_import").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "import 'dart:ffi' as ffi;").unwrap();
-    writeln!(out, "import 'dart:ui';").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "import 'package:cnativeapi/cnativeapi.dart' as {C};").unwrap();
     writeln!(out, "import 'package:ffi/ffi.dart' as pkg_ffi;").unwrap();
@@ -281,14 +256,17 @@ fn generate_dart(api: &Api, header: &Header, origins: &TypeOrigins, prefix: &str
         render_dart_class(&mut body, api, header, class, prefix);
     }
 
-    // An enum- or struct-only module never reaches the C side.
-    let mut declarations = String::new();
-    if out.contains("_bindings.") || body.contains("_bindings.") {
-        writeln!(declarations, "final _bindings = {C}.cnativeApiBindings;").unwrap();
-        writeln!(declarations).unwrap();
-    }
+    format!("{prelude}{out}{body}")
+}
 
-    format!("{prelude}{declarations}{out}{body}")
+/// How the ffigen struct exposes a C field. An enum-typed field is an `int`
+/// named `<field>AsInt`, next to an accessor of the Dart enum type.
+fn c_field(field: &codegen_shared::ir::Field) -> String {
+    let name = field.name.to_snake_case();
+    match field.ty {
+        TypeRef::Enum { .. } => format!("{name}AsInt"),
+        _ => name,
+    }
 }
 
 /// A relative import from one generated file to another.
@@ -338,7 +316,12 @@ fn render_dart_enum(out: &mut String, item: &Enum, prefix: &str) {
         .first()
         .map(|variant| dart_enum_case(&variant.name))
         .unwrap_or_else(|| "unknown".to_string());
-    writeln!(out, "  static {} fromValue(int value) => switch (value) {{", item.name).unwrap();
+    writeln!(
+        out,
+        "  static {} fromValue(int value) => switch (value) {{",
+        item.name
+    )
+    .unwrap();
     for variant in &item.variants {
         writeln!(
             out,
@@ -355,6 +338,85 @@ fn render_dart_enum(out: &mut String, item: &Enum, prefix: &str) {
     writeln!(out, "  {c_ty} get raw => {c_ty}.fromValue(value);").unwrap();
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
+}
+
+/// `==`, `hashCode` and `toString` over a value struct's data fields.
+/// Callbacks are left out: two closures doing the same thing are rarely `==`,
+/// so including them would make structurally equal values unequal.
+fn render_dart_value_members(out: &mut String, item: &Struct) {
+    let fields: Vec<(String, &TypeRef)> = item
+        .fields
+        .iter()
+        .filter(|field| !is_callback(&field.ty))
+        .map(|field| (field.name.to_lower_camel_case(), &field.ty))
+        .collect();
+    let uses_list = fields.iter().any(|(_, ty)| matches!(ty, TypeRef::Vector { .. }));
+    let uses_map = fields.iter().any(|(_, ty)| matches!(ty, TypeRef::Map { .. }));
+
+    writeln!(out, "  @override").unwrap();
+    writeln!(out, "  bool operator ==(Object other) =>").unwrap();
+    write!(out, "      identical(this, other) ||\n      (other is {}", item.name).unwrap();
+    for (name, ty) in &fields {
+        match ty {
+            TypeRef::Vector { .. } => write!(out, " &&\n          _listEquals(other.{name}, {name})"),
+            TypeRef::Map { .. } => write!(out, " &&\n          _mapEquals(other.{name}, {name})"),
+            _ => write!(out, " &&\n          other.{name} == {name}"),
+        }
+        .unwrap();
+    }
+    writeln!(out, ");").unwrap();
+    writeln!(out).unwrap();
+
+    let hashes: Vec<String> = fields
+        .iter()
+        .map(|(name, ty)| match ty {
+            TypeRef::Vector { .. } => format!("Object.hashAll({name})"),
+            TypeRef::Map { .. } => format!(
+                "Object.hashAllUnordered({name}.entries.map((e) => Object.hash(e.key, e.value)))"
+            ),
+            _ => name.clone(),
+        })
+        .collect();
+    writeln!(out, "  @override").unwrap();
+    match hashes.as_slice() {
+        [] => writeln!(out, "  int get hashCode => 0;"),
+        [single] => writeln!(out, "  int get hashCode => {single}.hashCode;"),
+        _ => writeln!(out, "  int get hashCode => Object.hash({});", hashes.join(", ")),
+    }
+    .unwrap();
+    writeln!(out).unwrap();
+
+    // `Point(x: 1.0, y: 2.0)`, like a named-argument constructor call.
+    let parts: Vec<String> = fields
+        .iter()
+        .map(|(name, _)| format!("{name}: ${name}"))
+        .collect();
+    writeln!(out, "  @override").unwrap();
+    writeln!(out, "  String toString() => '{}({})';", item.name, parts.join(", ")).unwrap();
+    writeln!(out).unwrap();
+
+    if uses_list {
+        writeln!(out, "  static bool _listEquals<T>(List<T> a, List<T> b) {{").unwrap();
+        writeln!(out, "    if (a.length != b.length) return false;").unwrap();
+        writeln!(out, "    for (var i = 0; i < a.length; i++) {{").unwrap();
+        writeln!(out, "      if (a[i] != b[i]) return false;").unwrap();
+        writeln!(out, "    }}").unwrap();
+        writeln!(out, "    return true;").unwrap();
+        writeln!(out, "  }}").unwrap();
+        writeln!(out).unwrap();
+    }
+    if uses_map {
+        writeln!(out, "  static bool _mapEquals<K, V>(Map<K, V> a, Map<K, V> b) {{").unwrap();
+        writeln!(out, "    if (a.length != b.length) return false;").unwrap();
+        writeln!(out, "    for (final entry in a.entries) {{").unwrap();
+        writeln!(out, "      if (!b.containsKey(entry.key) || b[entry.key] != entry.value) {{").unwrap();
+        writeln!(out, "        return false;").unwrap();
+        writeln!(out, "      }}").unwrap();
+        writeln!(out, "    }}").unwrap();
+        writeln!(out, "    return true;").unwrap();
+        writeln!(out, "  }}").unwrap();
+        writeln!(out).unwrap();
+    }
 }
 
 fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
@@ -380,8 +442,14 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
         .unwrap();
     }
     writeln!(out).unwrap();
+    render_dart_value_members(out, item);
 
-    writeln!(out, "  factory {}.fromNative({c_ty} raw) => {}(", item.name, item.name).unwrap();
+    writeln!(
+        out,
+        "  factory {}.fromNative({c_ty} raw) => {}(",
+        item.name, item.name
+    )
+    .unwrap();
     for field in &item.fields {
         let name = field.name.to_lower_camel_case();
         if is_callback(&field.ty) {
@@ -390,7 +458,7 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
         writeln!(
             out,
             "    {name}: {},",
-            dart_from_native(&field.ty, &format!("raw.{}", field.name.to_snake_case()))
+            dart_from_native(&field.ty, &format!("raw.{}", c_field(field)))
         )
         .unwrap();
     }
@@ -399,7 +467,11 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
 
     // An ffi.Struct cannot exist off-heap in Dart, so anything passing one by
     // value has to allocate it first and free it after the call.
-    writeln!(out, "  /// Allocates the C form; free it with [freeNative].").unwrap();
+    writeln!(
+        out,
+        "  /// Allocates the C form; free it with [freeNative]."
+    )
+    .unwrap();
     writeln!(out, "  ffi.Pointer<{c_ty}> allocNative() {{").unwrap();
     writeln!(out, "    final pointer = pkg_ffi.calloc<{c_ty}>();").unwrap();
     for field in &item.fields {
@@ -414,7 +486,7 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
                 .unwrap();
             }
             TypeRef::Enum { .. } => {
-                writeln!(out, "    pointer.ref.{raw} = {name}.value;").unwrap();
+                writeln!(out, "    pointer.ref.{raw}AsInt = {name}.value;").unwrap();
             }
             TypeRef::Struct { .. } => {
                 writeln!(out, "    final {name}Pointer = {name}.allocNative();").unwrap();
@@ -446,11 +518,7 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
             if matches!(field.ty, TypeRef::String | TypeRef::CString) {
                 let raw = field.name.to_snake_case();
                 writeln!(out, "    if (pointer.ref.{raw} != ffi.nullptr) {{").unwrap();
-                writeln!(
-                    out,
-                    "      pkg_ffi.calloc.free(pointer.ref.{raw});"
-                )
-                .unwrap();
+                writeln!(out, "      pkg_ffi.calloc.free(pointer.ref.{raw});").unwrap();
                 writeln!(out, "    }}").unwrap();
             }
         }
@@ -467,7 +535,10 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
 
 fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
     let c_ty = format!("{C}.{}", c_type_name(prefix, &group.name));
-    let type_enum = format!("{C}.{}", codegen_shared::naming::c_event_type_enum(prefix, &group.name));
+    let type_enum = format!(
+        "{C}.{}",
+        codegen_shared::naming::c_event_type_enum(prefix, &group.name)
+    );
 
     writeln!(out, "/// One `{}`, in its concrete form.", group.name).unwrap();
     writeln!(out, "sealed class {} {{", group.name).unwrap();
@@ -500,7 +571,7 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
             args.push(format!(
                 "{}: {}",
                 field.name.to_lower_camel_case(),
-                dart_from_native(&field.ty, &format!("raw.{}", field.name.to_snake_case()))
+                dart_from_native(&field.ty, &format!("raw.{}", c_field(field)))
             ));
         }
         for field in &variant.fields {
@@ -509,13 +580,13 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
                 field.name.to_lower_camel_case(),
                 dart_from_native(
                     &field.ty,
-                    &format!("raw.data.{payload}.{}", field.name.to_snake_case())
+                    &format!("raw.data.{payload}.{}", c_field(field))
                 )
             ));
         }
         writeln!(
             out,
-            "    if (raw.type == {type_enum}.{}.value) {{",
+            "    if (raw.typeAsInt == {type_enum}.{}.value) {{",
             c_event_variant(prefix, &group.name, &variant.discriminant)
         )
         .unwrap();
@@ -620,18 +691,22 @@ fn render_dart_class(out: &mut String, api: &Api, header: &Header, class: &Class
         .unwrap();
         writeln!(
             out,
-            "    (handle) => _bindings.{}(handle),",
+            "    (handle) => {C}.{}(handle),",
             c_free_symbol(prefix, &class.name)
         )
         .unwrap();
         writeln!(out, "  );").unwrap();
         writeln!(out).unwrap();
-        writeln!(out, "  /// Releases the handle now instead of at collection.").unwrap();
+        writeln!(
+            out,
+            "  /// Releases the handle now instead of at collection."
+        )
+        .unwrap();
         writeln!(out, "  void dispose() {{").unwrap();
         writeln!(out, "    _finalizer.detach(this);").unwrap();
         writeln!(
             out,
-            "    _bindings.{}(nativeHandle);",
+            "    {C}.{}(nativeHandle);",
             c_free_symbol(prefix, &class.name)
         )
         .unwrap();
@@ -673,7 +748,7 @@ fn render_dart_class(out: &mut String, api: &Api, header: &Header, class: &Class
         writeln!(out, "  ffi.Pointer<ffi.Void> get nativeObject =>").unwrap();
         writeln!(
             out,
-            "      _bindings.{}(nativeHandle);",
+            "      {C}.{}(nativeHandle);",
             c_native_object_symbol(prefix, &class.name)
         )
         .unwrap();
@@ -717,7 +792,7 @@ fn render_dart_constructor(out: &mut String, class: &Class, ctor: &Constructor, 
     render_param_bindings(out, &ctor.params, prefix, "    ");
     writeln!(
         out,
-        "    final handle = _bindings.{}({});",
+        "    final handle = {C}.{}({});",
         c_constructor_symbol(prefix, class, ctor),
         call_args(&ctor.params, None)
     )
@@ -782,7 +857,7 @@ fn render_dart_method(
     render_param_bindings(out, &params, prefix, "    ");
     let receiver = instance.then(|| "nativeHandle".to_string());
     let call = format!(
-        "_bindings.{}({})",
+        "{C}.{}({})",
         c_method_symbol(prefix, class, method),
         call_args(&params, receiver)
     );
@@ -851,7 +926,11 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
         "  /// returns. That thread must therefore be this isolate's own; see the"
     )
     .unwrap();
-    writeln!(out, "  /// package README for what that means under Flutter.").unwrap();
+    writeln!(
+        out,
+        "  /// package README for what that means under Flutter."
+    )
+    .unwrap();
     writeln!(
         out,
         "{keyword}ListenerId addListener(void Function({}) callback) {{",
@@ -863,7 +942,11 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
         "    final callable = ffi.NativeCallable<\n        ffi.Void Function(ffi.Pointer<{c_event}>, ffi.Pointer<ffi.Void>)>.isolateLocal("
     )
     .unwrap();
-    writeln!(out, "      (ffi.Pointer<{c_event}> event, ffi.Pointer<ffi.Void> _) {{").unwrap();
+    writeln!(
+        out,
+        "      (ffi.Pointer<{c_event}> event, ffi.Pointer<ffi.Void> _) {{"
+    )
+    .unwrap();
     writeln!(out, "        if (event == ffi.nullptr) return;").unwrap();
     writeln!(
         out,
@@ -881,14 +964,18 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     .unwrap();
     writeln!(
         out,
-        "    return _bindings.{}({self_arg}callable.nativeFunction, ffi.nullptr);",
+        "    return {C}.{}({self_arg}callable.nativeFunction, ffi.nullptr);",
         c_add_listener_symbol(prefix, &class.name)
     )
     .unwrap();
     writeln!(out, "  }}").unwrap();
     writeln!(out).unwrap();
 
-    writeln!(out, "  /// Unregisters a listener. Returns false if unknown.").unwrap();
+    writeln!(
+        out,
+        "  /// Unregisters a listener. Returns false if unknown."
+    )
+    .unwrap();
     writeln!(
         out,
         "{keyword}bool removeListener(ListenerId listenerId) =>"
@@ -896,7 +983,7 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     .unwrap();
     writeln!(
         out,
-        "      _bindings.{}({self_arg}listenerId);",
+        "      {C}.{}({self_arg}listenerId);",
         c_remove_listener_symbol(prefix, &class.name)
     )
     .unwrap();
@@ -917,7 +1004,12 @@ fn class_takes_callback(class: &Class) -> bool {
         .methods
         .iter()
         .flat_map(|method| method.params.iter())
-        .chain(class.constructors.iter().flat_map(|ctor| ctor.params.iter()))
+        .chain(
+            class
+                .constructors
+                .iter()
+                .flat_map(|ctor| ctor.params.iter()),
+        )
         .any(|param| is_callback(&param.ty))
 }
 
@@ -955,7 +1047,9 @@ fn dart_param_type(ty: &TypeRef) -> String {
         TypeRef::String | TypeRef::CString => "String".to_string(),
         // A shared_ptr parameter accepts null: that is how the C++ API clears
         // an icon or detaches a submenu.
-        TypeRef::Object { name, shared: true, .. } => format!("{name}?"),
+        TypeRef::Object {
+            name, shared: true, ..
+        } => format!("{name}?"),
         TypeRef::Object { name, .. } => name.clone(),
         TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
             "List<String>".to_string()
@@ -994,7 +1088,9 @@ fn render_param_bindings(out: &mut String, params: &[Param], prefix: &str, inden
                 )
                 .unwrap();
             }
-            TypeRef::Struct { name: type_name, .. } => match host_type(type_name) {
+            TypeRef::Struct {
+                name: type_name, ..
+            } => match host_type(type_name) {
                 Some(host) => {
                     writeln!(
                         out,
@@ -1081,7 +1177,9 @@ fn render_param_bindings(out: &mut String, params: &[Param], prefix: &str, inden
                     )
                     .unwrap();
                 }
-                TypeRef::Struct { name: type_name, .. } => match host_type(type_name) {
+                TypeRef::Struct {
+                    name: type_name, ..
+                } => match host_type(type_name) {
                     Some(host) => {
                         writeln!(
                             out,
@@ -1172,7 +1270,9 @@ fn render_param_cleanup(out: &mut String, params: &[Param], indent: &str) {
             TypeRef::String | TypeRef::CString => {
                 writeln!(out, "{indent}pkg_ffi.calloc.free({name}Native);").unwrap();
             }
-            TypeRef::Struct { name: type_name, .. } => {
+            TypeRef::Struct {
+                name: type_name, ..
+            } => {
                 if host_type(type_name).is_some() {
                     writeln!(out, "{indent}pkg_ffi.calloc.free({name}Pointer);").unwrap();
                 } else {
@@ -1203,7 +1303,9 @@ fn render_param_cleanup(out: &mut String, params: &[Param], indent: &str) {
                     )
                     .unwrap();
                 }
-                TypeRef::Struct { name: type_name, .. } => {
+                TypeRef::Struct {
+                    name: type_name, ..
+                } => {
                     let free = if host_type(type_name).is_some() {
                         format!("pkg_ffi.calloc.free({name}Pointer)")
                     } else {
@@ -1228,9 +1330,7 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
         let name = param.name.to_lower_camel_case();
         match &param.ty {
             TypeRef::String | TypeRef::CString => args.push(format!("{name}Native")),
-            TypeRef::Object { shared: true, .. } => {
-                args.push(format!("{name}?.nativeHandle ?? 0"))
-            }
+            TypeRef::Object { shared: true, .. } => args.push(format!("{name}?.nativeHandle ?? 0")),
             TypeRef::Object { .. } => args.push(format!("{name}.nativeHandle")),
             TypeRef::Struct { .. } => args.push(format!("{name}Pointer.ref")),
             TypeRef::Enum { .. } => args.push(format!("{name}.raw")),
@@ -1245,9 +1345,7 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
                 TypeRef::Object { .. } => args.push(format!("{name}?.nativeHandle ?? 0")),
                 TypeRef::Struct { .. } => args.push(format!("{name}Pointer.cast()")),
                 TypeRef::Callback { .. } => {
-                    args.push(format!(
-                        "{name}Callable?.nativeFunction ?? ffi.nullptr"
-                    ));
+                    args.push(format!("{name}Callable?.nativeFunction ?? ffi.nullptr"));
                     args.push("ffi.nullptr".to_string());
                 }
                 _ => args.push(name),
@@ -1269,7 +1367,11 @@ fn render_return(
     let needs_cleanup = params.iter().any(|param| {
         matches!(
             param.ty.unwrap_optional(),
-            TypeRef::String | TypeRef::CString | TypeRef::Struct { .. } | TypeRef::Vector { .. } | TypeRef::Map { .. }
+            TypeRef::String
+                | TypeRef::CString
+                | TypeRef::Struct { .. }
+                | TypeRef::Vector { .. }
+                | TypeRef::Map { .. }
         )
     });
 
@@ -1291,7 +1393,7 @@ fn render_return(
                 "    final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();"
             )
             .unwrap();
-            writeln!(out, "    _bindings.{STRING_FREE_FN}(resultPointer);").unwrap();
+            writeln!(out, "    {C}.{STRING_FREE_FN}(resultPointer);").unwrap();
             writeln!(out, "    return result;").unwrap();
         }
         TypeRef::Struct { name, .. } => {
@@ -1316,12 +1418,7 @@ fn render_return(
                 )
                 .unwrap();
                 writeln!(out, "    rawPointer.ref = raw;").unwrap();
-                writeln!(
-                    out,
-                    "    _bindings.{}(rawPointer);",
-                    c_free_symbol(prefix, name)
-                )
-                .unwrap();
+                writeln!(out, "    {C}.{}(rawPointer);", c_free_symbol(prefix, name)).unwrap();
                 writeln!(out, "    pkg_ffi.calloc.free(rawPointer);").unwrap();
                 writeln!(out, "    return result;").unwrap();
             } else {
@@ -1364,7 +1461,7 @@ fn render_return(
             )
             .unwrap();
             writeln!(out, "    listPointer.ref = list;").unwrap();
-            writeln!(out, "    _bindings.{STRING_LIST_FREE_FN}(listPointer);").unwrap();
+            writeln!(out, "    {C}.{STRING_LIST_FREE_FN}(listPointer);").unwrap();
             writeln!(out, "    pkg_ffi.calloc.free(listPointer);").unwrap();
             writeln!(out, "    return items;").unwrap();
         }
@@ -1380,11 +1477,7 @@ fn render_return(
             }
             writeln!(out, "    final items = <{name}>[];").unwrap();
             writeln!(out, "    for (var i = 0; i < list.count; i++) {{").unwrap();
-            writeln!(
-                out,
-                "      items.add({name}.fromHandle(list.{field}[i]));"
-            )
-            .unwrap();
+            writeln!(out, "      items.add({name}.fromHandle(list.{field}[i]));").unwrap();
             writeln!(out, "    }}").unwrap();
             writeln!(
                 out,
@@ -1400,7 +1493,7 @@ fn render_return(
             .unwrap();
             writeln!(
                 out,
-                "    _bindings.{}(listPointer);",
+                "    {C}.{}(listPointer);",
                 c_list_release_symbol(prefix, name)
             )
             .unwrap();
@@ -1429,7 +1522,7 @@ fn render_return(
             )
             .unwrap();
             writeln!(out, "    rawPointer.ref = raw;").unwrap();
-            writeln!(out, "    _bindings.{STRING_MAP_FREE_FN}(rawPointer);").unwrap();
+            writeln!(out, "    {C}.{STRING_MAP_FREE_FN}(rawPointer);").unwrap();
             writeln!(out, "    pkg_ffi.calloc.free(rawPointer);").unwrap();
             writeln!(out, "    return entries;").unwrap();
         }

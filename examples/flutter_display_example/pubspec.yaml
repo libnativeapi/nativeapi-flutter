@@ -32,6 +32,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  nativeapi_flutter:
+    path: ../../bindings/dart/nativeapi_flutter
   nativeapi:
     path: ../../bindings/dart/nativeapi
 

@@ -24,7 +24,7 @@ codegen             # Python entry point orchestrating the generators
 
 - `core` — the C++ core library (repo: `nativeapi-core`). The source of truth for the native API surface (windows, tray icons, menus, displays, keyboard, dialogs, storage, etc.) with per-platform implementations (macOS/Windows/Linux).
 - `tools/codegen` — three crates: `shared` (libclang parser, IR, naming), `capi` (C ABI + umbrella header), `bindings` (Rust/Dart/C# generators, consuming the IR JSON emitted by `capi`). Only `capi` depends on libclang. See tools/codegen/README.md.
-- `bindings/*` — language bindings wrapping the core library. All live in this repo and build against the `core/` submodule directly (Rust `build.rs`, the Flutter plugin's CMake and generated Apple source wrappers, the C# native CMake). Only a published package carries its own copy of core, in `cxx_impl/`, which the release workflows vendor and never commit. The Rust binding layers `nativeapi` (safe API) over `cnativeapi` (FFI).
+- `bindings/*` — language bindings wrapping the core library. All live in this repo and build against the `core/` submodule directly (Rust `build.rs`, the Dart `cnativeapi` package's build hook, the C# native CMake). Only a published package carries its own copy of core, in `cxx_impl/`, which the release workflows vendor and never commit. The Rust binding layers `nativeapi` (safe API) over `cnativeapi` (FFI).
 
 ## Design specs
 
@@ -63,12 +63,12 @@ A core change ripples to every binding. After editing headers in `core`, run:
 ./codegen sync -m "<core commit message>"
 ```
 
-It regenerates everything, reruns `bindgen` (Rust raw FFI) and the Dart binding's `codegen.py` (umbrella headers + ffigen), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
+It regenerates everything, reruns `bindgen` (Rust raw FFI) and `ffigen` (Dart raw FFI), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
 
 Manual follow-ups sync cannot do (details in tools/codegen/README.md):
 
 - New handle types need an `IdTypeTag<T>` entry in `core/src/foundation/id_allocator.h` (append only; a miss is a compile error, not silent).
-- Hand-written files in the bindings (exports, re-exports, changelogs, examples) are never touched by the generators. Rust's `pub mod` list is generated (`modules.rs`); Flutter's `lib/nativeapi.dart` exports are not.
+- Hand-written files in the bindings (exports, re-exports, changelogs, examples) are never touched by the generators. Rust's `pub mod` list is generated (`modules.rs`), and so is Dart's (`nativeapi/lib/src/generated.dart`); `nativeapi_flutter`'s exports are not.
 
 The `core-api-change` skill walks the whole flow, including what to check before `sync` commits.
 
@@ -91,10 +91,10 @@ scenarios for *this project's* examples live in [tools/gui/](tools/gui/README.md
 ## Conventions
 
 - `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer.
-- The leanflutter packages built on nativeapi (`tray_manager`, `window_manager`, `launch_at_startup`, …) live in their own repos under github.com/leanflutter and depend on the published `nativeapi`; they are not part of this repo. To try one against local changes, point a `dependency_overrides` entry in that package at `bindings/dart/nativeapi` (and `cnativeapi`) and never commit the override.
+- The leanflutter packages built on nativeapi (`tray_manager`, `window_manager`, `launch_at_startup`, …) live in their own repos under github.com/leanflutter and depend on the published `nativeapi`; they are not part of this repo. To try one against local changes, point a `dependency_overrides` entry in that package at `bindings/dart/nativeapi_flutter` (and `nativeapi`, `cnativeapi`) and never commit the override.
 - Commit workspace submodule pointer updates only when the combination is compatible (a known-good snapshot).
 - Examples live in `examples/<binding>_<name>_example` (`flutter_`, `rust_`, `csharp_`), not inside the bindings; a new Flutter or Rust example must also be listed in the root `pubspec.yaml` / `Cargo.toml`, a C# one in `bindings/csharp/NativeAPI.slnx`. Only the pub.dev package examples (`bindings/dart/*/example`) stay inside their package.
 - CI is one workflow per binding (`dart-ci.yml`, `rust-ci.yml`, `csharp-ci.yml`), each running only for changes under its `bindings/<lang>/` and its examples (`examples/flutter_*` for Dart, `examples/rust_*`, `examples/csharp_*`). Release tags are per binding: `v*` publishes the Dart packages (`dart-release.yml`), `rust-v*` publishes the crates (`rust-release.yml`); never push a bare `v*` tag for anything but the Dart packages.
-- The Dart packages `cnativeapi`, `nativeapi` and `nativeapi_flutter` share one version: a release bumps all three pubspecs and CHANGELOGs, because pub.dev's automated publishing matches the tag `v<version>` against each package's own version. `nativeapi_flutter` is the Flutter-facing package; for now it only re-exports `package:nativeapi`.
+- The Dart packages `cnativeapi`, `nativeapi` and `nativeapi_flutter` share one version: a release bumps all three pubspecs and CHANGELOGs, because pub.dev's automated publishing matches the tag `v<version>` against each package's own version. `cnativeapi` and `nativeapi` are plain Dart (no Flutter dependency; a build hook compiles core); `nativeapi_flutter` is the Flutter-facing package, holding the widgets, the `dart:ui` conversions and `windowing.dart`, and re-exporting `nativeapi` minus the names that clash with Flutter's.
 - Never commit in a submodule while on a detached HEAD — check out `main` first (`./codegen sync` enforces this).
 - Do not add Co-Authored-By trailers to commits.

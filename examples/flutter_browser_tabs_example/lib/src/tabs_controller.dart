@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as na;
 
-import 'package:nativeapi/windowing.dart';
+import 'package:nativeapi_flutter/windowing.dart';
 
 import 'tab_layout.dart';
 
@@ -148,7 +148,7 @@ class TabsController extends ChangeNotifier {
       }
       // Either way the frame is kept, so the content just grew into the title
       // bar area; give it back the requested size.
-      native.contentSize = size ?? defaultWindowSize;
+      native.contentSize = (size ?? defaultWindowSize).toNative();
     }
     window.nativeWindow = native;
     windows.add(window);
@@ -231,13 +231,13 @@ class TabsController extends ChangeNotifier {
     final session = _session;
     final native = window.nativeWindow;
     if (session == null || native == null || _drag != null) return false;
-    if (!session.start(null, Offset.zero)) return false;
+    if (!session.start(null, Offset.zero.toNative())) return false;
     activate(window, tab);
     _drag = _TabDrag(
       tab: tab,
       window: window,
       grab: grab,
-      press: native.contentBounds.topLeft + pointerInView,
+      press: native.contentBounds.toRect().topLeft + pointerInView,
       mode: _DragMode.pending,
     );
     return true;
@@ -248,7 +248,10 @@ class TabsController extends ChangeNotifier {
     final session = _session;
     final native = window.nativeWindow;
     if (session == null || native == null || _drag != null) return false;
-    if (!session.start(native, native.contentInset + pointerInView)) {
+    if (!session.start(
+      native,
+      (native.contentInset + pointerInView).toNative(),
+    )) {
       return false;
     }
     _drag = _TabDrag(
@@ -269,7 +272,7 @@ class TabsController extends ChangeNotifier {
     if (drag == null) return;
     switch (event) {
       case na.WindowDragMovedEvent(:final cursorPosition):
-        _handleMove(drag, cursorPosition);
+        _handleMove(drag, cursorPosition.toOffset());
       case na.WindowDragEndedEvent():
         _drag = null;
         if (drag.mode == _DragMode.window) {
@@ -344,17 +347,18 @@ class TabsController extends ChangeNotifier {
     if (source.tabs.length == 1) {
       // Nothing would be left behind: carry the whole window instead.
       final native = source.nativeWindow!;
-      session.start(native, _anchorFor(native, drag));
+      session.start(native, _anchorFor(native, drag).toNative());
       drag.mode = _DragMode.window;
       notifyListeners();
       return;
     }
 
-    final size = source.nativeWindow?.contentSize ?? defaultWindowSize;
+    final size = source.nativeWindow?.contentSize.toSize() ?? defaultWindowSize;
     _removeTab(source, tab);
     final torn = openWindow([tab], size: size);
     final native = torn.nativeWindow;
-    if (native == null || !session.start(native, _anchorFor(native, drag))) {
+    if (native == null ||
+        !session.start(native, _anchorFor(native, drag).toNative())) {
       // Could not follow the cursor: leave the new window where it is.
       _drag = null;
       session.cancel();
@@ -385,7 +389,7 @@ class TabsController extends ChangeNotifier {
 
     // Stop moving the dragged window before it goes away; the gesture goes on
     // as a drag along the target's strip.
-    _session!.start(null, Offset.zero);
+    _session!.start(null, Offset.zero.toNative());
     drag
       ..window = target
       ..mode = _DragMode.inStrip;
@@ -409,7 +413,10 @@ class TabsController extends ChangeNotifier {
     required BrowserWindow excluding,
   }) {
     final excludedId = excluding.nativeWindow?.id ?? 0;
-    final hit = na.WindowManager.instance.getWindowAtPoint(cursor, excludedId);
+    final hit = na.WindowManager.instance.getWindowAtPoint(
+      cursor.toNative(),
+      excludedId,
+    );
     if (hit == null) return null;
     final hitId = hit.id;
     for (final window in windows) {
@@ -425,7 +432,8 @@ class TabsController extends ChangeNotifier {
     final native = window.nativeWindow;
     final box = window.stripKey.currentContext?.findRenderObject();
     if (native == null || box is! RenderBox || !box.hasSize) return null;
-    return (native.contentBounds.topLeft + box.localToGlobal(Offset.zero)) &
+    return (native.contentBounds.toRect().topLeft +
+            box.localToGlobal(Offset.zero)) &
         box.size;
   }
 

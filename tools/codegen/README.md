@@ -50,8 +50,8 @@ tools/codegen/
 
 1. 全量重新生成（C ABI + 三端绑定）
 2. 提交 core（消息用 `-m` 指定，默认 `Update API`）
-3. rust 额外重跑 bindgen 刷新 `bindings/rust/cnativeapi/src/bindings.rs`；flutter 额外执行 binding 自带的
-   `codegen.py`（.mm include、umbrella header、ffigen.yaml、dart ffigen）
+3. rust 额外重跑 bindgen 刷新 `bindings/rust/cnativeapi/src/bindings.rs`；dart 额外运行 ffigen
+   刷新 `bindings/dart/cnativeapi/lib/src/bindings_generated.dart`（单独执行：`./codegen ffigen`）
 4. 提交 workspace，消息为 `Sync with core <sha>`：core 指针，以及 `bindings/`
    下的全部改动（三个 binding 都在 workspace 仓库里）
 

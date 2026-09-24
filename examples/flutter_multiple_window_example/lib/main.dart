@@ -3,13 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' hide WindowManager;
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void main() {
   // The stable channel does not offer `flutter config --enable-windowing`,
   // so turn the experimental windowing API on before the binding starts.
   isWindowingEnabled = true;
-  Display? primaryDisplay = DisplayManager.instance.getPrimary();
+  na.Display? primaryDisplay = DisplayManager.instance.getPrimary();
   WindowManager.instance.setWillShowHook((windowId) {
     Window? window = WindowManager.instance.get(windowId);
     if (window != null && primaryDisplay != null) {
@@ -41,8 +42,8 @@ void main() {
   );
 }
 
-void _positionPrimaryWindow(Window window, Display display) {
-  final workArea = display.workArea;
+void _positionPrimaryWindow(Window window, na.Display display) {
+  final workArea = display.workArea.toRect();
 
   // Calculate 60% of work area dimensions
   final totalWidth = workArea.width * 0.6;
@@ -56,12 +57,12 @@ void _positionPrimaryWindow(Window window, Display display) {
   final topRowHeight = totalHeight * 0.5;
 
   // Top row, centered, full width
-  window.setSize(Size(totalWidth, topRowHeight), false);
-  window.position = Offset(startX, startY);
+  window.setSize(Size(totalWidth, topRowHeight).toNative(), false);
+  window.position = Offset(startX, startY).toNative();
 }
 
-void _positionSecondaryWindow(Window window, Display display) {
-  final workArea = display.workArea;
+void _positionSecondaryWindow(Window window, na.Display display) {
+  final workArea = display.workArea.toRect();
 
   // Calculate 60% of work area dimensions
   final totalWidth = workArea.width * 0.6;
@@ -80,12 +81,12 @@ void _positionSecondaryWindow(Window window, Display display) {
   final bottomWindowWidth = totalWidth * 0.5;
 
   // Bottom left
-  window.setSize(Size(bottomWindowWidth, bottomRowHeight), false);
-  window.position = Offset(startX, startY + topRowHeight);
+  window.setSize(Size(bottomWindowWidth, bottomRowHeight).toNative(), false);
+  window.position = Offset(startX, startY + topRowHeight).toNative();
 }
 
-void _positionTertiaryWindow(Window window, Display display) {
-  final workArea = display.workArea;
+void _positionTertiaryWindow(Window window, na.Display display) {
+  final workArea = display.workArea.toRect();
 
   // Calculate 60% of work area dimensions
   final totalWidth = workArea.width * 0.6;
@@ -104,8 +105,11 @@ void _positionTertiaryWindow(Window window, Display display) {
   final bottomWindowWidth = totalWidth * 0.5;
 
   // Bottom right
-  window.setSize(Size(bottomWindowWidth, bottomRowHeight), false);
-  window.position = Offset(startX + bottomWindowWidth, startY + topRowHeight);
+  window.setSize(Size(bottomWindowWidth, bottomRowHeight).toNative(), false);
+  window.position = Offset(
+    startX + bottomWindowWidth,
+    startY + topRowHeight,
+  ).toNative();
 }
 
 class PrimaryWindow extends StatefulWidget {
@@ -143,7 +147,10 @@ class _PrimaryWindowState extends State<PrimaryWindow> {
                       }
                     }
                     if (primaryWindow != null) {
-                      primaryWindow.setSize(Size(1000, 1000), false);
+                      primaryWindow.setSize(
+                        const Size(1000, 1000).toNative(),
+                        false,
+                      );
                       primaryWindow.show();
                     }
                   },

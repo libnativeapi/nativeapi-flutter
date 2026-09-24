@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,7 +59,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
     with SingleTickerProviderStateMixin {
   // --- data ---
   List<Window> _windows = [];
-  List<Display> _displays = [];
+  List<na.Display> _displays = [];
   Window? _selectedWindow;
   bool _isLoading = true;
   String? _errorMessage;
@@ -180,7 +181,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           final p = event.newPosition;
           _addLog(
             'Window #${event.windowId} moved to '
-            '${p.dx.round()}, ${p.dy.round()}',
+            '${p.x.round()}, ${p.y.round()}',
             replaceTag: 'moved-${event.windowId}',
           );
         }
@@ -553,8 +554,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
   }
 
   Widget _buildQuickInfo(Window window, ThemeData theme) {
-    final bounds = window.bounds;
-    final contentBounds = window.contentBounds;
+    final bounds = window.bounds.toRect();
+    final contentBounds = window.contentBounds.toRect();
     return ListView(
       padding: const EdgeInsets.all(12),
       children: [
@@ -950,23 +951,23 @@ class _WindowManagerPageState extends State<WindowManagerPage>
               _showFeedback('Window centered');
             }),
             _actionBtn('800 × 600', Icons.aspect_ratio, () {
-              window.setSize(Size(800, 600), false);
+              window.setSize(Size(800, 600).toNative(), false);
               _showFeedback('Size set to 800 × 600');
             }),
             _actionBtn('1024 × 768', Icons.aspect_ratio, () {
-              window.setSize(Size(1024, 768), false);
+              window.setSize(Size(1024, 768).toNative(), false);
               _showFeedback('Size set to 1024 × 768');
             }),
             _actionBtn('Set Content 760×540', Icons.crop_free, () {
-              window.contentSize = Size(760, 540);
+              window.contentSize = const Size(760, 540).toNative();
               _showFeedback('Content size set to 760 × 540');
             }),
             _actionBtn('Position (100, 100)', Icons.pin_drop, () {
-              window.position = Offset(100, 100);
+              window.position = const Offset(100, 100).toNative();
               _showFeedback('Position set to (100, 100)');
             }),
             _actionBtn('Position (400, 300)', Icons.pin_drop, () {
-              window.position = Offset(400, 300);
+              window.position = const Offset(400, 300).toNative();
               _showFeedback('Position set to (400, 300)');
             }),
           ]),
@@ -974,16 +975,16 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           // --- Size Constraints ---
           _group('Size Constraints', Icons.straighten, [
             _actionBtn('Set Min 400×300', Icons.arrow_circle_down, () {
-              window.minimumSize = Size(400, 300);
+              window.minimumSize = const Size(400, 300).toNative();
               _showFeedback('Minimum size set to 400 × 300');
             }),
             _actionBtn('Set Max 1200×900', Icons.arrow_circle_up, () {
-              window.maximumSize = Size(1200, 900);
+              window.maximumSize = const Size(1200, 900).toNative();
               _showFeedback('Maximum size set to 1200 × 900');
             }),
             _actionBtn('Reset Constraints', Icons.remove_circle_outline, () {
-              window.minimumSize = Size(0, 0);
-              window.maximumSize = Size(0, 0);
+              window.minimumSize = const Size(0, 0).toNative();
+              window.maximumSize = const Size(0, 0).toNative();
               _showFeedback('Size constraints reset');
             }),
           ]),
@@ -991,7 +992,10 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           // --- Appearance ---
           _group('Appearance', Icons.palette, [
             _actionBtn('Blue Title Bar (WinUI 3)', Icons.color_lens, () {
-              final ok = window.setTitleBarColors(Colors.indigo, Colors.white);
+              final ok = window.setTitleBarColors(
+                Colors.indigo.toNative(),
+                Colors.white.toNative(),
+              );
               _showFeedback(
                 ok
                     ? 'Title bar colors applied'
@@ -1095,23 +1099,23 @@ class _WindowManagerPageState extends State<WindowManagerPage>
           // --- Background Color ---
           _group('Background Color', Icons.color_lens, [
             _colorBtn('White', Colors.white, window, () {
-              window.backgroundColor = Colors.white;
+              window.backgroundColor = Colors.white.toNative();
               _showFeedback('Background: White');
             }),
             _colorBtn('Light Grey', Colors.grey[200]!, window, () {
-              window.backgroundColor = Colors.grey[200]!;
+              window.backgroundColor = Colors.grey[200]!.toNative();
               _showFeedback('Background: Light Grey');
             }),
             _colorBtn('Dark', Colors.grey[900]!, window, () {
-              window.backgroundColor = Colors.grey[900]!;
+              window.backgroundColor = Colors.grey[900]!.toNative();
               _showFeedback('Background: Dark');
             }),
             _colorBtn('Blue', Colors.blue[200]!, window, () {
-              window.backgroundColor = Colors.blue[200]!;
+              window.backgroundColor = Colors.blue[200]!.toNative();
               _showFeedback('Background: Blue');
             }),
             _colorBtn('Transparent', Colors.transparent, window, () {
-              window.backgroundColor = const Color(0x00000000);
+              window.backgroundColor = const Color(0x00000000).toNative();
               _showFeedback('Background: Transparent');
             }),
           ]),
@@ -1461,7 +1465,8 @@ class _WindowManagerPageState extends State<WindowManagerPage>
     Window window,
     VoidCallback onPressed,
   ) {
-    final isSelected = window.backgroundColor.toARGB32() == color.toARGB32();
+    final isSelected =
+        window.backgroundColor.toColor().toARGB32() == color.toARGB32();
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: SizedBox(
@@ -1506,7 +1511,7 @@ class _WindowManagerPageState extends State<WindowManagerPage>
 // =========================================================================
 class WindowCanvas extends StatefulWidget {
   final List<Window> windows;
-  final List<Display> displays;
+  final List<na.Display> displays;
   final Window? selectedWindow;
   final Function(Window) onWindowTap;
 
@@ -1708,8 +1713,8 @@ class _WindowCanvasState extends State<WindowCanvas> {
     double maxY = double.negativeInfinity;
 
     for (final display in widget.displays) {
-      final pos = display.position;
-      final size = display.size;
+      final pos = display.position.toOffset();
+      final size = display.size.toSize();
       minX = minX < pos.dx ? minX : pos.dx;
       minY = minY < pos.dy ? minY : pos.dy;
       maxX = maxX > pos.dx + size.width ? maxX : pos.dx + size.width;
@@ -1718,7 +1723,7 @@ class _WindowCanvasState extends State<WindowCanvas> {
 
     for (final window in widget.windows) {
       try {
-        final b = window.bounds;
+        final b = window.bounds.toRect();
         minX = minX < b.left ? minX : b.left;
         minY = minY < b.top ? minY : b.top;
         maxX = maxX > b.right ? maxX : b.right;
@@ -1738,10 +1743,10 @@ class _WindowCanvasState extends State<WindowCanvas> {
     );
   }
 
-  Widget _buildDisplay(Display display, Rect bounds, double scale) {
-    final pos = display.position;
-    final size = display.size;
-    final work = display.workArea;
+  Widget _buildDisplay(na.Display display, Rect bounds, double scale) {
+    final pos = display.position.toOffset();
+    final size = display.size.toSize();
+    final work = display.workArea.toRect();
 
     final left = (pos.dx - bounds.left) * scale;
     final top = (pos.dy - bounds.top) * scale;
@@ -1817,8 +1822,8 @@ class _WindowCanvasState extends State<WindowCanvas> {
 
   Widget _buildWindow(Window window, Rect bounds, double scale) {
     try {
-      final wb = window.bounds;
-      final cb = window.contentBounds;
+      final wb = window.bounds.toRect();
+      final cb = window.contentBounds.toRect();
 
       final left = (wb.left - bounds.left) * scale;
       final top = (wb.top - bounds.top) * scale;

@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -12,8 +11,6 @@ import 'package:ffi/ffi.dart' as pkg_ffi;
 import 'foundation/keyboard.dart';
 
 import 'support.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 class KeyboardMonitor {
   /// Adopts a handle returned by the C API and releases it when this
@@ -29,32 +26,32 @@ class KeyboardMonitor {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_keyboard_monitor_free(handle),
+    (handle) => c.native_keyboard_monitor_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_keyboard_monitor_free(nativeHandle);
+    c.native_keyboard_monitor_free(nativeHandle);
   }
 
   /// Creates a new `KeyboardMonitor`; returns null if the native side failed.
   static KeyboardMonitor? create() {
-    final handle = _bindings.native_keyboard_monitor_create();
+    final handle = c.native_keyboard_monitor_create();
     if (handle == 0) return null;
     return KeyboardMonitor.fromHandle(handle);
   }
 
   void start() {
-    _bindings.native_keyboard_monitor_start(nativeHandle);
+    c.native_keyboard_monitor_start(nativeHandle);
   }
 
   void stop() {
-    _bindings.native_keyboard_monitor_stop(nativeHandle);
+    c.native_keyboard_monitor_stop(nativeHandle);
   }
 
   bool get isMonitoring {
-    return _bindings.native_keyboard_monitor_is_monitoring(nativeHandle);
+    return c.native_keyboard_monitor_is_monitoring(nativeHandle);
   }
 
   /// Registers [callback] for every `KeyboardEvent` this `KeyboardMonitor` emits.
@@ -79,7 +76,7 @@ class KeyboardMonitor {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_keyboard_monitor_add_listener(
+    return c.native_keyboard_monitor_add_listener(
       nativeHandle,
       callable.nativeFunction,
       ffi.nullptr,
@@ -87,8 +84,8 @@ class KeyboardMonitor {
   }
 
   /// Unregisters a listener. Returns false if unknown.
-  bool removeListener(ListenerId listenerId) => _bindings
-      .native_keyboard_monitor_remove_listener(nativeHandle, listenerId);
+  bool removeListener(ListenerId listenerId) =>
+      c.native_keyboard_monitor_remove_listener(nativeHandle, listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];

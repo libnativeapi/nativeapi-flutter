@@ -4,15 +4,12 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'foundation/geometry.dart';
 import 'window.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 enum PositioningStrategyType {
   absolute(0),
@@ -47,96 +44,81 @@ class PositioningStrategy {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_positioning_strategy_free(handle),
+    (handle) => c.native_positioning_strategy_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_positioning_strategy_free(nativeHandle);
+    c.native_positioning_strategy_free(nativeHandle);
   }
 
-  static PositioningStrategy? absolute(Offset point) {
-    final pointPointer = pkg_ffi.calloc<c.native_point_t>();
-    pointPointer.ref.x = point.dx;
-    pointPointer.ref.y = point.dy;
-    final handle = _bindings.native_positioning_strategy_absolute(
-      pointPointer.ref,
-    );
-    pkg_ffi.calloc.free(pointPointer);
+  static PositioningStrategy? absolute(Point point) {
+    final pointPointer = point.allocNative();
+    final handle = c.native_positioning_strategy_absolute(pointPointer.ref);
+    Point.freeNative(pointPointer);
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
   }
 
   static PositioningStrategy? cursorPosition() {
-    final handle = _bindings.native_positioning_strategy_cursor_position();
+    final handle = c.native_positioning_strategy_cursor_position();
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
   }
 
   static PositioningStrategy? relativeWithRectAndOffset(
-    Rect rect,
-    Offset offset,
+    Rectangle rect,
+    Point offset,
   ) {
-    final rectPointer = pkg_ffi.calloc<c.native_rectangle_t>();
-    rectPointer.ref.x = rect.left;
-    rectPointer.ref.y = rect.top;
-    rectPointer.ref.width = rect.width;
-    rectPointer.ref.height = rect.height;
-    final offsetPointer = pkg_ffi.calloc<c.native_point_t>();
-    offsetPointer.ref.x = offset.dx;
-    offsetPointer.ref.y = offset.dy;
-    final handle = _bindings
-        .native_positioning_strategy_relative_with_rect_and_offset(
-          rectPointer.ref,
-          offsetPointer.ref,
-        );
-    pkg_ffi.calloc.free(rectPointer);
-    pkg_ffi.calloc.free(offsetPointer);
+    final rectPointer = rect.allocNative();
+    final offsetPointer = offset.allocNative();
+    final handle = c.native_positioning_strategy_relative_with_rect_and_offset(
+      rectPointer.ref,
+      offsetPointer.ref,
+    );
+    Rectangle.freeNative(rectPointer);
+    Point.freeNative(offsetPointer);
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
   }
 
   static PositioningStrategy? relativeWithWindowAndOffset(
     Window window,
-    Offset offset,
+    Point offset,
   ) {
-    final offsetPointer = pkg_ffi.calloc<c.native_point_t>();
-    offsetPointer.ref.x = offset.dx;
-    offsetPointer.ref.y = offset.dy;
-    final handle = _bindings
+    final offsetPointer = offset.allocNative();
+    final handle = c
         .native_positioning_strategy_relative_with_window_and_offset(
           window.nativeHandle,
           offsetPointer.ref,
         );
-    pkg_ffi.calloc.free(offsetPointer);
+    Point.freeNative(offsetPointer);
     if (handle == 0) return null;
     return PositioningStrategy.fromHandle(handle);
   }
 
   PositioningStrategyType get type {
-    final raw = _bindings.native_positioning_strategy_get_type(nativeHandle);
+    final raw = c.native_positioning_strategy_get_type(nativeHandle);
     return PositioningStrategyType.fromValue(raw.value);
   }
 
-  Offset get absolutePosition {
-    final raw = _bindings.native_positioning_strategy_get_absolute_position(
+  Point get absolutePosition {
+    final raw = c.native_positioning_strategy_get_absolute_position(
       nativeHandle,
     );
-    return Offset(raw.x, raw.y);
+    return Point.fromNative(raw);
   }
 
-  Rect get relativeRectangle {
-    final raw = _bindings.native_positioning_strategy_get_relative_rectangle(
+  Rectangle get relativeRectangle {
+    final raw = c.native_positioning_strategy_get_relative_rectangle(
       nativeHandle,
     );
-    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+    return Rectangle.fromNative(raw);
   }
 
-  Offset get relativeOffset {
-    final raw = _bindings.native_positioning_strategy_get_relative_offset(
-      nativeHandle,
-    );
-    return Offset(raw.x, raw.y);
+  Point get relativeOffset {
+    final raw = c.native_positioning_strategy_get_relative_offset(nativeHandle);
+    return Point.fromNative(raw);
   }
 }

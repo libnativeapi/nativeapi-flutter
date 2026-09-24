@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -15,8 +14,6 @@ import 'placement.dart';
 import 'positioning_strategy.dart';
 
 import 'support.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 typedef MenuId = int;
 
@@ -87,19 +84,19 @@ sealed class MenuEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static MenuEvent? fromNative(c.native_menu_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_OPENED.value) {
       return MenuOpenedEvent(menuId: raw.data.opened.menu_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_CLOSED.value) {
       return MenuClosedEvent(menuId: raw.data.closed.menu_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_menu_event_type_t.NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED.value) {
       return MenuItemClickedEvent(itemId: raw.data.item_clicked.item_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_menu_event_type_t
             .NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_OPENED
@@ -108,7 +105,7 @@ sealed class MenuEvent {
         itemId: raw.data.item_submenu_opened.item_id,
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c
             .native_menu_event_type_t
             .NATIVE_MENU_EVENT_TYPE_ITEM_SUBMENU_CLOSED
@@ -165,19 +162,19 @@ class MenuItem {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_menu_item_free(handle),
+    (handle) => c.native_menu_item_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_menu_item_free(nativeHandle);
+    c.native_menu_item_free(nativeHandle);
   }
 
   /// Creates a new `MenuItem`; returns null if the native side failed.
   static MenuItem? createWithLabelAndType(String label, MenuItemType type) {
     final labelNative = label.toNativeUtf8().cast<ffi.Char>();
-    final handle = _bindings.native_menu_item_create_with_label_and_type(
+    final handle = c.native_menu_item_create_with_label_and_type(
       labelNative,
       type.raw,
     );
@@ -188,19 +185,17 @@ class MenuItem {
 
   /// Creates a new `MenuItem`; returns null if the native side failed.
   static MenuItem? createWithNativeItem(ffi.Pointer<ffi.Void> nativeItem) {
-    final handle = _bindings.native_menu_item_create_with_native_item(
-      nativeItem,
-    );
+    final handle = c.native_menu_item_create_with_native_item(nativeItem);
     if (handle == 0) return null;
     return MenuItem.fromHandle(handle);
   }
 
   MenuItemId get id {
-    return _bindings.native_menu_item_get_id(nativeHandle);
+    return c.native_menu_item_get_id(nativeHandle);
   }
 
   MenuItemType get type {
-    final raw = _bindings.native_menu_item_get_type(nativeHandle);
+    final raw = c.native_menu_item_get_type(nativeHandle);
     return MenuItemType.fromValue(raw.value);
   }
 
@@ -208,24 +203,24 @@ class MenuItem {
     final valueNative = value == null
         ? ffi.nullptr
         : value.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_menu_item_set_label(nativeHandle, valueNative);
+    c.native_menu_item_set_label(nativeHandle, valueNative);
     if (valueNative != ffi.nullptr) pkg_ffi.calloc.free(valueNative);
   }
 
   String? get label {
-    final resultPointer = _bindings.native_menu_item_get_label(nativeHandle);
+    final resultPointer = c.native_menu_item_get_label(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
   set icon(Image? value) {
-    _bindings.native_menu_item_set_icon(nativeHandle, value?.nativeHandle ?? 0);
+    c.native_menu_item_set_icon(nativeHandle, value?.nativeHandle ?? 0);
   }
 
   Image? get icon {
-    final handle = _bindings.native_menu_item_get_icon(nativeHandle);
+    final handle = c.native_menu_item_get_icon(nativeHandle);
     if (handle == 0) return null;
     return Image.fromHandle(handle);
   }
@@ -234,75 +229,69 @@ class MenuItem {
     final valueNative = value == null
         ? ffi.nullptr
         : value.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_menu_item_set_tooltip(nativeHandle, valueNative);
+    c.native_menu_item_set_tooltip(nativeHandle, valueNative);
     if (valueNative != ffi.nullptr) pkg_ffi.calloc.free(valueNative);
   }
 
   String? get tooltip {
-    final resultPointer = _bindings.native_menu_item_get_tooltip(nativeHandle);
+    final resultPointer = c.native_menu_item_get_tooltip(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
   set accelerator(KeyboardAccelerator? value) {
     final valuePointer = value?.allocNative() ?? ffi.nullptr;
-    _bindings.native_menu_item_set_accelerator(
-      nativeHandle,
-      valuePointer.cast(),
-    );
+    c.native_menu_item_set_accelerator(nativeHandle, valuePointer.cast());
     if (valuePointer != ffi.nullptr) {
       KeyboardAccelerator.freeNative(valuePointer.cast());
     }
   }
 
   KeyboardAccelerator get accelerator {
-    final raw = _bindings.native_menu_item_get_accelerator(nativeHandle);
+    final raw = c.native_menu_item_get_accelerator(nativeHandle);
     return KeyboardAccelerator.fromNative(raw);
   }
 
   set isEnabled(bool value) {
-    _bindings.native_menu_item_set_enabled(nativeHandle, value);
+    c.native_menu_item_set_enabled(nativeHandle, value);
   }
 
   bool get isEnabled {
-    return _bindings.native_menu_item_is_enabled(nativeHandle);
+    return c.native_menu_item_is_enabled(nativeHandle);
   }
 
   set state(MenuItemState value) {
-    _bindings.native_menu_item_set_state(nativeHandle, value.raw);
+    c.native_menu_item_set_state(nativeHandle, value.raw);
   }
 
   MenuItemState get state {
-    final raw = _bindings.native_menu_item_get_state(nativeHandle);
+    final raw = c.native_menu_item_get_state(nativeHandle);
     return MenuItemState.fromValue(raw.value);
   }
 
   set radioGroup(int value) {
-    _bindings.native_menu_item_set_radio_group(nativeHandle, value);
+    c.native_menu_item_set_radio_group(nativeHandle, value);
   }
 
   int get radioGroup {
-    return _bindings.native_menu_item_get_radio_group(nativeHandle);
+    return c.native_menu_item_get_radio_group(nativeHandle);
   }
 
   set submenu(Menu? value) {
-    _bindings.native_menu_item_set_submenu(
-      nativeHandle,
-      value?.nativeHandle ?? 0,
-    );
+    c.native_menu_item_set_submenu(nativeHandle, value?.nativeHandle ?? 0);
   }
 
   Menu? get submenu {
-    final handle = _bindings.native_menu_item_get_submenu(nativeHandle);
+    final handle = c.native_menu_item_get_submenu(nativeHandle);
     if (handle == 0) return null;
     return Menu.fromHandle(handle);
   }
 
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
-      _bindings.native_menu_item_get_native_object(nativeHandle);
+      c.native_menu_item_get_native_object(nativeHandle);
 
   /// Registers [callback] for every `MenuEvent` this `MenuItem` emits.
   ///
@@ -326,7 +315,7 @@ class MenuItem {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_menu_item_add_listener(
+    return c.native_menu_item_add_listener(
       nativeHandle,
       callable.nativeFunction,
       ffi.nullptr,
@@ -335,7 +324,7 @@ class MenuItem {
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
-      _bindings.native_menu_item_remove_listener(nativeHandle, listenerId);
+      c.native_menu_item_remove_listener(nativeHandle, listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];
@@ -355,103 +344,96 @@ class Menu {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_menu_free(handle),
+    (handle) => c.native_menu_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_menu_free(nativeHandle);
+    c.native_menu_free(nativeHandle);
   }
 
   /// Creates a new `Menu`; returns null if the native side failed.
   static Menu? create() {
-    final handle = _bindings.native_menu_create();
+    final handle = c.native_menu_create();
     if (handle == 0) return null;
     return Menu.fromHandle(handle);
   }
 
   /// Creates a new `Menu`; returns null if the native side failed.
   static Menu? createWithNativeMenu(ffi.Pointer<ffi.Void> nativeMenu) {
-    final handle = _bindings.native_menu_create_with_native_menu(nativeMenu);
+    final handle = c.native_menu_create_with_native_menu(nativeMenu);
     if (handle == 0) return null;
     return Menu.fromHandle(handle);
   }
 
   MenuId get id {
-    return _bindings.native_menu_get_id(nativeHandle);
+    return c.native_menu_get_id(nativeHandle);
   }
 
   bool setBackend(MenuBackend backend) {
-    return _bindings.native_menu_set_backend(nativeHandle, backend.raw);
+    return c.native_menu_set_backend(nativeHandle, backend.raw);
   }
 
   MenuBackend get backend {
-    final raw = _bindings.native_menu_get_backend(nativeHandle);
+    final raw = c.native_menu_get_backend(nativeHandle);
     return MenuBackend.fromValue(raw.value);
   }
 
   static bool isBackendSupported(MenuBackend backend) {
-    return _bindings.native_menu_is_backend_supported(backend.raw);
+    return c.native_menu_is_backend_supported(backend.raw);
   }
 
   void addItem(MenuItem? item) {
-    _bindings.native_menu_add_item(nativeHandle, item?.nativeHandle ?? 0);
+    c.native_menu_add_item(nativeHandle, item?.nativeHandle ?? 0);
   }
 
   void insertItem(int index, MenuItem? item) {
-    _bindings.native_menu_insert_item(
-      nativeHandle,
-      index,
-      item?.nativeHandle ?? 0,
-    );
+    c.native_menu_insert_item(nativeHandle, index, item?.nativeHandle ?? 0);
   }
 
   bool removeItem(MenuItem? item) {
-    return _bindings.native_menu_remove_item(
-      nativeHandle,
-      item?.nativeHandle ?? 0,
-    );
+    return c.native_menu_remove_item(nativeHandle, item?.nativeHandle ?? 0);
   }
 
   bool removeItemById(MenuItemId itemId) {
-    return _bindings.native_menu_remove_item_by_id(nativeHandle, itemId);
+    return c.native_menu_remove_item_by_id(nativeHandle, itemId);
   }
 
   bool removeItemAt(int index) {
-    return _bindings.native_menu_remove_item_at(nativeHandle, index);
+    return c.native_menu_remove_item_at(nativeHandle, index);
   }
 
   void clear() {
-    _bindings.native_menu_clear(nativeHandle);
+    c.native_menu_clear(nativeHandle);
   }
 
   void addSeparator() {
-    _bindings.native_menu_add_separator(nativeHandle);
+    c.native_menu_add_separator(nativeHandle);
   }
 
   void insertSeparator(int index) {
-    _bindings.native_menu_insert_separator(nativeHandle, index);
+    c.native_menu_insert_separator(nativeHandle, index);
   }
 
   int get itemCount {
-    return _bindings.native_menu_get_item_count(nativeHandle);
+    return c.native_menu_get_item_count(nativeHandle);
   }
 
   MenuItem? getItemAt(int index) {
-    final handle = _bindings.native_menu_get_item_at(nativeHandle, index);
+    final handle = c.native_menu_get_item_at(nativeHandle, index);
     if (handle == 0) return null;
     return MenuItem.fromHandle(handle);
   }
 
   MenuItem? getItemById(MenuItemId itemId) {
-    final handle = _bindings.native_menu_get_item_by_id(nativeHandle, itemId);
+    final handle = c.native_menu_get_item_by_id(nativeHandle, itemId);
     if (handle == 0) return null;
     return MenuItem.fromHandle(handle);
   }
 
   List<MenuItem> get allItems {
-    final list = _bindings.native_menu_get_all_items(nativeHandle);
+    final list = c.native_menu_get_all_items(nativeHandle);
     final items = <MenuItem>[];
     for (var i = 0; i < list.count; i++) {
       items.add(MenuItem.fromHandle(list.menu_items[i]));
@@ -459,13 +441,13 @@ class Menu {
     final listPointer = pkg_ffi.calloc<c.native_menu_item_list_t>();
     listPointer.ref = list;
     // The handles now belong to `items`; free just the array.
-    _bindings.native_menu_item_list_release(listPointer);
+    c.native_menu_item_list_release(listPointer);
     pkg_ffi.calloc.free(listPointer);
     return items;
   }
 
   bool open(PositioningStrategy strategy, Placement placement) {
-    return _bindings.native_menu_open(
+    return c.native_menu_open(
       nativeHandle,
       strategy.nativeHandle,
       placement.raw,
@@ -473,12 +455,12 @@ class Menu {
   }
 
   bool close() {
-    return _bindings.native_menu_close(nativeHandle);
+    return c.native_menu_close(nativeHandle);
   }
 
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
-      _bindings.native_menu_get_native_object(nativeHandle);
+      c.native_menu_get_native_object(nativeHandle);
 
   /// Registers [callback] for every `MenuEvent` this `Menu` emits.
   ///
@@ -502,7 +484,7 @@ class Menu {
           if (value != null) callback(value);
         });
     _listeners.add(callable); // keeps the trampoline alive
-    return _bindings.native_menu_add_listener(
+    return c.native_menu_add_listener(
       nativeHandle,
       callable.nativeFunction,
       ffi.nullptr,
@@ -511,7 +493,7 @@ class Menu {
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
-      _bindings.native_menu_remove_listener(nativeHandle, listenerId);
+      c.native_menu_remove_listener(nativeHandle, listenerId);
 
   /// Trampolines stay reachable for as long as the C side may call them.
   static final List<Object> _listeners = <Object>[];

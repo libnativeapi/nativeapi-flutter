@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:flutter/widgets.dart' hide Image;
+import 'package:flutter/widgets.dart';
+import 'package:nativeapi/nativeapi.dart' as na;
 import 'package:flutter/services.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 import 'checklist.dart';
 import 'context_menu.dart';
@@ -211,7 +212,7 @@ class TrayController extends ChangeNotifier {
     _refreshManager();
     final entry = _selected;
     if (entry != null) {
-      final bounds = entry.trayIcon.getBounds();
+      final bounds = entry.trayIcon.getBounds().toRect();
       if (!boundsSupported) {
         // Nothing to judge.
       } else if (bounds.isEmpty) {
@@ -275,7 +276,7 @@ class TrayController extends ChangeNotifier {
     entry.still = kind;
     notifyListeners();
 
-    final Image? native;
+    final na.Image? native;
     final Uint8List png;
     switch (kind) {
       case StillIcon.asset:
@@ -283,10 +284,14 @@ class TrayController extends ChangeNotifier {
         png = (await rootBundle.load(kAssetIcon)).buffer.asUint8List();
       case StillIcon.drawn:
         png = await _renderStar(entry);
-        native = Image.fromBase64('data:image/png;base64,${base64Encode(png)}');
+        native = na.Image.fromBase64(
+          'data:image/png;base64,${base64Encode(png)}',
+        );
       case StillIcon.base64:
         png = base64Decode(kDiamondPngBase64);
-        native = Image.fromBase64('data:image/png;base64,$kDiamondPngBase64');
+        native = na.Image.fromBase64(
+          'data:image/png;base64,$kDiamondPngBase64',
+        );
     }
     if (entry.still != kind || !entries.contains(entry)) return;
     if (native == null) {
@@ -483,18 +488,18 @@ class TrayController extends ChangeNotifier {
     final entry = _selected;
     final window = WindowManager.instance.getCurrent();
     if (entry == null || window == null) return;
-    final icon = entry.trayIcon.getBounds();
+    final icon = entry.trayIcon.getBounds().toRect();
     if (icon.isEmpty) {
       _log('window to icon #${entry.number}: getBounds is empty');
       return;
     }
     final displays = DisplayManager.instance.getAll();
     final display = displays.firstWhere(
-      (d) => (d.position & d.size).contains(icon.center),
+      (d) => (d.position.toOffset() & d.size.toSize()).contains(icon.center),
       orElse: () => DisplayManager.instance.getPrimary() ?? displays.first,
     );
-    final screen = display.position & display.size;
-    final area = display.workArea;
+    final screen = display.position.toOffset() & display.size.toSize();
+    final area = display.workArea.toRect();
     final size = window.size;
     const gap = 8.0;
     final below = icon.center.dy < screen.center.dy;
@@ -508,7 +513,7 @@ class TrayController extends ChangeNotifier {
             area.top,
             area.bottom - size.height - gap,
           );
-    window.position = Offset(x.toDouble(), y.toDouble());
+    window.position = Offset(x.toDouble(), y.toDouble()).toNative();
     _log(
       'window to icon #${entry.number}: ${below ? 'below' : 'above'} '
       '${x.round()},${y.round()}',

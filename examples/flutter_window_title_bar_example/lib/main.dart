@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void main() {
   runApp(const TitleBarApp());
@@ -58,8 +58,8 @@ class _TitleBarPageState extends State<TitleBarPage> {
     if (window == null) return;
     _window = window;
     window.title = 'nativeapi · Title bar';
-    window.minimumSize = const Size(520, 420);
-    window.contentSize = const Size(620, 520);
+    window.minimumSize = const Size(520, 420).toNative();
+    window.contentSize = const Size(620, 520).toNative();
     window.center();
   }
 
@@ -77,7 +77,7 @@ class _TitleBarPageState extends State<TitleBarPage> {
     final under = window?.isContentUnderTitleBar ?? false;
     final buttons = window?.isWindowControlButtonsVisible ?? false;
     final supported = Window.isContentUnderTitleBarSupported();
-    final size = window?.contentSize ?? Size.zero;
+    final size = window?.contentSize.toSize() ?? Size.zero;
 
     return ColoredBox(
       color: _surface,
@@ -102,10 +102,7 @@ class _TitleBarPageState extends State<TitleBarPage> {
                         _Row('titleBarStyle', style.name),
                         _Row('isContentUnderTitleBar', '$under'),
                         _Row('isWindowControlButtonsVisible', '$buttons'),
-                        _Row(
-                          'isContentUnderTitleBarSupported()',
-                          '$supported',
-                        ),
+                        _Row('isContentUnderTitleBarSupported()', '$supported'),
                         _Row(
                           'contentSize',
                           '${size.width.round()} × ${size.height.round()}',
@@ -124,8 +121,7 @@ class _TitleBarPageState extends State<TitleBarPage> {
                       children: [
                         _Chip(
                           label: 'Normal',
-                          selected:
-                              style == TitleBarStyle.normal && !under,
+                          selected: style == TitleBarStyle.normal && !under,
                           onTap: () => _act('Standard title bar', (w) {
                             w.setContentUnderTitleBar(false);
                             w.titleBarStyle = TitleBarStyle.normal;
@@ -134,8 +130,7 @@ class _TitleBarPageState extends State<TitleBarPage> {
                         _Chip(
                           label: 'Content under title bar',
                           enabled: supported,
-                          selected:
-                              style == TitleBarStyle.normal && under,
+                          selected: style == TitleBarStyle.normal && under,
                           onTap: () => _act(
                             'The bar is a transparent overlay; its buttons stay',
                             (w) {
@@ -356,7 +351,9 @@ class _Bullet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('·  ', style: TextStyle(color: _muted)),
-          Expanded(child: Text(text, style: const TextStyle(color: _muted))),
+          Expanded(
+            child: Text(text, style: const TextStyle(color: _muted)),
+          ),
         ],
       ),
     );

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void main() {
   runApp(const VisualEffectApp());
@@ -10,6 +10,7 @@ void main() {
 
 const Color _ink = Color(0xFF1B1B1F);
 const Color _accent = Color(0xFF3F51B5);
+
 /// What the window paints while no effect stands in for its background.
 const Color _surface = Color(0xFFF2F2F6);
 
@@ -18,8 +19,7 @@ const Color _surface = Color(0xFFF2F2F6);
 /// window buttons on it, which is why the panel below starts clear of them.
 /// Elsewhere the call does nothing and none is needed: Windows 11 draws the
 /// material across its caption by itself.
-final bool _contentUnderTitleBar =
-    Window.isContentUnderTitleBarSupported();
+final bool _contentUnderTitleBar = Window.isContentUnderTitleBarSupported();
 
 /// The window's background is the visual effect, so nothing here paints one:
 /// no MaterialApp, no Scaffold. Whatever the app leaves unpainted is the
@@ -66,7 +66,7 @@ class _VisualEffectPageState extends State<VisualEffectPage> {
     if (window == null) return;
     _window = window;
     window.title = 'Visual effect';
-    window.contentSize = const Size(560, 480);
+    window.contentSize = const Size(560, 480).toNative();
     window.center();
     window.setContentUnderTitleBar(true);
     if (Platform.environment['VISUAL_EFFECT_AUTOPLAY'] == '1') {
@@ -124,8 +124,8 @@ class _VisualEffectPageState extends State<VisualEffectPage> {
     if (backdrop == null) return;
     final frame = window.bounds;
     backdrop.title = 'Backdrop';
-    backdrop.backgroundColor = const Color(0xFFFF0000);
-    backdrop.bounds = frame.inflate(80);
+    backdrop.backgroundColor = const Color(0xFFFF0000).toNative();
+    backdrop.bounds = frame.toRect().inflate(80).toNative();
     backdrop.show();
     // A child stays above its parent, whichever of the two is brought forward.
     window.setParentWindow(backdrop);
@@ -145,7 +145,12 @@ class _VisualEffectPageState extends State<VisualEffectPage> {
     return ColoredBox(
       color: hasEffect ? const Color(0x00000000) : _surface,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(24, _contentUnderTitleBar ? 46 : 24, 24, 24),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          _contentUnderTitleBar ? 46 : 24,
+          24,
+          24,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -184,7 +189,9 @@ class _VisualEffectPageState extends State<VisualEffectPage> {
                     ),
                     const SizedBox(height: 20),
                     _Chip(
-                      label: _backdrop == null ? 'Show backdrop' : 'Hide backdrop',
+                      label: _backdrop == null
+                          ? 'Show backdrop'
+                          : 'Hide backdrop',
                       selected: _backdrop != null,
                       enabled: true,
                       onTap: _toggleBackdrop,

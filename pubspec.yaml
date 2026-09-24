@@ -22,9 +22,8 @@ workspace:
   - examples/flutter_window_example
   - examples/flutter_window_title_bar_example
   - bindings/dart/cnativeapi
-  - bindings/dart/cnativeapi/example
   - bindings/dart/nativeapi
-  - bindings/dart/nativeapi/example
+  - bindings/dart/nativeapi_flutter/example
   - bindings/dart/nativeapi_flutter
 
 dev_dependencies:
@@ -61,5 +60,5 @@ melos:
         dirExists: test
 
     codegen:cnativeapi:
-      description: Regenerate cnativeapi bindings (without updating submodules).
-      run: python3 bindings/dart/cnativeapi/codegen.py
+      description: Regenerate the cnativeapi ffigen bindings.
+      run: ./codegen ffigen

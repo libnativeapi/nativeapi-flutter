@@ -4,12 +4,9 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
-
-final _bindings = c.cnativeApiBindings;
 
 class AccessibilityManager {
   const AccessibilityManager._();
@@ -18,10 +15,10 @@ class AccessibilityManager {
   static const AccessibilityManager instance = AccessibilityManager._();
 
   void enable() {
-    _bindings.native_accessibility_manager_enable();
+    c.native_accessibility_manager_enable();
   }
 
   bool isEnabled() {
-    return _bindings.native_accessibility_manager_is_enabled();
+    return c.native_accessibility_manager_is_enabled();
   }
 }

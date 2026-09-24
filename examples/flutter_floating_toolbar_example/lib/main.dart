@@ -8,8 +8,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart' as na;
-import 'package:nativeapi/windowing.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as na;
+import 'package:nativeapi_flutter/windowing.dart';
 
 void main() {
   // The stable channel does not offer `flutter config --enable-windowing`,
@@ -119,26 +119,26 @@ class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
     super.initState();
 
     final main = _main;
-    final area = na.DisplayManager.instance.getPrimary()?.workArea;
+    final area = na.DisplayManager.instance.getPrimary()?.workArea.toRect();
     if (main != null && area != null) {
       // Leave room above the window for the toolbar.
       main.position = Offset(
         area.left + (area.width - _mainWindowSize.width) / 2,
         area.top + 120,
-      );
+      ).toNative();
     }
 
     final toolbar = _toolbar;
     if (toolbar != null) {
       // Everything that makes a window a floating toolbar, from Dart.
       toolbar.titleBarStyle = na.TitleBarStyle.hidden;
-      toolbar.backgroundColor = const Color(0x00000000);
+      toolbar.backgroundColor = const Color(0x00000000).toNative();
       toolbar.hasShadow = false;
       toolbar.isResizable = false;
       toolbar.isMovable = false;
       toolbar.isVisibleInTaskbar = false;
       // Hiding the title bar keeps the frame; give the content its size back.
-      toolbar.contentSize = _toolbarSize;
+      toolbar.contentSize = _toolbarSize.toNative();
       _attach();
     }
 
@@ -169,12 +169,12 @@ class _FloatingToolbarAppState extends State<FloatingToolbarApp> {
     final main = _main;
     final toolbar = _toolbar;
     if (main == null || toolbar == null) return;
-    final frame = main.bounds;
-    final size = toolbar.bounds.size;
+    final frame = main.bounds.toRect();
+    final size = toolbar.bounds.toRect().size;
     toolbar.position = Offset(
       frame.left + (frame.width - size.width) / 2,
       frame.top - size.height - _toolbarGap,
-    );
+    ).toNative();
   }
 
   void _onWindowEvent(na.WindowEvent event) {

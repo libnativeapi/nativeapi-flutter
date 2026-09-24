@@ -1,5 +1,20 @@
 ## Unreleased
 
+* **Breaking:** nativeapi is a plain Dart package and no longer depends on
+  Flutter; Flutter apps depend on `nativeapi_flutter` instead, which re-exports
+  it.
+  * `Point`, `Size`, `Rectangle` and `Color` are nativeapi's own value types
+    instead of `dart:ui`'s `Offset`, `Size`, `Rect` and `Color`.
+    `nativeapi_flutter` converts between them (`toOffset()`, `toSize()`,
+    `toRect()`, `toColor()`, and `toNative()` on the `dart:ui` types).
+  * The widgets (`DragToMoveArea`, `DragToResizeArea`, `DragOutArea`,
+    `DropRegion`, `ContextMenuRegion`), `ImageAsset` and
+    `package:nativeapi/windowing.dart` moved to `nativeapi_flutter`
+    (`package:nativeapi_flutter/windowing.dart`).
+* Value types (`Point`, `Size`, `Rectangle`, `Color`, `KeyboardAccelerator`,
+  `UrlOpenResult`, `ShortcutOptions`) compare and print by value: they have `==`,
+  `hashCode` and `toString` over their data fields. Callback fields are left out.
+
 * Add `WindowShadow`, `Window.setCustomShadow` and `customShadow` for core-rendered custom shadows on hidden-title-bar desktop windows. `hasShadow` toggles visibility without discarding configuration.
 
 * Add `Window.setInputShape`, `isInputShaped`, and `isInputShapeSupported` for Linux X11/Wayland pointer and touch regions.

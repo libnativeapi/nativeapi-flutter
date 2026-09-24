@@ -4,7 +4,6 @@
 // ignore_for_file: unused_import, unnecessary_import
 
 import 'dart:ffi' as ffi;
-import 'dart:ui';
 
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
@@ -13,8 +12,6 @@ import 'foundation/color.dart';
 import 'foundation/geometry.dart';
 import 'window_shadow.dart';
 import 'window_shape.dart';
-
-final _bindings = c.cnativeApiBindings;
 
 typedef WindowId = int;
 
@@ -100,51 +97,45 @@ sealed class WindowEvent {
   /// Reads the event out of its C form. Returns null for a variant this
   /// binding does not know about.
   static WindowEvent? fromNative(c.native_window_event_t raw) {
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_FOCUSED.value) {
       return WindowFocusedEvent(windowId: raw.window_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_BLURRED.value) {
       return WindowBlurredEvent(windowId: raw.window_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MINIMIZED.value) {
       return WindowMinimizedEvent(windowId: raw.window_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MAXIMIZED.value) {
       return WindowMaximizedEvent(windowId: raw.window_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_RESTORED.value) {
       return WindowRestoredEvent(windowId: raw.window_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_MOVED.value) {
       return WindowMovedEvent(
         windowId: raw.window_id,
-        newPosition: Offset(
-          raw.data.moved.new_position.x,
-          raw.data.moved.new_position.y,
-        ),
+        newPosition: Point.fromNative(raw.data.moved.new_position),
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_RESIZED.value) {
       return WindowResizedEvent(
         windowId: raw.window_id,
-        newSize: Size(
-          raw.data.resized.new_size.width,
-          raw.data.resized.new_size.height,
-        ),
+        newSize: Size.fromNative(raw.data.resized.new_size),
       );
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_CREATED.value) {
       return WindowCreatedEvent(windowId: raw.window_id);
     }
-    if (raw.type ==
+    if (raw.typeAsInt ==
         c.native_window_event_type_t.NATIVE_WINDOW_EVENT_TYPE_CLOSED.value) {
       return WindowClosedEvent(windowId: raw.window_id);
     }
@@ -192,7 +183,7 @@ final class WindowMovedEvent extends WindowEvent {
 
   @override
   final WindowId windowId;
-  final Offset newPosition;
+  final Point newPosition;
 }
 
 final class WindowResizedEvent extends WindowEvent {
@@ -231,494 +222,451 @@ class Window {
   final int nativeHandle;
 
   static final Finalizer<int> _finalizer = Finalizer<int>(
-    (handle) => _bindings.native_window_free(handle),
+    (handle) => c.native_window_free(handle),
   );
 
   /// Releases the handle now instead of at collection.
   void dispose() {
     _finalizer.detach(this);
-    _bindings.native_window_free(nativeHandle);
+    c.native_window_free(nativeHandle);
   }
 
   /// Creates a new `Window`; returns null if the native side failed.
   static Window? create() {
-    final handle = _bindings.native_window_create();
+    final handle = c.native_window_create();
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
 
   /// Creates a new `Window`; returns null if the native side failed.
   static Window? createWithNativeWindow(ffi.Pointer<ffi.Void> nativeWindow) {
-    final handle = _bindings.native_window_create_with_native_window(
-      nativeWindow,
-    );
+    final handle = c.native_window_create_with_native_window(nativeWindow);
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
 
   WindowId get id {
-    return _bindings.native_window_get_id(nativeHandle);
+    return c.native_window_get_id(nativeHandle);
   }
 
   void focus() {
-    _bindings.native_window_focus(nativeHandle);
+    c.native_window_focus(nativeHandle);
   }
 
   void blur() {
-    _bindings.native_window_blur(nativeHandle);
+    c.native_window_blur(nativeHandle);
   }
 
   bool get isFocused {
-    return _bindings.native_window_is_focused(nativeHandle);
+    return c.native_window_is_focused(nativeHandle);
   }
 
   void show() {
-    _bindings.native_window_show(nativeHandle);
+    c.native_window_show(nativeHandle);
   }
 
   void showInactive() {
-    _bindings.native_window_show_inactive(nativeHandle);
+    c.native_window_show_inactive(nativeHandle);
   }
 
   void hide() {
-    _bindings.native_window_hide(nativeHandle);
+    c.native_window_hide(nativeHandle);
   }
 
   bool get isVisible {
-    return _bindings.native_window_is_visible(nativeHandle);
+    return c.native_window_is_visible(nativeHandle);
   }
 
   void maximize() {
-    _bindings.native_window_maximize(nativeHandle);
+    c.native_window_maximize(nativeHandle);
   }
 
   void unmaximize() {
-    _bindings.native_window_unmaximize(nativeHandle);
+    c.native_window_unmaximize(nativeHandle);
   }
 
   bool get isMaximized {
-    return _bindings.native_window_is_maximized(nativeHandle);
+    return c.native_window_is_maximized(nativeHandle);
   }
 
   void minimize() {
-    _bindings.native_window_minimize(nativeHandle);
+    c.native_window_minimize(nativeHandle);
   }
 
   void restore() {
-    _bindings.native_window_restore(nativeHandle);
+    c.native_window_restore(nativeHandle);
   }
 
   bool get isMinimized {
-    return _bindings.native_window_is_minimized(nativeHandle);
+    return c.native_window_is_minimized(nativeHandle);
   }
 
   set isFullScreen(bool value) {
-    _bindings.native_window_set_full_screen(nativeHandle, value);
+    c.native_window_set_full_screen(nativeHandle, value);
   }
 
   bool get isFullScreen {
-    return _bindings.native_window_is_full_screen(nativeHandle);
+    return c.native_window_is_full_screen(nativeHandle);
   }
 
-  set bounds(Rect value) {
-    final valuePointer = pkg_ffi.calloc<c.native_rectangle_t>();
-    valuePointer.ref.x = value.left;
-    valuePointer.ref.y = value.top;
-    valuePointer.ref.width = value.width;
-    valuePointer.ref.height = value.height;
-    _bindings.native_window_set_bounds(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+  set bounds(Rectangle value) {
+    final valuePointer = value.allocNative();
+    c.native_window_set_bounds(nativeHandle, valuePointer.ref);
+    Rectangle.freeNative(valuePointer);
   }
 
-  Rect get bounds {
-    final raw = _bindings.native_window_get_bounds(nativeHandle);
-    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+  Rectangle get bounds {
+    final raw = c.native_window_get_bounds(nativeHandle);
+    return Rectangle.fromNative(raw);
   }
 
-  set contentBounds(Rect value) {
-    final valuePointer = pkg_ffi.calloc<c.native_rectangle_t>();
-    valuePointer.ref.x = value.left;
-    valuePointer.ref.y = value.top;
-    valuePointer.ref.width = value.width;
-    valuePointer.ref.height = value.height;
-    _bindings.native_window_set_content_bounds(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+  set contentBounds(Rectangle value) {
+    final valuePointer = value.allocNative();
+    c.native_window_set_content_bounds(nativeHandle, valuePointer.ref);
+    Rectangle.freeNative(valuePointer);
   }
 
-  Rect get contentBounds {
-    final raw = _bindings.native_window_get_content_bounds(nativeHandle);
-    return Rect.fromLTWH(raw.x, raw.y, raw.width, raw.height);
+  Rectangle get contentBounds {
+    final raw = c.native_window_get_content_bounds(nativeHandle);
+    return Rectangle.fromNative(raw);
   }
 
   void setSize(Size size, bool animate) {
-    final sizePointer = pkg_ffi.calloc<c.native_size_t>();
-    sizePointer.ref.width = size.width;
-    sizePointer.ref.height = size.height;
-    _bindings.native_window_set_size(nativeHandle, sizePointer.ref, animate);
-    pkg_ffi.calloc.free(sizePointer);
+    final sizePointer = size.allocNative();
+    c.native_window_set_size(nativeHandle, sizePointer.ref, animate);
+    Size.freeNative(sizePointer);
   }
 
   Size get size {
-    final raw = _bindings.native_window_get_size(nativeHandle);
-    return Size(raw.width, raw.height);
+    final raw = c.native_window_get_size(nativeHandle);
+    return Size.fromNative(raw);
   }
 
   set contentSize(Size value) {
-    final valuePointer = pkg_ffi.calloc<c.native_size_t>();
-    valuePointer.ref.width = value.width;
-    valuePointer.ref.height = value.height;
-    _bindings.native_window_set_content_size(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+    final valuePointer = value.allocNative();
+    c.native_window_set_content_size(nativeHandle, valuePointer.ref);
+    Size.freeNative(valuePointer);
   }
 
   Size get contentSize {
-    final raw = _bindings.native_window_get_content_size(nativeHandle);
-    return Size(raw.width, raw.height);
+    final raw = c.native_window_get_content_size(nativeHandle);
+    return Size.fromNative(raw);
   }
 
   set minimumSize(Size value) {
-    final valuePointer = pkg_ffi.calloc<c.native_size_t>();
-    valuePointer.ref.width = value.width;
-    valuePointer.ref.height = value.height;
-    _bindings.native_window_set_minimum_size(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+    final valuePointer = value.allocNative();
+    c.native_window_set_minimum_size(nativeHandle, valuePointer.ref);
+    Size.freeNative(valuePointer);
   }
 
   Size get minimumSize {
-    final raw = _bindings.native_window_get_minimum_size(nativeHandle);
-    return Size(raw.width, raw.height);
+    final raw = c.native_window_get_minimum_size(nativeHandle);
+    return Size.fromNative(raw);
   }
 
   set maximumSize(Size value) {
-    final valuePointer = pkg_ffi.calloc<c.native_size_t>();
-    valuePointer.ref.width = value.width;
-    valuePointer.ref.height = value.height;
-    _bindings.native_window_set_maximum_size(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+    final valuePointer = value.allocNative();
+    c.native_window_set_maximum_size(nativeHandle, valuePointer.ref);
+    Size.freeNative(valuePointer);
   }
 
   Size get maximumSize {
-    final raw = _bindings.native_window_get_maximum_size(nativeHandle);
-    return Size(raw.width, raw.height);
+    final raw = c.native_window_get_maximum_size(nativeHandle);
+    return Size.fromNative(raw);
   }
 
   set aspectRatio(double value) {
-    _bindings.native_window_set_aspect_ratio(nativeHandle, value);
+    c.native_window_set_aspect_ratio(nativeHandle, value);
   }
 
   double get aspectRatio {
-    return _bindings.native_window_get_aspect_ratio(nativeHandle);
+    return c.native_window_get_aspect_ratio(nativeHandle);
   }
 
   set isResizable(bool value) {
-    _bindings.native_window_set_resizable(nativeHandle, value);
+    c.native_window_set_resizable(nativeHandle, value);
   }
 
   bool get isResizable {
-    return _bindings.native_window_is_resizable(nativeHandle);
+    return c.native_window_is_resizable(nativeHandle);
   }
 
   set isMovable(bool value) {
-    _bindings.native_window_set_movable(nativeHandle, value);
+    c.native_window_set_movable(nativeHandle, value);
   }
 
   bool get isMovable {
-    return _bindings.native_window_is_movable(nativeHandle);
+    return c.native_window_is_movable(nativeHandle);
   }
 
   set isMinimizable(bool value) {
-    _bindings.native_window_set_minimizable(nativeHandle, value);
+    c.native_window_set_minimizable(nativeHandle, value);
   }
 
   bool get isMinimizable {
-    return _bindings.native_window_is_minimizable(nativeHandle);
+    return c.native_window_is_minimizable(nativeHandle);
   }
 
   set isMaximizable(bool value) {
-    _bindings.native_window_set_maximizable(nativeHandle, value);
+    c.native_window_set_maximizable(nativeHandle, value);
   }
 
   bool get isMaximizable {
-    return _bindings.native_window_is_maximizable(nativeHandle);
+    return c.native_window_is_maximizable(nativeHandle);
   }
 
   set isFullScreenable(bool value) {
-    _bindings.native_window_set_full_screenable(nativeHandle, value);
+    c.native_window_set_full_screenable(nativeHandle, value);
   }
 
   bool get isFullScreenable {
-    return _bindings.native_window_is_full_screenable(nativeHandle);
+    return c.native_window_is_full_screenable(nativeHandle);
   }
 
   set isClosable(bool value) {
-    _bindings.native_window_set_closable(nativeHandle, value);
+    c.native_window_set_closable(nativeHandle, value);
   }
 
   bool get isClosable {
-    return _bindings.native_window_is_closable(nativeHandle);
+    return c.native_window_is_closable(nativeHandle);
   }
 
   set isWindowControlButtonsVisible(bool value) {
-    _bindings.native_window_set_window_control_buttons_visible(
-      nativeHandle,
-      value,
-    );
+    c.native_window_set_window_control_buttons_visible(nativeHandle, value);
   }
 
   bool get isWindowControlButtonsVisible {
-    return _bindings.native_window_is_window_control_buttons_visible(
-      nativeHandle,
-    );
+    return c.native_window_is_window_control_buttons_visible(nativeHandle);
   }
 
   set isAlwaysOnTop(bool value) {
-    _bindings.native_window_set_always_on_top(nativeHandle, value);
+    c.native_window_set_always_on_top(nativeHandle, value);
   }
 
   bool get isAlwaysOnTop {
-    return _bindings.native_window_is_always_on_top(nativeHandle);
+    return c.native_window_is_always_on_top(nativeHandle);
   }
 
   set isAlwaysOnBottom(bool value) {
-    _bindings.native_window_set_always_on_bottom(nativeHandle, value);
+    c.native_window_set_always_on_bottom(nativeHandle, value);
   }
 
   bool get isAlwaysOnBottom {
-    return _bindings.native_window_is_always_on_bottom(nativeHandle);
+    return c.native_window_is_always_on_bottom(nativeHandle);
   }
 
   bool setParentWindow(Window? parent) {
-    return _bindings.native_window_set_parent_window(
+    return c.native_window_set_parent_window(
       nativeHandle,
       parent?.nativeHandle ?? 0,
     );
   }
 
   Window? get parentWindow {
-    final handle = _bindings.native_window_get_parent_window(nativeHandle);
+    final handle = c.native_window_get_parent_window(nativeHandle);
     if (handle == 0) return null;
     return Window.fromHandle(handle);
   }
 
   set isNonActivating(bool value) {
-    _bindings.native_window_set_non_activating(nativeHandle, value);
+    c.native_window_set_non_activating(nativeHandle, value);
   }
 
   bool get isNonActivating {
-    return _bindings.native_window_is_non_activating(nativeHandle);
+    return c.native_window_is_non_activating(nativeHandle);
   }
 
-  set position(Offset value) {
-    final valuePointer = pkg_ffi.calloc<c.native_point_t>();
-    valuePointer.ref.x = value.dx;
-    valuePointer.ref.y = value.dy;
-    _bindings.native_window_set_position(nativeHandle, valuePointer.ref);
-    pkg_ffi.calloc.free(valuePointer);
+  set position(Point value) {
+    final valuePointer = value.allocNative();
+    c.native_window_set_position(nativeHandle, valuePointer.ref);
+    Point.freeNative(valuePointer);
   }
 
-  Offset get position {
-    final raw = _bindings.native_window_get_position(nativeHandle);
-    return Offset(raw.x, raw.y);
+  Point get position {
+    final raw = c.native_window_get_position(nativeHandle);
+    return Point.fromNative(raw);
   }
 
   void center() {
-    _bindings.native_window_center(nativeHandle);
+    c.native_window_center(nativeHandle);
   }
 
   set title(String value) {
     final valueNative = value.toNativeUtf8().cast<ffi.Char>();
-    _bindings.native_window_set_title(nativeHandle, valueNative);
+    c.native_window_set_title(nativeHandle, valueNative);
     pkg_ffi.calloc.free(valueNative);
   }
 
   String? get title {
-    final resultPointer = _bindings.native_window_get_title(nativeHandle);
+    final resultPointer = c.native_window_get_title(nativeHandle);
     if (resultPointer == ffi.nullptr) return null;
     final result = resultPointer.cast<pkg_ffi.Utf8>().toDartString();
-    _bindings.free_c_str(resultPointer);
+    c.free_c_str(resultPointer);
     return result;
   }
 
   bool setTitleBarColors(Color background, Color foreground) {
-    final backgroundPointer = pkg_ffi.calloc<c.native_color_t>();
-    backgroundPointer.ref.r = (background.r * 255).round();
-    backgroundPointer.ref.g = (background.g * 255).round();
-    backgroundPointer.ref.b = (background.b * 255).round();
-    backgroundPointer.ref.a = (background.a * 255).round();
-    final foregroundPointer = pkg_ffi.calloc<c.native_color_t>();
-    foregroundPointer.ref.r = (foreground.r * 255).round();
-    foregroundPointer.ref.g = (foreground.g * 255).round();
-    foregroundPointer.ref.b = (foreground.b * 255).round();
-    foregroundPointer.ref.a = (foreground.a * 255).round();
-    final result = _bindings.native_window_set_title_bar_colors(
+    final backgroundPointer = background.allocNative();
+    final foregroundPointer = foreground.allocNative();
+    final result = c.native_window_set_title_bar_colors(
       nativeHandle,
       backgroundPointer.ref,
       foregroundPointer.ref,
     );
-    pkg_ffi.calloc.free(backgroundPointer);
-    pkg_ffi.calloc.free(foregroundPointer);
+    Color.freeNative(backgroundPointer);
+    Color.freeNative(foregroundPointer);
     return result;
   }
 
   bool resetTitleBarColors() {
-    return _bindings.native_window_reset_title_bar_colors(nativeHandle);
+    return c.native_window_reset_title_bar_colors(nativeHandle);
   }
 
   set titleBarStyle(TitleBarStyle value) {
-    _bindings.native_window_set_title_bar_style(nativeHandle, value.raw);
+    c.native_window_set_title_bar_style(nativeHandle, value.raw);
   }
 
   TitleBarStyle get titleBarStyle {
-    final raw = _bindings.native_window_get_title_bar_style(nativeHandle);
+    final raw = c.native_window_get_title_bar_style(nativeHandle);
     return TitleBarStyle.fromValue(raw.value);
   }
 
   bool setContentUnderTitleBar(bool isContentUnderTitleBar) {
-    return _bindings.native_window_set_content_under_title_bar(
+    return c.native_window_set_content_under_title_bar(
       nativeHandle,
       isContentUnderTitleBar,
     );
   }
 
   bool get isContentUnderTitleBar {
-    return _bindings.native_window_is_content_under_title_bar(nativeHandle);
+    return c.native_window_is_content_under_title_bar(nativeHandle);
   }
 
   static bool isContentUnderTitleBarSupported() {
-    return _bindings.native_window_is_content_under_title_bar_supported();
+    return c.native_window_is_content_under_title_bar_supported();
   }
 
   set hasShadow(bool value) {
-    _bindings.native_window_set_has_shadow(nativeHandle, value);
+    c.native_window_set_has_shadow(nativeHandle, value);
   }
 
   bool get hasShadow {
-    return _bindings.native_window_has_shadow(nativeHandle);
+    return c.native_window_has_shadow(nativeHandle);
   }
 
   bool setCustomShadow(WindowShadow? shadow) {
-    return _bindings.native_window_set_custom_shadow(
+    return c.native_window_set_custom_shadow(
       nativeHandle,
       shadow?.nativeHandle ?? 0,
     );
   }
 
   WindowShadow? get customShadow {
-    final handle = _bindings.native_window_get_custom_shadow(nativeHandle);
+    final handle = c.native_window_get_custom_shadow(nativeHandle);
     if (handle == 0) return null;
     return WindowShadow.fromHandle(handle);
   }
 
   set opacity(double value) {
-    _bindings.native_window_set_opacity(nativeHandle, value);
+    c.native_window_set_opacity(nativeHandle, value);
   }
 
   double get opacity {
-    return _bindings.native_window_get_opacity(nativeHandle);
+    return c.native_window_get_opacity(nativeHandle);
   }
 
   bool setVisualEffect(VisualEffect effect) {
-    return _bindings.native_window_set_visual_effect(nativeHandle, effect.raw);
+    return c.native_window_set_visual_effect(nativeHandle, effect.raw);
   }
 
   VisualEffect get visualEffect {
-    final raw = _bindings.native_window_get_visual_effect(nativeHandle);
+    final raw = c.native_window_get_visual_effect(nativeHandle);
     return VisualEffect.fromValue(raw.value);
   }
 
   static bool isVisualEffectSupported(VisualEffect effect) {
-    return _bindings.native_window_is_visual_effect_supported(effect.raw);
+    return c.native_window_is_visual_effect_supported(effect.raw);
   }
 
   bool setShape(WindowShape? shape) {
-    return _bindings.native_window_set_shape(
-      nativeHandle,
-      shape?.nativeHandle ?? 0,
-    );
+    return c.native_window_set_shape(nativeHandle, shape?.nativeHandle ?? 0);
   }
 
   bool get isShaped {
-    return _bindings.native_window_is_shaped(nativeHandle);
+    return c.native_window_is_shaped(nativeHandle);
   }
 
   static bool isShapeSupported() {
-    return _bindings.native_window_is_shape_supported();
+    return c.native_window_is_shape_supported();
   }
 
   bool setInputShape(WindowShape? shape) {
-    return _bindings.native_window_set_input_shape(
+    return c.native_window_set_input_shape(
       nativeHandle,
       shape?.nativeHandle ?? 0,
     );
   }
 
   bool get isInputShaped {
-    return _bindings.native_window_is_input_shaped(nativeHandle);
+    return c.native_window_is_input_shaped(nativeHandle);
   }
 
   static bool isInputShapeSupported() {
-    return _bindings.native_window_is_input_shape_supported();
+    return c.native_window_is_input_shape_supported();
   }
 
   set backgroundColor(Color value) {
-    final valuePointer = pkg_ffi.calloc<c.native_color_t>();
-    valuePointer.ref.r = (value.r * 255).round();
-    valuePointer.ref.g = (value.g * 255).round();
-    valuePointer.ref.b = (value.b * 255).round();
-    valuePointer.ref.a = (value.a * 255).round();
-    _bindings.native_window_set_background_color(
-      nativeHandle,
-      valuePointer.ref,
-    );
-    pkg_ffi.calloc.free(valuePointer);
+    final valuePointer = value.allocNative();
+    c.native_window_set_background_color(nativeHandle, valuePointer.ref);
+    Color.freeNative(valuePointer);
   }
 
   Color get backgroundColor {
-    final raw = _bindings.native_window_get_background_color(nativeHandle);
-    return Color.fromARGB(raw.a, raw.r, raw.g, raw.b);
+    final raw = c.native_window_get_background_color(nativeHandle);
+    return Color.fromNative(raw);
   }
 
   set isVisibleOnAllWorkspaces(bool value) {
-    _bindings.native_window_set_visible_on_all_workspaces(nativeHandle, value);
+    c.native_window_set_visible_on_all_workspaces(nativeHandle, value);
   }
 
   bool get isVisibleOnAllWorkspaces {
-    return _bindings.native_window_is_visible_on_all_workspaces(nativeHandle);
+    return c.native_window_is_visible_on_all_workspaces(nativeHandle);
   }
 
   set isVisibleInTaskbar(bool value) {
-    _bindings.native_window_set_visible_in_taskbar(nativeHandle, value);
+    c.native_window_set_visible_in_taskbar(nativeHandle, value);
   }
 
   bool get isVisibleInTaskbar {
-    return _bindings.native_window_is_visible_in_taskbar(nativeHandle);
+    return c.native_window_is_visible_in_taskbar(nativeHandle);
   }
 
   set isIgnoreMouseEvents(bool value) {
-    _bindings.native_window_set_ignore_mouse_events(nativeHandle, value);
+    c.native_window_set_ignore_mouse_events(nativeHandle, value);
   }
 
   bool get isIgnoreMouseEvents {
-    return _bindings.native_window_is_ignore_mouse_events(nativeHandle);
+    return c.native_window_is_ignore_mouse_events(nativeHandle);
   }
 
   set isFocusable(bool value) {
-    _bindings.native_window_set_focusable(nativeHandle, value);
+    c.native_window_set_focusable(nativeHandle, value);
   }
 
   bool get isFocusable {
-    return _bindings.native_window_is_focusable(nativeHandle);
+    return c.native_window_is_focusable(nativeHandle);
   }
 
   void startDragging() {
-    _bindings.native_window_start_dragging(nativeHandle);
+    c.native_window_start_dragging(nativeHandle);
   }
 
   void startResizing(ResizeEdge edge) {
-    _bindings.native_window_start_resizing(nativeHandle, edge.raw);
+    c.native_window_start_resizing(nativeHandle, edge.raw);
   }
 
   /// Platform-specific native object behind this handle.
   ffi.Pointer<ffi.Void> get nativeObject =>
-      _bindings.native_window_get_native_object(nativeHandle);
+      c.native_window_get_native_object(nativeHandle);
 }

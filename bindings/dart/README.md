@@ -14,15 +14,25 @@ English | [简体中文](./README-ZH.md)
 
 | Package | What it is |
 | --- | --- |
-| [`nativeapi`](nativeapi) | The API: windows, tray icons, menus, displays, keyboard, dialogs, storage and more. |
-| [`cnativeapi`](cnativeapi) | Raw FFI bindings to core's C ABI and the native build; used by `nativeapi`. |
-| [`nativeapi_flutter`](nativeapi_flutter) | The Flutter-facing package. For now it re-exports `nativeapi`. |
+| [`nativeapi`](nativeapi) | The API: windows, tray icons, menus, displays, keyboard, dialogs, storage and more. Plain Dart, usable without Flutter. |
+| [`cnativeapi`](cnativeapi) | Raw FFI bindings to core's C ABI; its build hook compiles core. Used by `nativeapi`. |
+| [`nativeapi_flutter`](nativeapi_flutter) | For Flutter apps: re-exports `nativeapi` and adds widgets, `dart:ui` conversions and the multi-window bridge. |
 
 ## Installation
 
+A Flutter app:
+
 ```bash
-flutter pub add nativeapi
+flutter pub add nativeapi_flutter
 ```
+
+A Dart app (command line, or any other Dart host):
+
+```bash
+dart pub add nativeapi
+```
+
+`nativeapi` has its own `Point`, `Size`, `Rectangle` and `Color` types. `nativeapi_flutter` converts them to and from `dart:ui` (`window.bounds.toRect()`, `Offset(10, 20).toNative()`), and leaves out the nativeapi names that Flutter already uses (`Brightness`, `Color`, `Display`, `Image`, `ModifierKey`, `ShortcutManager`, `Size`); import `package:nativeapi/nativeapi.dart` with a prefix to name one of those.
 
 ## Quick Start
 
@@ -36,7 +46,7 @@ for (final display in DisplayManager.instance.getAll()) {
 
 ### Custom window chrome
 
-Wrap a custom title bar in `DragToMoveArea` to move the window by dragging (double tap to maximize/restore), and the window content in `DragToResizeArea` to resize from its edges and corners:
+With `package:nativeapi_flutter/nativeapi_flutter.dart`, wrap a custom title bar in `DragToMoveArea` to move the window by dragging (double tap to maximize/restore), and the window content in `DragToResizeArea` to resize from its edges and corners:
 
 ```dart
 DragToResizeArea(
@@ -61,8 +71,8 @@ Both widgets use `WindowManager.instance.getCurrent()` unless a `window` is pass
 ```dart
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart';
-import 'package:nativeapi/windowing.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
+import 'package:nativeapi_flutter/windowing.dart';
 
 // Before WidgetsFlutterBinding.ensureInitialized(): stable has no
 // `flutter config --enable-windowing`, so the app switches the API on itself.
@@ -80,7 +90,7 @@ window?.titleBarStyle = TitleBarStyle.hidden;
 window?.isAlwaysOnTop = true;
 ```
 
-All windows share one engine and one isolate, so they talk to each other through ordinary Dart objects — no runner changes, no message channels. Flutter's multi-window API is experimental and internal to the framework, which is why the bridge lives in its own library, `package:nativeapi/windowing.dart`. It is written against the **stable** channel (checked with 3.47.5); stable does not offer `flutter config --enable-windowing`, so the examples set Flutter's internal `isWindowingEnabled` in `main()`. See [`floating_toolbar_example`](../../examples/flutter_floating_toolbar_example) for a child window built this way, and [`browser_tabs_example`](../../examples/flutter_browser_tabs_example) and [`detachable_window_example`](../../examples/flutter_detachable_window_example).
+All windows share one engine and one isolate, so they talk to each other through ordinary Dart objects — no runner changes, no message channels. Flutter's multi-window API is experimental and internal to the framework, which is why the bridge lives in its own library, `package:nativeapi_flutter/windowing.dart`. It is written against the **stable** channel (checked with 3.47.5); stable does not offer `flutter config --enable-windowing`, so the examples set Flutter's internal `isWindowingEnabled` in `main()`. See [`floating_toolbar_example`](../../examples/flutter_floating_toolbar_example) for a child window built this way, and [`browser_tabs_example`](../../examples/flutter_browser_tabs_example) and [`detachable_window_example`](../../examples/flutter_detachable_window_example).
 
 ## Examples
 

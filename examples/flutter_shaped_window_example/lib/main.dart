@@ -9,8 +9,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/src/widgets/_window.dart' as fw;
-import 'package:nativeapi/nativeapi.dart' as na;
-import 'package:nativeapi/windowing.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as na;
+import 'package:nativeapi_flutter/windowing.dart';
 
 import 'shape_geometry.dart';
 import 'widgets/option_chip.dart';
@@ -148,18 +148,21 @@ class _ShapeDemoState extends State<ShapeDemo>
     final window = _nativePreview;
     if (window != null) {
       window.titleBarStyle = na.TitleBarStyle.hidden;
-      window.backgroundColor = const Color(0x00000000);
+      window.backgroundColor = const Color(0x00000000).toNative();
       window.hasShadow = _shadowEnabled;
       if (!_applyShadowParameters()) return;
       window.isResizable = false;
       // Wayland ignores absolute positioning. Keep the preview above its own
       // controller window instead of letting the latter cover the silhouette.
       if (_usesInputShape) window.setParentWindow(_main.nativeWindow);
-      window.contentSize = Size.square(_size);
-      final area = na.DisplayManager.instance.getPrimary()?.workArea;
+      window.contentSize = Size.square(_size).toNative();
+      final area = na.DisplayManager.instance.getPrimary()?.workArea.toRect();
       if (area != null) {
-        _main.nativeWindow?.position = Offset(area.left + 60, area.top + 100);
-        window.position = Offset(area.left + 590, area.top + 150);
+        _main.nativeWindow?.position = Offset(
+          area.left + 60,
+          area.top + 100,
+        ).toNative();
+        window.position = Offset(area.left + 590, area.top + 150).toNative();
       }
     }
     _previewReady = true;
@@ -217,7 +220,7 @@ class _ShapeDemoState extends State<ShapeDemo>
     }
     try {
       for (final point in points) {
-        if (!shape.addPoint(point)) {
+        if (!shape.addPoint(point.toNative())) {
           setState(() => _status = 'Invalid polygon.');
           return false;
         }
@@ -299,7 +302,7 @@ class _ShapeDemoState extends State<ShapeDemo>
       final capacity = _fromSize > _toSize ? _fromSize : _toSize;
       if (_nativeSize < capacity) await _resizePreviewSurface(capacity);
     } else if (nextSize != _size) {
-      _nativePreview?.contentSize = Size.square(nextSize);
+      _nativePreview?.contentSize = Size.square(nextSize).toNative();
     }
     if (revision != _transitionRevision || !mounted || _closing) return;
     final points = interpolateContour(_from, _to, t);
@@ -344,7 +347,7 @@ class _ShapeDemoState extends State<ShapeDemo>
         'size': size,
       });
     } else {
-      _nativePreview?.contentSize = Size.square(size);
+      _nativePreview?.contentSize = Size.square(size).toNative();
     }
     _nativeSize = size;
   }
@@ -396,10 +399,12 @@ class _ShapeDemoState extends State<ShapeDemo>
       if (window == null || shadow == null) {
         error = 'Could not configure the preview shadow.';
       } else {
-        shadow.color = _shadowColor.withValues(alpha: _shadowOpacity);
+        shadow.color = _shadowColor
+            .withValues(alpha: _shadowOpacity)
+            .toNative();
         final valid =
             shadow.setBlurRadius(_shadowBlur) &&
-            shadow.setOffset(Offset(_shadowX, _shadowY));
+            shadow.setOffset(Offset(_shadowX, _shadowY).toNative());
         if (!valid || !window.setCustomShadow(shadow)) {
           error = 'Could not apply the shadow parameters.';
         }

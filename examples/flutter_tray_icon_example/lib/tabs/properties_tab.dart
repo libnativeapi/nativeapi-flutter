@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' hide Image;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 import '../tray_controller.dart';
 import '../widgets/option_chip.dart';
@@ -164,7 +164,7 @@ class _StateBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = Palette.of(context);
     final icon = entry.trayIcon;
-    final bounds = icon.getBounds();
+    final bounds = icon.getBounds().toRect();
     final value = palette.mono.copyWith(color: palette.text);
     String quote(String? s) =>
         s == null ? 'null' : '"${s.replaceAll('\n', r'\n')}"';

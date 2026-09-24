@@ -1,4 +1,4 @@
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 import 'icon_animations.dart';
 
