@@ -1,12 +1,12 @@
 ---
 name: core-api-change
-description: Carry a change to the C++ public API in core/ all the way downstream — design check, header edit, six platform implementations, C ABI + Rust/Dart/C# regeneration, per-binding verification, and the commits in core, each submodule binding and the workspace. Use this whenever a task adds, renames, removes or reshapes anything in core/src/*.h ("add SetSkipTaskbar to Window", "expose X to Flutter", "new module for Y"), whenever generated bindings are stale or `./codegen check` fails, and whenever the user says "sync the bindings", "regenerate", "propagate core", or asks why an API is missing from Dart / Rust / C#. Also use it before running `./codegen sync` for any reason — the script commits with `git add -A` in core and each submodule binding, and stages all of bindings/flutter in the workspace commit, and this skill is the pre-flight that keeps unrelated work out of those commits.
+description: Carry a change to the C++ public API in core/ all the way downstream — design check, header edit, six platform implementations, C ABI + Rust/Dart/C# regeneration, per-binding verification, and the commits in core and the workspace. Use this whenever a task adds, renames, removes or reshapes anything in core/src/*.h ("add SetSkipTaskbar to Window", "expose X to Flutter", "new module for Y"), whenever generated bindings are stale or `./codegen check` fails, and whenever the user says "sync the bindings", "regenerate", "propagate core", or asks why an API is missing from Dart / Rust / C#. Also use it before running `./codegen sync` for any reason — the script commits with `git add -A` in core and stages all of bindings/ in the workspace commit, and this skill is the pre-flight that keeps unrelated work out of those commits.
 ---
 
 # core-api-change
 
 `./codegen sync` does the mechanical half: regenerate, bump each binding's embedded core,
-rerun bindgen / ffigen, commit core, the submodule bindings and the workspace. This skill is the other half — the decisions
+rerun bindgen / ffigen, commit core and the workspace. This skill is the other half — the decisions
 and checks the script cannot make. Work through the phases in order; each one ends in
 something you can verify before moving on.
 
@@ -28,22 +28,21 @@ the nearest neighbour.
 
 ## 2. Pre-flight: look before the script commits
 
-`./codegen sync` runs `git add -A` in core and in the submodule bindings (rust, csharp),
-and `git add bindings/flutter` in the workspace, since the Flutter binding lives in the
-workspace itself. Anything lying around in those trees lands in a commit titled
-`Sync with core <sha>`.
+`./codegen sync` runs `git add -A` in core and `git add bindings/<lang>` in the workspace,
+where all three bindings live. Anything lying around in those trees lands in a commit
+titled `Sync with core <sha>`.
 
 ```bash
 make status                                   # dirty files + branch of every submodule
 git status --short                            # workspace itself
-for r in core bindings/rust bindings/csharp; do
+for r in core; do
   printf '%-18s %s  behind origin/main: %s\n' "$r" \
     "$(git -C "$r" branch --show-current || echo DETACHED)" \
     "$(git -C "$r" rev-list --count HEAD..origin/main 2>/dev/null)"
 done
 ```
 
-- **A binding is dirty with unrelated work** (for Flutter: `git status --short bindings/flutter`)
+- **A binding is dirty with unrelated work** (`git status --short bindings/`)
   → do not run `sync`. Use the manual
   path in §7. Ask the user only if you cannot tell whether the work is related.
 - **A submodule is on a detached HEAD or behind `origin/main`** → check out `main` and
@@ -140,9 +139,9 @@ skill rather than trusting the compile.
 ./codegen sync -m "<imperative core commit message>"
 ```
 
-It commits core with your message, each changed submodule binding (rust, csharp) as
-`Sync with core <sha9>`, and the workspace with the same message: submodule pointers plus
-the regenerated Flutter binding and its `cxx_impl` gitlink. It does not push.
+It commits core with your message, then the workspace as `Sync with core <sha9>`: the
+core pointer plus everything regenerated under `bindings/` and each binding's `cxx_impl`
+gitlink. It does not push.
 
 **A binding has unrelated work — manual path.** Same steps, staged narrowly:
 
@@ -151,17 +150,15 @@ the regenerated Flutter binding and its `cxx_impl` gitlink. It does not push.
    fetching from the local `core/`; rust → rerun bindgen (command in
    `tools/codegen/README.md`); flutter → `python3 codegen.py --no-submodule-update` in
    `packages/cnativeapi`.
-3. rust / csharp: `git add` only the generated paths and the `cxx_impl` gitlink; commit
-   as `Sync with core <sha9>`.
-4. Workspace: `git add core bindings/<changed submodule>` plus only the generated Flutter
-   paths and `bindings/flutter/packages/cnativeapi/cxx_impl`; commit the same message.
+3. Workspace: `git add core` plus only the generated paths and the `cxx_impl` gitlinks
+   under `bindings/`; commit as `Sync with core <sha9>`.
 
 Either way: no Co-Authored-By trailers; after staging, read `git status --short` and
 `git diff --cached --stat` in each repo **before** committing — a file you did not write
 showing up there is the signal to stop and unstage.
 
 Push only when asked, and in this order so no remote pointer dangles:
-core → submodule bindings → workspace (`./codegen sync --push` does exactly this).
+core → workspace (`./codegen sync --push` does exactly this).
 
 ## 8. Report
 

@@ -1,17 +1,17 @@
 # libnativeapi workspace
 
-The development home of the [libnativeapi](https://github.com/libnativeapi) project: the Flutter binding, the code generator, the design specs and the shared tooling live directly in this repository, while the C++ core and the Rust and C# bindings are git submodules. Cross-repo changes (core → codegen → bindings) are made and tracked together here.
+The development home of the [libnativeapi](https://github.com/libnativeapi) project: the Flutter, Rust and C# bindings, the code generator, the design specs and the shared tooling live directly in this repository, and the C++ core is a git submodule. A core change and its regenerated bindings (core → codegen → bindings) are made and tracked together here.
 
-This repository was `nativeapi-flutter` until 2026-09; its history, issues and stars carry over, and the former `workspace` repository's history is merged in.
+This repository was `nativeapi-flutter` until 2026-09; its history, issues and stars carry over. The histories of the former `workspace`, `nativeapi-rust` and `nativeapi-csharp` repositories are merged in.
 
 ## Layout
 
 | Path | Description |
 | --- | --- |
 | [core](https://github.com/libnativeapi/nativeapi) | submodule: C++ core library (`nativeapi`) |
-| [bindings/flutter](bindings/flutter) | Flutter binding (in this repository) |
-| [bindings/rust](https://github.com/libnativeapi/nativeapi-rust) | submodule: Rust binding (`nativeapi-rust`) |
-| [bindings/csharp](https://github.com/libnativeapi/nativeapi-csharp) | submodule: C# binding (`nativeapi-csharp`) |
+| [bindings/flutter](bindings/flutter) | Flutter binding (packages `nativeapi`, `cnativeapi`) |
+| [bindings/rust](bindings/rust) | Rust binding (crates `nativeapi`, `cnativeapi`) |
+| [bindings/csharp](bindings/csharp) | C# binding |
 | `tools/codegen` | the C ABI and binding generators |
 | `specs` | design rules for the core's public API |
 
@@ -37,7 +37,7 @@ git submodule update --init --recursive
 ./codegen readme  # copy the shared README sections (tools/readme/) into every repo
 ./codegen sync    # after a core change: regenerate everything, bump each
                   #   binding's embedded core submodule, rerun bindgen/ffigen,
-                  #   and commit core, the submodule bindings and this repo
+                  #   and commit core, then this repo
                   #   (add --push to also push, -m "..." for the core message)
 ```
 
@@ -47,8 +47,12 @@ See [tools/codegen/README.md](tools/codegen/README.md) for details.
 
 ```bash
 make status   # working-tree status of this repo and every submodule
-make sync     # pull main in every submodule (fast-forward)
-make bump     # stage updated submodule pointers for commit
+make sync     # fast-forward core to origin/main
+make bump     # stage the updated core pointer for commit
 ```
 
-Work on the Flutter binding, the tooling and the specs is committed here directly. Work inside `core` or a submodule binding is committed and pushed from that subdirectory as if it were a standalone clone; this repository then records the updated submodule pointer once the combination is known to be compatible.
+Work on the bindings, the tooling and the specs is committed here directly. Work inside `core` is committed and pushed from that subdirectory as if it were a standalone clone; this repository then records the updated pointer once the combination is known to be compatible.
+
+## Releases
+
+Each binding is released from a tag of its own: `v<version>` publishes the Flutter packages to pub.dev (`flutter-publish.yml`), `rust-v<version>` publishes the crates to crates.io (`rust-release.yml`). The C# binding is not published yet.

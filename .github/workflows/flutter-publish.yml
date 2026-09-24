@@ -1,4 +1,4 @@
-name: Publish to pub.dev
+name: Flutter Publish
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    name: Publish to pub.dev
+    name: Flutter Publish
     permissions:
       id-token: write # Required for requesting the JWT
       contents: write # Required for creating the GitHub Release

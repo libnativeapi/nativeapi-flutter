@@ -1,6 +1,6 @@
 # libnativeapi workspace
 
-This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`) for the [libnativeapi](https://github.com/libnativeapi) project family. The Flutter binding (`bindings/flutter/`), the code generator (`tools/codegen/`), the `./codegen` script, the specs and the shared tooling live directly in this repo; `core/`, `bindings/rust/` and `bindings/csharp/` are git submodules of independent repositories. Work inside a submodule is committed and pushed from that subdirectory; everything else is committed here.
+This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`) for the [libnativeapi](https://github.com/libnativeapi) project family. All three bindings (`bindings/flutter/`, `bindings/rust/`, `bindings/csharp/`), the code generator (`tools/codegen/`), the `./codegen` script, the specs and the shared tooling live directly in this repo (the Rust and C# histories were merged in from `nativeapi-rust` and `nativeapi-csharp`); only `core/` is a git submodule of an independent repository. Work inside `core/` is committed and pushed from that subdirectory; everything else is committed here.
 
 ## Layout
 
@@ -8,8 +8,8 @@ This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`)
 core/               # submodule: nativeapi — the C++ core library
 bindings/
 ├── flutter/        # in this repo: the Flutter binding (melos workspace)
-├── rust/           # submodule: nativeapi-rust
-└── csharp/         # submodule: nativeapi-csharp
+├── rust/           # in this repo: the Rust binding (cargo workspace)
+└── csharp/         # in this repo: the C# binding
 tools/codegen/      # in-repo Rust workspace: the code generator
 tools/gui/          # GUI tests and demo scenarios for the examples (built on the skills)
 codegen             # Python entry point orchestrating the generators
@@ -21,7 +21,7 @@ codegen             # Python entry point orchestrating the generators
 
 - `core` — the C++ core library (repo: `nativeapi`). The source of truth for the native API surface (windows, tray icons, menus, displays, keyboard, dialogs, storage, etc.) with per-platform implementations (macOS/Windows/Linux).
 - `tools/codegen` — three crates: `shared` (libclang parser, IR, naming), `capi` (C ABI + umbrella header), `bindings` (Rust/Dart/C# generators, consuming the IR JSON emitted by `capi`). Only `capi` depends on libclang. See tools/codegen/README.md.
-- `bindings/*` — language bindings wrapping the core library. Flutter lives in this repo; Rust and C# are submodules (repos: `nativeapi-<lang>`). Each embeds the core repo as a submodule (`cxx_impl`) so its packages build standalone. The Rust binding layers `crates/nativeapi` (safe API) over `crates/cnativeapi` (FFI).
+- `bindings/*` — language bindings wrapping the core library. All live in this repo. Each embeds the core repo as a submodule (`cxx_impl`) so its packages build standalone. The Rust binding layers `crates/nativeapi` (safe API) over `crates/cnativeapi` (FFI).
 
 ## Design specs
 
@@ -60,7 +60,7 @@ A core change ripples to every binding. After editing headers in `core`, run:
 ./codegen sync -m "<core commit message>"
 ```
 
-It regenerates everything, updates each binding's embedded core submodule (fetched from the local `core/`, so no push is required first), reruns `bindgen` (Rust raw FFI) and the flutter binding's `codegen.py` (umbrella headers + ffigen), then commits core, each changed submodule binding (`Sync with core <sha>`), and this repo (submodule pointers plus the regenerated Flutter binding, same message). Add `--push` to publish in dangling-safe order (core → submodule bindings → workspace).
+It regenerates everything, updates each binding's embedded core submodule (fetched from the local `core/`, so no push is required first), reruns `bindgen` (Rust raw FFI) and the flutter binding's `codegen.py` (umbrella headers + ffigen), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
 
 Manual follow-ups sync cannot do (details in tools/codegen/README.md):
 
@@ -76,7 +76,7 @@ work on a real desktop. Read the relevant `SKILL.md` before doing any of this by
 
 | Skill | Use it to |
 | --- | --- |
-| `core-api-change` | carry a public API change from `core/src/*.h` through codegen, the three bindings and the commits in core, the submodule bindings and this repo — including the pre-flight before `./codegen sync` |
+| `core-api-change` | carry a public API change from `core/src/*.h` through codegen, the three bindings and the commits in core and this repo — including the pre-flight before `./codegen sync` |
 | `flutter-ui-probe` | find where texts/widgets are in a running debug Flutter app (VM service) |
 | `gui-test` | end-to-end test an app: launch, drive with guarded synthetic mouse input (read its safety rules first), assert on real window geometry and state |
 | `remote-hosts` | build and run on another machine over SSH — Windows today, Linux/macOS prepared (SSH session vs. logged-on desktop) |
@@ -87,8 +87,8 @@ scenarios for *this project's* examples live in [tools/gui/](tools/gui/README.md
 
 ## Conventions
 
-- `core`, `bindings/rust` and `bindings/csharp` track `branch = main`. Use `make sync` to fast-forward them; `make status` to see dirty state everywhere; `make bump` to stage their pointer updates. The Flutter binding's own submodules (`cxx_impl`, the leanflutter packages) are moved by `./codegen sync` or by hand, never by `make`.
+- `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer. The bindings' own submodules (each `cxx_impl`, the leanflutter packages) are moved by `./codegen sync` or by hand, never by `make`.
 - Commit workspace submodule pointer updates only when the combination is compatible (a known-good snapshot).
-- The Flutter CI (`.github/workflows/ci.yml`) only runs for changes under `bindings/flutter/`; publishing is still the `v*` tag (`publish.yml`).
+- CI is one workflow per binding (`flutter-ci.yml`, `rust-ci.yml`, `csharp-ci.yml`), each running only for changes under its `bindings/<lang>/`. Release tags are per binding: `v*` publishes Flutter (`flutter-publish.yml`), `rust-v*` publishes the crates (`rust-release.yml`); never push a bare `v*` tag for anything but Flutter.
 - Never commit in a submodule while on a detached HEAD — check out `main` first (`./codegen sync` enforces this).
 - Do not add Co-Authored-By trailers to commits.

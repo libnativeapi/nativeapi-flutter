@@ -1,16 +1,16 @@
-name: CI
+name: Flutter CI
 
 on:
   push:
     branches: [ main, ohos-main ]
     paths:
       - "bindings/flutter/**"
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/flutter-ci.yml"
   pull_request:
     branches: [ main, ohos-main ]
     paths:
       - "bindings/flutter/**"
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/flutter-ci.yml"
 
 defaults:
   run:
