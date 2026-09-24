@@ -21,17 +21,18 @@ workspace:
   - examples/flutter_window_drag_areas_example
   - examples/flutter_window_example
   - examples/flutter_window_title_bar_example
-  - bindings/flutter/cnativeapi
-  - bindings/flutter/cnativeapi/example
-  - bindings/flutter/nativeapi
-  - bindings/flutter/nativeapi/example
+  - bindings/dart/cnativeapi
+  - bindings/dart/cnativeapi/example
+  - bindings/dart/nativeapi
+  - bindings/dart/nativeapi/example
+  - bindings/dart/nativeapi_flutter
 
 dev_dependencies:
   melos: ^7.1.1
 
 melos:
   packages:
-    - bindings/flutter/**
+    - bindings/dart/**
     - examples/flutter_*
 
   ignore:
@@ -61,4 +62,4 @@ melos:
 
     codegen:cnativeapi:
       description: Regenerate cnativeapi bindings (without updating submodules).
-      run: python3 bindings/flutter/cnativeapi/codegen.py
+      run: python3 bindings/dart/cnativeapi/codegen.py

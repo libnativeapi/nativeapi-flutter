@@ -1,6 +1,6 @@
-# nativeapi-flutter
+# nativeapi for Dart and Flutter
 
-Flutter bindings for [nativeapi](https://github.com/libnativeapi/nativeapi-core) — unified access to native system APIs: windows, tray icons, menus, displays, keyboard, dialogs, storage and more.
+Dart and Flutter bindings for [nativeapi](https://github.com/libnativeapi/nativeapi-core) — unified access to native system APIs: windows, tray icons, menus, displays, keyboard, dialogs, storage and more.
 
 | Android | iOS | Linux | macOS | Windows |
 |:-------:|:---:|:-----:|:-----:|:-------:|
@@ -9,6 +9,14 @@ Flutter bindings for [nativeapi](https://github.com/libnativeapi/nativeapi-core)
 🚧 **Work in Progress**: this package is under active development.
 
 English | [简体中文](./README-ZH.md)
+
+## Packages
+
+| Package | What it is |
+| --- | --- |
+| [`nativeapi`](nativeapi) | The API: windows, tray icons, menus, displays, keyboard, dialogs, storage and more. |
+| [`cnativeapi`](cnativeapi) | Raw FFI bindings to core's C ABI and the native build; used by `nativeapi`. |
+| [`nativeapi_flutter`](nativeapi_flutter) | The Flutter-facing package. For now it re-exports `nativeapi`. |
 
 ## Installation
 

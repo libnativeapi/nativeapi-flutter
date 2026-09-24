@@ -35,7 +35,7 @@ dependencies:
 
   # Native API package for tray icon functionality
   nativeapi:
-    path: ../../bindings/flutter/nativeapi
+    path: ../../bindings/dart/nativeapi
 
 dev_dependencies:
   flutter_test:

@@ -1,0 +1,20 @@
+name: nativeapi_flutter
+description: "Flutter integration for nativeapi, unified access to native system APIs. For now it re-exports package:nativeapi."
+version: 0.3.1
+homepage: https://github.com/libnativeapi/nativeapi-workspace
+repository: https://github.com/libnativeapi/nativeapi-workspace/tree/main/bindings/dart/nativeapi_flutter
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nativeapi: ^0.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0

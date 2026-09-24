@@ -31,7 +31,7 @@ struct CliArgs {
     #[arg(long)]
     rust: Option<PathBuf>,
 
-    /// Path to the Flutter binding (bindings/flutter). Dart bindings are skipped
+    /// Path to the Dart binding (bindings/dart). Dart bindings are skipped
     /// when this is absent.
     #[arg(long)]
     dart: Option<PathBuf>,
@@ -129,7 +129,7 @@ fn main() -> Result<()> {
         }
     }
 
-    // Format before both writing and checking, so generation and Flutter CI
+    // Format before both writing and checking, so generation and Dart CI
     // agree and --check remains read-only. Keep hand-written files untouched.
     for file in &mut files {
         if file.path.extension().is_some_and(|ext| ext == "dart") {
@@ -153,7 +153,7 @@ fn format_dart(path: &Path, source: &str) -> Result<String> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .context("Dart SDK is required to format generated Flutter bindings")?;
+        .context("Dart SDK is required to format generated Dart bindings")?;
     let mut stdin = child.stdin.take().expect("piped stdin");
     let source = source.to_owned();
     // Drain stdout concurrently with feeding stdin, including large modules.

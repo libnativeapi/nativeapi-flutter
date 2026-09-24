@@ -1,17 +1,17 @@
 # libnativeapi workspace
 
-This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`) for the [libnativeapi](https://github.com/libnativeapi) project family. All three bindings (`bindings/flutter/`, `bindings/rust/`, `bindings/csharp/`), the code generator (`tools/codegen/`), the `./codegen` script, the specs and the shared tooling live directly in this repo (the Rust and C# histories were merged in from `nativeapi-rust` and `nativeapi-csharp`); only `core/` is a git submodule of an independent repository. Work inside `core/` is committed and pushed from that subdirectory; everything else is committed here.
+This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`) for the [libnativeapi](https://github.com/libnativeapi) project family. All three bindings (`bindings/dart/`, `bindings/rust/`, `bindings/csharp/`), the code generator (`tools/codegen/`), the `./codegen` script, the specs and the shared tooling live directly in this repo (the Rust and C# histories were merged in from `nativeapi-rust` and `nativeapi-csharp`); only `core/` is a git submodule of an independent repository. Work inside `core/` is committed and pushed from that subdirectory; everything else is committed here.
 
 ## Layout
 
 ```
 core/               # submodule: nativeapi-core — the C++ core library
 bindings/
-├── flutter/        # the Flutter binding: nativeapi/, cnativeapi/
+├── dart/           # the Dart binding: nativeapi/, cnativeapi/, nativeapi_flutter/
 ├── rust/           # the Rust binding: crates/{nativeapi,cnativeapi}
 └── csharp/         # the C# binding: src/, tests/, NativeAPI.slnx
 examples/           # every binding's example apps, prefixed flutter_*, rust_*, csharp_*
-pubspec.yaml        # pub workspace + melos root: Flutter packages and examples
+pubspec.yaml        # pub workspace + melos root: Dart packages and Flutter examples
 Cargo.toml          # cargo workspace root: Rust crates and examples
 tools/codegen/      # in-repo Rust workspace: the code generator
 tools/gui/          # GUI tests and demo scenarios for the examples (built on the skills)
@@ -63,7 +63,7 @@ A core change ripples to every binding. After editing headers in `core`, run:
 ./codegen sync -m "<core commit message>"
 ```
 
-It regenerates everything, reruns `bindgen` (Rust raw FFI) and the flutter binding's `codegen.py` (umbrella headers + ffigen), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
+It regenerates everything, reruns `bindgen` (Rust raw FFI) and the Dart binding's `codegen.py` (umbrella headers + ffigen), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
 
 Manual follow-ups sync cannot do (details in tools/codegen/README.md):
 
@@ -91,9 +91,10 @@ scenarios for *this project's* examples live in [tools/gui/](tools/gui/README.md
 ## Conventions
 
 - `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer.
-- The leanflutter packages built on nativeapi (`tray_manager`, `window_manager`, `launch_at_startup`, …) live in their own repos under github.com/leanflutter and depend on the published `nativeapi`; they are not part of this repo. To try one against local changes, point a `dependency_overrides` entry in that package at `bindings/flutter/nativeapi` (and `cnativeapi`) and never commit the override.
+- The leanflutter packages built on nativeapi (`tray_manager`, `window_manager`, `launch_at_startup`, …) live in their own repos under github.com/leanflutter and depend on the published `nativeapi`; they are not part of this repo. To try one against local changes, point a `dependency_overrides` entry in that package at `bindings/dart/nativeapi` (and `cnativeapi`) and never commit the override.
 - Commit workspace submodule pointer updates only when the combination is compatible (a known-good snapshot).
-- Examples live in `examples/<binding>_<name>_example` (`flutter_`, `rust_`, `csharp_`), not inside the bindings; a new Flutter or Rust example must also be listed in the root `pubspec.yaml` / `Cargo.toml`, a C# one in `bindings/csharp/NativeAPI.slnx`. Only the pub.dev package examples (`bindings/flutter/*/example`) stay inside their package.
-- CI is one workflow per binding (`flutter-ci.yml`, `rust-ci.yml`, `csharp-ci.yml`), each running only for changes under its `bindings/<lang>/` and `examples/<lang>_*`. Release tags are per binding: `v*` publishes Flutter (`flutter-publish.yml`), `rust-v*` publishes the crates (`rust-release.yml`); never push a bare `v*` tag for anything but Flutter.
+- Examples live in `examples/<binding>_<name>_example` (`flutter_`, `rust_`, `csharp_`), not inside the bindings; a new Flutter or Rust example must also be listed in the root `pubspec.yaml` / `Cargo.toml`, a C# one in `bindings/csharp/NativeAPI.slnx`. Only the pub.dev package examples (`bindings/dart/*/example`) stay inside their package.
+- CI is one workflow per binding (`dart-ci.yml`, `rust-ci.yml`, `csharp-ci.yml`), each running only for changes under its `bindings/<lang>/` and its examples (`examples/flutter_*` for Dart, `examples/rust_*`, `examples/csharp_*`). Release tags are per binding: `v*` publishes the Dart packages (`dart-publish.yml`), `rust-v*` publishes the crates (`rust-release.yml`); never push a bare `v*` tag for anything but the Dart packages.
+- The Dart packages `cnativeapi`, `nativeapi` and `nativeapi_flutter` share one version: a release bumps all three pubspecs and CHANGELOGs, because pub.dev's automated publishing matches the tag `v<version>` against each package's own version. `nativeapi_flutter` is the Flutter-facing package; for now it only re-exports `package:nativeapi`.
 - Never commit in a submodule while on a detached HEAD — check out `main` first (`./codegen sync` enforces this).
 - Do not add Co-Authored-By trailers to commits.

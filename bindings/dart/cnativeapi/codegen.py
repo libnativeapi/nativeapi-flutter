@@ -348,7 +348,7 @@ def main():
     """Main function to regenerate bindings."""
     args = parse_args()
     cnativeapi_dir = Path(__file__).resolve().parent
-    # bindings/flutter/cnativeapi -> the repository root's core/
+    # bindings/dart/cnativeapi -> the repository root's core/
     core_dir = (args.core_dir or cnativeapi_dir.parents[2] / "core").resolve()
     ffigen_path = cnativeapi_dir / "ffigen.yaml"
 

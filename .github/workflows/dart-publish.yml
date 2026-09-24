@@ -1,4 +1,4 @@
-name: Flutter Publish
+name: Dart Publish
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    name: Flutter Publish
+    name: Dart Publish
     permissions:
       id-token: write # Required for requesting the JWT
       contents: write # Required for creating the GitHub Release
@@ -36,36 +36,36 @@ jobs:
       # modified checked-in files.
       - name: Vendor core into cnativeapi
         run: |
-          mkdir bindings/flutter/cnativeapi/cxx_impl
-          git -C core archive HEAD | tar -x -C bindings/flutter/cnativeapi/cxx_impl
-          python3 bindings/flutter/cnativeapi/codegen.py --core-dir bindings/flutter/cnativeapi/cxx_impl --sources-only
+          mkdir bindings/dart/cnativeapi/cxx_impl
+          git -C core archive HEAD | tar -x -C bindings/dart/cnativeapi/cxx_impl
+          python3 bindings/dart/cnativeapi/codegen.py --core-dir bindings/dart/cnativeapi/cxx_impl --sources-only
           git -c user.name=release -c user.email=release@localhost commit -qam "Point cnativeapi at its vendored core (not pushed)"
 
       # Publish cnativeapi
       - name: Install dependencies (cnativeapi)
         run: dart pub get
-        working-directory: bindings/flutter/cnativeapi
+        working-directory: bindings/dart/cnativeapi
 
       - name: Publish - dry run (cnativeapi)
         run: dart pub publish --dry-run
-        working-directory: bindings/flutter/cnativeapi
+        working-directory: bindings/dart/cnativeapi
 
       - name: Publish cnativeapi
         run: dart pub publish -f
-        working-directory: bindings/flutter/cnativeapi
+        working-directory: bindings/dart/cnativeapi
 
       # Publish nativeapi
       - name: Install dependencies (nativeapi)
         run: dart pub get
-        working-directory: bindings/flutter/nativeapi
+        working-directory: bindings/dart/nativeapi
 
       - name: Publish - dry run (nativeapi)
         run: dart pub publish --dry-run
-        working-directory: bindings/flutter/nativeapi
+        working-directory: bindings/dart/nativeapi
 
       - name: Publish nativeapi
         run: dart pub publish -f
-        working-directory: bindings/flutter/nativeapi
+        working-directory: bindings/dart/nativeapi
 
       - name: Create GitHub Release
         env:
@@ -75,3 +75,20 @@ jobs:
           args=()
           if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
           gh release create "$RELEASE_TAG" --verify-tag --generate-notes "${args[@]}"
+
+      # Publish nativeapi_flutter. Last on purpose: pub.dev only accepts a
+      # package's first version from `dart pub publish` run by hand, and
+      # automated publishing (tag pattern v{{version}}) has to be enabled on its
+      # admin page afterwards. Until then this step fails without holding up the
+      # packages and the release above.
+      - name: Install dependencies (nativeapi_flutter)
+        run: dart pub get
+        working-directory: bindings/dart/nativeapi_flutter
+
+      - name: Publish - dry run (nativeapi_flutter)
+        run: dart pub publish --dry-run
+        working-directory: bindings/dart/nativeapi_flutter
+
+      - name: Publish nativeapi_flutter
+        run: dart pub publish -f
+        working-directory: bindings/dart/nativeapi_flutter

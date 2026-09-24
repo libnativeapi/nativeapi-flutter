@@ -75,7 +75,7 @@ cmake -S $RemoteWorkspace\core -B $RemoteScratch\core-build -G "Visual Studio 17
 cmake --build $RemoteScratch\core-build --config Debug --target <example> -- /m /nologo /v:minimal
 
 # Flutter example (desktop session)
-cd $RemoteWorkspace\bindings\flutter; flutter pub get
+cd $RemoteWorkspace\bindings\dart; flutter pub get
 cd examples\<name>; flutter build windows --debug
 # → build\windows\x64\runner\Debug\<name>.exe
 ```

@@ -35,7 +35,7 @@ DEFAULT_IR = CODEGEN / "target" / "ir.json"
 # lang -> (cli flag of codegen-bindings, binding directory)
 BINDINGS = {
     "rust": ("--rust", WORKSPACE / "bindings" / "rust"),
-    "dart": ("--dart", WORKSPACE / "bindings" / "flutter"),
+    "dart": ("--dart", WORKSPACE / "bindings" / "dart"),
     "csharp": ("--csharp", WORKSPACE / "bindings" / "csharp"),
 }
 
@@ -88,12 +88,12 @@ README_SNIPPETS = WORKSPACE / "tools" / "readme"
 README_SECTIONS = {
     "contributing.md": [
         "core/README.md",
-        "bindings/flutter/README.md",
+        "bindings/dart/README.md",
         "bindings/rust/README.md",
         "bindings/csharp/README.md",
     ],
     "contributing.zh.md": [
-        "bindings/flutter/README-ZH.md",
+        "bindings/dart/README-ZH.md",
     ],
 }
 
@@ -190,7 +190,7 @@ def regen_rust_raw_ffi(repo: Path) -> bool:
 
 
 def regen_flutter_ffi(repo: Path) -> bool:
-    """Run the flutter repo's own codegen.py (mm includes, umbrella headers,
+    """Run the Dart binding's own codegen.py (mm includes, umbrella headers,
     ffigen.yaml, dart ffigen)."""
     package = repo / "cnativeapi"
     if shutil.which("dart") is None:

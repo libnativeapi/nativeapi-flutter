@@ -92,7 +92,7 @@ $R linux desktop tools/gui/flutter_window_shape_demo_linux.py 240   # dry run: n
 
 The shape demo runs against a debug build of the example in the host's scratch dir
 (`$REMOTE_SCRATCH/shape-flutter-linux/examples/flutter_shaped_window_example`, or `SHAPE_EXAMPLE_DIR`);
-put one there with `git archive <sha> pubspec.yaml bindings/flutter examples/flutter_shaped_window_example | ssh <host> "mkdir -p ... && tar -x -C ..."` (the example resolves through the root pub workspace, so all three paths are needed)
+put one there with `git archive <sha> pubspec.yaml bindings/dart examples/flutter_shaped_window_example | ssh <host> "mkdir -p ... && tar -x -C ..."` (the example resolves through the root pub workspace, so all three paths are needed)
 when the host cannot reach its own remote, then `--build`. A host with **no monitor attached**
 cannot record it at all — see the Linux section of `record-demo/SKILL.md` and
 `remote-hosts/references/linux.md#no-display-attached`.

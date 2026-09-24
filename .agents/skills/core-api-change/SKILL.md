@@ -106,7 +106,7 @@ Files without the banner are never overwritten, so they are also never updated:
 
 | Repo | Hand-written | When to touch it |
 |---|---|---|
-| `bindings/flutter` | `nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, `examples/flutter_*` | new module → add the export; user-visible change → CHANGELOG entry |
+| `bindings/dart` | `nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, `examples/flutter_*` | new module → add the export; user-visible change → CHANGELOG entry |
 | `bindings/rust` | `nativeapi/src/lib.rs`, `examples/rust_*` | `modules.rs` is generated now, so a new module needs no manual `pub mod`; re-exports in `lib.rs` still do |
 | `bindings/csharp` | `examples/csharp_*`, tests | when a rename breaks them |
 | core | `examples/<module>_example/`, `<module>_c_example/` | new module or a behaviour worth demonstrating |
@@ -119,7 +119,7 @@ binding for the old name.
 ```bash
 ./codegen check                                         # generated files are current
 cargo check --workspace                                 # Rust crates + examples (root workspace)
-(cd bindings/flutter/nativeapi && dart analyze)
+(cd bindings/dart/nativeapi && dart analyze)
 (cd bindings/csharp && dotnet build NativeAPI.slnx)
 ```
 
@@ -146,7 +146,7 @@ core pointer plus everything regenerated under `bindings/`. The bindings build a
 
 1. Commit core yourself (`git -C core add <paths> && git -C core commit -m ...`).
 2. `./codegen`; rust → rerun bindgen (command in `tools/codegen/README.md`); flutter →
-   `python3 codegen.py` in `bindings/flutter/cnativeapi`.
+   `python3 codegen.py` in `bindings/dart/cnativeapi`.
 3. Workspace: `git add core` plus only the generated paths under `bindings/`; commit as
    `Sync with core <sha9>`.
 

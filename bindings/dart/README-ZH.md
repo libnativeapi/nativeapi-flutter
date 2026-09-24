@@ -1,6 +1,6 @@
-# nativeapi-flutter
+# nativeapi 的 Dart 与 Flutter 绑定
 
-[nativeapi](https://github.com/libnativeapi/nativeapi-core) 的 Flutter 绑定，统一访问原生系统 API：窗口、托盘图标、菜单、显示器、键盘、对话框、存储等。
+[nativeapi](https://github.com/libnativeapi/nativeapi-core) 的 Dart 与 Flutter 绑定，统一访问原生系统 API：窗口、托盘图标、菜单、显示器、键盘、对话框、存储等。
 
 | Android | iOS | Linux | macOS | Windows |
 |:-------:|:---:|:-----:|:-----:|:-------:|
@@ -9,6 +9,14 @@
 🚧 **开发中**：此包正在积极开发中。
 
 [English](./README.md) | 简体中文
+
+## 包
+
+| 包 | 说明 |
+| --- | --- |
+| [`nativeapi`](nativeapi) | API 本身：窗口、托盘图标、菜单、显示器、键盘、对话框、存储等。 |
+| [`cnativeapi`](cnativeapi) | 面向 core C ABI 的原始 FFI 绑定和原生构建，供 `nativeapi` 使用。 |
+| [`nativeapi_flutter`](nativeapi_flutter) | 面向 Flutter 的包，目前直接重新导出 `nativeapi`。 |
 
 ## 安装
 
