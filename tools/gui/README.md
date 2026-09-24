@@ -20,6 +20,7 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `core_window_drag_session_test.py` / `.ps1` / `_linux.py` | core `window_drag_session_example` (C++) | macOS / Windows / Linux | dock by dragging onto another window, tear off anchored under the cursor, event output; the Linux twin also checks that the panel follows the cursor while carried |
 | `core_window_visual_effect_test.py` / `.ps1` | core `window_visual_effect_example` (C++) | macOS / Windows | `Window::SetVisualEffect`: the example walks a window through every effect over a plain red window and the test samples the screen after each step - the materials that blend with the windows behind come out reddish, no effect does not, `SetVisualEffect` agrees with `IsVisualEffectSupported`, `GetVisualEffect` is the effect in force, and a background color set while an effect was active is what shows once the effect is removed. No input on macOS; on Windows one click on the example's title bar, because the system backdrops are only drawn for the active window |
 | `flutter_visual_effect_test.py` / `.ps1` | `visual_effect_example` | macOS / Windows | the same through a Flutter window: started with `VISUAL_EFFECT_AUTOPLAY=1` the example shows the red backdrop and walks through the effects itself; where Flutter paints nothing the material shows the red behind, and with the effect removed the Flutter view has its opaque backing again. No input on macOS, the one activating click on Windows |
+| `flutter_menu_theme_test.ps1` | `menu_example` | Windows (WinUI 3 and Native backends) | switches Dark / Light / System through Flutter, checks native appearance results and actual menu background colors; accepts `-Exe`, `-KeepOpen` and `-NativeOnly` |
 | `core_menu_lifetime_test.ps1` | core `tests/menu_lifetime_test.cpp` | Windows | issue 54: a `Menu` destroyed from a listener that runs inside the window procedure does not kill the process, and a menu created after every other menu was destroyed still gets its events. No input, but it needs a desktop session |
 | `core_menu_backend_test.ps1` | core `tests/menu_click_test.cpp` | Windows | native menu backend: a top-level and a submenu item click reach the listener *before* `Menu::Open()` returns and fire exactly once; dismissing without picking fires none. The test binary owns the assertions, the script owns the mouse |
 | `core_drag_drop_test.py` / `.ps1` | core `drag_drop_example` (C++) | macOS / Windows | `DragSource` → `DropTarget` across two windows: enter / move / drop events, dropped file path and text, drop position in content coordinates, source reports `copy`; a drag released where nothing accepts it reports exit and `none` |
@@ -29,6 +30,7 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `flutter_detachable_window_and_browser_tabs_demo.py` / `.ps1` | both Flutter examples | macOS / Windows | the demo video scenarios; also the only coverage of `browser_tabs_example` (reorder, tear off, merge, move by the strip; its log ends with the preserved page state, no PASS/FAIL checks) |
 | `flutter_floating_toolbar_demo.py` / `.ps1` | `floating_toolbar_example` | macOS / Windows | the floating toolbar demo video: the pill drives the main window (colours, Stamp), follows it when it is dragged by the title bar and resized from its corner, stays behind when detached and snaps back when attached, is hidden and shown again; ends on the counter and the log. `DEMO_DRY_RUN=1` on the Windows host plays it without recording; without `--record` the macOS script does the same |
 | `flutter_tray_icon_demo.py` | `tray_icon_example` | macOS | the tray demo video: the example moves its window next to its tray icon ("Window to icon") so the real icon and the magnified preview are in one picture; gallery, widget capture, 10 → 60 fps, Pause / Step, scenes, three icons at once, menu opened and closed from code, checklist |
+| `flutter_window_shape_demo.py` / `.ps1` / `_linux.py` | `shaped_window_example` | macOS / Windows / Linux | the shape demo video: every one of the twelve gallery silhouettes once, left to right / top to bottom, then the five contour-shadow presets (None, Soft, Float, Sharp, Glow); ends held on the last silhouette with its shadow. The recorder starts after the app is up and arranged, so the take opens on the app. `DEMO_DRY_RUN=1` (or `-DryRun`) on Windows, and no `--record` on macOS, play it without recording; `--only shapes|shadow` runs one scene. Linux: the app must be a **Wayland client** (the GNOME/Xwayland path dies with a multi-window GLX `BadAccess`), so the windows cannot be measured through Xlib — the scenario locates them in a captured frame instead, drives the pointer from the probe's rects, and prints `RECORD_FRAMES <dir>` for the wrapper to pull and encode |
 
 `common.py` points the macOS scripts at the skills' harness and at
 `bindings/flutter/examples`. The Linux scripts import `guiapp` straight from the flat
@@ -57,6 +59,7 @@ tools/gui/flutter_visual_effect_test.py               # no input
 tools/gui/flutter_detachable_window_and_browser_tabs_demo.py --record   # --only detachable|tabs, --keep-open
 tools/gui/flutter_tray_icon_demo.py --record
 tools/gui/flutter_floating_toolbar_demo.py --record
+tools/gui/flutter_window_shape_demo.py --record
 
 # Windows, from the Mac (examples built there in debug; see the remote-hosts skill)
 R=.agents/skills/remote-hosts/scripts/remote.sh
@@ -73,6 +76,7 @@ $R win desktop tools/gui/core_window_visual_effect_test.ps1 120
 $R win desktop tools/gui/flutter_visual_effect_test.ps1 150
 .agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_detachable_window_and_browser_tabs_demo.ps1 tools/gui/output
 .agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_floating_toolbar_demo.ps1 tools/gui/output
+.agents/skills/record-demo/scripts/record_remote.sh win tools/gui/flutter_window_shape_demo.ps1 tools/gui/output
 
 # Linux, from the Mac (GNOME; "linux" = the host name in remote-hosts/hosts/linux.env)
 R=.agents/skills/remote-hosts/scripts/remote.sh
@@ -81,7 +85,17 @@ $R linux run tools/gui/build_core_example_linux.sh window_drag_session_example
 $R linux desktop tools/gui/core_window_drag_session_test_linux.py 180
 $R linux desktop tools/gui/flutter_floating_toolbar_test_linux.py 120   # no input; Wayland client
 $R linux desktop tools/gui/flutter_tray_icon_test_linux.py 300   # example built in the host's checkout
+$R linux desktop tools/gui/flutter_window_shape_demo_linux.py 240   # dry run: no recorder
+.agents/skills/record-demo/scripts/record_remote_linux.sh linux \
+    tools/gui/flutter_window_shape_demo_linux.py tools/gui/output   # the take
 ```
+
+The shape demo runs against a debug build of the example in the host's scratch dir
+(`$REMOTE_SCRATCH/shape-flutter-linux/examples/shaped_window_example`, or `SHAPE_EXAMPLE_DIR`);
+put one there with `git -C bindings/flutter archive <sha> | ssh <host> "mkdir -p ... && tar -x -C ..."`
+when the host cannot reach its own remote, then `--build`. A host with **no monitor attached**
+cannot record it at all — see the Linux section of `record-demo/SKILL.md` and
+`remote-hosts/references/linux.md#no-display-attached`.
 
 The Linux scripts build and run out of the host's scratch directory, from a snapshot of
 `core/` rather than the host's checkout — that keeps a test run independent of whatever
