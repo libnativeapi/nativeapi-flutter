@@ -1,0 +1,8 @@
+{
+  "name": "deno_detachable_window_example",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "nativeapi": "*"
+  }
+}

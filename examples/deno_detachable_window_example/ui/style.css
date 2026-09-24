@@ -1,0 +1,107 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --border: #d9d9de;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.14);
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --surface: #2c2c2e;
+    --border: #3a3a3c;
+    --text: #f5f5f7;
+    --muted: #98989d;
+  }
+}
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--text); overflow: hidden; }
+
+.workspace {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 1fr 210px;
+  grid-template-areas: "sidebar content" "sidebar bottom";
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+}
+.content {
+  grid-area: content;
+  padding: 16px 20px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.content h1 { margin: 0 0 8px; font-size: 18px; }
+.content p { margin: 0 0 8px; color: var(--muted); max-width: 52ch; }
+
+.slot {
+  position: relative;
+  display: flex;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  min-width: 0;
+  min-height: 0;
+}
+.slot[data-slot="sidebar"] { grid-area: sidebar; }
+.slot[data-slot="bottom"] { grid-area: bottom; }
+.slot.highlight { border: 2px solid var(--accent); background: var(--accent-soft); }
+.slot .placeholder {
+  margin: auto;
+  color: var(--muted);
+  text-align: center;
+  padding: 12px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.floating .panel { border: none; border-radius: 0; height: 100%; }
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.panel-header strong { flex: 1; }
+.panel-header .meta { color: var(--muted); font-size: 11px; }
+.panel-body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 12px; min-height: 0; }
+.panel-body textarea {
+  flex: 1;
+  min-height: 60px;
+  resize: none;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+}
+.row { display: flex; align-items: center; gap: 8px; }
+button {
+  font: inherit;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: inherit;
+  cursor: default;
+}
+.time { font: 600 32px/1 ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }

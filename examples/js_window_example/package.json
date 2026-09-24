@@ -1,0 +1,11 @@
+{
+  "name": "js_window_example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --conditions=source main.ts"
+  },
+  "dependencies": {
+    "nativeapi": "*"
+  }
+}

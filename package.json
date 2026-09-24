@@ -1,0 +1,9 @@
+{
+  "name": "nativeapi-workspace",
+  "private": true,
+  "workspaces": [
+    "bindings/js",
+    "examples/js_*",
+    "examples/deno_*"
+  ]
+}

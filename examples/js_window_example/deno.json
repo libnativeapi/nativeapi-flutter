@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "start": "deno run --allow-ffi --allow-read --allow-env main.ts"
+  }
+}

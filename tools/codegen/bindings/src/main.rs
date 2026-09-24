@@ -10,11 +10,12 @@ use codegen_shared::{naming, resolve_repo_root, write_files};
 
 mod csharp;
 mod dart;
+mod js;
 mod rust;
 
 #[derive(Debug, Parser)]
 #[command(name = "codegen-bindings")]
-#[command(about = "Generate Rust/Swift/Dart FFI bindings from the IR emitted by codegen-capi.")]
+#[command(about = "Generate Rust/Dart/C#/JS FFI bindings from the IR emitted by codegen-capi.")]
 struct CliArgs {
     /// Path to the IR JSON emitted by `codegen-capi --emit-ir`.
     #[arg(long)]
@@ -40,6 +41,11 @@ struct CliArgs {
     /// this is absent.
     #[arg(long)]
     csharp: Option<PathBuf>,
+
+    /// Path to the JS/TS binding (bindings/js). JS bindings are skipped when
+    /// this is absent.
+    #[arg(long)]
+    js: Option<PathBuf>,
 
     /// Verify that generated files are up to date without writing anything.
     /// Exits non-zero when any file would change.
@@ -73,10 +79,12 @@ fn main() -> Result<()> {
     let rust_out = binding_out(args.rust.as_deref(), "nativeapi/src");
     let dart_out = binding_out(args.dart.as_deref(), "nativeapi/lib/src");
     let csharp_out = binding_out(args.csharp.as_deref(), "src");
+    let js_out = args.js.clone();
 
     report_binding("rust", &rust_out);
     report_binding("dart", &dart_out);
     report_binding("csharp", &csharp_out);
+    report_binding("js", &js_out);
 
     let json = std::fs::read_to_string(&args.ir)
         .with_context(|| format!("failed to read IR from {}", args.ir.display()))?;
@@ -94,6 +102,9 @@ fn main() -> Result<()> {
     }
     if let Some(out) = &csharp_out {
         files.push(csharp::generate_support(out));
+    }
+    if let Some(out) = &js_out {
+        files.extend(js::generate_shared(&api, out, prefix));
     }
     if let Some(dart_repo) = &args.dart {
         let cnativeapi_root = dart_repo.join("cnativeapi");
@@ -126,6 +137,9 @@ fn main() -> Result<()> {
             files.extend(csharp::generate(
                 &api, header, &origins, out, prefix, subdir,
             ));
+        }
+        if let Some(out) = &js_out {
+            files.extend(js::generate(&api, header, &origins, out, prefix));
         }
     }
 

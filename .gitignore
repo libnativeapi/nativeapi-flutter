@@ -13,3 +13,6 @@ __pycache__/
 # C# examples
 examples/csharp_*/bin/
 examples/csharp_*/obj/
+
+# JS (npm workspace at the root)
+/node_modules/

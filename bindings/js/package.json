@@ -1,0 +1,50 @@
+{
+  "name": "nativeapi",
+  "version": "0.1.0",
+  "description": "Native desktop APIs (windows, tray icons, menus, displays, shortcuts, dialogs, storage) for Node.js, Deno and Bun.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libnativeapi/nativeapi.git",
+    "directory": "bindings/js"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "deno": "./lib/index.ts",
+      "bun": "./lib/index.ts",
+      "source": "./lib/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "lib",
+    "src",
+    "cxx_impl",
+    "CMakeLists.txt",
+    "prebuilds"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "cmake-js compile",
+    "build:debug": "cmake-js compile --debug",
+    "build:ts": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/*.test.ts",
+    "install": "node scripts/install.mjs"
+  },
+  "dependencies": {
+    "cmake-js": "^8.0.0",
+    "node-api-headers": "^1.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}
