@@ -1,3 +1,3 @@
-## Unreleased
+## 0.3.1
 
-* Initial package. It re-exports `package:nativeapi`.
+* Initial release. It re-exports `package:nativeapi`.
