@@ -1,41 +1,41 @@
-name: nativeapi_flutter
+name: nativeapi_workspace
 publish_to: none
 environment:
   sdk: ^3.13.0
 
 workspace:
-  - examples/browser_tabs_example
-  - examples/cocoapods_example
-  - examples/detachable_window_example
-  - examples/drag_drop_example
-  - examples/shaped_window_example
-  - examples/floating_toolbar_example
-  - examples/launch_at_login_example
-  - examples/display_example
-  - examples/menu_example
-  - examples/multiple_window_example
-  - examples/storage_example
-  - examples/tray_icon_example
-  - examples/url_opener_example
-  - examples/visual_effect_example
-  - examples/window_drag_areas_example
-  - examples/window_example
-  - examples/window_title_bar_example
-  - packages/cnativeapi
-  - packages/cnativeapi/example
-  - packages/native_message_dialog
-  - packages/native_preferences
-  - packages/native_secure_storage
-  - packages/nativeapi
-  - packages/nativeapi/example
+  - examples/flutter_browser_tabs_example
+  - examples/flutter_cocoapods_example
+  - examples/flutter_detachable_window_example
+  - examples/flutter_drag_drop_example
+  - examples/flutter_shaped_window_example
+  - examples/flutter_floating_toolbar_example
+  - examples/flutter_launch_at_login_example
+  - examples/flutter_display_example
+  - examples/flutter_menu_example
+  - examples/flutter_multiple_window_example
+  - examples/flutter_storage_example
+  - examples/flutter_tray_icon_example
+  - examples/flutter_url_opener_example
+  - examples/flutter_visual_effect_example
+  - examples/flutter_window_drag_areas_example
+  - examples/flutter_window_example
+  - examples/flutter_window_title_bar_example
+  - bindings/flutter/packages/cnativeapi
+  - bindings/flutter/packages/cnativeapi/example
+  - bindings/flutter/packages/native_message_dialog
+  - bindings/flutter/packages/native_preferences
+  - bindings/flutter/packages/native_secure_storage
+  - bindings/flutter/packages/nativeapi
+  - bindings/flutter/packages/nativeapi/example
 
 dev_dependencies:
   melos: ^7.1.1
 
 melos:
   packages:
-    - packages/**
-    - examples/**
+    - bindings/flutter/packages/**
+    - examples/flutter_*
 
   ignore:
     - "**/build/**"
@@ -64,4 +64,4 @@ melos:
 
     codegen:cnativeapi:
       description: Regenerate cnativeapi bindings (without updating submodules).
-      run: python3 packages/cnativeapi/codegen.py --no-submodule-update
+      run: python3 bindings/flutter/packages/cnativeapi/codegen.py --no-submodule-update

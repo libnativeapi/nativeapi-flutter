@@ -1,18 +1,20 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/cnativeapi",
-    "crates/nativeapi",
-    "examples/accessibility_example",
-    "examples/application_example",
-    "examples/display_example",
-    "examples/keyboard_example",
-    "examples/launch_at_login_example",
-    "examples/menu_example",
-    "examples/message_dialog_example",
-    "examples/shortcut_example",
-    "examples/storage_example",
-    "examples/tray_icon_example",
-    "examples/url_opener_example",
-    "examples/window_example",
+    "bindings/rust/crates/cnativeapi",
+    "bindings/rust/crates/nativeapi",
+    "examples/rust_accessibility_example",
+    "examples/rust_application_example",
+    "examples/rust_display_example",
+    "examples/rust_keyboard_example",
+    "examples/rust_launch_at_login_example",
+    "examples/rust_menu_example",
+    "examples/rust_message_dialog_example",
+    "examples/rust_shortcut_example",
+    "examples/rust_storage_example",
+    "examples/rust_tray_icon_example",
+    "examples/rust_url_opener_example",
+    "examples/rust_window_example",
 ]
+# The code generator is a separate cargo workspace (it needs libclang).
+exclude = ["tools/codegen"]
