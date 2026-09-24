@@ -37,3 +37,6 @@
 	path = bindings/flutter/packages/local_notifier
 	url = https://github.com/leanflutter/local_notifier
 	branch = dev
+[submodule "crates/cnativeapi/cxx_impl"]
+	path = bindings/rust/crates/cnativeapi/cxx_impl
+	url = https://github.com/libnativeapi/nativeapi.git
