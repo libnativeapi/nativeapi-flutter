@@ -87,7 +87,7 @@ C ABI 是所有绑定的地基，新增符号后需要同步下游：
    编译期报错，不会静默出问题。
 2. **submodule**：`bindings/rust/crates/cnativeapi/cxx_impl`、
    `bindings/flutter/packages/cnativeapi/cxx_impl`、`bindings/csharp/src/CNativeAPI/cxx_impl`
-   都是 nativeapi 仓库的 submodule，提交 core 后需要 `git submodule update --remote`
+   都是 nativeapi-core 仓库的 submodule，提交 core 后需要 `git submodule update --remote`
 3. **Rust raw FFI**：`crates/cnativeapi/src/bindings.rs` 由 bindgen 生成并入库，
    新增 C 符号后需重新生成（在 workspace 根目录执行）：
 

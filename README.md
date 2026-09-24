@@ -8,7 +8,7 @@ This repository was `nativeapi-flutter` until 2026-09; its history, issues and s
 
 | Path | Description |
 | --- | --- |
-| [core](https://github.com/libnativeapi/nativeapi) | submodule: C++ core library (`nativeapi`) |
+| [core](https://github.com/libnativeapi/nativeapi-core) | submodule: C++ core library (`nativeapi-core`) |
 | [bindings/flutter](bindings/flutter) | Flutter binding (packages `nativeapi`, `cnativeapi`) |
 | [bindings/rust](bindings/rust) | Rust binding (crates `nativeapi`, `cnativeapi`) |
 | [bindings/csharp](bindings/csharp) | C# binding |

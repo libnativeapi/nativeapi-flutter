@@ -5,7 +5,7 @@ This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`)
 ## Layout
 
 ```
-core/               # submodule: nativeapi — the C++ core library
+core/               # submodule: nativeapi-core — the C++ core library
 bindings/
 ├── flutter/        # the Flutter binding: packages/{nativeapi,cnativeapi,…}
 ├── rust/           # the Rust binding: crates/{nativeapi,cnativeapi}
@@ -22,7 +22,7 @@ codegen             # Python entry point orchestrating the generators
 
 ## Architecture
 
-- `core` — the C++ core library (repo: `nativeapi`). The source of truth for the native API surface (windows, tray icons, menus, displays, keyboard, dialogs, storage, etc.) with per-platform implementations (macOS/Windows/Linux).
+- `core` — the C++ core library (repo: `nativeapi-core`). The source of truth for the native API surface (windows, tray icons, menus, displays, keyboard, dialogs, storage, etc.) with per-platform implementations (macOS/Windows/Linux).
 - `tools/codegen` — three crates: `shared` (libclang parser, IR, naming), `capi` (C ABI + umbrella header), `bindings` (Rust/Dart/C# generators, consuming the IR JSON emitted by `capi`). Only `capi` depends on libclang. See tools/codegen/README.md.
 - `bindings/*` — language bindings wrapping the core library. All live in this repo. Each embeds the core repo as a submodule (`cxx_impl`) so its packages build standalone. The Rust binding layers `crates/nativeapi` (safe API) over `crates/cnativeapi` (FFI).
 

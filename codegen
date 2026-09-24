@@ -162,7 +162,7 @@ def current_branch(repo: Path) -> str:
 
 
 def core_dep_paths(binding: Path) -> list[str]:
-    """Submodules under `binding` that point at the nativeapi repo, as paths
+    """Submodules under `binding` that point at the core repo, as paths
     relative to the workspace."""
     prefix = f"{binding.relative_to(WORKSPACE).as_posix()}/"
     out = git(WORKSPACE, "config", "-f", ".gitmodules", "--get-regexp",
@@ -177,7 +177,9 @@ def core_dep_paths(binding: Path) -> list[str]:
         for entry in entries.values()
         if "path" in entry
         and entry["path"].startswith(prefix)
-        and entry.get("url", "").rstrip("/").removesuffix(".git").endswith("/nativeapi")
+        # The core repo was renamed from nativeapi to nativeapi-core.
+        and entry.get("url", "").rstrip("/").removesuffix(".git").endswith(
+            ("/nativeapi-core", "/nativeapi"))
     ]
 
 

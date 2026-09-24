@@ -6,8 +6,8 @@ Development happens in [nativeapi-workspace](https://github.com/libnativeapi/nat
 git clone --recursive https://github.com/libnativeapi/nativeapi-workspace.git
 ```
 
-Files marked `AUTO-GENERATED. DO NOT EDIT.` are generated from the C++ headers in [nativeapi](https://github.com/libnativeapi/nativeapi). To change the API, send a pull request there; maintainers regenerate the bindings.
+Files marked `AUTO-GENERATED. DO NOT EDIT.` are generated from the C++ headers in [nativeapi](https://github.com/libnativeapi/nativeapi-core). To change the API, send a pull request there; maintainers regenerate the bindings.
 
-- API requests and native behavior bugs → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
+- API requests and native behavior bugs → [nativeapi-core issues](https://github.com/libnativeapi/nativeapi-core/issues)
 - Bugs specific to one binding → [nativeapi-workspace issues](https://github.com/libnativeapi/nativeapi-workspace/issues)
-- Not sure → [nativeapi issues](https://github.com/libnativeapi/nativeapi/issues)
+- Not sure → [nativeapi-core issues](https://github.com/libnativeapi/nativeapi-core/issues)

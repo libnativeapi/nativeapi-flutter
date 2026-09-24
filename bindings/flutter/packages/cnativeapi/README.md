@@ -1,6 +1,6 @@
 # cnativeapi
 
-Native API C bindings for Flutter, auto-generated via [ffigen](https://pub.dev/packages/ffigen) from the [libnativeapi](https://github.com/libnativeapi/nativeapi) C library.
+Native API C bindings for Flutter, auto-generated via [ffigen](https://pub.dev/packages/ffigen) from the [libnativeapi](https://github.com/libnativeapi/nativeapi-core) C library.
 
 > This package provides low-level FFI bindings and is typically used as an internal dependency of [`nativeapi`](https://pub.dev/packages/nativeapi). You generally don't need to depend on it directly.
 
@@ -30,7 +30,7 @@ dart run ffigen --config ffigen.yaml
 ```
 
 Regeneration is needed when:
-- The native C library ([libnativeapi/nativeapi](https://github.com/libnativeapi/nativeapi)) is updated
+- The native C library ([libnativeapi/nativeapi-core](https://github.com/libnativeapi/nativeapi-core)) is updated
 - The `ffigen.yaml` configuration is modified
 
 ## License
