@@ -23,9 +23,6 @@ workspace:
   - examples/flutter_window_title_bar_example
   - bindings/flutter/cnativeapi
   - bindings/flutter/cnativeapi/example
-  - bindings/flutter/native_message_dialog
-  - bindings/flutter/native_preferences
-  - bindings/flutter/native_secure_storage
   - bindings/flutter/nativeapi
   - bindings/flutter/nativeapi/example
 

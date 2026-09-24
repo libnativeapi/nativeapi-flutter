@@ -7,7 +7,7 @@ This is the workspace repo (`nativeapi-workspace`, formerly `nativeapi-flutter`)
 ```
 core/               # submodule: nativeapi-core — the C++ core library
 bindings/
-├── flutter/        # the Flutter binding: packages/{nativeapi,cnativeapi,…}
+├── flutter/        # the Flutter binding: nativeapi/, cnativeapi/
 ├── rust/           # the Rust binding: crates/{nativeapi,cnativeapi}
 └── csharp/         # the C# binding: src/, tests/, NativeAPI.slnx
 examples/           # every binding's example apps, prefixed flutter_*, rust_*, csharp_*
