@@ -64,4 +64,4 @@ melos:
 
     codegen:cnativeapi:
       description: Regenerate cnativeapi bindings (without updating submodules).
-      run: python3 bindings/flutter/cnativeapi/codegen.py --no-submodule-update
+      run: python3 bindings/flutter/cnativeapi/codegen.py

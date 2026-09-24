@@ -10,7 +10,7 @@ C# bindings for [nativeapi](https://github.com/libnativeapi/nativeapi-core) — 
 
 ## Installation
 
-Clone with submodules, build the native library (CMake 3.24+; on Linux also `libgtk-3-dev libx11-dev libxi-dev`), and reference `src/NativeAPI/NativeAPI.csproj` from your project:
+Clone the repository with its `core` submodule, build the native library (CMake 3.24+; on Linux also `libgtk-3-dev libx11-dev libxi-dev`), and reference `src/NativeAPI/NativeAPI.csproj` from your project:
 
 ```bash
 git clone --recursive https://github.com/libnativeapi/nativeapi-workspace.git

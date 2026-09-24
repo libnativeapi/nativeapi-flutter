@@ -50,9 +50,7 @@ tools/codegen/
 
 1. 全量重新生成（C ABI + 三端绑定）
 2. 提交 core（消息用 `-m` 指定，默认 `Update API`）
-3. 对每个 binding：把内嵌的 core submodule（`cxx_impl`）
-   更新到 core 的最新提交（从本地 core 取，不要求先 push）；rust 额外重跑
-   bindgen 刷新 `bindings/rust/cnativeapi/src/bindings.rs`；flutter 额外执行 binding 自带的
+3. rust 额外重跑 bindgen 刷新 `bindings/rust/cnativeapi/src/bindings.rs`；flutter 额外执行 binding 自带的
    `codegen.py`（.mm include、umbrella header、ffigen.yaml、dart ffigen）
 4. 提交 workspace，消息为 `Sync with core <sha>`：core 指针，以及 `bindings/`
    下的全部改动（三个 binding 都在 workspace 仓库里）
@@ -61,7 +59,7 @@ tools/codegen/
 （保证远端的 submodule 指针不悬空）。任一仓库处于 detached HEAD 会直接报错。
 bindgen / dart 未安装时对应步骤跳过并告警。
 
-未初始化的 binding submodule 会被自动跳过，此时照常产出完整的 C ABI。
+三个 binding 都直接基于仓库里的 `core/` 构建，没有各自的 core 副本需要更新。
 
 生成产物：
 
@@ -85,9 +83,9 @@ C ABI 是所有绑定的地基，新增符号后需要同步下游：
 1. **类型标签**：新增的句柄类型需要在 `core/src/foundation/id_allocator.h`
    的 `IdTypeTag<T>` 注册表里追加一个编号（**只追加，不改已有编号**）。漏了会在
    编译期报错，不会静默出问题。
-2. **submodule**：`bindings/rust/cnativeapi/cxx_impl`、
-   `bindings/flutter/cnativeapi/cxx_impl`、`bindings/csharp/src/CNativeAPI/cxx_impl`
-   都是 nativeapi-core 仓库的 submodule，提交 core 后需要 `git submodule update --remote`
+2. **core 指针**：binding 直接引用仓库里的 `core/`，提交 core 后只需在 workspace
+   里提交新的 `core` 指针（`./codegen sync` 会做）。发布包自带的 `cxx_impl/` 只在
+   release workflow 里临时生成，不入库
 3. **Rust raw FFI**：`bindings/rust/cnativeapi/src/bindings.rs` 由 bindgen 生成并入库，
    新增 C 符号后需重新生成（在 workspace 根目录执行）：
 

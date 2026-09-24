@@ -22,8 +22,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout Rust binding submodules
-        run: git submodule update --init --recursive -- bindings/rust
+      - name: Checkout core
+        run: git submodule update --init core
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-python@v5
         with:
@@ -47,15 +47,22 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Test release sources
         run: cargo test --workspace --release --locked
+      # A published crate cannot reach the repository's core/, so cnativeapi
+      # carries a copy in cxx_impl/ (build.rs prefers it when present). It is
+      # untracked, hence --allow-dirty for that crate.
+      - name: Vendor core into cnativeapi
+        run: |
+          mkdir bindings/rust/cnativeapi/cxx_impl
+          git -C core archive HEAD | tar -x -C bindings/rust/cnativeapi/cxx_impl
       - name: Verify packaged native sources build outside the checkout
-        run: cargo package -p cnativeapi --locked
+        run: cargo package -p cnativeapi --locked --allow-dirty
       - name: Publish crates in dependency order
         if: github.event_name == 'push' && github.ref_type == 'tag'
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           test -n "$CARGO_REGISTRY_TOKEN"
-          cargo publish -p cnativeapi --locked
+          cargo publish -p cnativeapi --locked --allow-dirty
           cargo publish -p nativeapi --locked
       - uses: actions/upload-artifact@v4
         with:

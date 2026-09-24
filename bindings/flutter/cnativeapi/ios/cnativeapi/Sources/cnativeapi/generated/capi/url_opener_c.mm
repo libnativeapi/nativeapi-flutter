@@ -1,2 +1,2 @@
 // AUTO-GENERATED. DO NOT EDIT.
-#include "../../../../../../cxx_impl/src/capi/url_opener_c.cpp"
+#include "../../../../../../../../../core/src/capi/url_opener_c.cpp"

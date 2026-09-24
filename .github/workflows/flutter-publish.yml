@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout Flutter submodules
-        run: git submodule update --init --recursive -- bindings/flutter
+      - name: Checkout core
+        run: git submodule update --init core
 
       # Set up the Dart SDK and provision the OIDC token used for publishing.
       - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260
@@ -28,6 +28,18 @@ jobs:
         with:
           channel: stable
           version: 3.47.5
+
+      # The cnativeapi package must carry core's sources: copy them into
+      # cxx_impl/ (untracked; the CMake build prefers it when present) and point
+      # the Apple source wrappers there. The rewritten wrappers go into a local
+      # commit that is never pushed, because `dart pub publish` warns about
+      # modified checked-in files.
+      - name: Vendor core into cnativeapi
+        run: |
+          mkdir bindings/flutter/cnativeapi/cxx_impl
+          git -C core archive HEAD | tar -x -C bindings/flutter/cnativeapi/cxx_impl
+          python3 bindings/flutter/cnativeapi/codegen.py --core-dir bindings/flutter/cnativeapi/cxx_impl --sources-only
+          git -c user.name=release -c user.email=release@localhost commit -qam "Point cnativeapi at its vendored core (not pushed)"
 
       # Publish cnativeapi
       - name: Install dependencies (cnativeapi)

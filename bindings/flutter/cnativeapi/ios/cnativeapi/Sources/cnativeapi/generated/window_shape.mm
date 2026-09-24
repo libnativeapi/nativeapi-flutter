@@ -1,2 +1,2 @@
 // AUTO-GENERATED. DO NOT EDIT.
-#include "../../../../../cxx_impl/src/window_shape.cpp"
+#include "../../../../../../../../core/src/window_shape.cpp"

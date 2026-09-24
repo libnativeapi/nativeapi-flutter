@@ -38,9 +38,8 @@ The root `pubspec.yaml` is the pub workspace (and melos) root for the Flutter pa
 ./codegen         # full run: C ABI, then all bindings
 ./codegen check   # verify generated files are up to date (CI mode)
 ./codegen readme  # copy the shared README sections (tools/readme/) into every repo
-./codegen sync    # after a core change: regenerate everything, bump each
-                  #   binding's embedded core submodule, rerun bindgen/ffigen,
-                  #   and commit core, then this repo
+./codegen sync    # after a core change: regenerate everything, rerun
+                  #   bindgen/ffigen, and commit core, then this repo
                   #   (add --push to also push, -m "..." for the core message)
 ```
 

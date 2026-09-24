@@ -9,8 +9,20 @@ project(cnativeapi VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Define base paths
-set(LIBNATIVEAPI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../cxx_impl")
+# Core sources: the published package carries a copy in cxx_impl/ (vendored by
+# the release workflow); inside the nativeapi-workspace repository the plugin
+# builds the checkout's core/ directly. Apps reach this directory through
+# Flutter's .plugin_symlinks, so resolve the real location before walking up.
+get_filename_component(CNATIVEAPI_SRC_REAL "${CMAKE_CURRENT_SOURCE_DIR}" REALPATH)
+if(EXISTS "${CNATIVEAPI_SRC_REAL}/../cxx_impl/src/CMakeLists.txt")
+    get_filename_component(LIBNATIVEAPI_ROOT "${CNATIVEAPI_SRC_REAL}/../cxx_impl" ABSOLUTE)
+else()
+    get_filename_component(LIBNATIVEAPI_ROOT "${CNATIVEAPI_SRC_REAL}/../../../../core" ABSOLUTE)
+endif()
+if(NOT EXISTS "${LIBNATIVEAPI_ROOT}/src/CMakeLists.txt")
+    message(FATAL_ERROR "nativeapi core sources not found at ${LIBNATIVEAPI_ROOT}; "
+                        "run `git submodule update --init core` in the repository")
+endif()
 set(LIBNATIVEAPI_SRC_DIR "${LIBNATIVEAPI_ROOT}/src")
 set(LIBNATIVEAPI_INCLUDE_DIR "${LIBNATIVEAPI_ROOT}/include")
 

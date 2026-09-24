@@ -85,7 +85,7 @@ saved video or an `ERROR`.
   optional: the test laptop's scoop was broken (self-update fails, the 7zip dependency
   would not install), and winget asks to accept agreements.
 - The apps must already be built there in debug (see `remote-hosts`), from the checkout
-  you mean to show — check that submodules such as the Flutter binding's `cxx_impl` are
+  you mean to show — check that the `core` submodule is
   actually checked out at the recorded commit (`git submodule update`), not just
   pointed at it.
 - **The whole screen is in the picture.** Before recording, look at the desktop

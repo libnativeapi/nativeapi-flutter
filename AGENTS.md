@@ -24,7 +24,7 @@ codegen             # Python entry point orchestrating the generators
 
 - `core` — the C++ core library (repo: `nativeapi-core`). The source of truth for the native API surface (windows, tray icons, menus, displays, keyboard, dialogs, storage, etc.) with per-platform implementations (macOS/Windows/Linux).
 - `tools/codegen` — three crates: `shared` (libclang parser, IR, naming), `capi` (C ABI + umbrella header), `bindings` (Rust/Dart/C# generators, consuming the IR JSON emitted by `capi`). Only `capi` depends on libclang. See tools/codegen/README.md.
-- `bindings/*` — language bindings wrapping the core library. All live in this repo. Each embeds the core repo as a submodule (`cxx_impl`) so its packages build standalone. The Rust binding layers `crates/nativeapi` (safe API) over `crates/cnativeapi` (FFI).
+- `bindings/*` — language bindings wrapping the core library. All live in this repo and build against the `core/` submodule directly (Rust `build.rs`, the Flutter plugin's CMake and generated Apple source wrappers, the C# native CMake). Only a published package carries its own copy of core, in `cxx_impl/`, which the release workflows vendor and never commit. The Rust binding layers `nativeapi` (safe API) over `cnativeapi` (FFI).
 
 ## Design specs
 
@@ -63,7 +63,7 @@ A core change ripples to every binding. After editing headers in `core`, run:
 ./codegen sync -m "<core commit message>"
 ```
 
-It regenerates everything, updates each binding's embedded core submodule (fetched from the local `core/`, so no push is required first), reruns `bindgen` (Rust raw FFI) and the flutter binding's `codegen.py` (umbrella headers + ffigen), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
+It regenerates everything, reruns `bindgen` (Rust raw FFI) and the flutter binding's `codegen.py` (umbrella headers + ffigen), then commits core and this repo (`Sync with core <sha>`: the core pointer plus everything regenerated under `bindings/`). Add `--push` to publish in dangling-safe order (core → workspace).
 
 Manual follow-ups sync cannot do (details in tools/codegen/README.md):
 
@@ -90,7 +90,7 @@ scenarios for *this project's* examples live in [tools/gui/](tools/gui/README.md
 
 ## Conventions
 
-- `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer. Each binding's embedded core (`cxx_impl`) is moved by `./codegen sync` or by hand, never by `make`.
+- `core` tracks `branch = main`. Use `make sync` to fast-forward it; `make status` to see dirty state everywhere; `make bump` to stage its pointer.
 - The leanflutter packages built on nativeapi (`tray_manager`, `window_manager`, `launch_at_startup`, …) live in their own repos under github.com/leanflutter and depend on the published `nativeapi`; they are not part of this repo. To try one against local changes, point a `dependency_overrides` entry in that package at `bindings/flutter/nativeapi` (and `cnativeapi`) and never commit the override.
 - Commit workspace submodule pointer updates only when the combination is compatible (a known-good snapshot).
 - Examples live in `examples/<binding>_<name>_example` (`flutter_`, `rust_`, `csharp_`), not inside the bindings; a new Flutter or Rust example must also be listed in the root `pubspec.yaml` / `Cargo.toml`, a C# one in `bindings/csharp/NativeAPI.slnx`. Only the pub.dev package examples (`bindings/flutter/*/example`) stay inside their package.

@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="cxx_impl/**;native/**" />
-    <None Remove="cxx_impl/**;native/**" />
+    <Compile Remove="native/**" />
+    <None Remove="native/**" />
   </ItemGroup>
 
 </Project>

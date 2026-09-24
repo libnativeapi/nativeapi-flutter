@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Script to regenerate bindings by:
-1. Pulling latest cxx_impl submodule
+Script to regenerate bindings from the nativeapi core sources by:
+1. Locating core: the repository's core/ checkout, or --core-dir (the release
+   workflow points it at a copy vendored into cxx_impl/ before publishing)
 2. Updating macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm include statements
 3. Updating ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm include statements
 4. Updating macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
@@ -39,44 +40,19 @@ def run_command(cmd, cwd=None):
         return False
 
 
-def update_cxx_impl():
-    """Update cxx_impl submodule to latest."""
-    print("\nStep 1/5: Updating cxx_impl submodule")
-    print("Pulling latest changes from cxx_impl submodule...")
-
-    script_dir = Path(__file__).parent
-    repo_root = script_dir.parent.parent
-
-    # Update submodule
-    if not run_command(
-        ["git", "submodule", "update", "--remote", "packages/cnativeapi/cxx_impl"],
-        cwd=repo_root,
-    ):
-        print("Warning: Failed to update cxx_impl submodule")
-        return False
-
-    print("Submodule updated successfully")
-    return True
-
-
-def find_capi_headers(cxx_impl_dir):
-    """Find all C API header files (*_c.h) in cxx_impl/src/capi."""
-    capi_dir = cxx_impl_dir / "src" / "capi"
+def find_capi_headers(core_dir):
+    """Find all C API header files (*_c.h) in core's src/capi, as paths relative
+    to core_dir (src/capi/x_c.h)."""
+    capi_dir = core_dir / "src" / "capi"
     if not capi_dir.exists():
         return []
-
-    headers = []
-    for header_file in capi_dir.glob("*_c.h"):
-        # Use relative path from packages/cnativeapi
-        rel_path = f"cxx_impl/src/capi/{header_file.name}"
-        headers.append(rel_path)
-
-    return sorted(headers)
+    return sorted(f"src/capi/{header_file.name}" for header_file in capi_dir.glob("*_c.h"))
 
 
-def find_cpp_headers(cxx_impl_dir):
-    """Find all C++ API header files (*.h) in cxx_impl/src, excluding capi/ and platform/."""
-    src_dir = cxx_impl_dir / "src"
+def find_cpp_headers(core_dir):
+    """Find all C++ API header files (*.h) in core's src, excluding capi/ and
+    platform/, as paths relative to core_dir (src/x.h)."""
+    src_dir = core_dir / "src"
     if not src_dir.exists():
         return []
 
@@ -87,11 +63,7 @@ def find_cpp_headers(cxx_impl_dir):
         # Skip capi/ and platform/ directories
         if "/capi/" in file_str or "/platform/" in file_str:
             continue
-        # Calculate relative path from cnativeapi.h location
-        # cnativeapi.h is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/include/
-        # cxx_impl is at packages/cnativeapi/cxx_impl/
-        # So relative path should be ../../../../../cxx_impl/src/...
-        rel_path = Path(os.path.relpath(header_file, cxx_impl_dir.parent)).as_posix()
+        rel_path = Path(os.path.relpath(header_file, core_dir)).as_posix()
         headers.append((rel_path, header_file))
 
     # Sort by path for consistent ordering
@@ -99,48 +71,29 @@ def find_cpp_headers(cxx_impl_dir):
     return [h[0] for h in headers]
 
 
-def update_cnativeapi_h(header_path, cxx_impl_dir):
+def update_cnativeapi_h(header_path, core_dir):
     """Update cnativeapi.h file with C++ and C API header includes."""
     print(f"Updating {header_path.name}...")
 
-    # Find all C++ API headers (returns paths relative to cxx_impl_dir.parent)
-    cpp_headers = find_cpp_headers(cxx_impl_dir)
+    # Both lists are relative to core_dir.
+    cpp_headers = find_cpp_headers(core_dir)
     print(f"  Found {len(cpp_headers)} C++ API headers")
 
-    # Find all C API headers (returns paths relative to cxx_impl_dir.parent)
-    capi_headers = find_capi_headers(cxx_impl_dir)
+    capi_headers = find_capi_headers(core_dir)
     print(f"  Found {len(capi_headers)} C API headers")
 
-    # Calculate relative path from header_path to cxx_impl_dir
-    # header_path is at packages/cnativeapi/{platform}/cnativeapi/Sources/cnativeapi/include/
-    # cxx_impl_dir is at packages/cnativeapi/cxx_impl/
-    cxx_impl_rel = Path(os.path.relpath(cxx_impl_dir, header_path.parent)).as_posix()
+    core_rel = Path(os.path.relpath(core_dir, header_path.parent)).as_posix()
 
     # Generate C++ includes
     cpp_includes = []
     for header in cpp_headers:
-        # header is like "cxx_impl/src/accessibility_manager.h"
-        # Need to convert to relative path from header_path
-        # Join cxx_impl_rel with the part after "cxx_impl/"
-        if header.startswith("cxx_impl/"):
-            rel_path = os.path.join(cxx_impl_rel, header[len("cxx_impl/"):])
-        else:
-            rel_path = os.path.join(cxx_impl_rel, "src", header)
-        # Normalize path separators
-        rel_path = rel_path.replace("\\", "/")
+        rel_path = f"{core_rel}/{header}"
         cpp_includes.append(f'#include "{rel_path}"')
 
     # Generate C API includes
     capi_includes = []
     for header in capi_headers:
-        # header is like "cxx_impl/src/capi/accessibility_manager_c.h"
-        # Need to convert to relative path from header_path
-        if header.startswith("cxx_impl/"):
-            rel_path = os.path.join(cxx_impl_rel, header[len("cxx_impl/"):])
-        else:
-            rel_path = os.path.join(cxx_impl_rel, "src", "capi", header)
-        # Normalize path separators
-        rel_path = rel_path.replace("\\", "/")
+        rel_path = f"{core_rel}/{header}"
         capi_includes.append(f'#include "{rel_path}"')
 
     # Generate header file content
@@ -229,9 +182,9 @@ def update_ffigen_yaml(ffigen_path, capi_headers):
     return True
 
 
-def find_source_files(cxx_impl_dir, platform):
+def find_source_files(core_dir, platform):
     """Find all source files (.cpp and .mm) needed for the specified platform."""
-    src_dir = cxx_impl_dir / "src"
+    src_dir = core_dir / "src"
     source_files = []
 
     # Find all C++ and Objective-C++ files
@@ -272,14 +225,14 @@ def find_source_files(cxx_impl_dir, platform):
     return filtered_files
 
 
-def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
+def update_nativeapi_mm(nativeapi_path, core_dir, platform):
     """Generate one Apple translation unit per core source (also for SwiftPM)."""
-    source_files = find_source_files(cxx_impl_dir, platform)
+    source_files = find_source_files(core_dir, platform)
     generated_dir = nativeapi_path.parent / "generated"
     banner = "// AUTO-GENERATED. DO NOT EDIT.\n"
     expected = set()
     for source in sorted(source_files):
-        relative = source.relative_to(cxx_impl_dir / "src")
+        relative = source.relative_to(core_dir / "src")
         wrapper = generated_dir / relative.with_suffix(".mm")
         if wrapper in expected:
             raise ValueError(f"Duplicate Apple source wrapper: {wrapper}")
@@ -299,7 +252,7 @@ def update_nativeapi_mm(nativeapi_path, cxx_impl_dir, platform):
     return True
 
 
-def update_macos_mm(cnativeapi_dir, cxx_impl_dir):
+def update_macos_mm(cnativeapi_dir, core_dir):
     """Update macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm."""
     print("\nStep 2/7: Updating macOS platform bindings")
 
@@ -309,7 +262,7 @@ def update_macos_mm(cnativeapi_dir, cxx_impl_dir):
         print(f"Error: {macos_mm_path} not found")
         return False
 
-    if update_nativeapi_mm(macos_mm_path, cxx_impl_dir, "macos"):
+    if update_nativeapi_mm(macos_mm_path, core_dir, "macos"):
         print("macOS bindings updated successfully")
         return True
     else:
@@ -317,7 +270,7 @@ def update_macos_mm(cnativeapi_dir, cxx_impl_dir):
         return False
 
 
-def update_ios_mm(cnativeapi_dir, cxx_impl_dir):
+def update_ios_mm(cnativeapi_dir, core_dir):
     """Update ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm."""
     print("\nStep 3/7: Updating iOS platform bindings")
 
@@ -327,7 +280,7 @@ def update_ios_mm(cnativeapi_dir, cxx_impl_dir):
         print(f"Error: {ios_mm_path} not found")
         return False
 
-    if update_nativeapi_mm(ios_mm_path, cxx_impl_dir, "ios"):
+    if update_nativeapi_mm(ios_mm_path, core_dir, "ios"):
         print("iOS bindings updated successfully")
         return True
     else:
@@ -335,7 +288,7 @@ def update_ios_mm(cnativeapi_dir, cxx_impl_dir):
         return False
 
 
-def update_macos_h(cnativeapi_dir, cxx_impl_dir):
+def update_macos_h(cnativeapi_dir, core_dir):
     """Update macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h."""
     print("\nStep 4/7: Updating macOS header file")
 
@@ -345,7 +298,7 @@ def update_macos_h(cnativeapi_dir, cxx_impl_dir):
         print(f"Error: {macos_h_path} not found")
         return False
 
-    if update_cnativeapi_h(macos_h_path, cxx_impl_dir):
+    if update_cnativeapi_h(macos_h_path, core_dir):
         print("macOS header updated successfully")
         return True
     else:
@@ -353,7 +306,7 @@ def update_macos_h(cnativeapi_dir, cxx_impl_dir):
         return False
 
 
-def update_ios_h(cnativeapi_dir, cxx_impl_dir):
+def update_ios_h(cnativeapi_dir, core_dir):
     """Update ios/cnativeapi/Sources/cnativeapi/include/cnativeapi.h."""
     print("\nStep 5/7: Updating iOS header file")
 
@@ -363,7 +316,7 @@ def update_ios_h(cnativeapi_dir, cxx_impl_dir):
         print(f"Error: {ios_h_path} not found")
         return False
 
-    if update_cnativeapi_h(ios_h_path, cxx_impl_dir):
+    if update_cnativeapi_h(ios_h_path, core_dir):
         print("iOS header updated successfully")
         return True
     else:
@@ -373,62 +326,71 @@ def update_ios_h(cnativeapi_dir, cxx_impl_dir):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Regenerate cnativeapi bindings (optionally without updating submodules)."
+        description="Regenerate the cnativeapi native wrappers, headers and Dart bindings."
     )
     parser.add_argument(
-        "--no-submodule-update",
-        action="store_true",
-        help="Skip 'git submodule update --remote ...' (recommended for CI/codegen checks).",
+        "--core-dir",
+        type=Path,
+        help="nativeapi core sources to build against (default: the repository's core/).",
     )
+    parser.add_argument(
+        "--sources-only",
+        action="store_true",
+        help="Only rewrite the Apple source wrappers and umbrella headers; leave "
+        "ffigen.yaml and the Dart bindings alone (used when vendoring core for a release).",
+    )
+    # Accepted for older callers; there is no submodule to update any more.
+    parser.add_argument("--no-submodule-update", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
 
 
 def main():
     """Main function to regenerate bindings."""
     args = parse_args()
-    cnativeapi_dir = Path(__file__).parent
-    cxx_impl_dir = cnativeapi_dir / "cxx_impl"
+    cnativeapi_dir = Path(__file__).resolve().parent
+    # bindings/flutter/cnativeapi -> the repository root's core/
+    core_dir = (args.core_dir or cnativeapi_dir.parents[2] / "core").resolve()
     ffigen_path = cnativeapi_dir / "ffigen.yaml"
 
     print("\nNative API Bindings Generator")
     print("This script will regenerate all platform bindings\n")
 
-    # Step 1: Update cxx_impl submodule
-    if args.no_submodule_update:
-        print("\nStep 1/7: Skipping cxx_impl submodule update (--no-submodule-update)")
-    else:
-        if not update_cxx_impl():
-            print("\nWarning: cxx_impl update failed, continuing anyway...")
-
-    # Verify cxx_impl exists
-    if not cxx_impl_dir.exists():
-        print(f"\nError: cxx_impl directory not found: {cxx_impl_dir}")
+    # Step 1: Locate core
+    print(f"\nStep 1/7: Using core sources at {core_dir}")
+    if not (core_dir / "src").is_dir():
+        print(f"\nError: core sources not found: {core_dir}")
+        print("Run `git submodule update --init core` at the repository root.")
         return 1
 
     # Step 2: Update macos/cnativeapi/Sources/cnativeapi/cnativeapi.mm
-    if not update_macos_mm(cnativeapi_dir, cxx_impl_dir):
+    if not update_macos_mm(cnativeapi_dir, core_dir):
         print("\nError: macOS bindings update failed")
         return 1
 
     # Step 3: Update ios/cnativeapi/Sources/cnativeapi/cnativeapi.mm
-    if not update_ios_mm(cnativeapi_dir, cxx_impl_dir):
+    if not update_ios_mm(cnativeapi_dir, core_dir):
         print("\nError: iOS bindings update failed")
         return 1
 
     # Step 4: Update macos/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
-    if not update_macos_h(cnativeapi_dir, cxx_impl_dir):
+    if not update_macos_h(cnativeapi_dir, core_dir):
         print("\nError: macOS header update failed")
         return 1
 
     # Step 5: Update ios/cnativeapi/Sources/cnativeapi/include/cnativeapi.h
-    if not update_ios_h(cnativeapi_dir, cxx_impl_dir):
+    if not update_ios_h(cnativeapi_dir, core_dir):
         print("\nError: iOS header update failed")
         return 1
 
-    # Step 6: Update ffigen.yaml
-    capi_headers = find_capi_headers(cxx_impl_dir)
+    if args.sources_only:
+        print("\nSources only: skipped ffigen.yaml and the Dart bindings")
+        return 0
+
+    # Step 6: Update ffigen.yaml (header paths relative to this package)
+    core_rel = Path(os.path.relpath(core_dir, cnativeapi_dir)).as_posix()
+    capi_headers = [f"{core_rel}/{header}" for header in find_capi_headers(core_dir)]
     if not capi_headers:
-        print("\nWarning: No C API headers found in cxx_impl")
+        print("\nWarning: No C API headers found in core")
     else:
         if not update_ffigen_yaml(ffigen_path, capi_headers):
             print("\nError: Failed to update ffigen configuration")

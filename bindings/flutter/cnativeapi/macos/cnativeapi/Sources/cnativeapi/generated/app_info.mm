@@ -1,2 +1,2 @@
 // AUTO-GENERATED. DO NOT EDIT.
-#include "../../../../../cxx_impl/src/app_info.cpp"
+#include "../../../../../../../../core/src/app_info.cpp"

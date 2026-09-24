@@ -6,12 +6,27 @@ fn main() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     let _target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
 
-    println!("cargo:rerun-if-changed=cxx_impl/src");
-    println!("cargo:rerun-if-changed=cxx_impl/include");
-    println!("cargo:rerun-if-changed=cxx_impl/CMakeLists.txt");
+    // Inside the nativeapi-workspace repository the crate builds the checkout's
+    // core/. A packaged crate carries its own copy in cxx_impl/, which the release
+    // workflow puts there before `cargo publish`.
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let vendored = manifest_dir.join("cxx_impl");
+    let core = if vendored.join("CMakeLists.txt").exists() {
+        vendored
+    } else {
+        manifest_dir.join("../../../core")
+    };
+    assert!(
+        core.join("CMakeLists.txt").exists(),
+        "nativeapi core sources not found at {}; run `git submodule update --init core`",
+        core.display()
+    );
+    for path in ["src", "include", "CMakeLists.txt"] {
+        println!("cargo:rerun-if-changed={}", core.join(path).display());
+    }
 
     // Configure CMake build
-    let mut cmake_config = Config::new("cxx_impl");
+    let mut cmake_config = Config::new(&core);
 
     let profile = cmake_config.get_profile().to_owned();
 

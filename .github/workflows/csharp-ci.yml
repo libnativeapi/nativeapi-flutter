@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - "bindings/csharp/**"
+      - "core"
       - "examples/csharp_*/**"
       - ".github/workflows/csharp-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "bindings/csharp/**"
+      - "core"
       - "examples/csharp_*/**"
       - ".github/workflows/csharp-ci.yml"
   workflow_dispatch:
@@ -37,9 +39,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout C# binding submodules
+      - name: Checkout core
         working-directory: .
-        run: git submodule update --init --recursive -- bindings/csharp
+        run: git submodule update --init core
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -67,9 +69,9 @@ jobs:
             library: build/native/Release/nativeapi.dll
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout C# binding submodules
+      - name: Checkout core
         working-directory: .
-        run: git submodule update --init --recursive -- bindings/csharp
+        run: git submodule update --init core
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |

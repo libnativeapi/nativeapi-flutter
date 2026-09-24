@@ -5,8 +5,7 @@ description: Carry a change to the C++ public API in core/ all the way downstrea
 
 # core-api-change
 
-`./codegen sync` does the mechanical half: regenerate, bump each binding's embedded core,
-rerun bindgen / ffigen, commit core and the workspace. This skill is the other half — the decisions
+`./codegen sync` does the mechanical half: regenerate, rerun bindgen / ffigen, commit core and the workspace. This skill is the other half — the decisions
 and checks the script cannot make. Work through the phases in order; each one ends in
 something you can verify before moving on.
 
@@ -140,18 +139,16 @@ skill rather than trusting the compile.
 ```
 
 It commits core with your message, then the workspace as `Sync with core <sha9>`: the
-core pointer plus everything regenerated under `bindings/` and each binding's `cxx_impl`
-gitlink. It does not push.
+core pointer plus everything regenerated under `bindings/`. The bindings build against
+`core/` directly, so there is no per-binding copy of core to move. It does not push.
 
 **A binding has unrelated work — manual path.** Same steps, staged narrowly:
 
 1. Commit core yourself (`git -C core add <paths> && git -C core commit -m ...`).
-2. In each binding: update the embedded core submodule (`cxx_impl`) to that sha,
-   fetching from the local `core/`; rust → rerun bindgen (command in
-   `tools/codegen/README.md`); flutter → `python3 codegen.py --no-submodule-update` in
-   `bindings/flutter/cnativeapi`.
-3. Workspace: `git add core` plus only the generated paths and the `cxx_impl` gitlinks
-   under `bindings/`; commit as `Sync with core <sha9>`.
+2. `./codegen`; rust → rerun bindgen (command in `tools/codegen/README.md`); flutter →
+   `python3 codegen.py` in `bindings/flutter/cnativeapi`.
+3. Workspace: `git add core` plus only the generated paths under `bindings/`; commit as
+   `Sync with core <sha9>`.
 
 Either way: no Co-Authored-By trailers; after staging, read `git status --short` and
 `git diff --cached --stat` in each repo **before** committing — a file you did not write

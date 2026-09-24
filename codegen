@@ -10,16 +10,14 @@ Orchestrates the Rust generators in tools/codegen against the workspace layout:
     ./codegen check              # verify everything is up to date (CI mode)
     ./codegen readme             # copy the shared README sections into every repo
     ./codegen sync               # after a core change: regenerate everything,
-                                 #   update every binding's embedded core
-                                 #   submodule, rerun bindgen/ffigen, and commit
-                                 #   core, then the workspace
+                                 #   rerun bindgen/ffigen, and commit core,
+                                 #   then the workspace
     ./codegen sync -m "Add Foo API" --push
     ./codegen --dump-ir ir.json  # also keep the intermediate IR at this path
 
 The C ABI generator parses the C++ headers in core/ with libclang and emits an
 IR JSON; the bindings generator consumes that IR. Every binding lives in this
-repository under bindings/; only core/ (and each binding's embedded copy of it,
-cxx_impl) is a submodule.
+repository under bindings/ and builds against the core/ submodule directly.
 """
 
 import argparse
@@ -161,41 +159,6 @@ def current_branch(repo: Path) -> str:
     return branch
 
 
-def core_dep_paths(binding: Path) -> list[str]:
-    """Submodules under `binding` that point at the core repo, as paths
-    relative to the workspace."""
-    prefix = f"{binding.relative_to(WORKSPACE).as_posix()}/"
-    out = git(WORKSPACE, "config", "-f", ".gitmodules", "--get-regexp",
-              r"submodule\..*\.(path|url)", capture=True)
-    entries: dict[str, dict[str, str]] = {}
-    for line in out.splitlines():
-        key, _, value = line.partition(" ")
-        name, _, attr = key.rpartition(".")
-        entries.setdefault(name, {})[attr] = value
-    return [
-        entry["path"]
-        for entry in entries.values()
-        if "path" in entry
-        and entry["path"].startswith(prefix)
-        # The core repo was renamed from nativeapi to nativeapi-core.
-        and entry.get("url", "").rstrip("/").removesuffix(".git").endswith(
-            ("/nativeapi-core", "/nativeapi"))
-    ]
-
-
-def is_gitlink(repo: Path, path: str) -> bool:
-    entry = git(repo, "ls-files", "-s", "--", path, capture=True)
-    return entry.startswith("160000")
-
-
-def update_core_dep(path: str, sha: str, branch: str) -> None:
-    git(WORKSPACE, "submodule", "update", "--init", "--", path)
-    sub = WORKSPACE / path
-    # Fetch from the local core checkout so sync works before core is pushed.
-    git(sub, "fetch", "--quiet", str(CORE), branch)
-    git(sub, "checkout", "--quiet", "--detach", sha)
-
-
 def regen_rust_raw_ffi(repo: Path) -> bool:
     if shutil.which("bindgen") is None:
         print("warning: bindgen not installed, skipped regenerating "
@@ -239,7 +202,7 @@ def regen_flutter_ffi(repo: Path) -> bool:
               file=sys.stderr)
         return False
     result = subprocess.run(
-        [sys.executable, "codegen.py", "--no-submodule-update"], cwd=package,
+        [sys.executable, "codegen.py"], cwd=package,
     )
     if result.returncode != 0:
         print("warning: flutter codegen.py failed; its outputs may be stale",
@@ -260,7 +223,7 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
     bindings = [BINDINGS[lang][1] for lang in langs]
 
     # Fail early on detached HEADs: sync commits into both repos.
-    core_branch = current_branch(CORE)
+    current_branch(CORE)
     current_branch(WORKSPACE)
 
     print("==> regenerating C ABI and bindings")
@@ -278,14 +241,7 @@ def cmd_sync(args, langs: list[str], ir: Path) -> None:
 
     sync_message = f"Sync with core {short}"
     for binding in bindings:
-        name = str(binding.relative_to(WORKSPACE))
-        print(f"==> syncing {name}")
-        deps = [p for p in core_dep_paths(binding) if is_gitlink(WORKSPACE, p)]
-        if not deps:
-            print(f"warning: no core submodule gitlink found in {name}",
-                  file=sys.stderr)
-        for path in deps:
-            update_core_dep(path, core_sha, core_branch)
+        print(f"==> syncing {binding.relative_to(WORKSPACE)}")
         if binding == BINDINGS["rust"][1]:
             regen_rust_raw_ffi(binding)
         if binding == BINDINGS["dart"][1]:

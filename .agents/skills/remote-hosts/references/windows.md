@@ -45,9 +45,8 @@ $ErrorActionPreference = "Stop"
 
 - Same layout as here (`core/`, `bindings/*` on `main`). Get changes there with
   `git pull` in each repo — but **GitHub over HTTPS is flaky from that network**.
-  For unpushed or unreachable commits, fetch between local checkouts instead (for the
-  Flutter binding's nested core: `git -C …\cxx_impl fetch $RemoteWorkspace\core main`),
-  or `scp` a patch / the changed files.
+  For unpushed or unreachable commits, fetch between local checkouts instead
+  (`git -C …\core fetch <another checkout> main`), or `scp` a patch / the changed files.
 - Tooling: VS 2022 (generator `"Visual Studio 17 2022" -A x64`; there is no ninja),
   CMake, Python 3, Flutter via fvm. The `fvm\default` junction does not resolve over
   SSH — point `HOST_PATH_PREPEND` at a concrete `fvm\versions\<channel>\bin`. The
@@ -63,8 +62,8 @@ $ErrorActionPreference = "Stop"
 - `core.autocrlf` makes `git status` noisy and `flutter pub get` rewrites
   `analysis_options.yaml` files. Judge real changes with
   `git diff --ignore-cr-at-eol --stat`.
-- **Leave it as you found it.** Record `git status --short` for the workspace,
-  `core` and `bindings/flutter/cnativeapi/cxx_impl` *before* you start; at the end
+- **Leave it as you found it.** Record `git status --short` for the workspace
+  and `core` *before* you start; at the end
   `git checkout --` only the files you touched and compare. Pre-existing local
   changes on that machine are the user's — do not revert them.
 

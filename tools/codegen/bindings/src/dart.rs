@@ -85,7 +85,8 @@ fn fill(template: &str, value: &str) -> String {
 /// ffigen's header list, which has to name every generated `*_c.h`. Keeping it
 /// hand-written meant it silently drifted: `placement_c.h` was missing from it
 /// even though the module existed.
-pub fn generate_ffigen_config(api: &Api, cnativeapi_root: &Path) -> GeneratedFile {
+/// `core_rel` is the core checkout relative to `cnativeapi_root`, `/`-separated.
+pub fn generate_ffigen_config(api: &Api, cnativeapi_root: &Path, core_rel: &str) -> GeneratedFile {
     let mut out = String::new();
     writeln!(out, "# AUTO-GENERATED. DO NOT EDIT.").unwrap();
     writeln!(
@@ -103,10 +104,10 @@ pub fn generate_ffigen_config(api: &Api, cnativeapi_root: &Path) -> GeneratedFil
     let mut headers: Vec<String> = api
         .headers
         .iter()
-        .map(|header| format!("cxx_impl/src/capi/{}_c.h", header.stem))
+        .map(|header| format!("{core_rel}/src/capi/{}_c.h", header.stem))
         .collect();
-    headers.push("cxx_impl/src/capi/common_c.h".to_string());
-    headers.push("cxx_impl/src/capi/string_utils_c.h".to_string());
+    headers.push(format!("{core_rel}/src/capi/common_c.h"));
+    headers.push(format!("{core_rel}/src/capi/string_utils_c.h"));
     headers.sort();
 
     writeln!(out, "headers:").unwrap();

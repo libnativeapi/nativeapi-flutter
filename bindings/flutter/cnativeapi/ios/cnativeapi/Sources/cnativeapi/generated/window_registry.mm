@@ -1,2 +1,2 @@
 // AUTO-GENERATED. DO NOT EDIT.
-#include "../../../../../cxx_impl/src/window_registry.cpp"
+#include "../../../../../../../../core/src/window_registry.cpp"

@@ -47,6 +47,22 @@ struct CliArgs {
     check: bool,
 }
 
+/// `to` relative to `from`, `/`-separated, for paths written into generated files.
+fn relative_path(from: &Path, to: &Path) -> String {
+    let from = from.canonicalize().unwrap_or_else(|_| from.to_path_buf());
+    let to = to.canonicalize().unwrap_or_else(|_| to.to_path_buf());
+    let from: Vec<_> = from.components().collect();
+    let to: Vec<_> = to.components().collect();
+    let common = from.iter().zip(&to).take_while(|(a, b)| a == b).count();
+    let mut parts: Vec<String> = vec!["..".to_string(); from.len() - common];
+    parts.extend(
+        to[common..]
+            .iter()
+            .map(|c| c.as_os_str().to_string_lossy().into_owned()),
+    );
+    parts.join("/")
+}
+
 fn main() -> Result<()> {
     let args = CliArgs::parse();
 
@@ -80,9 +96,12 @@ fn main() -> Result<()> {
         files.push(csharp::generate_support(out));
     }
     if let Some(dart_repo) = &args.dart {
+        let cnativeapi_root = dart_repo.join("cnativeapi");
+        let core_rel = relative_path(&cnativeapi_root, &repo_root);
         files.push(dart::generate_ffigen_config(
             &api,
-            &dart_repo.join("cnativeapi"),
+            &cnativeapi_root,
+            &core_rel,
         ));
     }
     for header in &api.headers {
