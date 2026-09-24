@@ -1,8 +1,8 @@
 name: nativeapi_flutter
 description: "Flutter integration for nativeapi: widgets, dart:ui conversions and the multi-window bridge on top of package:nativeapi."
 version: 0.3.1
-homepage: https://github.com/libnativeapi/nativeapi-workspace
-repository: https://github.com/libnativeapi/nativeapi-workspace/tree/main/bindings/dart/nativeapi_flutter
+homepage: https://github.com/libnativeapi/nativeapi
+repository: https://github.com/libnativeapi/nativeapi/tree/main/bindings/dart/nativeapi_flutter
 resolution: workspace
 
 environment:

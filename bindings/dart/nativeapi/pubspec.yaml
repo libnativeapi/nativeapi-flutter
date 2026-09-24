@@ -1,7 +1,8 @@
 name: nativeapi
 description: "Dart bindings for nativeapi - providing seamless, unified access to native system APIs."
 version: 0.3.1
-homepage: https://github.com/libnativeapi/nativeapi-flutter
+homepage: https://github.com/libnativeapi/nativeapi
+repository: https://github.com/libnativeapi/nativeapi/tree/main/bindings/dart/nativeapi
 resolution: workspace
 
 environment:

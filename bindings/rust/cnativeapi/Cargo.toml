@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["LiJianying <lijy91@foxmail.com>"]
 description = "Native API C bindings for Rust"
 license = "MIT"
+repository = "https://github.com/libnativeapi/nativeapi"
 build = "build.rs"
 
 [dependencies]

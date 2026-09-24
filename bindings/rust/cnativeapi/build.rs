@@ -6,7 +6,7 @@ fn main() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     let _target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
 
-    // Inside the nativeapi-workspace repository the crate builds the checkout's
+    // Inside the nativeapi repository the crate builds the checkout's
     // core/. A packaged crate carries its own copy in cxx_impl/, which the release
     // workflow puts there before `cargo publish`.
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());

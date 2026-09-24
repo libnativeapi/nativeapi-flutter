@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["LiJianying <lijy91@foxmail.com>"]
 description = "Rust bindings for nativeapi - providing seamless, unified access to native system APIs."
 license = "MIT"
+repository = "https://github.com/libnativeapi/nativeapi"
 
 [dependencies]
 cnativeapi = { version = "0.0.1", path = "../cnativeapi" }
