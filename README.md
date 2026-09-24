@@ -57,4 +57,4 @@ Work on the bindings, the tooling and the specs is committed here directly. Work
 
 ## Releases
 
-Each binding is released from a tag of its own: `v<version>` publishes the Dart packages to pub.dev (`dart-publish.yml`), `rust-v<version>` publishes the crates to crates.io (`rust-release.yml`). The C# binding is not published yet.
+Each binding is released from a tag of its own: `v<version>` publishes the Dart packages to pub.dev (`dart-release.yml`), `rust-v<version>` publishes the crates to crates.io (`rust-release.yml`). The C# binding is not published yet.

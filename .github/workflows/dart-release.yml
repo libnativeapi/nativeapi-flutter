@@ -1,4 +1,4 @@
-name: Dart Publish
+name: Dart Release
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    name: Dart Publish
+    name: Dart Release
     permissions:
       id-token: write # Required for requesting the JWT
       contents: write # Required for creating the GitHub Release
