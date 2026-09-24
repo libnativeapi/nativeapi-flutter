@@ -1,0 +1,35 @@
+[build-system]
+requires = ["scikit-build-core>=0.10"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "nativeapi"
+version = "0.1.0.dev0"
+description = "Native desktop APIs (windows, tray icons, menus, displays, shortcuts, dialogs, storage) for Python."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+classifiers = [
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Desktop Environment",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/libnativeapi/nativeapi"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+cmake.version = ">=3.24"
+wheel.packages = ["nativeapi"]
+# ctypes only: one wheel per platform serves every Python 3 version.
+wheel.py-api = "py3"
+sdist.include = ["cxx_impl"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

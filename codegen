@@ -42,6 +42,7 @@ BINDINGS = {
     "dart": ("--dart", WORKSPACE / "bindings" / "dart"),
     "csharp": ("--csharp", WORKSPACE / "bindings" / "csharp"),
     "js": ("--js", WORKSPACE / "bindings" / "js"),
+    "python": ("--python", WORKSPACE / "bindings" / "python"),
 }
 
 
@@ -97,6 +98,7 @@ README_SECTIONS = {
         "bindings/rust/README.md",
         "bindings/csharp/README.md",
         "bindings/js/README.md",
+        "bindings/python/README.md",
     ],
     "contributing.zh.md": [
         "bindings/dart/README-ZH.md",

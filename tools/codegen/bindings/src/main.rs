@@ -11,11 +11,12 @@ use codegen_shared::{naming, resolve_repo_root, write_files};
 mod csharp;
 mod dart;
 mod js;
+mod python;
 mod rust;
 
 #[derive(Debug, Parser)]
 #[command(name = "codegen-bindings")]
-#[command(about = "Generate Rust/Dart/C#/JS FFI bindings from the IR emitted by codegen-capi.")]
+#[command(about = "Generate Rust/Dart/C#/JS/Python FFI bindings from the IR emitted by codegen-capi.")]
 struct CliArgs {
     /// Path to the IR JSON emitted by `codegen-capi --emit-ir`.
     #[arg(long)]
@@ -46,6 +47,11 @@ struct CliArgs {
     /// this is absent.
     #[arg(long)]
     js: Option<PathBuf>,
+
+    /// Path to the Python binding (bindings/python). Python bindings are
+    /// skipped when this is absent.
+    #[arg(long)]
+    python: Option<PathBuf>,
 
     /// Verify that generated files are up to date without writing anything.
     /// Exits non-zero when any file would change.
@@ -80,11 +86,13 @@ fn main() -> Result<()> {
     let dart_out = binding_out(args.dart.as_deref(), "nativeapi/lib/src");
     let csharp_out = binding_out(args.csharp.as_deref(), "src");
     let js_out = args.js.clone();
+    let python_out = binding_out(args.python.as_deref(), "nativeapi");
 
     report_binding("rust", &rust_out);
     report_binding("dart", &dart_out);
     report_binding("csharp", &csharp_out);
     report_binding("js", &js_out);
+    report_binding("python", &python_out);
 
     let json = std::fs::read_to_string(&args.ir)
         .with_context(|| format!("failed to read IR from {}", args.ir.display()))?;
@@ -105,6 +113,9 @@ fn main() -> Result<()> {
     }
     if let Some(out) = &js_out {
         files.extend(js::generate_shared(&api, out, prefix));
+    }
+    if let Some(out) = &python_out {
+        files.extend(python::generate_shared(&api, out, prefix));
     }
     if let Some(dart_repo) = &args.dart {
         let cnativeapi_root = dart_repo.join("cnativeapi");
@@ -140,6 +151,9 @@ fn main() -> Result<()> {
         }
         if let Some(out) = &js_out {
             files.extend(js::generate(&api, header, &origins, out, prefix));
+        }
+        if let Some(out) = &python_out {
+            files.push(python::generate(&api, header, &origins, out, prefix));
         }
     }
 
