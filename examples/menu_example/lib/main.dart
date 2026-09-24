@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart' hide Image;
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart' hide Brightness, Image;
 import 'package:nativeapi/nativeapi.dart';
 
 import 'animated_icon_generator.dart';
@@ -12,8 +11,15 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +29,31 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MenuExamplePage(),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: ui.Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: _themeMode,
+      home: MenuExamplePage(
+        themeMode: _themeMode,
+        onThemeModeChanged: (mode) => setState(() => _themeMode = mode),
+      ),
     );
   }
 }
 
 class MenuExamplePage extends StatefulWidget {
-  const MenuExamplePage({super.key});
+  const MenuExamplePage({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+  });
+
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
 
   @override
   State<MenuExamplePage> createState() => _MenuExamplePageState();
@@ -791,6 +815,7 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menu Example - Comprehensive Test'),
@@ -836,6 +861,47 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  _buildSectionCard('Appearance', [
+                    DropdownButtonFormField<ThemeMode>(
+                      initialValue: widget.themeMode,
+                      decoration: const InputDecoration(
+                        labelText: 'Theme',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: ThemeMode.system,
+                          child: Text('System'),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.light,
+                          child: Text('Light'),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.dark,
+                          child: Text('Dark'),
+                        ),
+                      ],
+                      onChanged: (mode) {
+                        if (mode == null) return;
+                        final brightness = switch (mode) {
+                          ThemeMode.system => Brightness.system,
+                          ThemeMode.light => Brightness.light,
+                          ThemeMode.dark => Brightness.dark,
+                        };
+                        final applied = Application.instance.setBrightness(
+                          brightness,
+                        );
+                        widget.onThemeModeChanged(mode);
+                        _addToHistory(
+                          'Theme: ${mode.name}; native appearance applied: $applied',
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('Open a menu to preview the selected theme.'),
+                  ]),
+                  const SizedBox(height: 10),
                   // Context Menu Demo Section
                   _buildSectionCard('Context Menu Demo', [
                     Row(
@@ -918,25 +984,25 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                       child: Container(
                         height: 100,
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          border: Border.all(color: Colors.blue.shade200),
+                          color: colors.primaryContainer,
+                          border: Border.all(color: colors.outlineVariant),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.touch_app,
                                 size: 32,
-                                color: Colors.blue,
+                                color: colors.onPrimaryContainer,
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 'Right-click here',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.blue,
+                                  color: colors.onPrimaryContainer,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -1186,17 +1252,17 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
             flex: 2,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                border: Border(left: BorderSide(color: Colors.grey.shade300)),
+                color: colors.surfaceContainerLow,
+                border: Border(left: BorderSide(color: colors.outlineVariant)),
               ),
               child: Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colors.surface,
                       border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade300),
+                        bottom: BorderSide(color: colors.outlineVariant),
                       ),
                     ),
                     child: Row(
@@ -1236,10 +1302,10 @@ class _MenuExamplePageState extends State<MenuExamplePage> {
                                   vertical: 7,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: colors.surface,
                                   borderRadius: BorderRadius.circular(4),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: colors.outlineVariant,
                                   ),
                                 ),
                                 child: Text(
