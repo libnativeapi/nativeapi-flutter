@@ -1,8 +1,10 @@
 #include "napi_support.h"
 
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <tuple>
@@ -475,10 +477,38 @@ void RunOnMainThreadSync(const std::function<void()>& work) {
   done_signal.wait(lock, [&] { return done; });
 }
 
+namespace {
+
+// Whether something on the UI thread drains its queue — a host running the
+// platform loop, as under `deno desktop`. `deno test` also runs JS off the main
+// thread, but its main thread only waits in Deno's own loop: hopping there
+// would block forever, so calls stay on the JS thread instead.
+bool MainThreadIsServiced() {
+  struct Probe {
+    std::mutex mutex;
+    std::condition_variable signal;
+    bool ran = false;
+  };
+  // Shared, because a late run can land after this returns.
+  auto probe = std::make_shared<Probe>();
+  bool posted = nativeapi::RunOnMainThread([probe] {
+    std::lock_guard<std::mutex> lock(probe->mutex);
+    probe->ran = true;
+    probe->signal.notify_one();
+  });
+  if (!posted) {
+    return false;
+  }
+  std::unique_lock<std::mutex> lock(probe->mutex);
+  return probe->signal.wait_for(lock, std::chrono::seconds(1), [&] { return probe->ran; });
+}
+
+}  // namespace
+
 void InitRuntime(napi_env env) {
   g_js_thread = std::this_thread::get_id();
-  g_hop_to_main_thread =
-      !nativeapi::IsMainThread() && nativeapi::IsMainThreadDispatchSupported();
+  g_hop_to_main_thread = !nativeapi::IsMainThread() &&
+                         nativeapi::IsMainThreadDispatchSupported() && MainThreadIsServiced();
   g_env_alive.store(true);
   napi_add_env_cleanup_hook(
       env, [](void*) { g_env_alive.store(false); }, nullptr);
