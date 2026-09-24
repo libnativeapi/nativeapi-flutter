@@ -1,6 +1,6 @@
 ---
 name: gui-test
-description: End-to-end test a desktop app (Flutter desktop apps and plain native executables such as C++ examples) by launching the real app, driving it with guarded synthetic mouse input — eased moves, clicks, multi-leg drags, wheel, on macOS (CGEvent) and Windows (SendInput) — and asserting on real window geometry and on-screen state, locally on macOS and remotely on Windows. Use this whenever a change touches window behaviour that unit/widget tests cannot see — dragging, tear-off and docking, title bars, hit testing, z-order, focus, multi-window, DPI — or when the user asks "does it actually work", "test it for real", "verify on Windows/macOS", or reports a bug that only shows with a real mouse. Also read it before posting ANY synthetic input or querying which app owns a screen point, even outside a test: it carries the safety rules that keep a script from clicking on the user's other apps. Prefer it over declaring a windowing change done after only compiling it.
+description: End-to-end test a desktop app (Flutter desktop apps and plain native executables such as C++ examples) by launching the real app, driving it with guarded synthetic mouse input — eased moves, clicks, multi-leg drags, wheel, on macOS (CGEvent), Windows (SendInput) and Linux/GNOME (Mutter RemoteDesktop) — and asserting on real window geometry and on-screen state, locally on macOS and remotely on Windows and Linux. Use this whenever a change touches window behaviour that unit/widget tests cannot see — dragging, tear-off and docking, title bars, hit testing, z-order, focus, multi-window, DPI — or when the user asks "does it actually work", "test it for real", "verify on Windows/macOS", or reports a bug that only shows with a real mouse. Also read it before posting ANY synthetic input or querying which app owns a screen point, even outside a test: it carries the safety rules that keep a script from clicking on the user's other apps. Prefer it over declaring a windowing change done after only compiling it.
 ---
 
 # gui-test
@@ -38,14 +38,14 @@ a drag once ran with empty coordinates and pressed near the menu bar. So:
 ## The harness
 
 One per OS, same shape, built on the input drivers in the same `scripts/` directory
-(`input` + `input.m`; `winput.ps1`, `desktop_survey.ps1` — reference:
+(`input` + `input.m`; `winput.ps1`, `desktop_survey.ps1`; `xinput.py` — reference:
 [references/input-drivers.md](references/input-drivers.md)):
 
-| | macOS | Windows |
-| --- | --- | --- |
-| harness | `scripts/macos/guiapp.py` (`GuiApp`, `Checks`) | `scripts/windows/guiapp.ps1` (`Start-GuiApp`, `Start-ConsoleApp`, `Invoke-Drag`, `Check`, …) |
-| template | `templates/test_template.py` | `templates/test_template.ps1` |
-| run | directly | `remote.sh <host> setup` then `remote.sh <host> desktop <test.ps1> <timeout>` (`remote-hosts` skill) |
+| | macOS | Windows | Linux (GNOME) |
+| --- | --- | --- | --- |
+| harness | `scripts/macos/guiapp.py` (`GuiApp`, `Checks`) | `scripts/windows/guiapp.ps1` (`Start-GuiApp`, `Start-ConsoleApp`, `Invoke-Drag`, `Check`, …) | `scripts/linux/guiapp.py` (`GuiApp`, `Checks`), on `scripts/linux/xinput.py` |
+| template | `templates/test_template.py` | `templates/test_template.ps1` | `templates/test_template.py` |
+| run | directly | `remote.sh <host> setup` then `remote.sh <host> desktop <test.ps1> <timeout>` (`remote-hosts` skill) | same, with `<test_linux.py>` |
 
 The harness knows nothing about any particular app. **Tests are project code, not part
 of this skill**: copy a template next to the project's other GUI tests (in this
@@ -141,7 +141,29 @@ Screenshots are for *you* to understand a failure, not for assertions.
 - Title matching: use wildcards around non-ASCII (`"*Settings"`), the `.ps1` must stay
   ASCII.
 
-**Both**
+**Linux (GNOME on Wayland)**
+
+- **Input goes through `org.gnome.Mutter.RemoteDesktop`**, which is real input at the
+  compositor. Do not reach for XTEST: through Xwayland it looks like it works — presses
+  even arrive at the right X11 window — but the compositor never sees them, so the real
+  cursor does not move and nothing takes the focus.
+- **Windows are only visible through X11**, so the app under test is launched with
+  `GDK_BACKEND=x11` (the harness does it) and measured with Xlib. A Wayland-native app
+  can be asserted from the inside (`uiprobe.py`) but not measured from the outside, and
+  a Wayland window lying on top of the app is invisible to the owner check — which is
+  why every press also checks that the X server has the pointer at that very point.
+- **The window manager moves the focus a few hundred milliseconds after the press.**
+  An app that treats a focus change as the press (a tear-off) needs the button held
+  until then: `drag(..., hold_until=lambda: app.is_focused(title))`.
+- **The X button mask reads "released" for 10–20 ms right after a press that moves the
+  focus.** Core absorbs that (`window_drag_session_linux.cpp`); an app that polls the
+  button itself will see it.
+- `blur()` clicks a small window of the harness parked in a corner; asking the window
+  manager to focus something else does not move the focus here.
+- Frames include the window manager's decorations; `app.title_bar_height()` is what to
+  skip to press on the content (37 px on Ubuntu 24.04, not a constant to hard-code).
+
+**All three**
 
 - A cold debug start can take 10+ s; poll, do not sleep blindly.
 - If a gesture is "not recognised", suspect speed and shape before logic: add a short
@@ -165,8 +187,9 @@ Screenshots are for *you* to understand a failure, not for assertions.
 - Re-run up to the failing step and stop with the app open (`app.keep_open = True`;
   on Windows skip `Stop-GuiApp`) and probe by hand: `uiprobe.py <log> --texts`.
 - Add temporary `debugPrint`/`std::cout` lines in the example; they land in the app
-  log the harness already keeps. Remove them, and on Windows restore the remote
-  checkout, when done.
+  log the harness already keeps. Remove them, and restore the remote checkout, when
+  done. On Linux `std::cerr` from a script run through `desktop` can go missing —
+  trace on stdout.
 - Fix the root cause in `core/` or the example, not by lengthening pauses until it
   passes.
 

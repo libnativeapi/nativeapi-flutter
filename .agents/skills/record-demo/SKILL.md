@@ -13,13 +13,13 @@ pacing.
 machine that recorded it, named `<scenario script name>-<os>.mp4`. No trimming, no
 re-encoding, no raw/cut pairs — if the user wants a cut, that is a separate request.
 
-| | macOS | Windows |
-| --- | --- | --- |
-| recorder | `scripts/macos/recorder.py` (`Recorder`) | `scripts/windows/recorder.ps1` (`Start-Recording` / `Stop-Recording`) |
-| capture | `screencapture -v -C -k` → `.mov` → ffmpeg → `.mp4` | GDI screen grabs → JPEG frames → ffmpeg **on the host** → `.mp4` |
-| needs | ffmpeg (or `avconvert`), Screen Recording permission | ffmpeg on the Windows host (see below) |
-| template | any `gui-test` script wrapped in `Recorder` | `templates/record_template.ps1` |
-| run | the scenario script itself | `scripts/record_remote.sh` from the Mac |
+| | macOS | Windows | Linux (GNOME/Wayland) |
+| --- | --- | --- | --- |
+| recorder | `scripts/macos/recorder.py` (`Recorder`) | `scripts/windows/recorder.ps1` (`Start-Recording` / `Stop-Recording`) | `scripts/linux/recorder.py` (`Recorder`, `grab`) |
+| capture | `screencapture -v -C -k` → `.mov` → ffmpeg → `.mp4` | GDI screen grabs → JPEG frames → ffmpeg **on the host** → `.mp4` | Mutter ScreenCast → PipeWire → `jpegenc` → JPEG frames → ffmpeg **on the Mac** → `.mp4` |
+| needs | ffmpeg (or `avconvert`), Screen Recording permission | ffmpeg on the Windows host (see below) | PyGObject and `gst-launch-1.0` with `pipewiresrc`/`jpegenc` on the host, ffmpeg on the Mac |
+| template | any `gui-test` script wrapped in `Recorder` | `templates/record_template.ps1` | any `gui-test` script wrapped in `Recorder` |
+| run | the scenario script itself | `scripts/record_remote.sh` from the Mac | `scripts/record_remote_linux.sh` from the Mac |
 
 The recorders know nothing about any particular app. **Scenarios are project code, not
 part of this skill** — in this workspace they live in `tools/gui/` (`*_demo.py`,
@@ -95,6 +95,56 @@ saved video or an `ERROR`.
 - Only one job at a time may use a host's desktop: the `desktop` verb shares one
   scheduled task and `job.*` files per host. When another session also drives the same
   machines, agree on turns first.
+
+## Linux (GNOME/Wayland)
+
+```python
+import sys; sys.path.insert(0, '.agents/skills/record-demo/scripts/linux')
+from recorder import Recorder, grab
+
+frame = grab('/tmp/look.png')     # one PNG of the monitor, for locating windows
+rec = Recorder('$REMOTE_SCRATCH/<name>-linux.mp4')   # frames land in <output>.frames/
+rec.start()                       # returns once the stream really is producing frames
+try:
+    ...                           # play the scenario
+finally:
+    rec.stop(); rec.report()      # prints RECORD_FRAMES <dir> — the wrapper reads that line
+```
+
+```bash
+# from the Mac: play on the host, pull the frames, encode here, copy the MP4 into <output dir>
+.agents/skills/record-demo/scripts/record_remote_linux.sh <host> <scenario.py> <output dir>
+```
+
+There is no screen-capture shortcut on GNOME 46 to fall back on: `gnome-screenshot` is not
+installed, `org.gnome.Shell.Screenshot` answers `AccessDenied`, and XTEST/Xlib see no Wayland
+window. Capture goes through `org.gnome.Mutter.ScreenCast` → PipeWire, and **the pointer is
+only in the picture if the stream is a real monitor recorded with `cursor-mode: 1`** (Mutter
+composites the cursor in; the frames have it — check one before publishing).
+
+- **The host encodes nothing.** A minimal Linux host has no ffmpeg and its GStreamer may have
+  no H.264 encoder at all (`x264enc`, `avenc_h264`, `openh264enc`, `vaapih264*` were all
+  missing on ours). So the recorder writes one JPEG per frame plus their real write times —
+  the source is live, so the gaps between files are the gaps between frames — and the wrapper
+  pulls the frames to the Mac and encodes them there (`recorder.encode`, a variable-framerate
+  concat list, H.264 High, yuv420p, no audio, resampled to 30 fps, fitted to 1920×1200).
+  Frames are scaled down to fit 1920×1200 **at capture time**: the stream is the whole monitor
+  (2560×1440 here) and there is no point shipping pixels the MP4 will drop.
+- Throughput is what the host's CPU manages: ~21 fps for raw 1440p, ~28 fps when `videoscale`
+  fits 1080p first, on a 2-core Celeron. Mutter produces frames on damage, so a still picture
+  costs nothing and only motion costs frames — which is exactly where a demo needs them.
+- **A host with no monitor attached cannot be recorded.** If both outputs are disconnected
+  (`/sys/class/drm/*/status` says `disconnected`), DisplayConfig reports no monitors at all:
+  there is nothing to RecordMonitor, no `wl_output` for the app to place a window on, and
+  `ScreenCast.RecordVirtual` is *not* a way out — a virtual monitor is not a `wl_output`
+  (GDK logs `gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed`, the
+  app's windows never appear on it) and Mutter paints no pointer into a virtual stream, in
+  cursor-mode 0 or 1. Check `/sys/class/drm/*/status` and DisplayConfig before spending a take,
+  and report the blocker instead of shipping a cursor-less video.
+- The scenario's safety rule is `gui-test`'s, but there is no Xlib owner check to lean on for
+  a Wayland client: refuse any press that the captured frame does not place inside the app's
+  own located window, keep generous margins, and prefer driving the pointer only where a
+  probe can prove the click arrived.
 
 ## Writing a scenario
 

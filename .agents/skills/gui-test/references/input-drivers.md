@@ -4,11 +4,11 @@ The harness (`guiapp.py` / `guiapp.ps1`) wraps these; use them directly for ad-h
 poking, diagnostics, or apps the harness does not fit. The safety rules in `SKILL.md`
 apply to every call.
 
-| | macOS | Windows |
-| --- | --- | --- |
-| driver | `scripts/macos/input` (wrapper; compiles `input.m` on first use) | `scripts/windows/winput.ps1` (dot-source; `Add-Type` C#) |
-| coordinates | screen **points**, top-left origin | **physical pixels** (the process is made per-monitor DPI aware) |
-| needs | Accessibility permission for the terminal/app that runs it | to run in the logged-on desktop session (see `remote-hosts`) |
+| | macOS | Windows | Linux (GNOME) |
+| --- | --- | --- | --- |
+| driver | `scripts/macos/input` (wrapper; compiles `input.m` on first use) | `scripts/windows/winput.ps1` (dot-source; `Add-Type` C#) | `scripts/linux/xinput.py` (`X11` to look, `RemoteDesktop` to act; ctypes + D-Bus, no build) |
+| coordinates | screen **points**, top-left origin | **physical pixels** (the process is made per-monitor DPI aware) | screen **pixels**, top-left origin |
+| needs | Accessibility permission for the terminal/app that runs it | to run in the logged-on desktop session (see `remote-hosts`) | to run in the logged-on desktop session; GNOME grants the remote desktop session without a prompt |
 
 ## macOS
 
@@ -92,3 +92,52 @@ Click-Desktop $x $y               # click the wallpaper, to blur the app
   holds on them.
 - Keep `.ps1` files ASCII: Windows PowerShell 5.1 reads BOM-less files in the system
   codepage.
+
+## Linux (GNOME on Wayland)
+
+```python
+import sys; sys.path.insert(0, 'scripts/linux')
+from xinput import X11, RemoteDesktop, BTN_LEFT, idle_ms
+
+x = X11()                          # looking, through Xlib
+x.screen_size()                    # (width, height)
+x.windows(pid=None, stacking=False)  # managed X11 toplevels: xid, pid, title, frame, content
+x.window_at(x, y)                  # top-most X11 window covering the point, or None
+x.active_window()                  # _NET_ACTIVE_WINDOW
+x.cardinals(xid, '_NET_WM_STATE')  # any 32-bit property, e.g. to test _NET_WM_STATE_FOCUSED
+x.pointer()                        # (x, y, button mask) as the X server has it
+x.activate(xid)                    # _NET_ACTIVE_WINDOW request (the compositor may ignore it)
+
+rd = RemoteDesktop()               # acting, through org.gnome.Mutter.RemoteDesktop
+rd.motion(x, y)                    # absolute, in screen pixels
+rd.button(BTN_LEFT, True)          # BTN_LEFT/RIGHT/MIDDLE are evdev codes (0x110…)
+rd.wheel(steps)                    # discrete wheel steps, positive scrolls down
+rd.stop()                          # end the session (the harness does it in quit())
+
+idle_ms()                          # ms since the last real user input (GNOME idle monitor)
+```
+
+- **Use RemoteDesktop, not XTEST.** `XTestFakeMotionEvent`/`XTestFakeButtonEvent`
+  through Xwayland reach X11 clients — presses land on the right window — but the
+  compositor never sees them: the real cursor stays put, no window takes the focus, and
+  Wayland clients notice nothing.
+- Creating the session is `RemoteDesktop.CreateSession`, then
+  `ScreenCast.CreateSession` with `remote-desktop-session-id` and `RecordMonitor` (whose
+  stream absolute motion is addressed to) — nothing reads its PipeWire buffers unless you ask
+  for them: the session exposes `stream`, `node` and `size`, so a `record-demo` recorder can
+  read the same stream instead of opening a second one. Then `Start` on the *remote desktop*
+  session; starting the cast itself answers `Must be started from remote desktop session`.
+- **No monitor attached** (`/sys/class/drm/*/status` all `disconnected`, DisplayConfig reports
+  no monitors): `_connector()` has nothing to return, so the session records a Mutter
+  **virtual monitor** instead and sets `virtual = True`, `size = (1280, 720)`. Absolute motion
+  still works, but Mutter paints no pointer into a virtual stream (cursor-mode 0 and 1 both
+  leave frames cursorless) and it is not a `wl_output`, so a real client cannot place a window
+  on it. See `remote-hosts/references/linux.md`.
+- **Only X11 windows can be seen**, so the app under test runs with `GDK_BACKEND=x11`.
+  Frames include the window manager's decorations (`_NET_FRAME_EXTENTS`), contents come
+  from `XTranslateCoordinates`.
+- `x.pointer()` is only current while the pointer is over an X surface — which makes it
+  the test for "is the point I am about to press really on that window, with nothing
+  Wayland-native on top".
+- There is no equivalent of `Click-Desktop`: to blur, click a window of your own
+  (`GuiApp.blur()` parks one in a corner for that).
