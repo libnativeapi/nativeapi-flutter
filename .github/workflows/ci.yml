@@ -3,8 +3,18 @@ name: CI
 on:
   push:
     branches: [ main, ohos-main ]
+    paths:
+      - "bindings/flutter/**"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: [ main, ohos-main ]
+    paths:
+      - "bindings/flutter/**"
+      - ".github/workflows/ci.yml"
+
+defaults:
+  run:
+    working-directory: bindings/flutter
 
 jobs:
   lint:
@@ -14,8 +24,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
         
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -53,8 +67,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
         
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -93,8 +111,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -137,8 +159,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -175,8 +201,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -227,8 +257,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -265,8 +299,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      # Only the Flutter binding's submodules: the root ones (core, other
+      # bindings) are not needed here and some use SSH URLs.
+      - name: Checkout Flutter submodules
+        working-directory: .
+        run: git submodule update --init --recursive -- bindings/flutter
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

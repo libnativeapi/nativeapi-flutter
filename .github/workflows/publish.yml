@@ -15,8 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Checkout Flutter submodules
+        run: git submodule update --init --recursive -- bindings/flutter
 
       # Set up the Dart SDK and provision the OIDC token used for publishing.
       - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260
@@ -31,28 +32,28 @@ jobs:
       # Publish cnativeapi
       - name: Install dependencies (cnativeapi)
         run: dart pub get
-        working-directory: packages/cnativeapi
+        working-directory: bindings/flutter/packages/cnativeapi
 
       - name: Publish - dry run (cnativeapi)
         run: dart pub publish --dry-run
-        working-directory: packages/cnativeapi
+        working-directory: bindings/flutter/packages/cnativeapi
 
       - name: Publish cnativeapi
         run: dart pub publish -f
-        working-directory: packages/cnativeapi
+        working-directory: bindings/flutter/packages/cnativeapi
 
       # Publish nativeapi
       - name: Install dependencies (nativeapi)
         run: dart pub get
-        working-directory: packages/nativeapi
+        working-directory: bindings/flutter/packages/nativeapi
 
       - name: Publish - dry run (nativeapi)
         run: dart pub publish --dry-run
-        working-directory: packages/nativeapi
+        working-directory: bindings/flutter/packages/nativeapi
 
       - name: Publish nativeapi
         run: dart pub publish -f
-        working-directory: packages/nativeapi
+        working-directory: bindings/flutter/packages/nativeapi
 
       - name: Create GitHub Release
         env:
