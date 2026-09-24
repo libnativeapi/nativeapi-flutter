@@ -3,6 +3,9 @@ use std::path::Path;
 
 use heck::{ToSnakeCase, ToUpperCamelCase};
 
+use codegen_shared::ir::{
+    Api, Class, Constructor, EventGroup, Field, Header, Method, Param, Struct, TypeRef,
+};
 use codegen_shared::naming::{
     c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_free_symbol, c_list_field,
     c_list_release_symbol, c_method_symbol, c_native_object_symbol, c_remove_listener_symbol,
@@ -11,9 +14,6 @@ use codegen_shared::naming::{
     STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_MAP_FREE_FN,
 };
 use codegen_shared::GeneratedFile;
-use codegen_shared::ir::{
-    Api, Class, Constructor, EventGroup, Field, Header, Method, Param, Struct, TypeRef,
-};
 
 pub fn generate(
     api: &Api,
@@ -39,7 +39,11 @@ pub fn generate_modules(api: &Api, origins: &TypeOrigins, rust_out: &Path) -> Ge
     )
     .unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "// Pulled into lib.rs with `include!(\"modules.rs\");`.").unwrap();
+    writeln!(
+        out,
+        "// Pulled into lib.rs with `include!(\"modules.rs\");`."
+    )
+    .unwrap();
     writeln!(out).unwrap();
     let mut modules: Vec<(&str, Vec<String>)> = api
         .headers
@@ -100,12 +104,7 @@ fn reexports(header: &Header, origins: &TypeOrigins) -> Vec<String> {
     names
 }
 
-fn render_rust_wrapper(
-    api: &Api,
-    header: &Header,
-    origins: &TypeOrigins,
-    prefix: &str,
-) -> String {
+fn render_rust_wrapper(api: &Api, header: &Header, origins: &TypeOrigins, prefix: &str) -> String {
     let mut out = String::new();
     writeln!(out, "// AUTO-GENERATED. DO NOT EDIT.").unwrap();
     writeln!(
@@ -327,14 +326,14 @@ fn render_rust_struct(out: &mut String, item: &Struct, prefix: &str) {
             TypeRef::String | TypeRef::CString => {
                 writeln!(out, "            {name}: if raw.{raw}.is_null() {{ None }} else {{ Some(CStr::from_ptr(raw.{raw}).to_string_lossy().into_owned()) }},").unwrap();
             }
-            TypeRef::Enum { name: enum_name, .. } => {
-                writeln!(
-                    out,
-                    "            {name}: {enum_name}::from_raw(raw.{raw}),"
-                )
-                .unwrap();
+            TypeRef::Enum {
+                name: enum_name, ..
+            } => {
+                writeln!(out, "            {name}: {enum_name}::from_raw(raw.{raw}),").unwrap();
             }
-            TypeRef::Struct { name: struct_name, .. } => {
+            TypeRef::Struct {
+                name: struct_name, ..
+            } => {
                 writeln!(
                     out,
                     "            {name}: {struct_name}::from_raw(&raw.{raw}),"
@@ -354,7 +353,12 @@ fn render_rust_struct(out: &mut String, item: &Struct, prefix: &str) {
     writeln!(out).unwrap();
 
     // The reverse direction: needed wherever a struct crosses as a parameter.
-    writeln!(out, "    pub(crate) fn to_raw(&self) -> RawOf{} {{", item.name).unwrap();
+    writeln!(
+        out,
+        "    pub(crate) fn to_raw(&self) -> RawOf{} {{",
+        item.name
+    )
+    .unwrap();
     writeln!(out, "        let mut raw = {ffi_struct}::default();").unwrap();
     let mut owned = Vec::new();
     for field in &item.fields {
@@ -604,7 +608,11 @@ fn render_rust_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
         "        unsafe extern \"C\" fn trampoline(event: *const {raw_ty}, user_data: *mut std::ffi::c_void) {{"
     )
     .unwrap();
-    writeln!(out, "            if event.is_null() || user_data.is_null() {{").unwrap();
+    writeln!(
+        out,
+        "            if event.is_null() || user_data.is_null() {{"
+    )
+    .unwrap();
     writeln!(out, "                return;").unwrap();
     writeln!(out, "            }}").unwrap();
     writeln!(
@@ -642,7 +650,11 @@ fn render_rust_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     writeln!(out, "    }}").unwrap();
     writeln!(out).unwrap();
 
-    writeln!(out, "    /// Unregisters a listener. Returns false if unknown.").unwrap();
+    writeln!(
+        out,
+        "    /// Unregisters a listener. Returns false if unknown."
+    )
+    .unwrap();
     writeln!(
         out,
         "    pub fn remove_listener({receiver}listener_id: ListenerId) -> bool {{"
@@ -716,12 +728,20 @@ fn render_rust_handle_helpers(out: &mut String, class: &Class, prefix: &str) {
 fn render_rust_borrowed_handle(out: &mut String, class: &Class, prefix: &str) {
     let handle_ty = format!("cnativeapi::{}", c_type_name(prefix, &class.name));
     let name = &class.name;
-    writeln!(out, "/// A `{name}` owned elsewhere; using it does not release it.").unwrap();
+    writeln!(
+        out,
+        "/// A `{name}` owned elsewhere; using it does not release it."
+    )
+    .unwrap();
     writeln!(out, "#[derive(Debug, Clone, Copy, PartialEq, Eq)]").unwrap();
     writeln!(out, "pub struct {name}Ref({handle_ty});").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "impl {name}Ref {{").unwrap();
-    writeln!(out, "    pub(crate) fn from_raw(handle: {handle_ty}) -> Self {{").unwrap();
+    writeln!(
+        out,
+        "    pub(crate) fn from_raw(handle: {handle_ty}) -> Self {{"
+    )
+    .unwrap();
     writeln!(out, "        Self(handle)").unwrap();
     writeln!(out, "    }}").unwrap();
     writeln!(out).unwrap();
@@ -735,7 +755,11 @@ fn render_rust_borrowed_handle(out: &mut String, class: &Class, prefix: &str) {
     )
     .unwrap();
     writeln!(out, "    /// must not outlive the call.").unwrap();
-    writeln!(out, "    pub fn with<R>(&self, f: impl FnOnce(&{name}) -> R) -> R {{").unwrap();
+    writeln!(
+        out,
+        "    pub fn with<R>(&self, f: impl FnOnce(&{name}) -> R) -> R {{"
+    )
+    .unwrap();
     writeln!(
         out,
         "        let borrowed = std::mem::ManuallyDrop::new({name} {{ handle: self.0 }});"
@@ -801,7 +825,12 @@ fn render_rust_constructor(out: &mut String, class: &Class, ctor: &Constructor, 
     )
     .unwrap();
     let safety = render_pointer_safety(out, &ctor.params);
-    writeln!(out, "    pub {safety}fn {name}({}) -> Option<Self> {{", params.join(", ")).unwrap();
+    writeln!(
+        out,
+        "    pub {safety}fn {name}({}) -> Option<Self> {{",
+        params.join(", ")
+    )
+    .unwrap();
     render_param_bindings(out, &ctor.params, "        ");
     writeln!(out, "        unsafe {{").unwrap();
     writeln!(
@@ -835,7 +864,12 @@ fn render_rust_method(
     let rust_return = rust_public_type(&method.return_type);
     let safety = render_pointer_safety(out, &method.params);
     if rust_return == "()" {
-        writeln!(out, "    pub {safety}fn {method_name}({}) {{", params.join(", ")).unwrap();
+        writeln!(
+            out,
+            "    pub {safety}fn {method_name}({}) {{",
+            params.join(", ")
+        )
+        .unwrap();
     } else {
         writeln!(
             out,
@@ -861,14 +895,29 @@ fn render_rust_method(
 }
 
 fn render_pointer_safety(out: &mut String, params: &[Param]) -> &'static str {
-    if !params.iter().any(|param| rust_param_type(&param.ty).starts_with('*')) {
+    if !params
+        .iter()
+        .any(|param| rust_param_type(&param.ty).starts_with('*'))
+    {
         return "";
     }
     writeln!(out, "    ///").unwrap();
     writeln!(out, "    /// # Safety").unwrap();
-    writeln!(out, "    /// Raw pointers must reference valid platform objects of the expected type.").unwrap();
-    writeln!(out, "    /// The caller must uphold the native API's thread and lifetime requirements,").unwrap();
-    writeln!(out, "    /// including keeping objects alive while the returned wrapper uses them.").unwrap();
+    writeln!(
+        out,
+        "    /// Raw pointers must reference valid platform objects of the expected type."
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "    /// The caller must uphold the native API's thread and lifetime requirements,"
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "    /// including keeping objects alive while the returned wrapper uses them."
+    )
+    .unwrap();
     "unsafe "
 }
 
@@ -891,7 +940,9 @@ fn rust_param_type(ty: &TypeRef) -> String {
         TypeRef::String | TypeRef::CString => "&str".to_string(),
         // A shared_ptr parameter accepts None: that is how the C++ API clears
         // an icon or detaches a submenu.
-        TypeRef::Object { name, shared: true, .. } => format!("Option<&{name}>"),
+        TypeRef::Object {
+            name, shared: true, ..
+        } => format!("Option<&{name}>"),
         TypeRef::Object { name, .. } => format!("&{name}"),
         TypeRef::Struct { name, .. } => format!("&{name}"),
         TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
@@ -1005,8 +1056,11 @@ fn render_param_bindings(out: &mut String, params: &[Param], indent: &str) {
                     .unwrap();
                 }
                 TypeRef::Struct { .. } => {
-                    writeln!(out, "{indent}let {name}_raw = {name}.map(|value| value.to_raw());")
-                        .unwrap();
+                    writeln!(
+                        out,
+                        "{indent}let {name}_raw = {name}.map(|value| value.to_raw());"
+                    )
+                    .unwrap();
                 }
                 TypeRef::Callback { params: args } => {
                     render_callback_trampoline(out, args, indent);
@@ -1035,7 +1089,9 @@ fn render_callback_trampoline(out: &mut String, params: &[TypeRef], indent: &str
             other => rust_public_type(other),
         })
         .collect::<Vec<_>>();
-    let args: Vec<String> = (0..params.len()).map(|index| format!("arg{index}")).collect();
+    let args: Vec<String> = (0..params.len())
+        .map(|index| format!("arg{index}"))
+        .collect();
     let decl: Vec<String> = args
         .iter()
         .zip(signature.iter())
@@ -1177,14 +1233,26 @@ fn render_return(
             writeln!(out, "            let mut list = {ffi_fn}({args});").unwrap();
             writeln!(out, "            let mut items = Vec::new();").unwrap();
             writeln!(out, "            if !list.items.is_null() {{").unwrap();
-            writeln!(out, "                for index in 0..list.count as isize {{").unwrap();
-            writeln!(out, "                    let ptr = *list.items.offset(index);").unwrap();
+            writeln!(
+                out,
+                "                for index in 0..list.count as isize {{"
+            )
+            .unwrap();
+            writeln!(
+                out,
+                "                    let ptr = *list.items.offset(index);"
+            )
+            .unwrap();
             writeln!(out, "                    if !ptr.is_null() {{").unwrap();
             writeln!(out, "                        items.push(CStr::from_ptr(ptr).to_string_lossy().into_owned());").unwrap();
             writeln!(out, "                    }}").unwrap();
             writeln!(out, "                }}").unwrap();
             writeln!(out, "            }}").unwrap();
-            writeln!(out, "            cnativeapi::{STRING_LIST_FREE_FN}(&mut list);").unwrap();
+            writeln!(
+                out,
+                "            cnativeapi::{STRING_LIST_FREE_FN}(&mut list);"
+            )
+            .unwrap();
             writeln!(out, "            items").unwrap();
         }
         TypeRef::Vector { element } => {
@@ -1203,18 +1271,34 @@ fn render_return(
             )
             .unwrap();
             writeln!(out, "                for index in 0..raw.count as isize {{").unwrap();
-            writeln!(out, "                    let key = *raw.keys.offset(index);").unwrap();
-            writeln!(out, "                    let value = *raw.values.offset(index);").unwrap();
+            writeln!(
+                out,
+                "                    let key = *raw.keys.offset(index);"
+            )
+            .unwrap();
+            writeln!(
+                out,
+                "                    let value = *raw.values.offset(index);"
+            )
+            .unwrap();
             writeln!(out, "                    if key.is_null() {{").unwrap();
             writeln!(out, "                        continue;").unwrap();
             writeln!(out, "                    }}").unwrap();
             writeln!(out, "                    entries.insert(").unwrap();
-            writeln!(out, "                        CStr::from_ptr(key).to_string_lossy().into_owned(),").unwrap();
+            writeln!(
+                out,
+                "                        CStr::from_ptr(key).to_string_lossy().into_owned(),"
+            )
+            .unwrap();
             writeln!(out, "                        if value.is_null() {{ String::new() }} else {{ CStr::from_ptr(value).to_string_lossy().into_owned() }},").unwrap();
             writeln!(out, "                    );").unwrap();
             writeln!(out, "                }}").unwrap();
             writeln!(out, "            }}").unwrap();
-            writeln!(out, "            cnativeapi::{STRING_MAP_FREE_FN}(&mut raw);").unwrap();
+            writeln!(
+                out,
+                "            cnativeapi::{STRING_MAP_FREE_FN}(&mut raw);"
+            )
+            .unwrap();
             writeln!(out, "            entries").unwrap();
         }
         TypeRef::Optional { inner } => render_return(out, inner, ffi_fn, args, header, prefix),
@@ -1239,7 +1323,11 @@ fn render_rust_list_return(
     writeln!(out, "            let mut list = {ffi_fn}({args});").unwrap();
     writeln!(out, "            let mut items = Vec::new();").unwrap();
     writeln!(out, "            if !list.{field}.is_null() {{").unwrap();
-    writeln!(out, "                for index in 0..list.count as isize {{").unwrap();
+    writeln!(
+        out,
+        "                for index in 0..list.count as isize {{"
+    )
+    .unwrap();
     writeln!(
         out,
         "                    if let Some(item) = {name}::from_raw(*list.{field}.offset(index)) {{"
