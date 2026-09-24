@@ -94,7 +94,12 @@ jobs:
         
       - name: Bootstrap melos
         run: dart pub global run melos bootstrap
-        
+
+      # cnativeapi's build hook compiles core, which needs GTK 3, X11 and Xi on Linux.
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libgtk-3-dev libx11-dev libxi-dev
+
       - name: Run tests
         run: dart pub global run melos run test
 
