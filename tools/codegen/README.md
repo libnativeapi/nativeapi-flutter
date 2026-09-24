@@ -52,7 +52,7 @@ tools/codegen/
 2. 提交 core（消息用 `-m` 指定，默认 `Update API`）
 3. 对每个 binding：把内嵌的 core submodule（`cxx_impl`）
    更新到 core 的最新提交（从本地 core 取，不要求先 push）；rust 额外重跑
-   bindgen 刷新 `crates/cnativeapi/src/bindings.rs`；flutter 额外执行 binding 自带的
+   bindgen 刷新 `bindings/rust/cnativeapi/src/bindings.rs`；flutter 额外执行 binding 自带的
    `codegen.py`（.mm include、umbrella header、ffigen.yaml、dart ffigen）
 4. 提交 workspace，消息为 `Sync with core <sha>`：core 指针，以及 `bindings/`
    下的全部改动（三个 binding 都在 workspace 仓库里）
@@ -67,8 +67,8 @@ bindgen / dart 未安装时对应步骤跳过并告警。
 
 1. C ABI → `core/src/capi/`
 2. umbrella header → `core/include/nativeapi.h`
-3. Rust FFI → `bindings/rust/crates/nativeapi/src/`
-5. Dart FFI → `bindings/flutter/packages/nativeapi/lib/src/`
+3. Rust FFI → `bindings/rust/nativeapi/src/`
+5. Dart FFI → `bindings/flutter/nativeapi/lib/src/`
 6. C# FFI → `bindings/csharp/src/CNativeAPI/generated/`（raw 层）+ `bindings/csharp/src/NativeAPI/`（公开层）
 
 `core/src/capi/` **全部由本工具生成**，唯一的例外是手写支持层
@@ -85,10 +85,10 @@ C ABI 是所有绑定的地基，新增符号后需要同步下游：
 1. **类型标签**：新增的句柄类型需要在 `core/src/foundation/id_allocator.h`
    的 `IdTypeTag<T>` 注册表里追加一个编号（**只追加，不改已有编号**）。漏了会在
    编译期报错，不会静默出问题。
-2. **submodule**：`bindings/rust/crates/cnativeapi/cxx_impl`、
-   `bindings/flutter/packages/cnativeapi/cxx_impl`、`bindings/csharp/src/CNativeAPI/cxx_impl`
+2. **submodule**：`bindings/rust/cnativeapi/cxx_impl`、
+   `bindings/flutter/cnativeapi/cxx_impl`、`bindings/csharp/src/CNativeAPI/cxx_impl`
    都是 nativeapi-core 仓库的 submodule，提交 core 后需要 `git submodule update --remote`
-3. **Rust raw FFI**：`crates/cnativeapi/src/bindings.rs` 由 bindgen 生成并入库，
+3. **Rust raw FFI**：`bindings/rust/cnativeapi/src/bindings.rs` 由 bindgen 生成并入库，
    新增 C 符号后需重新生成（在 workspace 根目录执行）：
 
    ```bash
@@ -99,8 +99,8 @@ C ABI 是所有绑定的地基，新增符号后需要同步下游：
      --raw-line '#![allow(non_upper_case_globals)]' \
      --raw-line '#![allow(non_camel_case_types)]' \
      --raw-line '#![allow(non_snake_case)]' \
-     -o bindings/rust/crates/cnativeapi/src/bindings.rs \
+     -o bindings/rust/cnativeapi/src/bindings.rs \
      -- -x c -isysroot "$(xcrun --show-sdk-path)" -Icore/src -Icore/include
    ```
 
-4. **模块声明**：Rust 侧新增的 `xxx.rs` 需要在 `crates/nativeapi/src/lib.rs` 中 `pub mod`
+4. **模块声明**：Rust 侧新增的 `xxx.rs` 需要在 `bindings/rust/nativeapi/src/lib.rs` 中 `pub mod`

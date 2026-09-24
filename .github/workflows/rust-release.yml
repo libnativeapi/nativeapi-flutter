@@ -34,7 +34,7 @@ jobs:
         run: |
           python - <<'PY'
           import os, pathlib, re, tomllib
-          crates = [tomllib.loads(pathlib.Path(f'bindings/rust/crates/{name}/Cargo.toml').read_text()) for name in ('cnativeapi', 'nativeapi')]
+          crates = [tomllib.loads(pathlib.Path(f'bindings/rust/{name}/Cargo.toml').read_text()) for name in ('cnativeapi', 'nativeapi')]
           version = crates[0]['package']['version']
           assert re.fullmatch(r'\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?', version), version
           assert crates[1]['package']['version'] == version, 'Crate versions must match'

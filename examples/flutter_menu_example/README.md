@@ -438,8 +438,8 @@ main.dart
 
 ## Related Documentation
 
-- [Menu API Documentation](../../bindings/flutter/packages/nativeapi/lib/src/menu.dart)
-- [Menu Events Documentation](../../bindings/flutter/packages/nativeapi/lib/src/menu_event.dart)
+- [Menu API Documentation](../../bindings/flutter/nativeapi/lib/src/menu.dart)
+- [Menu Events Documentation](../../bindings/flutter/nativeapi/lib/src/menu_event.dart)
 - [Test Plan](../../TEST_PLAN.md#3-menu菜单)
 
 ## License

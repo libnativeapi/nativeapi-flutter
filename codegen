@@ -199,7 +199,7 @@ def update_core_dep(path: str, sha: str, branch: str) -> None:
 def regen_rust_raw_ffi(repo: Path) -> bool:
     if shutil.which("bindgen") is None:
         print("warning: bindgen not installed, skipped regenerating "
-              "crates/cnativeapi/src/bindings.rs", file=sys.stderr)
+              "bindings/rust/cnativeapi/src/bindings.rs", file=sys.stderr)
         return False
     clang_args = ["-x", "c"]
     if sys.platform == "darwin":
@@ -216,7 +216,7 @@ def regen_rust_raw_ffi(repo: Path) -> bool:
         "--raw-line", "#![allow(non_upper_case_globals)]",
         "--raw-line", "#![allow(non_camel_case_types)]",
         "--raw-line", "#![allow(non_snake_case)]",
-        "-o", str(repo / "crates" / "cnativeapi" / "src" / "bindings.rs"),
+        "-o", str(repo / "cnativeapi" / "src" / "bindings.rs"),
         "--", *clang_args,
         f"-I{CORE / 'src'}", f"-I{CORE / 'include'}",
     ]
@@ -229,7 +229,7 @@ def regen_rust_raw_ffi(repo: Path) -> bool:
 def regen_flutter_ffi(repo: Path) -> bool:
     """Run the flutter repo's own codegen.py (mm includes, umbrella headers,
     ffigen.yaml, dart ffigen)."""
-    package = repo / "packages" / "cnativeapi"
+    package = repo / "cnativeapi"
     if shutil.which("dart") is None:
         print("warning: dart not installed, skipped flutter ffigen regeneration",
               file=sys.stderr)

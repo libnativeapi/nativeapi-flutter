@@ -25,7 +25,7 @@ For higher-level Dart APIs, use the [`nativeapi`](https://pub.dev/packages/nativ
 Bindings are generated from C headers using `ffigen`. To regenerate:
 
 ```bash
-cd packages/cnativeapi
+cd bindings/flutter/cnativeapi
 dart run ffigen --config ffigen.yaml
 ```
 

@@ -139,12 +139,12 @@ jobs:
           
       - name: Build cnativeapi example Android
         run: |
-          cd bindings/flutter/packages/cnativeapi/example
+          cd bindings/flutter/cnativeapi/example
           flutter build apk --release
           
       - name: Build nativeapi example Android
         run: |
-          cd bindings/flutter/packages/nativeapi/example
+          cd bindings/flutter/nativeapi/example
           flutter build apk --release
 
   # iOS build
@@ -180,12 +180,12 @@ jobs:
           
       - name: Build cnativeapi example iOS
         run: |
-          cd bindings/flutter/packages/cnativeapi/example
+          cd bindings/flutter/cnativeapi/example
           flutter build ios --release --no-codesign
           
       - name: Build nativeapi example iOS
         run: |
-          cd bindings/flutter/packages/nativeapi/example
+          cd bindings/flutter/nativeapi/example
           flutter build ios --release --no-codesign
 
   # Linux build
@@ -235,12 +235,12 @@ jobs:
           
       - name: Build cnativeapi example Linux
         run: |
-          cd bindings/flutter/packages/cnativeapi/example
+          cd bindings/flutter/cnativeapi/example
           flutter build linux --release
           
       - name: Build nativeapi example Linux
         run: |
-          cd bindings/flutter/packages/nativeapi/example
+          cd bindings/flutter/nativeapi/example
           flutter build linux --release
 
   # macOS build
@@ -276,12 +276,12 @@ jobs:
           
       - name: Build cnativeapi example macOS
         run: |
-          cd bindings/flutter/packages/cnativeapi/example
+          cd bindings/flutter/cnativeapi/example
           flutter build macos --release
           
       - name: Build nativeapi example macOS
         run: |
-          cd bindings/flutter/packages/nativeapi/example
+          cd bindings/flutter/nativeapi/example
           flutter build macos --release
 
   # Windows build
@@ -318,10 +318,10 @@ jobs:
           
       - name: Build cnativeapi example Windows
         run: |
-          cd bindings/flutter/packages/cnativeapi/example
+          cd bindings/flutter/cnativeapi/example
           flutter build windows --release
           
       - name: Build nativeapi example Windows
         run: |
-          cd bindings/flutter/packages/nativeapi/example
+          cd bindings/flutter/nativeapi/example
           flutter build windows --release

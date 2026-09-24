@@ -54,8 +54,8 @@ fn main() -> Result<()> {
     let src_dir = repo_root.join("src");
     let prefix = "native_";
 
-    let rust_out = binding_out(args.rust.as_deref(), "crates/nativeapi/src");
-    let dart_out = binding_out(args.dart.as_deref(), "packages/nativeapi/lib/src");
+    let rust_out = binding_out(args.rust.as_deref(), "nativeapi/src");
+    let dart_out = binding_out(args.dart.as_deref(), "nativeapi/lib/src");
     let csharp_out = binding_out(args.csharp.as_deref(), "src");
 
     report_binding("rust", &rust_out);
@@ -82,7 +82,7 @@ fn main() -> Result<()> {
     if let Some(dart_repo) = &args.dart {
         files.push(dart::generate_ffigen_config(
             &api,
-            &dart_repo.join("packages/cnativeapi"),
+            &dart_repo.join("cnativeapi"),
         ));
     }
     for header in &api.headers {

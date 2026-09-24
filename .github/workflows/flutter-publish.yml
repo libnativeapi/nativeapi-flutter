@@ -32,28 +32,28 @@ jobs:
       # Publish cnativeapi
       - name: Install dependencies (cnativeapi)
         run: dart pub get
-        working-directory: bindings/flutter/packages/cnativeapi
+        working-directory: bindings/flutter/cnativeapi
 
       - name: Publish - dry run (cnativeapi)
         run: dart pub publish --dry-run
-        working-directory: bindings/flutter/packages/cnativeapi
+        working-directory: bindings/flutter/cnativeapi
 
       - name: Publish cnativeapi
         run: dart pub publish -f
-        working-directory: bindings/flutter/packages/cnativeapi
+        working-directory: bindings/flutter/cnativeapi
 
       # Publish nativeapi
       - name: Install dependencies (nativeapi)
         run: dart pub get
-        working-directory: bindings/flutter/packages/nativeapi
+        working-directory: bindings/flutter/nativeapi
 
       - name: Publish - dry run (nativeapi)
         run: dart pub publish --dry-run
-        working-directory: bindings/flutter/packages/nativeapi
+        working-directory: bindings/flutter/nativeapi
 
       - name: Publish nativeapi
         run: dart pub publish -f
-        working-directory: bindings/flutter/packages/nativeapi
+        working-directory: bindings/flutter/nativeapi
 
       - name: Create GitHub Release
         env:

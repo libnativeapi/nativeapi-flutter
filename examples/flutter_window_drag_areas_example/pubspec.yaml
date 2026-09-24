@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   nativeapi:
-    path: ../../bindings/flutter/packages/nativeapi
+    path: ../../bindings/flutter/nativeapi
 
 dev_dependencies:
   flutter_test:

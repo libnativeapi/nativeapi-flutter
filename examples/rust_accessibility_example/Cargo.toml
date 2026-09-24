@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-nativeapi = { path = "../../bindings/rust/crates/nativeapi" }
+nativeapi = { path = "../../bindings/rust/nativeapi" }

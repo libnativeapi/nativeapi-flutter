@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "bindings/rust/crates/cnativeapi",
-    "bindings/rust/crates/nativeapi",
+    "bindings/rust/cnativeapi",
+    "bindings/rust/nativeapi",
     "examples/rust_accessibility_example",
     "examples/rust_application_example",
     "examples/rust_display_example",

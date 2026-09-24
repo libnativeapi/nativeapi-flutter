@@ -107,8 +107,8 @@ Files without the banner are never overwritten, so they are also never updated:
 
 | Repo | Hand-written | When to touch it |
 |---|---|---|
-| `bindings/flutter` | `packages/nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, `examples/flutter_*` | new module → add the export; user-visible change → CHANGELOG entry |
-| `bindings/rust` | `crates/nativeapi/src/lib.rs`, `examples/rust_*` | `modules.rs` is generated now, so a new module needs no manual `pub mod`; re-exports in `lib.rs` still do |
+| `bindings/flutter` | `nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, `examples/flutter_*` | new module → add the export; user-visible change → CHANGELOG entry |
+| `bindings/rust` | `nativeapi/src/lib.rs`, `examples/rust_*` | `modules.rs` is generated now, so a new module needs no manual `pub mod`; re-exports in `lib.rs` still do |
 | `bindings/csharp` | `examples/csharp_*`, tests | when a rename breaks them |
 | core | `examples/<module>_example/`, `<module>_c_example/` | new module or a behaviour worth demonstrating |
 
@@ -120,11 +120,11 @@ binding for the old name.
 ```bash
 ./codegen check                                         # generated files are current
 cargo check --workspace                                 # Rust crates + examples (root workspace)
-(cd bindings/flutter/packages/nativeapi && dart analyze)
+(cd bindings/flutter/nativeapi && dart analyze)
 (cd bindings/csharp && dotnet build NativeAPI.slnx)
 ```
 
-`flutter analyze` may rewrite `packages/nativeapi/analysis_options.yaml` — revert that
+`flutter analyze` may rewrite `nativeapi/analysis_options.yaml` — revert that
 before committing. A toolchain that is not installed is a skipped check, not a passed
 one; list it as skipped in the report.
 
@@ -149,7 +149,7 @@ gitlink. It does not push.
 2. In each binding: update the embedded core submodule (`cxx_impl`) to that sha,
    fetching from the local `core/`; rust → rerun bindgen (command in
    `tools/codegen/README.md`); flutter → `python3 codegen.py --no-submodule-update` in
-   `packages/cnativeapi`.
+   `bindings/flutter/cnativeapi`.
 3. Workspace: `git add core` plus only the generated paths and the `cxx_impl` gitlinks
    under `bindings/`; commit as `Sync with core <sha9>`.
 
