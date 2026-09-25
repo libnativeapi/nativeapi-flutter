@@ -1,0 +1,59 @@
+:root {
+  color-scheme: light dark;
+  --strip: #dfe3ec;
+  --tab: #eef1f7;
+  --active: #ffffff;
+  --text: #1a1c20;
+  --muted: #5d6270;
+  --field: #eef1f7;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --strip: #1f2126;
+    --tab: #2a2d33;
+    --active: #33363d;
+    --text: #e3e5ea;
+    --muted: #a0a5b0;
+    --field: #262930;
+  }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { display: flex; flex-direction: column; background: var(--active); color: var(--text); overflow: hidden; }
+
+/* --- Strip (keep in sync with STRIP in main.ts) ---------------------------- */
+#strip { position: relative; height: 40px; flex: none; background: var(--strip); user-select: none; -webkit-user-select: none; }
+.tab {
+  position: absolute;
+  top: 6px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 12px;
+  border-radius: 10px 10px 0 0;
+  background: var(--tab);
+  transition: left 150ms ease-out, width 150ms ease-out;
+  cursor: default;
+}
+.tab.active { background: var(--active); }
+.tab.dragging { transition: none; z-index: 1; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12); }
+.tab .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.tab .title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tab-close, .new-tab, .close-window { border: none; background: none; color: var(--muted); font: 16px/1 sans-serif; border-radius: 6px; }
+.tab-close { width: 20px; height: 20px; flex: none; }
+.new-tab { position: absolute; top: 8px; width: 32px; height: 28px; font-size: 20px; }
+.close-window { position: absolute; top: 8px; right: 8px; width: 32px; height: 24px; }
+
+/* --- Page --------------------------------------------------------------------- */
+#page { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.toolbar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--strip); color: var(--muted); }
+.address { flex: 1; font: inherit; padding: 6px 14px; border: none; border-radius: 20px; background: var(--field); color: var(--text); }
+.content { flex: 1; overflow: auto; padding: 24px; }
+.content h1 { margin: 0 0 8px; font-size: 28px; font-weight: 400; }
+.meta { margin: 0 0 16px; font-size: 12px; color: var(--muted); }
+.row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.like { font: inherit; padding: 8px 16px; border: none; border-radius: 999px; background: var(--tab); color: var(--text); flex: none; }
+.hint { font-size: 12px; color: var(--muted); }
+.paragraph { height: 64px; margin-bottom: 12px; padding: 0 16px; display: flex; align-items: center; border-radius: 10px; }

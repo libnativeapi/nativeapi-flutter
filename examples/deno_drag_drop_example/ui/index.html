@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/ui/style.css" />
+  </head>
+  <body>
+    <section id="drop">
+      <h1 id="drop-title">Drop files or text here</h1>
+      <p id="drop-hint" class="small"></p>
+      <hr />
+      <h2 id="drops">Drops: 0</h2>
+      <ul id="dropped"></ul>
+    </section>
+    <aside>
+      <h1>Drag out</h1>
+      <div class="card" data-kind="note">
+        <span class="icon">📄</span>
+        <div><strong>Drag this note</strong><small id="note-name"></small></div>
+      </div>
+      <div class="card" data-kind="text">
+        <span class="icon">✎</span>
+        <div><strong>Drag this text</strong><small id="text-value"></small></div>
+      </div>
+      <p id="last-drag">Last drag: -</p>
+      <p id="drag-supported" class="small"></p>
+    </aside>
+    <script type="module" src="/ui/app.js"></script>
+  </body>
+</html>

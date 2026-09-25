@@ -1,0 +1,75 @@
+:root {
+  color-scheme: light dark;
+  /* Keep in sync with the handle bands a GUI test presses in. */
+  --edge-size: 12px;
+  --edge-inset: 16px;
+  --backdrop: #e6e6f2;
+  --surface: #fbfbff;
+  --bar: #dcdcfb;
+  --edge: rgba(80, 80, 200, 0.25);
+  --text: #1d1d24;
+  --accent: #4b4bc8;
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --backdrop: #25252e;
+    --surface: #1b1b22;
+    --bar: #33335a;
+    --edge: rgba(150, 150, 255, 0.25);
+    --text: #ececf2;
+    --accent: #8c8cff;
+  }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--backdrop); color: var(--text); overflow: hidden; user-select: none; -webkit-user-select: none; }
+
+.edge { position: absolute; background: var(--edge); }
+.edge[hidden] { display: none; }
+.edge[data-edge="Top"], .edge[data-edge="Bottom"] {
+  left: calc(var(--edge-inset) + var(--edge-size));
+  right: calc(var(--edge-inset) + var(--edge-size));
+  height: var(--edge-size);
+  cursor: ns-resize;
+}
+.edge[data-edge="Left"], .edge[data-edge="Right"] {
+  top: calc(var(--edge-inset) + var(--edge-size));
+  bottom: calc(var(--edge-inset) + var(--edge-size));
+  width: var(--edge-size);
+  cursor: ew-resize;
+}
+.edge[data-edge="Top"] { top: var(--edge-inset); }
+.edge[data-edge="Bottom"] { bottom: var(--edge-inset); }
+.edge[data-edge="Left"] { left: var(--edge-inset); }
+.edge[data-edge="Right"] { right: var(--edge-inset); }
+.edge[data-edge^="Top"][data-edge$="Left"], .edge[data-edge^="Top"][data-edge$="Right"],
+.edge[data-edge^="Bottom"][data-edge$="Left"], .edge[data-edge^="Bottom"][data-edge$="Right"] {
+  width: var(--edge-size);
+  height: var(--edge-size);
+}
+.edge[data-edge="TopLeft"] { top: var(--edge-inset); left: var(--edge-inset); cursor: nwse-resize; }
+.edge[data-edge="TopRight"] { top: var(--edge-inset); right: var(--edge-inset); cursor: nesw-resize; }
+.edge[data-edge="BottomLeft"] { bottom: var(--edge-inset); left: var(--edge-inset); cursor: nesw-resize; }
+.edge[data-edge="BottomRight"] { bottom: var(--edge-inset); right: var(--edge-inset); cursor: nwse-resize; }
+
+main {
+  position: absolute;
+  inset: calc(var(--edge-inset) + var(--edge-size));
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+#bar { height: 44px; flex: none; display: grid; place-items: center; background: var(--bar); }
+section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+section h1 { margin: 0; font-size: 16px; font-weight: 600; }
+section p { margin: 0; }
+button {
+  font: inherit;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+}
+button.filled { background: var(--accent); color: #fff; }

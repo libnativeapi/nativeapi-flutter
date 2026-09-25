@@ -4,10 +4,19 @@ Tear a panel out of the main window into a window of its own, move it around,
 and dock it back — the `deno desktop` counterpart of
 `flutter_detachable_window_example`.
 
+## Known issues (macOS)
+
+- After a panel is torn out **by dragging**, clicks on the floating window go to the
+  main window below it until the main window has received a click of its own, so
+  dragging the floating panel straight back onto a slot does not work at first. Panels
+  popped out with **Pop out**, and docking with **Dock** or by closing the window, are
+  not affected. Under investigation: the floating window is created while the main
+  window is tracking the press.
+
 ## Running
 
 ```bash
-npm install                 # at the repository root: links nativeapi and builds its addon
+npm install                 # at the repository root: builds the nativeapi addon
 cd examples/deno_detachable_window_example
 deno task dev               # run with hot reload
 deno task build             # package dist/DetachableWindow.app

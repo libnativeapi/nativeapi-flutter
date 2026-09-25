@@ -1,0 +1,35 @@
+:root {
+  color-scheme: light;
+  --surface: #f4f4f8;
+  --line: #d9d9e3;
+  --text: #1d1d24;
+  --accent: #5b5bd6;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: transparent; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Clear of the window buttons, which sit over the content. */
+  padding: 46px 24px 24px;
+  background: var(--surface);
+  color: var(--text);
+}
+/* With an effect on, only the panel is painted; the material shows elsewhere. */
+body.has-effect { background: transparent; }
+
+.panel { background: rgba(255, 255, 255, 0.9); border-radius: 18px; padding: 18px; }
+h1 { margin: 0 0 4px; font-size: 22px; font-weight: 600; }
+p { margin: 0 0 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+button {
+  font: inherit;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: inherit;
+}
+button.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: 0.4; }

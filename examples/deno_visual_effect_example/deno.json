@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "dev": "deno desktop --hmr --allow-all --include ui --include ../../bindings/js/build/Release/nativeapi.node main.ts"
+  },
+  "desktop": {
+    "app": {
+      "name": "Visual Effect",
+      "identifier": "dev.libnativeapi.visual-effect"
+    }
+  }
+}

@@ -18,7 +18,7 @@ import {
   type WindowDragEvent,
   WindowDragSession,
   WindowManager,
-} from "nativeapi";
+} from "../../bindings/js/lib/index.ts";
 
 // ---------------------------------------------------------------------------
 // Model
@@ -249,6 +249,7 @@ async function popOut(pressed: Extract<Gesture, { phase: "pressed" }>, cursor: P
   } else {
     // Released while the window was being created: it stays where it is.
     gesture = null;
+    entry.native.focus();
     broadcast();
   }
 }
@@ -280,6 +281,8 @@ function finishMove(moving: Extract<Gesture, { phase: "moving" }>, released: boo
   if (target) {
     dockPanel(moving.panel, target);
   } else {
+    // A panel left floating is what the user works with next.
+    moving.entry.native.focus();
     broadcast();
   }
 }
@@ -339,7 +342,8 @@ function bindUi(browser: Deno.BrowserWindow) {
     broadcast();
     // Beside the main window, level with the slot it came from.
     const frame = mainNative.bounds;
-    await openFloating(panel, { ...rect, x: frame.x + frame.width + 16 });
+    const entry = await openFloating(panel, { ...rect, x: frame.x + frame.width + 16 });
+    entry.native.focus();
     broadcast();
   });
 

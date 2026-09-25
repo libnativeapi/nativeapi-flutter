@@ -1,0 +1,63 @@
+:root {
+  color-scheme: light dark;
+  --surface: #fbf8ff;
+  --bar: #e8e6f6;
+  --tonal: #dfe0ff;
+  --text: #1b1b21;
+  --muted: #5f5f6c;
+  --notice: #ffd8e4;
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #131318;
+    --bar: #22222b;
+    --tonal: #3a3b58;
+    --text: #e4e1e9;
+    --muted: #a3a1ad;
+    --notice: #5a3240;
+  }
+}
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+body { color: var(--text); }
+body[data-page="main"] { background: var(--surface); }
+body[data-page="main"] #app { display: flex; flex-direction: column; }
+
+/* --- Main window ----------------------------------------------------------- */
+header { padding: 14px 20px; background: var(--bar); }
+header h1 { margin: 0; font-size: 20px; font-weight: 500; }
+main { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 16px; min-height: 0; }
+main p { margin: 0; max-width: 64ch; }
+.notice { padding: 10px; border-radius: 8px; background: var(--notice); }
+.row { display: flex; align-items: center; gap: 12px; }
+.sample { width: 56px; height: 56px; border-radius: 12px; transition: background 200ms; }
+h2 { margin: 0; font-size: 22px; font-weight: 400; }
+h3 { margin: 0; font-size: 14px; font-weight: 500; }
+main button {
+  font: inherit;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--tonal);
+  color: var(--text);
+}
+.log { flex: 1; overflow: auto; margin: 0; padding-left: 20px; font-size: 12px; color: var(--muted); min-height: 0; }
+
+/* --- Toolbar: only the pill paints; the rest of the window stays clear ------ */
+html:has(body[data-page="toolbar"]), body[data-page="toolbar"] { background: transparent; overflow: hidden; }
+body[data-page="toolbar"] #app { display: grid; place-items: center; }
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 14px;
+  border-radius: 26px;
+  background: rgba(32, 33, 36, 0.94);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; padding: 0; }
+.swatch.selected { border-color: #fff; }
+.stamp { margin-left: 10px; border: none; background: none; color: #c5cae9; font: 600 14px/1 -apple-system, sans-serif; }

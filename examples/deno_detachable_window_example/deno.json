@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "dev": "deno desktop --hmr --conditions=source --allow-all main.ts",
-    "build": "deno desktop --conditions=source --allow-all --include ui --include ../../bindings/js/build/Release/nativeapi.node --output dist/DetachableWindow.app main.ts"
+    "dev": "deno desktop --hmr --allow-all --include ui --include ../../bindings/js/build/Release/nativeapi.node main.ts",
+    "build": "deno desktop --allow-all --include ui --include ../../bindings/js/build/Release/nativeapi.node --output dist/DetachableWindow.app main.ts"
   },
   "desktop": {
     "app": {

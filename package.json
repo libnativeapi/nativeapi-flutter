@@ -3,7 +3,6 @@
   "private": true,
   "workspaces": [
     "bindings/js",
-    "examples/js_*",
-    "examples/deno_*"
+    "examples/js_*"
   ]
 }

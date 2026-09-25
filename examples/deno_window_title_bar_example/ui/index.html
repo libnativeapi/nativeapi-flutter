@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/ui/style.css" />
+  </head>
+  <body>
+    <header id="strip">
+      <strong>Drag this strip to move the window</strong>
+      <button id="quit">Quit</button>
+    </header>
+    <main>
+      <section class="card">
+        <h2>Now</h2>
+        <dl id="now"></dl>
+        <p id="note" class="muted">Try the three states and watch the strip above</p>
+      </section>
+      <section class="card">
+        <h2>The three states</h2>
+        <div class="chips">
+          <button class="chip" data-act="normal">Normal</button>
+          <button class="chip" data-act="under">Content under title bar</button>
+          <button class="chip" data-act="hidden">Hidden</button>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Window control buttons</h2>
+        <p class="muted">Setting a style resets these to what it implies, so these override it and go after it.</p>
+        <div class="chips">
+          <button class="chip" data-act="showButtons">Show buttons</button>
+          <button class="chip" data-act="hideButtons">Hide buttons</button>
+        </div>
+      </section>
+      <section class="card">
+        <h2>What to look for</h2>
+        <ul>
+          <li>Hidden leaves no title bar and no window buttons on every platform. Move the window by the strip above; Quit ends the application.</li>
+          <li>Content under title bar keeps the bar and its buttons but stops it drawing: the strip runs to the top edge behind them. macOS only — elsewhere the chip is greyed out and the call returns false.</li>
+          <li>Switching states keeps the window where it is and the same size; only contentSize above changes, by the height of the title bar.</li>
+          <li>Hidden also stops the system moving the window when you drag the top of the content — that is what the strip is for.</li>
+          <li>isContentUnderTitleBar stays as it was set while Hidden is on: with no title bar there is nothing for it to do, and it takes effect again on Normal.</li>
+        </ul>
+      </section>
+    </main>
+    <script type="module" src="/ui/app.js"></script>
+  </body>
+</html>

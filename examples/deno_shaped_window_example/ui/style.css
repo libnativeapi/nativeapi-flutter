@@ -1,0 +1,119 @@
+:root {
+  color-scheme: light dark;
+  --background: #ffffff;
+  --surface: #f5f5f7;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --border: #dcdce0;
+  --accent: #1668dc;
+  --accent-surface: #e3eefd;
+  --danger: #d93025;
+  font: 12px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1e1e20;
+    --surface: #28282b;
+    --text: #f2f2f4;
+    --muted: #9a9aa0;
+    --border: #3a3a3e;
+    --accent: #6aa8ff;
+    --accent-surface: #1d3557;
+    --danger: #ff6b61;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { color: var(--text); user-select: none; -webkit-user-select: none; }
+body[data-page="controls"] { background: var(--background); }
+/* The preview window is transparent: only the artwork paints. */
+html:has(body[data-page="preview"]), body[data-page="preview"] { background: transparent; overflow: hidden; }
+.mono { font: 11px/1.35 Menlo, Consolas, "DejaVu Sans Mono", monospace; color: var(--muted); }
+.hint { color: var(--muted); font-size: 11px; }
+.danger { color: var(--danger); }
+
+/* --- Artwork --------------------------------------------------------------- */
+.art {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 83% 18%, rgba(255, 255, 255, 0.094) 31%, transparent 31.2%),
+    radial-gradient(circle at 10% 86%, rgba(255, 255, 255, 0.094) 37%, transparent 37.2%),
+    linear-gradient(to bottom right, var(--c0), var(--c1), var(--c2));
+}
+.art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0.8px, transparent 1.2px) 6px 6px / 20px 20px;
+}
+
+/* --- Controls --------------------------------------------------------------- */
+#app:has(> header) { display: flex; flex-direction: column; height: 100%; }
+header {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  flex: none;
+  padding: 0 16px;
+  background: linear-gradient(to right, #201c45, var(--accent-from));
+  color: #fff;
+}
+header strong { flex: 1; font-size: 19px; }
+header span { font-size: 9px; letter-spacing: 1.3px; color: #ddd5ff; }
+.section-title { display: flex; align-items: center; gap: 8px; padding: 12px 14px 8px; }
+.section-title > span:first-child { font-size: 10px; letter-spacing: 1.4px; font-weight: 600; }
+.section-title > :last-child { margin-left: auto; }
+.gallery { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; padding: 0 12px 8px; min-height: 0; }
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+}
+.card.selected { border-color: var(--accent); background: var(--accent-surface); color: var(--accent); font-weight: 600; }
+.thumb { width: 46px; height: 46px; flex: none; }
+.option-row { display: flex; align-items: center; gap: 6px; padding: 5px 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.option-label { width: 76px; flex: none; font-size: 11px; color: var(--muted); }
+.chip {
+  font: inherit;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--text);
+}
+.chip.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip:disabled:not(.selected) { opacity: 0.45; }
+.presets { display: flex; gap: 6px; padding: 0 12px 12px; }
+.presets .chip { flex: 1; }
+.shadow-controls { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.slider-row { display: flex; align-items: center; gap: 8px; padding: 4px 14px; border-bottom: 1px solid var(--border); }
+.slider-row input { flex: 1; accent-color: var(--accent); }
+.slider-row .value { width: 52px; text-align: right; }
+.shadow-controls p { margin: 10px 14px 0; }
+footer { padding: 8px 12px; background: var(--surface); border-top: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- Preview ---------------------------------------------------------------- */
+.preview { position: absolute; top: 0; left: 0; color: #fff; }
+.preview-content { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.drag { padding: 10px; font-size: 10px; letter-spacing: 2px; color: rgba(255, 255, 255, 0.87); cursor: move; }
+.label { font-size: 29px; letter-spacing: -1px; font-weight: 700; }
+.tap {
+  margin: 10px 0;
+  padding: 9px 18px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  background: rgba(255, 255, 255, 0.19);
+  color: #fff;
+  font: 600 12px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.look { font-size: 9px; letter-spacing: 3px; color: rgba(255, 255, 255, 0.8); }
