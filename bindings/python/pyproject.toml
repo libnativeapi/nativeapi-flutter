@@ -33,3 +33,29 @@ sdist.include = ["cxx_impl"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# Wheels for python-release.yml. The library is loaded with ctypes, so a
+# single CPython build per platform yields the py3-none wheel for all of them.
+[tool.cibuildwheel]
+build = "cp312-*"
+skip = "*-musllinux_*"
+test-command = "python -c \"import nativeapi; assert nativeapi.Color.from_hex('#ff8000').g == 128\""
+
+[tool.cibuildwheel.linux]
+# manylinux_2_28 (AlmaLinux 8) has GTK 3 in its repositories.
+before-all = "dnf install -y gtk3-devel libX11-devel libXi-devel"
+# The desktop stack comes from the user's system, never from the wheel: a
+# second copy of GLib or GTK in the process breaks both.
+repair-wheel-command = """auditwheel repair -w {dest_dir} {wheel} \
+  --exclude libgtk-3.so.0 --exclude libgdk-3.so.0 --exclude libpangocairo-1.0.so.0 \
+  --exclude libpango-1.0.so.0 --exclude libharfbuzz.so.0 --exclude libatk-1.0.so.0 \
+  --exclude libcairo-gobject.so.2 --exclude libcairo.so.2 --exclude libgdk_pixbuf-2.0.so.0 \
+  --exclude libgio-2.0.so.0 --exclude libgobject-2.0.so.0 --exclude libglib-2.0.so.0 \
+  --exclude libX11.so.6 --exclude libXi.so.6"""
+
+[tool.cibuildwheel.macos]
+archs = ["universal2"]
+environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]

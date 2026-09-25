@@ -1,0 +1,107 @@
+name: Python Release
+# Push python-v<version> (the version in bindings/python/pyproject.toml) to
+# publish to PyPI; manual runs build and test every artifact without
+# publishing. Publishing uses PyPI trusted publishing: the `nativeapi` project
+# on PyPI must list this workflow and the `pypi` environment as a publisher.
+
+on:
+  push:
+    tags: ['python-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sdist:
+    name: Source distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout core
+        run: git submodule update --init core
+      - uses: astral-sh/setup-uv@v6
+      - name: Validate the release version
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          uv run --no-project python - <<'PY'
+          import os, pathlib, tomllib
+          version = tomllib.loads(pathlib.Path('bindings/python/pyproject.toml').read_text())['project']['version']
+          tag = os.environ['RELEASE_TAG']
+          assert not tag or tag == f'python-v{version}', f'{tag} does not match version {version}'
+          PY
+      # A published package cannot reach the repository's core/, so the sdist
+      # carries a copy in cxx_impl/ (CMakeLists.txt prefers it when present).
+      # Every wheel below is built from this sdist, so it is what gets tested.
+      - name: Vendor core
+        run: |
+          mkdir bindings/python/cxx_impl
+          git -C core archive HEAD | tar -x -C bindings/python/cxx_impl
+      - name: Build the sdist
+        working-directory: bindings/python
+        run: uv build --sdist -o ../../dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  wheels:
+    name: Wheel (${{ matrix.os }})
+    needs: sdist
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # ctypes only, so one wheel per platform (py3-none) serves every
+        # Python 3; macOS builds one universal2 wheel.
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: dist
+      - name: Build from the sdist
+        uses: pypa/cibuildwheel@v3.1
+        with:
+          package-dir: ${{ runner.os == 'Windows' && 'dist\nativeapi-*.tar.gz' || 'dist/nativeapi-*.tar.gz' }}
+          output-dir: wheelhouse
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: [sdist, wheels]
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/nativeapi
+    permissions:
+      id-token: write # trusted publishing
+      contents: write # the GitHub Release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          args=()
+          # PEP 440 pre-releases: 0.2.0a1, 0.2.0rc1, 0.2.0.dev0
+          if [[ "$RELEASE_TAG" =~ (a|b|rc|dev)[0-9]+$ ]]; then args+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --generate-notes "${args[@]}"
