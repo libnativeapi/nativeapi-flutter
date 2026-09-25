@@ -543,8 +543,25 @@ Android / iOS / OHOS 各只要一个 `view_<os>` 桩，所有类的桩写在一�
 | 主题 | 自动 | 经典 common controls；深色由 `application_theme_windows` 后续接（v1 ⚠️） | 跟 GTK 主题 |
 | 根 View 尺寸变化 | `NSViewFrameDidChangeNotification` | 窗口的 `WM_SIZE`，已由 `window_windows.cpp` 收到 | `size-allocate` |
 
-Windows 后续可像 `Menu` 一样加 `ViewBackend::WinUI3`，本文不设计它；接口层不留位置，
-需要时按 `MenuBackend` 的先例追加 `static bool IsBackendSupported(ViewBackend)`。
+### 7.3 Windows 的 WinUI 3 后端
+
+按 `MenuBackend` 的先例：`NATIVEAPI_ENABLE_WINUI3` 编译进来时默认用 WinUI 3。
+公共 API 是 `ViewBackend { Native, WinUI3 }` 加三个静态方法和一个 getter：
+
+- `IsBackendSupported(ViewBackend)`：编译期能力。
+- `SetDefaultBackend(ViewBackend)` / `GetDefaultBackend()`：之后新建的视图用哪个，
+  进程级；不支持的返回 `false`。
+- `GetBackend() const`：这个视图创建时定下的后端，之后不变。
+
+为什么是「创建时定死、进程级默认」而不是 `Menu` 那样的实例级 `SetBackend`：控件的原生
+对象在构造函数里就建好了（HWND 或 XAML 元素），一棵树里也不能混两种——XAML 元素进不了
+HWND 容器，反之亦然。所以 `InsertSubview` 在共享代码里直接拒绝后端不同的子视图。
+
+实现在 `platform/windows/view_winui3_windows.{h,cpp}`（只在开关打开时编译），Win32 的
+每个接缝函数和控件方法开头一行 `NATIVEAPI_VIEW_XAML(...)` 转发。根视图是覆盖整个客户区
+的 `DesktopWindowXamlSource`，里面一个 `Canvas`；容器是 `Canvas`，子视图靠
+`Canvas.Left/Top` 和 `Width/Height` 摆放，单位是有效像素，正好是共享布局用的逻辑点。
+细节与限制见 core 的 `docs/winui3.md`。
 
 ## 8. codegen 与 C ABI：继承怎么过桥
 
@@ -594,7 +611,7 @@ Windows 后续可像 `Menu` 一样加 `ViewBackend::WinUI3`，本文不设计它
 | 平台 | 状态 |
 |---|---|
 | macOS | `tools/gui/core_view_test.py` 在本机桌面全过（布局、点击、焦点事件、缩放后重排再点击）；运行它的终端需要辅助功能权限 |
-| Windows | MSVC 编译；`tools/gui/core_view_test.ps1` 在 Windows 主机桌面全过 |
+| Windows | MSVC 编译；`tools/gui/core_view_test.ps1` 在 Windows 主机桌面全过，Win32 与 WinUI 3（`NATIVEAPI_ENABLE_WINUI3`）两种构建都是 |
 | Linux | Ubuntu 24.04 / GNOME Wayland，应用走 Xwayland（`GDK_BACKEND=x11`）；`tools/gui/core_view_test_linux.py` 全过。GTK 原生 Wayland 后端只能从内部断言，未测 |
 | Android / iOS / OHOS | 桩：`IsSupported()` 为 false |
 
@@ -603,6 +620,9 @@ Windows 后续可像 `Menu` 一样加 `ViewBackend::WinUI3`，本文不设计它
 - **指针事件**（`ViewMousePressedEvent` 等）要不要给 `View`：能做自定义拖拽区和简单画板，
   但和 `WindowDragSession`、`DropTarget` 的坐标与命中语义要对齐。先不做。
 - **多行文本高度**：`Label` 的固有高度不随宽度换行而变（单趟布局）。需要时再加两趟。
+- **WinUI 3 根视图独占整个客户区**：Island 盖在宿主框架的子窗口之上并接收整块区域的输入，
+  所以 Flutter / GPUI 窗口里要用 Native 后端。只盖住子视图所在区域需要 XAML 的命中测试
+  配合，先不做。
 - **焦点事件的覆盖面**：macOS 只有 `TextField` 发 `ViewFocusedEvent` / `ViewBlurredEvent`
   （成为第一响应者 / 字段编辑器结束时），按钮默认不接受键盘焦点所以不发；Windows / Linux
   按各自控件的焦点通知发，按钮也发。

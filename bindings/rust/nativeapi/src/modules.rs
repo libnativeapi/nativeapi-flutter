@@ -68,7 +68,7 @@ pub use shortcut_manager::{ShortcutManager};
 pub use tray_icon::{TrayIconId, ContextMenuTrigger, TrayIconPosition, TrayIconEvent, TrayIcon, TrayIconRef};
 pub use tray_manager::{TrayManager};
 pub use url_opener::{UrlOpenErrorCode, UrlOpenResult, UrlOpener};
-pub use view::{ViewId, ViewLayout, ViewAlignment, TextAlignment, ViewEvent, View, ViewRef, Label, LabelRef, Button, ButtonRef, TextField, TextFieldRef, ImageView, ImageViewRef};
+pub use view::{ViewId, ViewLayout, ViewAlignment, TextAlignment, ViewBackend, ViewEvent, View, ViewRef, Label, LabelRef, Button, ButtonRef, TextField, TextFieldRef, ImageView, ImageViewRef};
 pub use window::{WindowId, TitleBarStyle, VisualEffect, ResizeEdge, WindowEvent, Window, WindowRef};
 pub use window_drag_session::{WindowDragEvent, WindowDragSession, WindowDragSessionRef};
 pub use window_manager::{WindowManager};

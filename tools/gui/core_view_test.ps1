@@ -83,6 +83,15 @@ try {
   if (-not $win) { throw "no 'Sign in' window: $((Get-Wins $app | % { $_.Title }) -join ', ')" }
   [WInput]::Move($win.Hwnd, 120, 120)
   Pause 0.5
+  # Settle: nudge the width and back, so the example prints the layout again once the
+  # window has laid itself out. With WinUI 3 the first print comes before the XAML
+  # island has loaded its controls, when they still measure 0 wide.
+  $win = Get-Win $app "Sign in"
+  $ww = $win.Right - $win.Left; $wh = $win.Bottom - $win.Top
+  [WInput]::SetBounds($win.Hwnd, $win.Left, $win.Top, $ww + 1, $wh)
+  Pause 0.5
+  [WInput]::SetBounds($win.Hwnd, $win.Left, $win.Top, $ww, $wh)
+  Pause 0.8
   $win = Get-Win $app "Sign in"
   # Activate by clicking the root's top padding: the default spot on the caption assumes
   # the reported 96 dpi, but the stretched window's caption buttons are 1.5x wider there

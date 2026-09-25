@@ -31,6 +31,12 @@ public enum TextAlignment
     End = 2,
 }
 
+public enum ViewBackend
+{
+    Native = 0,
+    WinUi3 = 1,
+}
+
 /// <summary>One ViewEvent, in its concrete form.</summary>
 public abstract record ViewEvent
 {
@@ -105,12 +111,39 @@ public partial class View : IDisposable
         return rawResult;
     }
 
+    public static bool IsBackendSupported(ViewBackend backend)
+    {
+        var rawResult = Interop.native_view_is_backend_supported((int)backend);
+        return rawResult;
+    }
+
+    public static bool SetDefaultBackend(ViewBackend backend)
+    {
+        var rawResult = Interop.native_view_set_default_backend((int)backend);
+        return rawResult;
+    }
+
+    public static ViewBackend GetDefaultBackend()
+    {
+        var rawResult = Interop.native_view_get_default_backend();
+        return (ViewBackend)rawResult;
+    }
+
     public uint Id
     {
         get
         {
             var rawResult = Interop.native_view_get_id(NativeHandle);
             return rawResult;
+        }
+    }
+
+    public ViewBackend Backend
+    {
+        get
+        {
+            var rawResult = Interop.native_view_get_backend(NativeHandle);
+            return (ViewBackend)rawResult;
         }
     }
 

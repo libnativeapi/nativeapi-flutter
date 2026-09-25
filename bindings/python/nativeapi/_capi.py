@@ -1493,7 +1493,23 @@ native_view_create_with_native_view = function(
     ],
 )
 native_view_is_supported = function("native_view_is_supported", c_bool, [])
+native_view_is_backend_supported = function(
+    "native_view_is_backend_supported",
+    c_bool,
+    [
+        c_int,
+    ],
+)
+native_view_set_default_backend = function(
+    "native_view_set_default_backend",
+    c_bool,
+    [
+        c_int,
+    ],
+)
+native_view_get_default_backend = function("native_view_get_default_backend", c_int, [])
 native_view_get_id = function("native_view_get_id", c_uint, [c_uint64])
+native_view_get_backend = function("native_view_get_backend", c_int, [c_uint64])
 native_view_add_subview = function(
     "native_view_add_subview",
     None,

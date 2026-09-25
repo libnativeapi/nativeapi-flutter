@@ -73,6 +73,47 @@ napi_value Js_native_view_is_supported(napi_env env, napi_callback_info info) {
   return Value::Bool(result).ToJs(env);
 }
 
+napi_value Js_native_view_is_backend_supported(napi_env env, napi_callback_info info) {
+  Args args(env, info);
+  if (!args.ok()) {
+    return nullptr;
+  }
+  Arena arena;
+  (void)arena;
+  native_view_backend_t p0 = {};
+  if (!GetNumber(env, args[0], &p0)) {
+    return nullptr;
+  }
+  auto result = OnMainThread([&] { return native_view_is_backend_supported(p0); });
+  return Value::Bool(result).ToJs(env);
+}
+
+napi_value Js_native_view_set_default_backend(napi_env env, napi_callback_info info) {
+  Args args(env, info);
+  if (!args.ok()) {
+    return nullptr;
+  }
+  Arena arena;
+  (void)arena;
+  native_view_backend_t p0 = {};
+  if (!GetNumber(env, args[0], &p0)) {
+    return nullptr;
+  }
+  auto result = OnMainThread([&] { return native_view_set_default_backend(p0); });
+  return Value::Bool(result).ToJs(env);
+}
+
+napi_value Js_native_view_get_default_backend(napi_env env, napi_callback_info info) {
+  Args args(env, info);
+  if (!args.ok()) {
+    return nullptr;
+  }
+  Arena arena;
+  (void)arena;
+  auto result = OnMainThread([&] { return native_view_get_default_backend(); });
+  return Value::Number(static_cast<double>(result)).ToJs(env);
+}
+
 napi_value Js_native_view_get_id(napi_env env, napi_callback_info info) {
   Args args(env, info);
   if (!args.ok()) {
@@ -85,6 +126,21 @@ napi_value Js_native_view_get_id(napi_env env, napi_callback_info info) {
     return nullptr;
   }
   auto result = OnMainThread([&] { return native_view_get_id(self); });
+  return Value::Number(static_cast<double>(result)).ToJs(env);
+}
+
+napi_value Js_native_view_get_backend(napi_env env, napi_callback_info info) {
+  Args args(env, info);
+  if (!args.ok()) {
+    return nullptr;
+  }
+  Arena arena;
+  (void)arena;
+  uint64_t self = 0;
+  if (!GetHandle(env, args[0], &self)) {
+    return nullptr;
+  }
+  auto result = OnMainThread([&] { return native_view_get_backend(self); });
   return Value::Number(static_cast<double>(result)).ToJs(env);
 }
 
@@ -1357,7 +1413,11 @@ void RegisterView(napi_env env, napi_value exports) {
   Export(env, exports, "native_view_free", Js_native_view_free);
   Export(env, exports, "native_view_get_native_object", Js_native_view_get_native_object);
   Export(env, exports, "native_view_is_supported", Js_native_view_is_supported);
+  Export(env, exports, "native_view_is_backend_supported", Js_native_view_is_backend_supported);
+  Export(env, exports, "native_view_set_default_backend", Js_native_view_set_default_backend);
+  Export(env, exports, "native_view_get_default_backend", Js_native_view_get_default_backend);
   Export(env, exports, "native_view_get_id", Js_native_view_get_id);
+  Export(env, exports, "native_view_get_backend", Js_native_view_get_backend);
   Export(env, exports, "native_view_add_subview", Js_native_view_add_subview);
   Export(env, exports, "native_view_insert_subview", Js_native_view_insert_subview);
   Export(env, exports, "native_view_remove_subview", Js_native_view_remove_subview);

@@ -1,5 +1,8 @@
 ## Unreleased
 
+* `ViewBackend` and `View.isBackendSupported`, `View.setDefaultBackend`,
+  `View.getDefaultBackend` and `View.backend`: on Windows builds with the WinUI 3
+  backend, views are WinUI 3 XAML controls by default.
 * Native views: `View` (a container with Absolute, Row and Column layout),
   `Label`, `Button`, `TextField` and `ImageView`, plus `Window.contentView` to
   put them in a window. A control is a `View`, so it can be passed wherever a

@@ -2090,8 +2090,26 @@ native_view_alignment_t native_view_get_alignment(Dartnative_view_t view) {
   return native_view_alignment_t.fromValue(_native_view_get_alignment(view));
 }
 
+@ffi.Native<ffi.UnsignedInt Function(native_view_t)>(
+  symbol: 'native_view_get_backend',
+)
+external int _native_view_get_backend(int view);
+
+native_view_backend_t native_view_get_backend(Dartnative_view_t view) {
+  return native_view_backend_t.fromValue(_native_view_get_backend(view));
+}
+
 @ffi.Native<native_color_t Function(native_view_t)>()
 external native_color_t native_view_get_background_color(int view);
+
+@ffi.Native<ffi.UnsignedInt Function()>(
+  symbol: 'native_view_get_default_backend',
+)
+external int _native_view_get_default_backend();
+
+native_view_backend_t native_view_get_default_backend() {
+  return native_view_backend_t.fromValue(_native_view_get_default_backend());
+}
 
 @ffi.Native<ffi.Double Function(native_view_t)>()
 external double native_view_get_flex(int view);
@@ -2152,6 +2170,15 @@ external int native_view_get_window(int view);
 @ffi.Native<ffi.Void Function(native_view_t, ffi.UnsignedLong, native_view_t)>()
 external void native_view_insert_subview(int view, int index, int subview);
 
+@ffi.Native<ffi.Bool Function(ffi.UnsignedInt)>(
+  symbol: 'native_view_is_backend_supported',
+)
+external bool _native_view_is_backend_supported(int backend);
+
+bool native_view_is_backend_supported(native_view_backend_t backend) {
+  return _native_view_is_backend_supported(backend.value);
+}
+
 @ffi.Native<ffi.Bool Function(native_view_t)>()
 external bool native_view_is_enabled(int view);
 
@@ -2196,6 +2223,15 @@ void native_view_set_alignment(
 
 @ffi.Native<ffi.Void Function(native_view_t, native_color_t)>()
 external void native_view_set_background_color(int view, native_color_t color);
+
+@ffi.Native<ffi.Bool Function(ffi.UnsignedInt)>(
+  symbol: 'native_view_set_default_backend',
+)
+external bool _native_view_set_default_backend(int backend);
+
+bool native_view_set_default_backend(native_view_backend_t backend) {
+  return _native_view_set_default_backend(backend.value);
+}
 
 @ffi.Native<ffi.Void Function(native_view_t, ffi.Bool)>()
 external void native_view_set_enabled(int view, bool is_enabled);
@@ -4546,6 +4582,20 @@ enum native_view_alignment_t {
     _ => throw ArgumentError(
       'Unknown value for native_view_alignment_t: $value',
     ),
+  };
+}
+
+enum native_view_backend_t {
+  NATIVE_VIEW_BACKEND_NATIVE(0),
+  NATIVE_VIEW_BACKEND_WIN_UI3(1);
+
+  final int value;
+  const native_view_backend_t(this.value);
+
+  static native_view_backend_t fromValue(int value) => switch (value) {
+    0 => NATIVE_VIEW_BACKEND_NATIVE,
+    1 => NATIVE_VIEW_BACKEND_WIN_UI3,
+    _ => throw ArgumentError('Unknown value for native_view_backend_t: $value'),
   };
 }
 

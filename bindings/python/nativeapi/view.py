@@ -37,6 +37,11 @@ class TextAlignment(enum.IntEnum):
     END = 2
 
 
+class ViewBackend(enum.IntEnum):
+    NATIVE = 0
+    WIN_UI3 = 1
+
+
 @dataclass(frozen=True)
 class ViewEvent:
     """Base of every ViewEvent; listeners receive one of its subclasses."""
@@ -114,10 +119,30 @@ class View(_rt.NativeObject):
         raw = _C.native_view_is_supported()
         return raw
 
+    @staticmethod
+    def is_backend_supported(backend: ViewBackend) -> bool:
+        raw = _C.native_view_is_backend_supported(int(backend))
+        return raw
+
+    @staticmethod
+    def set_default_backend(backend: ViewBackend) -> bool:
+        raw = _C.native_view_set_default_backend(int(backend))
+        return raw
+
+    @staticmethod
+    def get_default_backend() -> ViewBackend:
+        raw = _C.native_view_get_default_backend()
+        return _rt.to_enum(ViewBackend, raw)
+
     @property
     def id(self) -> ViewId:
         raw = _C.native_view_get_id(self._handle)
         return raw
+
+    @property
+    def backend(self) -> ViewBackend:
+        raw = _C.native_view_get_backend(self._handle)
+        return _rt.to_enum(ViewBackend, raw)
 
     def add_subview(self, subview: View | None) -> None:
         _C.native_view_add_subview(self._handle, _rt.handle_of(subview))

@@ -1,5 +1,8 @@
 ## Unreleased
 
+* `native_view_backend_t` and `native_view_is_backend_supported`,
+  `native_view_set_default_backend`, `native_view_get_default_backend`,
+  `native_view_get_backend`.
 * Raw bindings for the view module (`native_view_*`, `native_label_*`,
   `native_button_*`, `native_text_field_*`, `native_image_view_*`,
   `native_window_get_content_view`) and `native_edge_insets_t`.

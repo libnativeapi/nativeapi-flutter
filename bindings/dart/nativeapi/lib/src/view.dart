@@ -77,6 +77,22 @@ enum TextAlignment {
       c.native_text_alignment_t.fromValue(value);
 }
 
+enum ViewBackend {
+  native(0),
+  winUi3(1);
+
+  const ViewBackend(this.value);
+  final int value;
+
+  static ViewBackend fromValue(int value) => switch (value) {
+    0 => ViewBackend.native,
+    1 => ViewBackend.winUi3,
+    _ => ViewBackend.native,
+  };
+
+  c.native_view_backend_t get raw => c.native_view_backend_t.fromValue(value);
+}
+
 /// One `ViewEvent`, in its concrete form.
 sealed class ViewEvent {
   const ViewEvent();
@@ -203,8 +219,26 @@ class View {
     return c.native_view_is_supported();
   }
 
+  static bool isBackendSupported(ViewBackend backend) {
+    return c.native_view_is_backend_supported(backend.raw);
+  }
+
+  static bool setDefaultBackend(ViewBackend backend) {
+    return c.native_view_set_default_backend(backend.raw);
+  }
+
+  static ViewBackend getDefaultBackend() {
+    final raw = c.native_view_get_default_backend();
+    return ViewBackend.fromValue(raw.value);
+  }
+
   ViewId get id {
     return c.native_view_get_id(nativeHandle);
+  }
+
+  ViewBackend get backend {
+    final raw = c.native_view_get_backend(nativeHandle);
+    return ViewBackend.fromValue(raw.value);
   }
 
   void addSubview(View? subview) {

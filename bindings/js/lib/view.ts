@@ -31,6 +31,12 @@ export const TextAlignment = {
 } as const;
 export type TextAlignment = (typeof TextAlignment)[keyof typeof TextAlignment];
 
+export const ViewBackend = {
+  Native: 0,
+  WinUi3: 1,
+} as const;
+export type ViewBackend = (typeof ViewBackend)[keyof typeof ViewBackend];
+
 export type ViewEvent =
   | { type: "focused"; viewId: ViewId }
   | { type: "blurred"; viewId: ViewId }
@@ -59,8 +65,24 @@ export class View extends NativeObject {
     return native.native_view_is_supported();
   }
 
+  static isBackendSupported(backend: ViewBackend): boolean {
+    return native.native_view_is_backend_supported(backend);
+  }
+
+  static setDefaultBackend(backend: ViewBackend): boolean {
+    return native.native_view_set_default_backend(backend);
+  }
+
+  static getDefaultBackend(): ViewBackend {
+    return native.native_view_get_default_backend();
+  }
+
   get id(): ViewId {
     return native.native_view_get_id(this.nativeHandle);
+  }
+
+  get backend(): ViewBackend {
+    return native.native_view_get_backend(this.nativeHandle);
   }
 
   addSubview(subview: View | null): void {

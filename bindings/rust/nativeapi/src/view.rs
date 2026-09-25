@@ -87,6 +87,27 @@ impl TextAlignment {
     }
 }
 
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ViewBackend {
+    Native = 0,
+    WinUi3 = 1,
+}
+
+impl ViewBackend {
+    pub(crate) fn from_raw(raw: cnativeapi::native_view_backend_t) -> Self {
+        match raw {
+            cnativeapi::NATIVE_VIEW_BACKEND_NATIVE => Self::Native,
+            cnativeapi::NATIVE_VIEW_BACKEND_WIN_UI3 => Self::WinUi3,
+            _ => Self::Native,
+        }
+    }
+
+    pub(crate) fn to_raw(self) -> cnativeapi::native_view_backend_t {
+        self as cnativeapi::native_view_backend_t
+    }
+}
+
 /// One `ViewEvent`, in its concrete form.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ViewEvent {
@@ -160,9 +181,33 @@ impl View {
         }
     }
 
+    pub fn is_backend_supported(backend: ViewBackend) -> bool {
+        unsafe {
+            cnativeapi::native_view_is_backend_supported(backend.to_raw())
+        }
+    }
+
+    pub fn set_default_backend(backend: ViewBackend) -> bool {
+        unsafe {
+            cnativeapi::native_view_set_default_backend(backend.to_raw())
+        }
+    }
+
+    pub fn get_default_backend() -> ViewBackend {
+        unsafe {
+            ViewBackend::from_raw(cnativeapi::native_view_get_default_backend())
+        }
+    }
+
     pub fn id(&self) -> ViewId {
         unsafe {
             cnativeapi::native_view_get_id(self.handle)
+        }
+    }
+
+    pub fn backend(&self) -> ViewBackend {
+        unsafe {
+            ViewBackend::from_raw(cnativeapi::native_view_get_backend(self.handle))
         }
     }
 

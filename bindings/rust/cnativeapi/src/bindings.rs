@@ -278,6 +278,9 @@ pub const NATIVE_TEXT_ALIGNMENT_START: native_text_alignment_t = 0;
 pub const NATIVE_TEXT_ALIGNMENT_CENTER: native_text_alignment_t = 1;
 pub const NATIVE_TEXT_ALIGNMENT_END: native_text_alignment_t = 2;
 pub type native_text_alignment_t = ::std::os::raw::c_uint;
+pub const NATIVE_VIEW_BACKEND_NATIVE: native_view_backend_t = 0;
+pub const NATIVE_VIEW_BACKEND_WIN_UI3: native_view_backend_t = 1;
+pub type native_view_backend_t = ::std::os::raw::c_uint;
 #[doc = " Owning list of View handles."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -371,7 +374,19 @@ unsafe extern "C" {
     pub fn native_view_is_supported() -> bool;
 }
 unsafe extern "C" {
+    pub fn native_view_is_backend_supported(backend: native_view_backend_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_set_default_backend(backend: native_view_backend_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_get_default_backend() -> native_view_backend_t;
+}
+unsafe extern "C" {
     pub fn native_view_get_id(view: native_view_t) -> native_view_id_t;
+}
+unsafe extern "C" {
+    pub fn native_view_get_backend(view: native_view_t) -> native_view_backend_t;
 }
 unsafe extern "C" {
     pub fn native_view_add_subview(view: native_view_t, subview: native_view_t);
