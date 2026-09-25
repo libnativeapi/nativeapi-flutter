@@ -78,3 +78,8 @@ jobs:
           args=()
           if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
           gh release create "$RELEASE_TAG" target/package/*.crate --verify-tag --generate-notes "${args[@]}"
+      # rust-cache's post step walks target/ and trips over the unpacked
+      # package, whose vendored core has its own tests/ tree.
+      - name: Remove unpacked packages before caching
+        if: always()
+        run: test ! -d target/package || find target/package -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
