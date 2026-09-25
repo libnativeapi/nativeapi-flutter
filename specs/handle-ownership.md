@@ -78,12 +78,19 @@ typedef uint64_t native_handle_t;
 
 | 平台 | 钩子 | 现状 |
 |---|---|---|
-| macOS | `NSWindowWillCloseNotification` | 已监听，但 `windowWillClose:` 处理函数**整个是注释掉的空壳**（`window_manager_macos.mm:169`）——这就是 macOS 窗口泄漏的直接原因 |
+| macOS | `NSWindowWillCloseNotification` | **已实施**（2026-09-25）：`OnWindowEvent("closing")` 在派发 `WindowClosedEvent` 之后 `Remove`，并给 `NSWindow` 打上已关闭标记，`GetAll()` 不再把它登记回来；窗口重新显示时标记清除 |
 | Windows | `WM_NCDESTROY` | 未接；现用包装对象析构代替 |
 | Linux | GTK `destroy` 信号 | 未接 |
 | iOS / Android / OHOS | — | 未接 |
 
-这项尚未实施，是 T4.4 的剩余部分。
+macOS 已实施，其余平台仍是 T4.4 的剩余部分。
+
+macOS 上与之配套的一条：每个 `Window` 包装对象都持有它的 `NSWindow`（MRC 下显式
+`retain`，ARC 下由强引用成员持有）。否则窗口关闭后 AppKit 会释放它，调用方手里的
+句柄仍能解析出包装对象，任何调用都会向已释放的对象发消息。这正是 `deno desktop`
+下 `WindowManager.getAll()` 在窗口关闭后崩溃的原因。现在关闭的窗口只要还有句柄就保持
+有效，调用照常安全返回；句柄全部释放后窗口随之释放。`GetAll()` 也只返回仍在
+`NSApp.windows` 里且未关闭的窗口，不再原样返回注册表。
 
 ### 2.5 释放函数命名（已被 c-abi.md 取代）
 
