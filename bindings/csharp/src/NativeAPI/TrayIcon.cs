@@ -229,13 +229,12 @@ public sealed partial class TrayIcon : IDisposable
 
     /// <summary>Registers <paramref name="callback"/> for every TrayIconEvent this TrayIcon emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<TrayIconEvent> callback)
     {
-        var native = CallbackKeeper.Retain<TrayIconEventNativeCallback>((evt, userData) =>
+        TrayIconEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -246,8 +245,8 @@ public sealed partial class TrayIcon : IDisposable
             {
                 callback(value);
             }
-        });
-        return Interop.native_tray_icon_add_listener(NativeHandle, native, IntPtr.Zero);
+        };
+        return Interop.native_tray_icon_add_listener(NativeHandle, native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>

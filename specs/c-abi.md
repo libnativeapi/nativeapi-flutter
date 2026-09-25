@@ -107,6 +107,29 @@ struct，C++ 侧的 `dynamic_cast` 层级在 C 侧摊平成 tag + 联合字段�
 回调签名统一带 `void* user_data` 尾参。回调里拿到的句柄和字符串**都不需要也不应该
 释放**（[handle-ownership.md](handle-ownership.md) §2.6 的例外条）。
 
+### 6.1 `user_data` 的释放
+
+凡是接收回调的地方——函数参数、`add_listener`、struct 的回调字段——都在
+`user_data` 之后再带一个 `native_release_user_data_t`（`common_c.h`，可为
+`NULL`）。**什么时候释放由 core 决定，绑定不推测**：
+
+- **恰好一次。** 每次调用都会释放它收到的 `user_data`，包括调用失败、句柄无效、
+  回调为 `NULL` 的情况。注册失败时绑定不需要自己清理。
+- **在 core 最后一次可能调用该回调之后。** 监听器被移除、回调被替换或清空、注册
+  结束、持有者被销毁时，core 都会释放。实现方式是生成的胶水代码在函数开头创建
+  `nativeapi::capi::UserData`（`core/src/capi/user_data.h`），并让它随
+  `std::function` 被捕获；最后一份拷贝析构时释放。所以 C++ 侧持有回调时必须保证
+  调用期间回调不会析构（参见 `Shortcut::Invoke` 的做法）。
+- **在主线程上，异步执行。** 释放永远投递到主线程（`RunOnMainThread`），不会在让回调
+  离开的那次调用内部执行：绑定的释放函数可能运行任意代码（比如 Rust 闭包的析构），
+  不能在 core 某个对象的锁里跑。没有主线程派发机制的平台（Android / OHOS）改为就地
+  执行。进程退出、投递失败时直接放弃释放，因为绑定的运行时可能已经不在了。
+- 主线程不一定是绑定自己的线程（Dart 的 isolate、`deno desktop` 下的 JS 线程），
+  需要切换线程的绑定在自己的释放函数里切换。
+
+struct 里的回调字段在 core 读取这个 struct 时接管（生成的 `to_cpp_*` 转换）。一个
+从未传给 core 的 struct，它的 `user_data` 由调用方自己负责。
+
 ## 7. 已知未决
 
 写生成器或改 ABI 前先看这几条，避免把问题复制到下游：
@@ -132,4 +155,5 @@ struct，C++ 侧的 `dynamic_cast` 层级在 C 侧摊平成 tag + 联合字段�
 - [ ] 身份对象已在 `IdTypeTag` 注册表登记（句柄表的类型校验依赖它）。
 - [ ] 返回字符串的函数已在文档里写明由 `free_c_str()` 释放。
 - [ ] 返回列表的函数已说明该配 `_list_free` 还是 `_list_release`。
+- [ ] 新增的回调持有方式能保证：调用期间回调不析构，放手时析构（`user_data` 才会被释放，§6.1）。
 - [ ] 改动经 `./codegen sync` 传播到三个绑定（见 workspace `AGENTS.md`）。

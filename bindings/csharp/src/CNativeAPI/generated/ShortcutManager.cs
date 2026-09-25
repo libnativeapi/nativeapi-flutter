@@ -51,7 +51,7 @@ public static partial class Interop
     public static extern native_shortcut_list_t native_shortcut_manager_get_by_scope(int scope);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_shortcut_manager_add_listener(ShortcutEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_shortcut_manager_add_listener(ShortcutEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_shortcut_manager_get_with_accelerator([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator);
@@ -60,7 +60,7 @@ public static partial class Interop
     public static extern ulong native_shortcut_manager_get_with_id(uint id);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_shortcut_manager_register_with_accelerator_and_callback([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator, ShortcutManagerRegisterWithAcceleratorAndCallbackCallbackNativeCallback callback, IntPtr callback_user_data);
+    public static extern ulong native_shortcut_manager_register_with_accelerator_and_callback([MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator, ShortcutManagerRegisterWithAcceleratorAndCallbackCallbackNativeCallback callback, IntPtr callback_user_data, ReleaseUserDataNativeCallback callback_release_user_data);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_shortcut_manager_register_with_options(native_shortcut_options_t options);

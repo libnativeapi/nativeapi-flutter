@@ -43,9 +43,10 @@ public struct ShortcutOptions
         raw.accelerator = Marshal.StringToCoTaskMemUTF8(Accelerator);
         if (Callback is { } callbackBody)
         {
-            var callbackNative = CallbackKeeper.Retain<ShortcutOptionsCallbackNativeCallback>((userData) => callbackBody());
+            ShortcutOptionsCallbackNativeCallback callbackNative = (userData) => callbackBody();
             raw.callback = Marshal.GetFunctionPointerForDelegate(callbackNative);
-            raw.callback_user_data = IntPtr.Zero;
+            raw.callback_user_data = CallbackKeeper.Hold(callbackNative);
+            raw.callback_release_user_data = CallbackKeeper.ReleasePointer;
         }
         raw.description = Marshal.StringToCoTaskMemUTF8(Description);
         raw.scope = (int)Scope;
@@ -126,8 +127,8 @@ public sealed partial class Shortcut : IDisposable
     /// <summary>Creates a new Shortcut; returns null if the native side failed.</summary>
     public static Shortcut? CreateWithIdAndAcceleratorAndCallback(uint id, string accelerator, Action callback)
     {
-        var nativeCallback = CallbackKeeper.Retain<ShortcutCreateWithIdAndAcceleratorAndCallbackCallbackNativeCallback>((userData) => callback());
-        var handle = Interop.native_shortcut_create_with_id_and_accelerator_and_callback(id, accelerator, nativeCallback, IntPtr.Zero);
+        ShortcutCreateWithIdAndAcceleratorAndCallbackCallbackNativeCallback nativeCallback = (userData) => callback();
+        var handle = Interop.native_shortcut_create_with_id_and_accelerator_and_callback(id, accelerator, nativeCallback, CallbackKeeper.Hold(nativeCallback), CallbackKeeper.Release);
         return handle == 0 ? null : new Shortcut(handle);
     }
 
@@ -193,8 +194,8 @@ public sealed partial class Shortcut : IDisposable
 
     public void SetCallback(Action callback)
     {
-        var nativeCallback = CallbackKeeper.Retain<ShortcutSetCallbackCallbackNativeCallback>((userData) => callback());
-        Interop.native_shortcut_set_callback(NativeHandle, nativeCallback, IntPtr.Zero);
+        ShortcutSetCallbackCallbackNativeCallback nativeCallback = (userData) => callback();
+        Interop.native_shortcut_set_callback(NativeHandle, nativeCallback, CallbackKeeper.Hold(nativeCallback), CallbackKeeper.Release);
     }
 
 }

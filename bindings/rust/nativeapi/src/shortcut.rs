@@ -61,12 +61,17 @@ impl ShortcutOptions {
                 let callback = &*(user_data as *const std::sync::Arc<dyn Fn()>);
                 callback();
             }
-            fn leak_callback(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
-                // The C ABI keeps the pointer but offers no hook to reclaim it.
+            fn into_user_data(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
                 Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void
             }
+            unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+                if !user_data.is_null() {
+                    drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn()>));
+                }
+            }
             raw.callback = Some(trampoline);
-            raw.callback_user_data = leak_callback(callback.clone());
+            raw.callback_user_data = into_user_data(callback.clone());
+            raw.callback_release_user_data = Some(release);
         }
         let description_owned = self.description.as_deref().map(|value| CString::new(value).unwrap_or_default());
         raw.description = description_owned.as_ref().map_or(std::ptr::null_mut(), |value| value.as_ptr() as *mut _);
@@ -145,13 +150,17 @@ impl Shortcut {
             let callback = &*(user_data as *const std::sync::Arc<dyn Fn()>);
             callback();
         }
-        fn leak_callback(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
-            // The C ABI keeps the pointer but offers no hook to reclaim it.
+        fn into_user_data(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
             Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void
         }
-        let callback_user_data = leak_callback(std::sync::Arc::new(callback));
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            if !user_data.is_null() {
+                drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn()>));
+            }
+        }
+        let callback_user_data = into_user_data(std::sync::Arc::new(callback));
         unsafe {
-            Self::from_raw(cnativeapi::native_shortcut_create_with_id_and_accelerator_and_callback(id, accelerator_native.as_ptr(), Some(trampoline), callback_user_data))
+            Self::from_raw(cnativeapi::native_shortcut_create_with_id_and_accelerator_and_callback(id, accelerator_native.as_ptr(), Some(trampoline), callback_user_data, Some(release)))
         }
     }
 
@@ -224,13 +233,17 @@ impl Shortcut {
             let callback = &*(user_data as *const std::sync::Arc<dyn Fn()>);
             callback();
         }
-        fn leak_callback(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
-            // The C ABI keeps the pointer but offers no hook to reclaim it.
+        fn into_user_data(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
             Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void
         }
-        let callback_user_data = leak_callback(std::sync::Arc::new(callback));
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            if !user_data.is_null() {
+                drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn()>));
+            }
+        }
+        let callback_user_data = into_user_data(std::sync::Arc::new(callback));
         unsafe {
-            cnativeapi::native_shortcut_set_callback(self.handle, Some(trampoline), callback_user_data);
+            cnativeapi::native_shortcut_set_callback(self.handle, Some(trampoline), callback_user_data, Some(release));
         }
     }
 

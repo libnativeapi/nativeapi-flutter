@@ -26,7 +26,8 @@ use codegen_shared::ir::{Api, Class, EventGroup, Header, Method, Param, Struct, 
 use codegen_shared::naming::{
     c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
     c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol, c_native_object_symbol,
-    c_param_type, c_remove_listener_symbol, c_type_name, c_user_data_param, constructor_suffix,
+    c_param_type, c_release_user_data_param, c_remove_listener_symbol, c_type_name,
+    c_user_data_param, constructor_suffix,
     is_binding_accessor, struct_has_owned_fields, swift_method_name, TypeOrigins, STRING_FREE_FN,
     STRING_LIST_FREE_FN, STRING_MAP_FREE_FN,
 };
@@ -253,6 +254,12 @@ fn render_struct_converters(out: &mut String, item: &Struct, prefix: &str) {
                 )
                 .unwrap();
                 writeln!(out, "    out->{user_data} = callback;").unwrap();
+                writeln!(
+                    out,
+                    "    out->{} = &Callback::ReleaseUserData;",
+                    c_release_user_data_param(&field.name)
+                )
+                .unwrap();
             }
             other => {
                 let read = read_into(other, "field", &format!("&out->{raw}"));
@@ -616,12 +623,9 @@ impl Glue<'_> {
         )
         .unwrap();
         writeln!(out, "    }}").unwrap();
-        writeln!(out, "  }}, callback); }});").unwrap();
-        writeln!(out, "  if (id == 0) {{").unwrap();
-        writeln!(out, "    callback->Release();").unwrap();
-        writeln!(out, "  }} else {{").unwrap();
-        writeln!(out, "    RememberListener(\"{add}\", self, id, callback);").unwrap();
-        writeln!(out, "  }}").unwrap();
+        // The core releases `callback` once the listener is removed, its
+        // emitter destroyed, or registration failed.
+        writeln!(out, "  }}, callback, &Callback::ReleaseUserData); }});").unwrap();
         writeln!(
             out,
             "  return Value::Number(static_cast<double>(id)).ToJs(env);"
@@ -657,9 +661,6 @@ impl Glue<'_> {
             "  bool removed = OnMainThread([&] {{ return {remove}({self_arg}id); }});"
         )
         .unwrap();
-        writeln!(out, "  if (removed) {{").unwrap();
-        writeln!(out, "    ForgetListener(\"{add}\", self, id);").unwrap();
-        writeln!(out, "  }}").unwrap();
         writeln!(out, "  return Value::Bool(removed).ToJs(env);").unwrap();
         writeln!(out, "}}").unwrap();
         writeln!(out).unwrap();
@@ -698,6 +699,7 @@ fn render_param(
             );
             call_args.push(trampoline(params, prefix));
             call_args.push(local.to_string());
+            call_args.push("&Callback::ReleaseUserData".to_string());
         }
         TypeRef::Optional { inner } if matches!(inner.as_ref(), TypeRef::Callback { .. }) => {
             let TypeRef::Callback { params } = inner.as_ref() else {
@@ -713,6 +715,7 @@ fn render_param(
                 trampoline(params, prefix)
             ));
             call_args.push(local.to_string());
+            call_args.push("&Callback::ReleaseUserData".to_string());
         }
         TypeRef::Optional { inner } if matches!(inner.as_ref(), TypeRef::Struct { .. }) => {
             let TypeRef::Struct { name, .. } = inner.as_ref() else {

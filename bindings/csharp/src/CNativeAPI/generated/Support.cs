@@ -13,22 +13,31 @@ public static class Libraries
     public const string NativeApi = "nativeapi";
 }
 
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+public delegate void ReleaseUserDataNativeCallback(IntPtr userData);
+
 /// <summary>
-/// Keeps callback delegates alive for the lifetime of the process: the C ABI
-/// stores the function pointer but offers no hook to release it.
+/// Keeps each callback delegate alive for as long as the core may call it.
+/// The user_data passed with a delegate is a GCHandle to it; the core hands
+/// it back to <see cref="Release"/> once it lets the callback go.
 /// </summary>
 public static class CallbackKeeper
 {
-    private static readonly List<Delegate> Retained = new();
+    /// <summary>The user_data for <paramref name="callback"/>; zero for null.</summary>
+    public static IntPtr Hold(Delegate? callback) =>
+        callback is null ? IntPtr.Zero : GCHandle.ToIntPtr(GCHandle.Alloc(callback));
 
-    public static T Retain<T>(T callback) where T : Delegate
+    /// <summary>The release function passed with every callback. Static, so it outlives them all.</summary>
+    public static readonly ReleaseUserDataNativeCallback Release = userData =>
     {
-        lock (Retained)
+        if (userData != IntPtr.Zero)
         {
-            Retained.Add(callback);
+            GCHandle.FromIntPtr(userData).Free();
         }
-        return callback;
-    }
+    };
+
+    /// <summary><see cref="Release"/> as a function pointer, for struct fields.</summary>
+    public static readonly IntPtr ReleasePointer = Marshal.GetFunctionPointerForDelegate(Release);
 }
 
 [StructLayout(LayoutKind.Sequential)]

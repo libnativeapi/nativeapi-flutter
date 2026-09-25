@@ -56,7 +56,7 @@ public static partial class Interop
     public static extern IntPtr native_notification_manager_get_last_error();
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_notification_manager_add_listener(NotificationEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_notification_manager_add_listener(NotificationEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_notification_manager_shutdown();

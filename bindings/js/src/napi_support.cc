@@ -3,11 +3,9 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
-#include <map>
 #include <memory>
 #include <mutex>
 #include <thread>
-#include <tuple>
 
 #include "foundation/dispatcher.h"
 
@@ -330,8 +328,8 @@ bool GetStringMap(napi_env env, napi_value value, Arena& arena, native_string_ma
 
 namespace {
 
-std::mutex g_listeners_mutex;
-std::map<std::tuple<std::string, uint64_t, uint64_t>, Callback*> g_listeners;
+// Queued in place of call arguments: release the Callback instead.
+char g_release_marker;
 
 void ReportException(napi_env env) {
   bool pending = false;
@@ -361,7 +359,10 @@ bool GetCallback(napi_env env, napi_value value, bool optional, Callback** out) 
 
   napi_value name = nullptr;
   napi_create_string_utf8(env, "nativeapi callback", NAPI_AUTO_LENGTH, &name);
-  if (napi_create_threadsafe_function(env, nullptr, nullptr, name, 0, 1, nullptr, nullptr,
+  // The queue owns the Callback: its finalizer frees it once released and
+  // drained, so a call still queued never touches freed memory.
+  auto finalize = [](napi_env, void* data, void*) { delete static_cast<Callback*>(data); };
+  if (napi_create_threadsafe_function(env, nullptr, nullptr, name, 0, 1, callback, finalize,
                                       callback, &Callback::CallFromQueue,
                                       &callback->queue_) == napi_ok) {
     // A registered listener must not keep the process alive on its own.
@@ -397,6 +398,12 @@ void Callback::Dispatch(void* user_data, std::vector<Value> args) {
 }
 
 void Callback::CallFromQueue(napi_env env, napi_value, void* context, void* data) {
+  if (data == &g_release_marker) {
+    if (env != nullptr && g_env_alive.load()) {
+      static_cast<Callback*>(context)->ReleaseOnJsThread();
+    }
+    return;
+  }
   auto* args = static_cast<std::vector<Value>*>(data);
   if (env != nullptr && g_env_alive.load()) {
     static_cast<Callback*>(context)->Call(env, *args);
@@ -424,30 +431,30 @@ void Callback::Call(napi_env env, const std::vector<Value>& args) {
   }
 }
 
-void Callback::Release() {
-  if (function_ != nullptr && g_env_alive.load()) {
+void Callback::ReleaseUserData(void* user_data) {
+  auto* callback = static_cast<Callback*>(user_data);
+  if (callback == nullptr || !g_env_alive.load()) {
+    return;  // The environment is gone, and every Callback with it.
+  }
+  if (IsJsThread()) {
+    callback->ReleaseOnJsThread();
+  } else if (callback->queue_ != nullptr) {
+    napi_call_threadsafe_function(callback->queue_, &g_release_marker, napi_tsfn_nonblocking);
+  }
+}
+
+void Callback::ReleaseOnJsThread() {
+  if (function_ != nullptr) {
     napi_delete_reference(env_, function_);
+    function_ = nullptr;
   }
-  function_ = nullptr;
-}
-
-void RememberListener(const char* scope, uint64_t owner, uint64_t id, Callback* callback) {
-  std::lock_guard<std::mutex> lock(g_listeners_mutex);
-  g_listeners[{scope, owner, id}] = callback;
-}
-
-void ForgetListener(const char* scope, uint64_t owner, uint64_t id) {
-  Callback* callback = nullptr;
-  {
-    std::lock_guard<std::mutex> lock(g_listeners_mutex);
-    auto it = g_listeners.find({scope, owner, id});
-    if (it == g_listeners.end()) {
-      return;
-    }
-    callback = it->second;
-    g_listeners.erase(it);
+  if (queue_ != nullptr) {
+    auto* queue = queue_;
+    queue_ = nullptr;
+    napi_release_threadsafe_function(queue, napi_tsfn_release);  // finalizer frees this
+  } else {
+    delete this;
   }
-  callback->Release();
 }
 
 // ---------------------------------------------------------------------------

@@ -40,7 +40,7 @@ public static partial class Interop
     public static extern uint native_window_drag_session_get_window_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_window_drag_session_add_listener(ulong self, WindowDragEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_window_drag_session_add_listener(ulong self, WindowDragEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_window_drag_session_create();

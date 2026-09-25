@@ -42,10 +42,12 @@ class ShortcutOptions:
         raw.accelerator = _rt.encode(self.accelerator)
         if self.callback is not None:
             fn = self.callback
-            raw.callback = _rt.retain_callback(
+            raw.callback = _rt.make_callback(
                 _C.native_void_callback_t,
                 lambda _user_data: fn(),
             )
+            raw.callback_user_data = _rt.user_data(raw.callback)
+            raw.callback_release_user_data = _rt.release_user_data
         raw.description = _rt.encode(self.description)
         raw.scope = int(self.scope)
         raw.enabled = self.enabled
@@ -123,7 +125,7 @@ class Shortcut(_rt.NativeObject):
         accelerator: str,
         callback: Callable[[], None],
     ) -> Shortcut:
-        native_callback = _rt.retain_callback(
+        native_callback = _rt.make_callback(
             _C.native_void_callback_t,
             lambda _user_data: callback(),
         )
@@ -131,7 +133,8 @@ class Shortcut(_rt.NativeObject):
             id,
             _rt.encode(accelerator),
             native_callback,
-            None,
+            _rt.user_data(native_callback),
+            _rt.release_user_data,
         )
         if not handle:
             raise _rt.NativeApiError("failed to create a Shortcut")
@@ -172,11 +175,16 @@ class Shortcut(_rt.NativeObject):
         _C.native_shortcut_invoke(self._handle)
 
     def set_callback(self, callback: Callable[[], None]) -> None:
-        native_callback = _rt.retain_callback(
+        native_callback = _rt.make_callback(
             _C.native_void_callback_t,
             lambda _user_data: callback(),
         )
-        _C.native_shortcut_set_callback(self._handle, native_callback, None)
+        _C.native_shortcut_set_callback(
+            self._handle,
+            native_callback,
+            _rt.user_data(native_callback),
+            _rt.release_user_data,
+        )
 
     @description.setter
     def description(self, value: str) -> None:

@@ -62,9 +62,8 @@ impl KeyboardMonitor {
 
     /// Registers `callback` for every `KeyboardEvent` this `KeyboardMonitor` emits.
     ///
-    /// The closure is leaked: the C ABI takes a `user_data` pointer but
-    /// offers no hook to reclaim it, so removing the listener stops the
-    /// calls without freeing the closure.
+    /// The closure is dropped on the main thread once the listener is removed
+    /// or its emitter destroyed.
     pub fn add_listener(&self, callback: impl Fn(&KeyboardEvent) + 'static) -> ListenerId {
         unsafe extern "C" fn trampoline(event: *const cnativeapi::native_keyboard_event_t, user_data: *mut std::ffi::c_void) {
             if event.is_null() || user_data.is_null() {
@@ -77,7 +76,10 @@ impl KeyboardMonitor {
         }
         let boxed: Box<Box<dyn Fn(&KeyboardEvent)>> = Box::new(Box::new(callback));
         let user_data = Box::into_raw(boxed) as *mut std::ffi::c_void;
-        unsafe { cnativeapi::native_keyboard_monitor_add_listener(self.handle, Some(trampoline), user_data) }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&KeyboardEvent)>));
+        }
+        unsafe { cnativeapi::native_keyboard_monitor_add_listener(self.handle, Some(trampoline), user_data, Some(release)) }
     }
 
     /// Unregisters a listener. Returns false if unknown.

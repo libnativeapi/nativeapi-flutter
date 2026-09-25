@@ -44,7 +44,7 @@ napi_value Js_native_shortcut_create_with_id_and_accelerator_and_callback(napi_e
   if (!GetCallback(env, args[2], /*optional=*/false, &p2)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_shortcut_create_with_id_and_accelerator_and_callback(p0, p1, +[](void* user_data) { Callback::Dispatch(user_data, {}); }, p2); });
+  auto result = OnMainThread([&] { return native_shortcut_create_with_id_and_accelerator_and_callback(p0, p1, +[](void* user_data) { Callback::Dispatch(user_data, {}); }, p2, &Callback::ReleaseUserData); });
   return Value::BigInt(result).ToJs(env);
 }
 
@@ -210,7 +210,7 @@ napi_value Js_native_shortcut_set_callback(napi_env env, napi_callback_info info
   if (!GetCallback(env, args[1], /*optional=*/false, &p0)) {
     return nullptr;
   }
-  OnMainThread([&] { return native_shortcut_set_callback(self, +[](void* user_data) { Callback::Dispatch(user_data, {}); }, p0); });
+  OnMainThread([&] { return native_shortcut_set_callback(self, +[](void* user_data) { Callback::Dispatch(user_data, {}); }, p0, &Callback::ReleaseUserData); });
   return Undefined(env);
 }
 

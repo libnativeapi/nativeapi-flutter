@@ -29,13 +29,17 @@ impl ShortcutManager {
             let callback = &*(user_data as *const std::sync::Arc<dyn Fn()>);
             callback();
         }
-        fn leak_callback(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
-            // The C ABI keeps the pointer but offers no hook to reclaim it.
+        fn into_user_data(callback: std::sync::Arc<dyn Fn()>) -> *mut std::ffi::c_void {
             Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void
         }
-        let callback_user_data = leak_callback(std::sync::Arc::new(callback));
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            if !user_data.is_null() {
+                drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn()>));
+            }
+        }
+        let callback_user_data = into_user_data(std::sync::Arc::new(callback));
         unsafe {
-            Shortcut::from_raw(cnativeapi::native_shortcut_manager_register_with_accelerator_and_callback(accelerator_native.as_ptr(), Some(trampoline), callback_user_data))
+            Shortcut::from_raw(cnativeapi::native_shortcut_manager_register_with_accelerator_and_callback(accelerator_native.as_ptr(), Some(trampoline), callback_user_data, Some(release)))
         }
     }
 
@@ -147,9 +151,8 @@ impl ShortcutManager {
 
     /// Registers `callback` for every `ShortcutEvent` this `ShortcutManager` emits.
     ///
-    /// The closure is leaked: the C ABI takes a `user_data` pointer but
-    /// offers no hook to reclaim it, so removing the listener stops the
-    /// calls without freeing the closure.
+    /// The closure is dropped on the main thread once the listener is removed
+    /// or its emitter destroyed.
     pub fn add_listener(callback: impl Fn(&ShortcutEvent) + 'static) -> ListenerId {
         unsafe extern "C" fn trampoline(event: *const cnativeapi::native_shortcut_event_t, user_data: *mut std::ffi::c_void) {
             if event.is_null() || user_data.is_null() {
@@ -162,7 +165,10 @@ impl ShortcutManager {
         }
         let boxed: Box<Box<dyn Fn(&ShortcutEvent)>> = Box::new(Box::new(callback));
         let user_data = Box::into_raw(boxed) as *mut std::ffi::c_void;
-        unsafe { cnativeapi::native_shortcut_manager_add_listener(Some(trampoline), user_data) }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&ShortcutEvent)>));
+        }
+        unsafe { cnativeapi::native_shortcut_manager_add_listener(Some(trampoline), user_data, Some(release)) }
     }
 
     /// Unregisters a listener. Returns false if unknown.

@@ -14,6 +14,7 @@ public struct native_shortcut_options_t
     public IntPtr accelerator;
     public IntPtr callback;
     public IntPtr callback_user_data;
+    public IntPtr callback_release_user_data;
     public IntPtr description;
     public int scope;
     public byte enabled;
@@ -78,7 +79,7 @@ public static partial class Interop
     public static extern uint native_shortcut_get_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_shortcut_create_with_id_and_accelerator_and_callback(uint id, [MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator, ShortcutCreateWithIdAndAcceleratorAndCallbackCallbackNativeCallback callback, IntPtr callback_user_data);
+    public static extern ulong native_shortcut_create_with_id_and_accelerator_and_callback(uint id, [MarshalAs(UnmanagedType.LPUTF8Str)] string? accelerator, ShortcutCreateWithIdAndAcceleratorAndCallbackCallbackNativeCallback callback, IntPtr callback_user_data, ReleaseUserDataNativeCallback callback_release_user_data);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_shortcut_create_with_id_and_options(uint id, native_shortcut_options_t options);
@@ -96,7 +97,7 @@ public static partial class Interop
     public static extern void native_shortcut_options_free(ref native_shortcut_options_t value);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void native_shortcut_set_callback(ulong self, ShortcutSetCallbackCallbackNativeCallback callback, IntPtr callback_user_data);
+    public static extern void native_shortcut_set_callback(ulong self, ShortcutSetCallbackCallbackNativeCallback callback, IntPtr callback_user_data, ReleaseUserDataNativeCallback callback_release_user_data);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern void native_shortcut_set_description(ulong self, [MarshalAs(UnmanagedType.LPUTF8Str)] string? description);

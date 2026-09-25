@@ -9,7 +9,8 @@ use codegen_shared::ir::{
 use codegen_shared::naming::{
     c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
     c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol, c_native_object_symbol,
-    c_remove_listener_symbol, c_type_name, constructor_suffix, foreign_types, is_binding_accessor,
+    c_release_user_data_param, c_remove_listener_symbol, c_type_name, c_user_data_param,
+    constructor_suffix, foreign_types, is_binding_accessor,
     struct_has_owned_fields, swift_method_name, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN,
     STRING_MAP_FREE_FN,
 };
@@ -135,6 +136,54 @@ pub fn generate_support(dart_out: &Path) -> GeneratedFile {
     }
 }
 
+/// `callbacks.dart`: the user_data every generated wrapper passes with a
+/// NativeCallable. Internal, so not in the barrel.
+///
+/// The C ABI calls a callback's release function once it can no longer call
+/// the callback (listener removed, callback replaced, registration ended,
+/// owner destroyed, or the call failed), so the binding never has to guess:
+/// user_data is a token for the callable, and the release closes it.
+pub fn generate_callbacks(dart_out: &Path) -> GeneratedFile {
+    let mut out = String::new();
+    write_banner(&mut out);
+    out.push_str(
+        r#"import 'dart:ffi' as ffi;
+
+/// Owns every NativeCallable handed to the C API until the core releases it.
+abstract final class NativeCallbacks {
+  static final _callables = <int, ffi.NativeCallable<Function>>{};
+  static var _nextToken = 0;
+
+  /// The user_data to pass with [callable]: a token the release maps back to
+  /// it. Null for a null callable, which has nothing to release.
+  static ffi.Pointer<ffi.Void> userData(ffi.NativeCallable<Function>? callable) {
+    if (callable == null) return ffi.nullptr;
+    final token = ++_nextToken;
+    _callables[token] = callable;
+    return ffi.Pointer<ffi.Void>.fromAddress(token);
+  }
+
+  /// The release function to pass with every callback. The core may call it
+  /// from any thread, so it is a listener: the callable is closed on this
+  /// isolate, after the native side has already let go of it.
+  static ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
+  get release => _release.nativeFunction;
+
+  static final _release =
+      ffi.NativeCallable<ffi.Void Function(ffi.Pointer<ffi.Void>)>.listener(
+        (ffi.Pointer<ffi.Void> userData) {
+          _callables.remove(userData.address)?.close();
+        },
+      )..keepIsolateAlive = false;
+}
+"#,
+    );
+    GeneratedFile {
+        path: dart_out.join("callbacks.dart"),
+        contents: out,
+    }
+}
+
 /// The barrel of generated modules. `lib/nativeapi.dart` stays hand-written —
 /// it also exports the hand-written widgets — and re-exports this.
 pub fn generate_barrel(api: &Api, dart_out: &Path) -> GeneratedFile {
@@ -221,6 +270,16 @@ fn generate_dart(api: &Api, header: &Header, origins: &TypeOrigins, prefix: &str
             out,
             "import '{}';",
             dart_import_path(&here, Path::new("support.dart"))
+        )
+        .unwrap();
+        writeln!(out).unwrap();
+    }
+
+    if header_passes_callbacks(header) {
+        writeln!(
+            out,
+            "import '{}';",
+            dart_import_path(&here, Path::new("callbacks.dart"))
         )
         .unwrap();
         writeln!(out).unwrap();
@@ -493,10 +552,26 @@ fn render_dart_struct(out: &mut String, item: &Struct, prefix: &str) {
                 writeln!(out, "    pointer.ref.{raw} = {name}Pointer.ref;").unwrap();
                 writeln!(out, "    pkg_ffi.calloc.free({name}Pointer);").unwrap();
             }
-            TypeRef::Callback { .. } => {
+            TypeRef::Callback { params } => {
+                // Released by the core with the struct's callback, once the
+                // call that received the struct lets it go.
+                writeln!(out, "    final {name} = this.{name};").unwrap();
+                render_callback_binding(out, &name, params, "    ", true);
                 writeln!(
                     out,
-                    "    // Callback fields are installed by the caller; see the setters."
+                    "    pointer.ref.{raw} = {name}Callable?.nativeFunction ?? ffi.nullptr;"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "    pointer.ref.{} = NativeCallbacks.userData({name}Callable);",
+                    c_user_data_param(&field.name)
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "    pointer.ref.{} = NativeCallbacks.release;",
+                    c_release_user_data_param(&field.name)
                 )
                 .unwrap();
             }
@@ -757,16 +832,6 @@ fn render_dart_class(out: &mut String, api: &Api, header: &Header, class: &Class
 
     render_dart_listener(out, api, class, prefix);
 
-    if emitted_group(api, class).is_none() && class_takes_callback(class) {
-        writeln!(
-            out,
-            "  /// Trampolines stay reachable for as long as the C side may call them."
-        )
-        .unwrap();
-        writeln!(out, "  static final List<Object> _listeners = <Object>[];").unwrap();
-        writeln!(out).unwrap();
-    }
-
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
 }
@@ -957,14 +1022,11 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     writeln!(out, "        if (value != null) callback(value);").unwrap();
     writeln!(out, "      }},").unwrap();
     writeln!(out, "    );").unwrap();
+    // The core releases the callable once the listener is removed, its
+    // emitter destroyed, or registration failed.
     writeln!(
         out,
-        "    _listeners.add(callable);  // keeps the trampoline alive"
-    )
-    .unwrap();
-    writeln!(
-        out,
-        "    return {C}.{}({self_arg}callable.nativeFunction, ffi.nullptr);",
+        "    return {C}.{}({self_arg}callable.nativeFunction, NativeCallbacks.userData(callable), NativeCallbacks.release);",
         c_add_listener_symbol(prefix, &class.name)
     )
     .unwrap();
@@ -988,29 +1050,21 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     )
     .unwrap();
     writeln!(out).unwrap();
-    writeln!(
-        out,
-        "  /// Trampolines stay reachable for as long as the C side may call them."
-    )
-    .unwrap();
-    writeln!(out, "  static final List<Object> _listeners = <Object>[];").unwrap();
-    writeln!(out).unwrap();
 }
 
-/// Whether any member of this class takes a callback, and so needs somewhere to
-/// park the trampoline.
-fn class_takes_callback(class: &Class) -> bool {
-    class
-        .methods
-        .iter()
-        .flat_map(|method| method.params.iter())
-        .chain(
-            class
-                .constructors
-                .iter()
-                .flat_map(|ctor| ctor.params.iter()),
-        )
-        .any(|param| is_callback(&param.ty))
+/// Whether a module hands any callback to the C API, and so needs
+/// `NativeCallbacks`.
+fn header_passes_callbacks(header: &Header) -> bool {
+    header.structs.iter().any(|item| item.fields.iter().any(|field| is_callback(&field.ty)))
+        || header.classes.iter().any(|class| {
+            class.event.is_some()
+                || class
+                    .methods
+                    .iter()
+                    .flat_map(|method| method.params.iter())
+                    .chain(class.constructors.iter().flat_map(|ctor| ctor.params.iter()))
+                    .any(|param| is_callback(&param.ty))
+        })
 }
 
 fn emitted_group<'a>(api: &'a Api, class: &Class) -> Option<&'a EventGroup> {
@@ -1251,15 +1305,6 @@ fn render_callback_binding(
     writeln!(out, "{indent}    {name}({});", forwarded.join(", ")).unwrap();
     writeln!(out, "{indent}  }},").unwrap();
     writeln!(out, "{indent});").unwrap();
-    if optional {
-        writeln!(
-            out,
-            "{indent}if ({name}Callable != null) _listeners.add({name}Callable);"
-        )
-        .unwrap();
-    } else {
-        writeln!(out, "{indent}_listeners.add({name}Callable);").unwrap();
-    }
 }
 
 /// Frees whatever `render_param_bindings` allocated, after the call.
@@ -1338,7 +1383,8 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
             TypeRef::Map { .. } => args.push(format!("{name}Map.ref")),
             TypeRef::Callback { .. } => {
                 args.push(format!("{name}Callable.nativeFunction"));
-                args.push("ffi.nullptr".to_string());
+                args.push(format!("NativeCallbacks.userData({name}Callable)"));
+                args.push("NativeCallbacks.release".to_string());
             }
             TypeRef::Optional { inner } => match inner.as_ref() {
                 TypeRef::String | TypeRef::CString => args.push(format!("{name}Native")),
@@ -1346,7 +1392,8 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
                 TypeRef::Struct { .. } => args.push(format!("{name}Pointer.cast()")),
                 TypeRef::Callback { .. } => {
                     args.push(format!("{name}Callable?.nativeFunction ?? ffi.nullptr"));
-                    args.push("ffi.nullptr".to_string());
+                    args.push(format!("NativeCallbacks.userData({name}Callable)"));
+                    args.push("NativeCallbacks.release".to_string());
                 }
                 _ => args.push(name),
             },

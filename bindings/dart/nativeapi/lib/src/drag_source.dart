@@ -14,6 +14,8 @@ import 'window.dart';
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 enum DragOperation {
   none(0),
   copy(1),
@@ -206,18 +208,15 @@ class DragSource {
           final value = DragSourceEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_drag_source_add_listener(
       nativeHandle,
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_drag_source_remove_listener(nativeHandle, listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

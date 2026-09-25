@@ -9,6 +9,10 @@
   call `native_window_create()` instead of
   `cnativeApiBindings.native_window_create()`. Enum-typed struct fields are
   now also readable as the Dart enum; the raw value is `<field>AsInt`.
+* **Breaking:** every function taking a callback, and every struct with a
+  callback field, takes a `native_release_user_data_t` after its `user_data`
+  (`nullptr` if there is nothing to release). The core calls it exactly once,
+  on the main thread, once it can no longer call the callback.
 * The WinUI 3 backend on Windows (`NATIVEAPI_ENABLE_WINUI3`) is not built by
   the hook; the Win32 implementations are used.
 

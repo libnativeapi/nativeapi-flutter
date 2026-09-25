@@ -147,22 +147,31 @@ pub fn generate_support(csharp_src: &Path) -> GeneratedFile {
     public const string NativeApi = "nativeapi";
 }}
 
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+public delegate void ReleaseUserDataNativeCallback(IntPtr userData);
+
 /// <summary>
-/// Keeps callback delegates alive for the lifetime of the process: the C ABI
-/// stores the function pointer but offers no hook to release it.
+/// Keeps each callback delegate alive for as long as the core may call it.
+/// The user_data passed with a delegate is a GCHandle to it; the core hands
+/// it back to <see cref="Release"/> once it lets the callback go.
 /// </summary>
 public static class CallbackKeeper
 {{
-    private static readonly List<Delegate> Retained = new();
+    /// <summary>The user_data for <paramref name="callback"/>; zero for null.</summary>
+    public static IntPtr Hold(Delegate? callback) =>
+        callback is null ? IntPtr.Zero : GCHandle.ToIntPtr(GCHandle.Alloc(callback));
 
-    public static T Retain<T>(T callback) where T : Delegate
+    /// <summary>The release function passed with every callback. Static, so it outlives them all.</summary>
+    public static readonly ReleaseUserDataNativeCallback Release = userData =>
     {{
-        lock (Retained)
+        if (userData != IntPtr.Zero)
         {{
-            Retained.Add(callback);
+            GCHandle.FromIntPtr(userData).Free();
         }}
-        return callback;
-    }}
+    }};
+
+    /// <summary><see cref="Release"/> as a function pointer, for struct fields.</summary>
+    public static readonly IntPtr ReleasePointer = Marshal.GetFunctionPointerForDelegate(Release);
 }}
 
 [StructLayout(LayoutKind.Sequential)]
@@ -353,6 +362,12 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
                     codegen_shared::naming::c_user_data_param(&field.name)
                 )
                 .unwrap();
+                writeln!(
+                    raw_out,
+                    "    public IntPtr {};",
+                    codegen_shared::naming::c_release_user_data_param(&field.name)
+                )
+                .unwrap();
             }
             other => {
                 writeln!(raw_out, "    public {} {raw_name};", cs_raw_field_type(other, prefix))
@@ -465,11 +480,12 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
                 let delegate =
                     struct_callback_delegate(delegates, item, field, params, prefix);
                 let user_data = codegen_shared::naming::c_user_data_param(&field.name);
+                let release = codegen_shared::naming::c_release_user_data_param(&field.name);
                 writeln!(out, "        if ({name} is {{ }} {raw}Body)").unwrap();
                 writeln!(out, "        {{").unwrap();
                 writeln!(
                     out,
-                    "            var {raw}Native = CallbackKeeper.Retain<{delegate}>({});",
+                    "            {delegate} {raw}Native = {};",
                     trampoline_lambda(params, &format!("{raw}Body"))
                 )
                 .unwrap();
@@ -478,7 +494,8 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
                     "            raw.{raw} = Marshal.GetFunctionPointerForDelegate({raw}Native);"
                 )
                 .unwrap();
-                writeln!(out, "            raw.{user_data} = IntPtr.Zero;").unwrap();
+                writeln!(out, "            raw.{user_data} = CallbackKeeper.Hold({raw}Native);").unwrap();
+                writeln!(out, "            raw.{release} = CallbackKeeper.ReleasePointer;").unwrap();
                 writeln!(out, "        }}").unwrap();
             }
             TypeRef::Int { name: int_name } if int_needs_conv(int_name) => {
@@ -964,7 +981,7 @@ fn generate_listener(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {
     let self_arg = if instance { "NativeHandle, " } else { "" };
 
     ctx.externs.insert(format!(
-        "public static extern ulong {add_symbol}({self_param}{delegate} callback, IntPtr userData);"
+        "public static extern ulong {add_symbol}({self_param}{delegate} callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);"
     ));
     ctx.externs.insert(format!(
         "[return: MarshalAs(UnmanagedType.I1)]\n    public static extern bool {remove_symbol}({self_param}ulong listenerId);"
@@ -980,15 +997,10 @@ fn generate_listener(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {
     writeln!(out, "    /// <remarks>").unwrap();
     writeln!(
         out,
-        "    /// The delegate is retained for good: the C ABI keeps the context"
+        "    /// The delegate is kept alive until the listener is removed or its emitter"
     )
     .unwrap();
-    writeln!(
-        out,
-        "    /// pointer but offers no hook to release it, so removing the listener"
-    )
-    .unwrap();
-    writeln!(out, "    /// stops the calls without freeing the delegate.").unwrap();
+    writeln!(out, "    /// destroyed; the core releases it then.").unwrap();
     writeln!(out, "    /// </remarks>").unwrap();
     writeln!(
         out,
@@ -999,7 +1011,7 @@ fn generate_listener(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {
     writeln!(out, "    {{").unwrap();
     writeln!(
         out,
-        "        var native = CallbackKeeper.Retain<{delegate}>((evt, userData) =>"
+        "        {delegate} native = (evt, userData) =>"
     )
     .unwrap();
     writeln!(out, "        {{").unwrap();
@@ -1017,10 +1029,10 @@ fn generate_listener(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {
     writeln!(out, "            {{").unwrap();
     writeln!(out, "                callback(value);").unwrap();
     writeln!(out, "            }}").unwrap();
-    writeln!(out, "        }});").unwrap();
+    writeln!(out, "        }};").unwrap();
     writeln!(
         out,
-        "        return Interop.{add_symbol}({self_arg}native, IntPtr.Zero);"
+        "        return Interop.{add_symbol}({self_arg}native, CallbackKeeper.Hold(native), CallbackKeeper.Release);"
     )
     .unwrap();
     writeln!(out, "    }}").unwrap();
@@ -1212,6 +1224,10 @@ fn extern_decl(
                     "IntPtr {}",
                     codegen_shared::naming::c_user_data_param(&param.name)
                 ));
+                parts.push(format!(
+                    "ReleaseUserDataNativeCallback {}",
+                    codegen_shared::naming::c_release_user_data_param(&param.name)
+                ));
             }
             TypeRef::RawPointer => parts.push(format!("IntPtr {name}")),
             _ => parts.push(format!("IntPtr {name}")),
@@ -1386,7 +1402,7 @@ fn render_param_bindings(
                 register_delegate(delegates, &delegate, args, prefix);
                 writeln!(
                     out,
-                    "{indent}var native{local} = CallbackKeeper.Retain<{delegate}>({});",
+                    "{indent}{delegate} native{local} = {};",
                     trampoline_lambda(args, &name)
                 )
                 .unwrap();
@@ -1420,7 +1436,7 @@ fn render_param_bindings(
                     writeln!(out, "{indent}{{").unwrap();
                     writeln!(
                         out,
-                        "{indent}    native{local} = CallbackKeeper.Retain<{delegate}>({});",
+                        "{indent}    native{local} = {};",
                         trampoline_lambda(args, &format!("body{local}"))
                     )
                     .unwrap();
@@ -1508,7 +1524,8 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
             TypeRef::Map { .. } => args.push(format!("map{local}")),
             TypeRef::Callback { .. } => {
                 args.push(format!("native{local}"));
-                args.push("IntPtr.Zero".to_string());
+                args.push(format!("CallbackKeeper.Hold(native{local})"));
+                args.push("CallbackKeeper.Release".to_string());
             }
             TypeRef::Int { name: int } if int_needs_conv(int) => {
                 args.push(int_to_raw(int, &name))
@@ -1524,7 +1541,8 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
                 TypeRef::Struct { .. } => args.push(format!("ptr{local}")),
                 TypeRef::Callback { .. } => {
                     args.push(format!("native{local}"));
-                    args.push("IntPtr.Zero".to_string());
+                    args.push(format!("CallbackKeeper.Hold(native{local})"));
+                    args.push("CallbackKeeper.Release".to_string());
                 }
                 _ => args.push(name),
             },

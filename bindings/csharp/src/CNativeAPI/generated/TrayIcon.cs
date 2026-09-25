@@ -102,7 +102,7 @@ public static partial class Interop
     public static extern uint native_tray_icon_get_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_tray_icon_add_listener(ulong self, TrayIconEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_tray_icon_add_listener(ulong self, TrayIconEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_tray_icon_create();

@@ -54,7 +54,7 @@ public static partial class Interop
     public static extern uint native_drop_target_get_window_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_drop_target_add_listener(ulong self, DropTargetEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_drop_target_add_listener(ulong self, DropTargetEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_drop_target_create(ulong window);

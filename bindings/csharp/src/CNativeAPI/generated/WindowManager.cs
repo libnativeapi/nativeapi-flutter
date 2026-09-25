@@ -40,7 +40,7 @@ public static partial class Interop
     public static extern native_window_list_t native_window_manager_get_all();
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_window_manager_add_listener(WindowEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_window_manager_add_listener(WindowEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_window_manager_get(uint id);
@@ -58,9 +58,9 @@ public static partial class Interop
     public static extern void native_window_manager_handle_will_show(uint id);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void native_window_manager_set_will_hide_hook(WindowManagerSetWillHideHookHookNativeCallback? hook, IntPtr hook_user_data);
+    public static extern void native_window_manager_set_will_hide_hook(WindowManagerSetWillHideHookHookNativeCallback? hook, IntPtr hook_user_data, ReleaseUserDataNativeCallback hook_release_user_data);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void native_window_manager_set_will_show_hook(WindowManagerSetWillShowHookHookNativeCallback? hook, IntPtr hook_user_data);
+    public static extern void native_window_manager_set_will_show_hook(WindowManagerSetWillShowHookHookNativeCallback? hook, IntPtr hook_user_data, ReleaseUserDataNativeCallback hook_release_user_data);
 }
 

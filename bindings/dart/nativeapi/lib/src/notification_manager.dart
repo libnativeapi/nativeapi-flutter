@@ -10,6 +10,8 @@ import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 /// One `NotificationEvent`, in its concrete form.
 sealed class NotificationEvent {
   const NotificationEvent();
@@ -110,17 +112,14 @@ class NotificationManager {
           final value = NotificationEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_notification_manager_add_listener(
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_notification_manager_remove_listener(listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

@@ -14,6 +14,14 @@
 * Value types (`Point`, `Size`, `Rectangle`, `Color`, `KeyboardAccelerator`,
   `UrlOpenResult`, `ShortcutOptions`) compare and print by value: they have `==`,
   `hashCode` and `toString` over their data fields. Callback fields are left out.
+* Callbacks are released once the core lets them go, instead of being kept
+  for the life of the isolate: a listener when it is removed or its emitter
+  destroyed, a replaced `setCallback` / `setWill{Show,Hide}Hook` callback, a
+  shortcut's callback when it is unregistered or the shortcut destroyed, and
+  any callback whose registration failed. A listener still lives until then,
+  whether or not the wrapper that added it is collected.
+* `ShortcutOptions.callback` is installed by `registerWithOptions` and
+  `Shortcut.createWithIdAndOptions`; it used to be dropped.
 
 * Add `WindowShadow`, `Window.setCustomShadow` and `customShadow` for core-rendered custom shadows on hidden-title-bar desktop windows. `hasShadow` toggles visibility without discarding configuration.
 

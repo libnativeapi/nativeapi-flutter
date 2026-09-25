@@ -287,9 +287,8 @@ impl MenuItem {
 
     /// Registers `callback` for every `MenuEvent` this `MenuItem` emits.
     ///
-    /// The closure is leaked: the C ABI takes a `user_data` pointer but
-    /// offers no hook to reclaim it, so removing the listener stops the
-    /// calls without freeing the closure.
+    /// The closure is dropped on the main thread once the listener is removed
+    /// or its emitter destroyed.
     pub fn add_listener(&self, callback: impl Fn(&MenuEvent) + 'static) -> ListenerId {
         unsafe extern "C" fn trampoline(event: *const cnativeapi::native_menu_event_t, user_data: *mut std::ffi::c_void) {
             if event.is_null() || user_data.is_null() {
@@ -302,7 +301,10 @@ impl MenuItem {
         }
         let boxed: Box<Box<dyn Fn(&MenuEvent)>> = Box::new(Box::new(callback));
         let user_data = Box::into_raw(boxed) as *mut std::ffi::c_void;
-        unsafe { cnativeapi::native_menu_item_add_listener(self.handle, Some(trampoline), user_data) }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&MenuEvent)>));
+        }
+        unsafe { cnativeapi::native_menu_item_add_listener(self.handle, Some(trampoline), user_data, Some(release)) }
     }
 
     /// Unregisters a listener. Returns false if unknown.
@@ -510,9 +512,8 @@ impl Menu {
 
     /// Registers `callback` for every `MenuEvent` this `Menu` emits.
     ///
-    /// The closure is leaked: the C ABI takes a `user_data` pointer but
-    /// offers no hook to reclaim it, so removing the listener stops the
-    /// calls without freeing the closure.
+    /// The closure is dropped on the main thread once the listener is removed
+    /// or its emitter destroyed.
     pub fn add_listener(&self, callback: impl Fn(&MenuEvent) + 'static) -> ListenerId {
         unsafe extern "C" fn trampoline(event: *const cnativeapi::native_menu_event_t, user_data: *mut std::ffi::c_void) {
             if event.is_null() || user_data.is_null() {
@@ -525,7 +526,10 @@ impl Menu {
         }
         let boxed: Box<Box<dyn Fn(&MenuEvent)>> = Box::new(Box::new(callback));
         let user_data = Box::into_raw(boxed) as *mut std::ffi::c_void;
-        unsafe { cnativeapi::native_menu_add_listener(self.handle, Some(trampoline), user_data) }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&MenuEvent)>));
+        }
+        unsafe { cnativeapi::native_menu_add_listener(self.handle, Some(trampoline), user_data, Some(release)) }
     }
 
     /// Unregisters a listener. Returns false if unknown.

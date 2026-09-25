@@ -388,11 +388,12 @@ fn render_rust_struct(out: &mut String, item: &Struct, prefix: &str) {
             }
             TypeRef::Callback { params } => {
                 let user_data = codegen_shared::naming::c_user_data_param(&field.name);
+                let release = codegen_shared::naming::c_release_user_data_param(&field.name);
                 writeln!(out, "        if let Some(callback) = &self.{name} {{").unwrap();
                 render_callback_trampoline(out, params, "            ");
                 writeln!(
                     out,
-                    "            raw.{raw} = Some(trampoline);\n            raw.{user_data} = leak_callback(callback.clone());"
+                    "            raw.{raw} = Some(trampoline);\n            raw.{user_data} = into_user_data(callback.clone());\n            raw.{release} = Some(release);"
                 )
                 .unwrap();
                 writeln!(out, "        }}").unwrap();
@@ -588,15 +589,14 @@ fn render_rust_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     writeln!(out, "    ///").unwrap();
     writeln!(
         out,
-        "    /// The closure is leaked: the C ABI takes a `user_data` pointer but"
+        "    /// The closure is dropped on the main thread once the listener is removed"
     )
     .unwrap();
     writeln!(
         out,
-        "    /// offers no hook to reclaim it, so removing the listener stops the"
+        "    /// or its emitter destroyed."
     )
     .unwrap();
-    writeln!(out, "    /// calls without freeing the closure.").unwrap();
     writeln!(
         out,
         "    pub fn add_listener({receiver}callback: impl Fn(&{}) + 'static) -> ListenerId {{",
@@ -643,7 +643,19 @@ fn render_rust_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
     .unwrap();
     writeln!(
         out,
-        "        unsafe {{ cnativeapi::{}({self_arg}Some(trampoline), user_data) }}",
+        "        unsafe extern \"C\" fn release(user_data: *mut std::ffi::c_void) {{"
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&{})>));",
+        group.name
+    )
+    .unwrap();
+    writeln!(out, "        }}").unwrap();
+    writeln!(
+        out,
+        "        unsafe {{ cnativeapi::{}({self_arg}Some(trampoline), user_data, Some(release)) }}",
         c_add_listener_symbol(prefix, &class.name)
     )
     .unwrap();
@@ -1043,7 +1055,7 @@ fn render_param_bindings(out: &mut String, params: &[Param], indent: &str) {
                 render_callback_trampoline(out, args, indent);
                 writeln!(
                     out,
-                    "{indent}let {name}_user_data = leak_callback(std::sync::Arc::new({name}));"
+                    "{indent}let {name}_user_data = into_user_data(std::sync::Arc::new({name}));"
                 )
                 .unwrap();
             }
@@ -1066,7 +1078,7 @@ fn render_param_bindings(out: &mut String, params: &[Param], indent: &str) {
                     render_callback_trampoline(out, args, indent);
                     writeln!(
                         out,
-                        "{indent}let {name}_user_data = {name}\n{indent}    .map(|value| leak_callback(std::sync::Arc::from(value)))\n{indent}    .unwrap_or(std::ptr::null_mut());"
+                        "{indent}let {name}_user_data = {name}\n{indent}    .map(|value| into_user_data(std::sync::Arc::from(value)))\n{indent}    .unwrap_or(std::ptr::null_mut());"
                     )
                     .unwrap();
                 }
@@ -1077,8 +1089,9 @@ fn render_param_bindings(out: &mut String, params: &[Param], indent: &str) {
     }
 }
 
-/// Emits the `extern "C"` shim plus the leak helper a callback parameter needs.
-/// Both are local to the enclosing function so their names never collide.
+/// Emits the `extern "C"` shim, the `user_data` boxing, and the release the
+/// core calls once it drops the callback. All local to the enclosing function
+/// so their names never collide.
 fn render_callback_trampoline(out: &mut String, params: &[TypeRef], indent: &str) {
     let signature = params
         .iter()
@@ -1118,13 +1131,8 @@ fn render_callback_trampoline(out: &mut String, params: &[TypeRef], indent: &str
     writeln!(out, "{indent}}}").unwrap();
     writeln!(
         out,
-        "{indent}fn leak_callback(callback: std::sync::Arc<dyn Fn({})>) -> *mut std::ffi::c_void {{",
+        "{indent}fn into_user_data(callback: std::sync::Arc<dyn Fn({})>) -> *mut std::ffi::c_void {{",
         signature.join(", ")
-    )
-    .unwrap();
-    writeln!(
-        out,
-        "{indent}    // The C ABI keeps the pointer but offers no hook to reclaim it."
     )
     .unwrap();
     writeln!(
@@ -1132,6 +1140,20 @@ fn render_callback_trampoline(out: &mut String, params: &[TypeRef], indent: &str
         "{indent}    Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void"
     )
     .unwrap();
+    writeln!(out, "{indent}}}").unwrap();
+    writeln!(
+        out,
+        "{indent}unsafe extern \"C\" fn release(user_data: *mut std::ffi::c_void) {{"
+    )
+    .unwrap();
+    writeln!(out, "{indent}    if !user_data.is_null() {{").unwrap();
+    writeln!(
+        out,
+        "{indent}        drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn({})>));",
+        signature.join(", ")
+    )
+    .unwrap();
+    writeln!(out, "{indent}    }}").unwrap();
     writeln!(out, "{indent}}}").unwrap();
 }
 
@@ -1153,6 +1175,7 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
             TypeRef::Callback { .. } => {
                 args.push("Some(trampoline)".to_string());
                 args.push(format!("{name}_user_data"));
+                args.push("Some(release)".to_string());
             }
             TypeRef::Optional { inner } => match inner.as_ref() {
                 TypeRef::String | TypeRef::CString => args.push(format!(
@@ -1169,6 +1192,7 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
                         "if {name}_user_data.is_null() {{ None }} else {{ Some(trampoline) }}"
                     ));
                     args.push(format!("{name}_user_data"));
+                    args.push("Some(release)".to_string());
                 }
                 _ => args.push(name),
             },

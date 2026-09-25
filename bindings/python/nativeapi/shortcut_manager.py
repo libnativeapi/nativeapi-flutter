@@ -29,14 +29,15 @@ class ShortcutManager:
         accelerator: str,
         callback: Callable[[], None],
     ) -> _shortcut.Shortcut | None:
-        native_callback = _rt.retain_callback(
+        native_callback = _rt.make_callback(
             _C.native_void_callback_t,
             lambda _user_data: callback(),
         )
         raw = _C.native_shortcut_manager_register_with_accelerator_and_callback(
             _rt.encode(accelerator),
             native_callback,
-            None,
+            _rt.user_data(native_callback),
+            _rt.release_user_data,
         )
         return _shortcut.Shortcut._owned(raw)
 

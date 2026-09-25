@@ -78,7 +78,7 @@ public static partial class Interop
     public static extern native_window_list_t native_application_get_all_windows();
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_application_add_listener(ApplicationEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_application_add_listener(ApplicationEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_application_get_primary_window();

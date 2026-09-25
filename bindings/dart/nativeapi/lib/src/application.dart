@@ -13,6 +13,8 @@ import 'window.dart';
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 enum Brightness {
   system(0),
   light(1),
@@ -200,17 +202,14 @@ class Application {
           final value = ApplicationEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_application_add_listener(
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_application_remove_listener(listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

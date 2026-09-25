@@ -15,7 +15,8 @@ use codegen_shared::naming::{
     listed_classes, relative_include, struct_has_owned_fields, TypeOrigins, COMMON_HEADER,
     LISTENER_ID_TYPE, STRING_DUP_FN, STRING_FREE_FN, STRING_LIST_DUP_FN, STRING_LIST_FREE_FN,
     STRING_LIST_TYPE,
-    STRING_MAP_DUP_FN, STRING_MAP_TYPE,
+    STRING_MAP_DUP_FN, STRING_MAP_TYPE, c_release_user_data_param, RELEASE_USER_DATA_TYPE,
+    USER_DATA_HEADER,
 };
 use codegen_shared::GeneratedFile;
 use codegen_shared::ir::{
@@ -71,6 +72,20 @@ pub fn generate_common(capi_out: &Path, prefix: &str) -> GeneratedFile {
         prefix.to_uppercase()
     )
     .unwrap();
+    writeln!(out).unwrap();
+    for line in [
+        "/// Takes back the `user_data` passed with a callback.",
+        "///",
+        "/// Every function taking a callback also takes one of these (may be NULL).",
+        "/// The core calls it exactly once per call — including when the call fails",
+        "/// or the callback is NULL — after the last time it can call that callback:",
+        "/// when a listener is removed, a callback replaced, a registration ended, or",
+        "/// its owner destroyed. It runs on the main thread, never inside the call",
+        "/// that let the callback go.",
+    ] {
+        writeln!(out, "{line}").unwrap();
+    }
+    writeln!(out, "typedef void (*{RELEASE_USER_DATA_TYPE})(void* user_data);").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "#ifdef __cplusplus").unwrap();
     writeln!(out, "}}").unwrap();
@@ -358,6 +373,7 @@ fn render_cpp_converters(out: &mut String, header: &Header, capi_out: &Path, pre
         codegen_shared::naming::STRING_UTILS_HEADER
     )
     .unwrap();
+    writeln!(out, "#include \"{USER_DATA_HEADER}\"").unwrap();
     writeln!(out).unwrap();
     writeln!(
         out,
@@ -575,7 +591,7 @@ fn render_listener_decl(out: &mut String, api: &Api, class: &Class, prefix: &str
     writeln!(out, "FFI_PLUGIN_EXPORT").unwrap();
     writeln!(
         out,
-        "{LISTENER_ID_TYPE} {}({}{callback} callback, void* user_data);",
+        "{LISTENER_ID_TYPE} {}({}{callback} callback, void* user_data, {RELEASE_USER_DATA_TYPE} release_user_data);",
         c_add_listener_symbol(prefix, &class.name),
         receiver
     )
@@ -649,6 +665,12 @@ fn render_c_struct(out: &mut String, item: &Struct, prefix: &str) {
                 out,
                 "  void* {};",
                 codegen_shared::naming::c_user_data_param(&field.name)
+            )
+            .unwrap();
+            writeln!(
+                out,
+                "  {RELEASE_USER_DATA_TYPE} {};",
+                c_release_user_data_param(&field.name)
             )
             .unwrap();
             continue;
@@ -979,6 +1001,7 @@ fn render_c_source(
         codegen_shared::naming::STRING_UTILS_HEADER
     )
     .unwrap();
+    writeln!(out, "#include \"{USER_DATA_HEADER}\"").unwrap();
     writeln!(
         out,
         "#include \"{}\"",
@@ -1198,15 +1221,18 @@ fn render_cpp_struct_converter(out: &mut String, item: &Struct, prefix: &str) {
             }
             TypeRef::Callback { .. } => {
                 let user_data = codegen_shared::naming::c_user_data_param(&field.name);
-                writeln!(out, "  if (value.{c_name}) {{").unwrap();
+                let release = c_release_user_data_param(&field.name);
+                // Created unconditionally, so a NULL callback still releases.
                 writeln!(
                     out,
-                    "    auto callback = value.{c_name};\n    auto* data = value.{user_data};"
+                    "  auto {c_name}_holder = nativeapi::capi::UserData::Make(value.{user_data}, value.{release});"
                 )
                 .unwrap();
+                writeln!(out, "  if (value.{c_name}) {{").unwrap();
+                writeln!(out, "    auto callback = value.{c_name};").unwrap();
                 writeln!(
                     out,
-                    "    result.{} = [callback, data]() {{ callback(data); }};",
+                    "    result.{} = [callback, holder = {c_name}_holder]() {{ callback(holder->get()); }};",
                     field.name
                 )
                 .unwrap();
@@ -1326,8 +1352,23 @@ fn render_optional_binding(out: &mut String, name: &str, inner: &TypeRef, indent
     }
 }
 
-/// Wraps a C function pointer plus its `user_data` into the `std::function` the
-/// C++ API expects.
+/// Takes ownership of each callback's `user_data` before anything can fail, so
+/// every early return still releases it (see `user_data.h`).
+fn render_user_data_holders(out: &mut String, params: &[Param]) {
+    for param in params.iter().filter(|param| is_callback(&param.ty)) {
+        let name = param.name.to_snake_case();
+        writeln!(
+            out,
+            "  auto {name}_holder = nativeapi::capi::UserData::Make({}, {});",
+            codegen_shared::naming::c_user_data_param(&param.name),
+            c_release_user_data_param(&param.name)
+        )
+        .unwrap();
+    }
+}
+
+/// Wraps a C function pointer plus its `user_data` holder into the
+/// `std::function` the C++ API expects.
 fn render_callback_binding(
     out: &mut String,
     name: &str,
@@ -1335,7 +1376,8 @@ fn render_callback_binding(
     indent: &str,
     optional: bool,
 ) {
-    let user_data = format!("{name}_user_data");
+    let user_data = format!("{name}_holder->get()");
+    let holder = format!("{name}_holder");
     let args: Vec<String> = params
         .iter()
         .enumerate()
@@ -1352,7 +1394,7 @@ fn render_callback_binding(
         writeln!(out, "{indent}if ({name}) {{").unwrap();
         writeln!(
             out,
-            "{indent}  {name}_cpp = [{name}, {user_data}]({}) {{ {name}({}); }};",
+            "{indent}  {name}_cpp = [{name}, {holder}]({}) {{ {name}({}); }};",
             lambda_params.join(", "),
             args.iter()
                 .cloned()
@@ -1378,7 +1420,7 @@ fn render_callback_binding(
     writeln!(out, "{indent}if ({name}) {{").unwrap();
     writeln!(
         out,
-        "{indent}  {name}_cpp = [{name}, {user_data}]({}) {{ {name}({}); }};",
+        "{indent}  {name}_cpp = [{name}, {holder}]({}) {{ {name}({}); }};",
         lambda_params.join(", "),
         args.iter()
             .cloned()
@@ -1426,6 +1468,7 @@ fn render_c_method(
         render_c_default_return(out, header_ref, &return_type, prefix, indent);
     };
 
+    render_user_data_holders(out, &method.params);
     if instance {
         let self_param = c_self_param(class);
         writeln!(
@@ -1677,6 +1720,7 @@ fn render_c_constructor(
         c_ctor_params(class, ctor, prefix)
     )
     .unwrap();
+    render_user_data_holders(out, &ctor.params);
     writeln!(out, "  try {{").unwrap();
     let fail = |out: &mut String, indent: &str| {
         writeln!(out, "{indent}  return 0;").unwrap();
@@ -1899,8 +1943,14 @@ fn render_listener_impl(out: &mut String, api: &Api, class: &Class, prefix: &str
     // add_listener
     writeln!(
         out,
-        "{LISTENER_ID_TYPE} {}({receiver_param}{callback_type} callback, void* user_data) {{",
+        "{LISTENER_ID_TYPE} {}({receiver_param}{callback_type} callback, void* user_data, {RELEASE_USER_DATA_TYPE} release_user_data) {{",
         c_add_listener_symbol(prefix, &class.name)
+    )
+    .unwrap();
+    // First, so every failure below still releases user_data.
+    writeln!(
+        out,
+        "  auto holder = nativeapi::capi::UserData::Make(user_data, release_user_data);"
     )
     .unwrap();
     writeln!(out, "  if (!callback) {{").unwrap();
@@ -1916,7 +1966,7 @@ fn render_listener_impl(out: &mut String, api: &Api, class: &Class, prefix: &str
     .unwrap();
     writeln!(
         out,
-        "        [callback, user_data](const {}& event) {{",
+        "        [callback, holder](const {}& event) {{",
         group.qualified_name
     )
     .unwrap();
@@ -1929,7 +1979,7 @@ fn render_listener_impl(out: &mut String, api: &Api, class: &Class, prefix: &str
     .unwrap();
     writeln!(out, "            return;").unwrap();
     writeln!(out, "          }}").unwrap();
-    writeln!(out, "          callback(&c_event, user_data);").unwrap();
+    writeln!(out, "          callback(&c_event, holder->get());").unwrap();
     writeln!(
         out,
         "          {}(&c_event);",

@@ -282,6 +282,7 @@ native_notification_event_callback_t = CFUNCTYPE(
     POINTER(native_notification_event_t),
     c_void_p,
 )
+native_release_user_data_t = CFUNCTYPE(None, c_void_p)
 native_shortcut_event_callback_t = CFUNCTYPE(
     None,
     POINTER(native_shortcut_event_t),
@@ -454,6 +455,7 @@ native_shortcut_options_t._fields_ = [
     ("accelerator", c_char_p),
     ("callback", native_void_callback_t),
     ("callback_user_data", c_void_p),
+    ("callback_release_user_data", native_release_user_data_t),
     ("description", c_char_p),
     ("scope", c_int),
     ("enabled", c_bool),
@@ -668,6 +670,7 @@ native_display_manager_add_listener = function(
     [
         native_display_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_display_manager_remove_listener = function(
@@ -1283,6 +1286,7 @@ native_notification_manager_add_listener = function(
     [
         native_notification_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_notification_manager_remove_listener = function(
@@ -1986,6 +1990,7 @@ native_window_manager_set_will_show_hook = function(
     [
         native_uint_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_window_manager_set_will_hide_hook = function(
@@ -1994,6 +1999,7 @@ native_window_manager_set_will_hide_hook = function(
     [
         native_uint_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_window_manager_has_will_show_hook = function(
@@ -2042,6 +2048,7 @@ native_window_manager_add_listener = function(
     [
         native_window_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_window_manager_remove_listener = function(
@@ -2111,6 +2118,7 @@ native_window_drag_session_add_listener = function(
         c_uint64,
         native_window_drag_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_window_drag_session_remove_listener = function(
@@ -2214,6 +2222,7 @@ native_drag_source_add_listener = function(
         c_uint64,
         native_drag_source_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_drag_source_remove_listener = function(
@@ -2271,6 +2280,7 @@ native_drop_target_add_listener = function(
         c_uint64,
         native_drop_target_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_drop_target_remove_listener = function(
@@ -2505,6 +2515,7 @@ native_menu_item_add_listener = function(
         c_uint64,
         native_menu_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_menu_item_remove_listener = function(
@@ -2618,6 +2629,7 @@ native_menu_add_listener = function(
         c_uint64,
         native_menu_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_menu_remove_listener = function(
@@ -2819,6 +2831,7 @@ native_tray_icon_add_listener = function(
         c_uint64,
         native_tray_icon_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_tray_icon_remove_listener = function(
@@ -2886,6 +2899,7 @@ native_shortcut_create_with_id_and_accelerator_and_callback = function(
         c_char_p,
         native_void_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_shortcut_get_id = function("native_shortcut_get_id", c_uint, [c_uint64])
@@ -2929,6 +2943,7 @@ native_shortcut_set_callback = function(
         c_uint64,
         native_void_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 
@@ -2947,6 +2962,7 @@ native_shortcut_manager_register_with_accelerator_and_callback = function(
         c_char_p,
         native_void_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_shortcut_manager_register_with_options = function(
@@ -3044,6 +3060,7 @@ native_shortcut_manager_add_listener = function(
     [
         native_shortcut_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_shortcut_manager_remove_listener = function(
@@ -3097,6 +3114,7 @@ native_keyboard_monitor_add_listener = function(
         c_uint64,
         native_keyboard_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_keyboard_monitor_remove_listener = function(
@@ -3193,6 +3211,7 @@ native_application_add_listener = function(
     [
         native_application_event_callback_t,
         c_void_p,
+        native_release_user_data_t,
     ],
 )
 native_application_remove_listener = function(

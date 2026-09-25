@@ -133,12 +133,7 @@ napi_value Js_native_window_drag_session_add_listener(napi_env env, napi_callbac
     if (event != nullptr) {
       Callback::Dispatch(user_data, {ToValue(*event)});
     }
-  }, callback); });
-  if (id == 0) {
-    callback->Release();
-  } else {
-    RememberListener("native_window_drag_session_add_listener", self, id, callback);
-  }
+  }, callback, &Callback::ReleaseUserData); });
   return Value::Number(static_cast<double>(id)).ToJs(env);
 }
 
@@ -156,9 +151,6 @@ napi_value Js_native_window_drag_session_remove_listener(napi_env env, napi_call
     return nullptr;
   }
   bool removed = OnMainThread([&] { return native_window_drag_session_remove_listener(self, id); });
-  if (removed) {
-    ForgetListener("native_window_drag_session_add_listener", self, id);
-  }
   return Value::Bool(removed).ToJs(env);
 }
 

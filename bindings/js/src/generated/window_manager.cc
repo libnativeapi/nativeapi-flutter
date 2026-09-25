@@ -79,7 +79,7 @@ napi_value Js_native_window_manager_set_will_show_hook(napi_env env, napi_callba
   if (!GetCallback(env, args[0], /*optional=*/true, &p0)) {
     return nullptr;
   }
-  OnMainThread([&] { return native_window_manager_set_will_show_hook(p0 ? +[](unsigned int arg0, void* user_data) { Callback::Dispatch(user_data, {Value::Number(static_cast<double>(arg0))}); } : nullptr, p0); });
+  OnMainThread([&] { return native_window_manager_set_will_show_hook(p0 ? +[](unsigned int arg0, void* user_data) { Callback::Dispatch(user_data, {Value::Number(static_cast<double>(arg0))}); } : nullptr, p0, &Callback::ReleaseUserData); });
   return Undefined(env);
 }
 
@@ -94,7 +94,7 @@ napi_value Js_native_window_manager_set_will_hide_hook(napi_env env, napi_callba
   if (!GetCallback(env, args[0], /*optional=*/true, &p0)) {
     return nullptr;
   }
-  OnMainThread([&] { return native_window_manager_set_will_hide_hook(p0 ? +[](unsigned int arg0, void* user_data) { Callback::Dispatch(user_data, {Value::Number(static_cast<double>(arg0))}); } : nullptr, p0); });
+  OnMainThread([&] { return native_window_manager_set_will_hide_hook(p0 ? +[](unsigned int arg0, void* user_data) { Callback::Dispatch(user_data, {Value::Number(static_cast<double>(arg0))}); } : nullptr, p0, &Callback::ReleaseUserData); });
   return Undefined(env);
 }
 
@@ -194,12 +194,7 @@ napi_value Js_native_window_manager_add_listener(napi_env env, napi_callback_inf
     if (event != nullptr) {
       Callback::Dispatch(user_data, {ToValue(*event)});
     }
-  }, callback); });
-  if (id == 0) {
-    callback->Release();
-  } else {
-    RememberListener("native_window_manager_add_listener", self, id, callback);
-  }
+  }, callback, &Callback::ReleaseUserData); });
   return Value::Number(static_cast<double>(id)).ToJs(env);
 }
 
@@ -214,9 +209,6 @@ napi_value Js_native_window_manager_remove_listener(napi_env env, napi_callback_
     return nullptr;
   }
   bool removed = OnMainThread([&] { return native_window_manager_remove_listener(id); });
-  if (removed) {
-    ForgetListener("native_window_manager_add_listener", self, id);
-  }
   return Value::Bool(removed).ToJs(env);
 }
 

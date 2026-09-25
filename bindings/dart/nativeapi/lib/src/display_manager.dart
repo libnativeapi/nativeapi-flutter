@@ -13,6 +13,8 @@ import 'foundation/geometry.dart';
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 class DisplayManager {
   const DisplayManager._();
 
@@ -65,17 +67,14 @@ class DisplayManager {
           final value = DisplayEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_display_manager_add_listener(
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_display_manager_remove_listener(listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

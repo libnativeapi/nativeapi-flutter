@@ -107,6 +107,7 @@ fn main() -> Result<()> {
     if let Some(out) = &dart_out {
         files.push(dart::generate_barrel(&api, out));
         files.push(dart::generate_support(out));
+        files.push(dart::generate_callbacks(out));
     }
     if let Some(out) = &csharp_out {
         files.push(csharp::generate_support(out));

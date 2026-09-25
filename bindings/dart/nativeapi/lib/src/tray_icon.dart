@@ -14,6 +14,8 @@ import 'menu.dart';
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 typedef TrayIconId = int;
 
 enum ContextMenuTrigger {
@@ -284,18 +286,15 @@ class TrayIcon {
           final value = TrayIconEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_tray_icon_add_listener(
       nativeHandle,
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_tray_icon_remove_listener(nativeHandle, listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

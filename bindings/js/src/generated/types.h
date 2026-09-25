@@ -531,6 +531,7 @@ inline bool FromJs(napi_env env, napi_value value, native_shortcut_options_t* ou
     }
     out->callback = callback ? +[](void* user_data) { Callback::Dispatch(user_data, {}); } : nullptr;
     out->callback_user_data = callback;
+    out->callback_release_user_data = &Callback::ReleaseUserData;
   }
   if (!GetField(env, value, "description", &field)) {
     return false;

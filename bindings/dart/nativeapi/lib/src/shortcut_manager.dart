@@ -12,6 +12,8 @@ import 'shortcut.dart';
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 class ShortcutManager {
   const ShortcutManager._();
 
@@ -33,12 +35,12 @@ class ShortcutManager {
         >.isolateLocal((ffi.Pointer<ffi.Void> _) {
           callback();
         });
-    _listeners.add(callbackCallable);
     final handle = c
         .native_shortcut_manager_register_with_accelerator_and_callback(
           acceleratorNative,
           callbackCallable.nativeFunction,
-          ffi.nullptr,
+          NativeCallbacks.userData(callbackCallable),
+          NativeCallbacks.release,
         );
     pkg_ffi.calloc.free(acceleratorNative);
     if (handle == 0) return null;
@@ -167,17 +169,14 @@ class ShortcutManager {
           final value = ShortcutEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_shortcut_manager_add_listener(
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_shortcut_manager_remove_listener(listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

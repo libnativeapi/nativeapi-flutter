@@ -8,6 +8,8 @@ import 'dart:ffi' as ffi;
 import 'package:cnativeapi/cnativeapi.dart' as c;
 import 'package:ffi/ffi.dart' as pkg_ffi;
 
+import 'callbacks.dart';
+
 typedef ShortcutId = int;
 
 enum ShortcutScope {
@@ -76,7 +78,17 @@ class ShortcutOptions {
     pointer.ref.accelerator = accelerator == null
         ? ffi.nullptr
         : accelerator!.toNativeUtf8().cast<ffi.Char>();
-    // Callback fields are installed by the caller; see the setters.
+    final callback = this.callback;
+    final callbackCallable = callback == null
+        ? null
+        : ffi.NativeCallable<
+            ffi.Void Function(ffi.Pointer<ffi.Void>)
+          >.isolateLocal((ffi.Pointer<ffi.Void> _) {
+            callback();
+          });
+    pointer.ref.callback = callbackCallable?.nativeFunction ?? ffi.nullptr;
+    pointer.ref.callback_user_data = NativeCallbacks.userData(callbackCallable);
+    pointer.ref.callback_release_user_data = NativeCallbacks.release;
     pointer.ref.description = description == null
         ? ffi.nullptr
         : description!.toNativeUtf8().cast<ffi.Char>();
@@ -264,13 +276,13 @@ class Shortcut {
         >.isolateLocal((ffi.Pointer<ffi.Void> _) {
           callback();
         });
-    _listeners.add(callbackCallable);
     final handle = c
         .native_shortcut_create_with_id_and_accelerator_and_callback(
           id,
           acceleratorNative,
           callbackCallable.nativeFunction,
-          ffi.nullptr,
+          NativeCallbacks.userData(callbackCallable),
+          NativeCallbacks.release,
         );
     pkg_ffi.calloc.free(acceleratorNative);
     if (handle == 0) return null;
@@ -327,14 +339,11 @@ class Shortcut {
         >.isolateLocal((ffi.Pointer<ffi.Void> _) {
           callback();
         });
-    _listeners.add(callbackCallable);
     c.native_shortcut_set_callback(
       nativeHandle,
       callbackCallable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callbackCallable),
+      NativeCallbacks.release,
     );
   }
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }

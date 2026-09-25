@@ -51,23 +51,31 @@ class WindowManager:
 
     @staticmethod
     def set_will_show_hook(hook: Callable[[int], None] | None) -> None:
-        native_hook = None
+        native_hook = _C.native_uint_callback_t()
         if hook is not None:
-            native_hook = _rt.retain_callback(
+            native_hook = _rt.make_callback(
                 _C.native_uint_callback_t,
                 lambda a0, _user_data: hook(a0),
             )
-        _C.native_window_manager_set_will_show_hook(native_hook, None)
+        _C.native_window_manager_set_will_show_hook(
+            native_hook,
+            _rt.user_data(native_hook),
+            _rt.release_user_data,
+        )
 
     @staticmethod
     def set_will_hide_hook(hook: Callable[[int], None] | None) -> None:
-        native_hook = None
+        native_hook = _C.native_uint_callback_t()
         if hook is not None:
-            native_hook = _rt.retain_callback(
+            native_hook = _rt.make_callback(
                 _C.native_uint_callback_t,
                 lambda a0, _user_data: hook(a0),
             )
-        _C.native_window_manager_set_will_hide_hook(native_hook, None)
+        _C.native_window_manager_set_will_hide_hook(
+            native_hook,
+            _rt.user_data(native_hook),
+            _rt.release_user_data,
+        )
 
     @staticmethod
     def has_will_show_hook() -> bool:

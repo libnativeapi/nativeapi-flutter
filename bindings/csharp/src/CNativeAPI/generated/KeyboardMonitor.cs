@@ -19,7 +19,7 @@ public static partial class Interop
     public static extern bool native_keyboard_monitor_remove_listener(ulong self, ulong listenerId);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_keyboard_monitor_add_listener(ulong self, KeyboardEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_keyboard_monitor_add_listener(ulong self, KeyboardEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_keyboard_monitor_create();

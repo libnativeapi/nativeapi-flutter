@@ -157,6 +157,10 @@ pub fn c_param_list(
                 c_callback_type_name(prefix, owner, member)
             ));
             out.push(format!("void* {}", c_user_data_param(&param.name)));
+            out.push(format!(
+                "{RELEASE_USER_DATA_TYPE} {}",
+                c_release_user_data_param(&param.name)
+            ));
         } else {
             out.push(format!("{} {name}", c_param_type(&param.ty, prefix)));
         }
@@ -325,6 +329,15 @@ pub fn c_user_data_param(name: &str) -> String {
     format!("{}_user_data", name.to_snake_case())
 }
 
+/// C type of the function that takes a callback's `user_data` back.
+pub const RELEASE_USER_DATA_TYPE: &str = "native_release_user_data_t";
+
+/// The release companion of a callback parameter: the core calls it with the
+/// `user_data` once it can no longer call the callback.
+pub fn c_release_user_data_param(name: &str) -> String {
+    format!("{}_release_user_data", name.to_snake_case())
+}
+
 pub fn c_free_symbol(prefix: &str, name: &str) -> String {
     format!("{}{}_free", prefix, name.to_snake_case())
 }
@@ -383,6 +396,8 @@ pub fn c_native_object_symbol(prefix: &str, name: &str) -> String {
 
 /// Repo-wide string helpers shared by every generated translation unit.
 pub const STRING_UTILS_HEADER: &str = "string_utils_c.h";
+/// Hand-written, C++ only: `nativeapi::capi::UserData`.
+pub const USER_DATA_HEADER: &str = "user_data.h";
 
 /// Generated header holding the definitions no C++ header owns.
 pub const COMMON_HEADER: &str = "common_c.h";

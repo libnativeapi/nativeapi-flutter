@@ -24,8 +24,8 @@ public sealed partial class ShortcutManager
 
     public Shortcut? RegisterWithAcceleratorAndCallback(string accelerator, Action callback)
     {
-        var nativeCallback = CallbackKeeper.Retain<ShortcutManagerRegisterWithAcceleratorAndCallbackCallbackNativeCallback>((userData) => callback());
-        var rawResult = Interop.native_shortcut_manager_register_with_accelerator_and_callback(accelerator, nativeCallback, IntPtr.Zero);
+        ShortcutManagerRegisterWithAcceleratorAndCallbackCallbackNativeCallback nativeCallback = (userData) => callback();
+        var rawResult = Interop.native_shortcut_manager_register_with_accelerator_and_callback(accelerator, nativeCallback, CallbackKeeper.Hold(nativeCallback), CallbackKeeper.Release);
         return rawResult == 0 ? null : new Shortcut(rawResult);
     }
 
@@ -125,13 +125,12 @@ public sealed partial class ShortcutManager
 
     /// <summary>Registers <paramref name="callback"/> for every ShortcutEvent this ShortcutManager emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<ShortcutEvent> callback)
     {
-        var native = CallbackKeeper.Retain<ShortcutEventNativeCallback>((evt, userData) =>
+        ShortcutEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -142,8 +141,8 @@ public sealed partial class ShortcutManager
             {
                 callback(value);
             }
-        });
-        return Interop.native_shortcut_manager_add_listener(native, IntPtr.Zero);
+        };
+        return Interop.native_shortcut_manager_add_listener(native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>

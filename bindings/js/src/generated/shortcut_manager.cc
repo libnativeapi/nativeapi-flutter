@@ -32,7 +32,7 @@ napi_value Js_native_shortcut_manager_register_with_accelerator_and_callback(nap
   if (!GetCallback(env, args[1], /*optional=*/false, &p1)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_shortcut_manager_register_with_accelerator_and_callback(p0, +[](void* user_data) { Callback::Dispatch(user_data, {}); }, p1); });
+  auto result = OnMainThread([&] { return native_shortcut_manager_register_with_accelerator_and_callback(p0, +[](void* user_data) { Callback::Dispatch(user_data, {}); }, p1, &Callback::ReleaseUserData); });
   return Value::BigInt(result).ToJs(env);
 }
 
@@ -249,12 +249,7 @@ napi_value Js_native_shortcut_manager_add_listener(napi_env env, napi_callback_i
     if (event != nullptr) {
       Callback::Dispatch(user_data, {ToValue(*event)});
     }
-  }, callback); });
-  if (id == 0) {
-    callback->Release();
-  } else {
-    RememberListener("native_shortcut_manager_add_listener", self, id, callback);
-  }
+  }, callback, &Callback::ReleaseUserData); });
   return Value::Number(static_cast<double>(id)).ToJs(env);
 }
 
@@ -269,9 +264,6 @@ napi_value Js_native_shortcut_manager_remove_listener(napi_env env, napi_callbac
     return nullptr;
   }
   bool removed = OnMainThread([&] { return native_shortcut_manager_remove_listener(id); });
-  if (removed) {
-    ForgetListener("native_shortcut_manager_add_listener", self, id);
-  }
   return Value::Bool(removed).ToJs(env);
 }
 

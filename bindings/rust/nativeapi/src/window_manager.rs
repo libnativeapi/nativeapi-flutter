@@ -59,15 +59,19 @@ impl WindowManager {
             let callback = &*(user_data as *const std::sync::Arc<dyn Fn(u32)>);
             callback(arg0);
         }
-        fn leak_callback(callback: std::sync::Arc<dyn Fn(u32)>) -> *mut std::ffi::c_void {
-            // The C ABI keeps the pointer but offers no hook to reclaim it.
+        fn into_user_data(callback: std::sync::Arc<dyn Fn(u32)>) -> *mut std::ffi::c_void {
             Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void
         }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            if !user_data.is_null() {
+                drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn(u32)>));
+            }
+        }
         let hook_user_data = hook
-            .map(|value| leak_callback(std::sync::Arc::from(value)))
+            .map(|value| into_user_data(std::sync::Arc::from(value)))
             .unwrap_or(std::ptr::null_mut());
         unsafe {
-            cnativeapi::native_window_manager_set_will_show_hook(if hook_user_data.is_null() { None } else { Some(trampoline) }, hook_user_data);
+            cnativeapi::native_window_manager_set_will_show_hook(if hook_user_data.is_null() { None } else { Some(trampoline) }, hook_user_data, Some(release));
         }
     }
 
@@ -79,15 +83,19 @@ impl WindowManager {
             let callback = &*(user_data as *const std::sync::Arc<dyn Fn(u32)>);
             callback(arg0);
         }
-        fn leak_callback(callback: std::sync::Arc<dyn Fn(u32)>) -> *mut std::ffi::c_void {
-            // The C ABI keeps the pointer but offers no hook to reclaim it.
+        fn into_user_data(callback: std::sync::Arc<dyn Fn(u32)>) -> *mut std::ffi::c_void {
             Box::into_raw(Box::new(callback)) as *mut std::ffi::c_void
         }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            if !user_data.is_null() {
+                drop(Box::from_raw(user_data as *mut std::sync::Arc<dyn Fn(u32)>));
+            }
+        }
         let hook_user_data = hook
-            .map(|value| leak_callback(std::sync::Arc::from(value)))
+            .map(|value| into_user_data(std::sync::Arc::from(value)))
             .unwrap_or(std::ptr::null_mut());
         unsafe {
-            cnativeapi::native_window_manager_set_will_hide_hook(if hook_user_data.is_null() { None } else { Some(trampoline) }, hook_user_data);
+            cnativeapi::native_window_manager_set_will_hide_hook(if hook_user_data.is_null() { None } else { Some(trampoline) }, hook_user_data, Some(release));
         }
     }
 
@@ -129,9 +137,8 @@ impl WindowManager {
 
     /// Registers `callback` for every `WindowEvent` this `WindowManager` emits.
     ///
-    /// The closure is leaked: the C ABI takes a `user_data` pointer but
-    /// offers no hook to reclaim it, so removing the listener stops the
-    /// calls without freeing the closure.
+    /// The closure is dropped on the main thread once the listener is removed
+    /// or its emitter destroyed.
     pub fn add_listener(callback: impl Fn(&WindowEvent) + 'static) -> ListenerId {
         unsafe extern "C" fn trampoline(event: *const cnativeapi::native_window_event_t, user_data: *mut std::ffi::c_void) {
             if event.is_null() || user_data.is_null() {
@@ -144,7 +151,10 @@ impl WindowManager {
         }
         let boxed: Box<Box<dyn Fn(&WindowEvent)>> = Box::new(Box::new(callback));
         let user_data = Box::into_raw(boxed) as *mut std::ffi::c_void;
-        unsafe { cnativeapi::native_window_manager_add_listener(Some(trampoline), user_data) }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&WindowEvent)>));
+        }
+        unsafe { cnativeapi::native_window_manager_add_listener(Some(trampoline), user_data, Some(release)) }
     }
 
     /// Unregisters a listener. Returns false if unknown.

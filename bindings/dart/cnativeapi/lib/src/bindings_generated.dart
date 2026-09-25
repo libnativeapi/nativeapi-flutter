@@ -71,11 +71,13 @@ external ffi.Pointer<ffi.Char> native_app_info_get_version();
   native_listener_id_t Function(
     native_application_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_application_add_listener(
   native_application_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<native_window_list_t Function()>()
@@ -253,11 +255,13 @@ external void native_display_list_release(
   native_listener_id_t Function(
     native_display_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_display_manager_add_listener(
   native_display_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<native_display_list_t Function()>()
@@ -281,12 +285,14 @@ external bool native_display_manager_remove_listener(int listener_id);
     native_drag_source_t,
     native_drag_source_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_drag_source_add_listener(
   int drag_source,
   native_drag_source_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 /// Creates a DragSource instance; release it with native_drag_source_free().
@@ -377,12 +383,14 @@ external bool native_drag_source_start_dragging(int drag_source, int window);
     native_drop_target_t,
     native_drop_target_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_drop_target_add_listener(
   int drop_target,
   native_drop_target_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 /// Creates a DropTarget instance; release it with native_drop_target_free().
@@ -584,12 +592,14 @@ external ffi.Pointer<ffi.Char> native_keyboard_accelerator_to_string(
     native_keyboard_monitor_t,
     native_keyboard_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_keyboard_monitor_add_listener(
   int keyboard_monitor,
   native_keyboard_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 /// Creates a KeyboardMonitor instance; release it with native_keyboard_monitor_free().
@@ -710,12 +720,14 @@ external void native_menu_add_item(int menu, int item);
     native_menu_t,
     native_menu_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_menu_add_listener(
   int menu,
   native_menu_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<ffi.Void Function(native_menu_t)>()
@@ -796,12 +808,14 @@ bool native_menu_is_backend_supported(native_menu_backend_t backend) {
     native_menu_item_t,
     native_menu_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_menu_item_add_listener(
   int menu_item,
   native_menu_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 /// Creates a MenuItem instance; release it with native_menu_item_free().
@@ -1170,11 +1184,13 @@ external void native_message_dialog_set_title(
   native_listener_id_t Function(
     native_notification_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_notification_manager_add_listener(
   native_notification_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 /// Caller owns the returned string; free it with free_c_str().
@@ -1423,6 +1439,7 @@ external bool native_secure_storage_set(
     ffi.Pointer<ffi.Char>,
     native_shortcut_create_with_id_and_accelerator_and_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_shortcut_create_with_id_and_accelerator_and_callback(
@@ -1430,6 +1447,7 @@ external int native_shortcut_create_with_id_and_accelerator_and_callback(
   ffi.Pointer<ffi.Char> accelerator,
   native_shortcut_create_with_id_and_accelerator_and_callback_t callback,
   ffi.Pointer<ffi.Void> callback_user_data,
+  native_release_user_data_t callback_release_user_data,
 );
 
 /// Creates a Shortcut instance; release it with native_shortcut_free().
@@ -1494,11 +1512,13 @@ external void native_shortcut_list_release(
   native_listener_id_t Function(
     native_shortcut_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_shortcut_manager_add_listener(
   native_shortcut_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<ffi.Void Function(native_shortcut_id_t, ffi.Pointer<ffi.Char>)>()
@@ -1555,12 +1575,14 @@ external bool native_shortcut_manager_is_valid_accelerator(
     ffi.Pointer<ffi.Char>,
     native_shortcut_manager_register_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_shortcut_manager_register_with_accelerator_and_callback(
   ffi.Pointer<ffi.Char> accelerator,
   native_shortcut_manager_register_callback_t callback,
   ffi.Pointer<ffi.Void> callback_user_data,
+  native_release_user_data_t callback_release_user_data,
 );
 
 /// Caller owns the returned handle; release it with native_shortcut_free().
@@ -1598,12 +1620,14 @@ external void native_shortcut_options_free(
     native_shortcut_t,
     native_shortcut_set_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external void native_shortcut_set_callback(
   int shortcut,
   native_shortcut_set_callback_t callback,
   ffi.Pointer<ffi.Void> callback_user_data,
+  native_release_user_data_t callback_release_user_data,
 );
 
 @ffi.Native<ffi.Void Function(native_shortcut_t, ffi.Pointer<ffi.Char>)>()
@@ -1632,12 +1656,14 @@ external void native_string_map_free(ffi.Pointer<native_string_map_t> map);
     native_tray_icon_t,
     native_tray_icon_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_tray_icon_add_listener(
   int tray_icon,
   native_tray_icon_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<ffi.Bool Function(native_tray_icon_t)>()
@@ -1845,12 +1871,14 @@ external int native_window_create_with_native_window(
     native_window_drag_session_t,
     native_window_drag_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_window_drag_session_add_listener(
   int window_drag_session,
   native_window_drag_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<ffi.Void Function(native_window_drag_session_t)>()
@@ -2087,11 +2115,13 @@ external void native_window_list_release(
   native_listener_id_t Function(
     native_window_event_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external int native_window_manager_add_listener(
   native_window_event_callback_t callback,
   ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
 );
 
 @ffi.Native<ffi.Bool Function(native_window_id_t)>()
@@ -2138,22 +2168,26 @@ external bool native_window_manager_remove_listener(int listener_id);
   ffi.Void Function(
     native_window_manager_set_will_hide_hook_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external void native_window_manager_set_will_hide_hook(
   native_window_manager_set_will_hide_hook_callback_t hook,
   ffi.Pointer<ffi.Void> hook_user_data,
+  native_release_user_data_t hook_release_user_data,
 );
 
 @ffi.Native<
   ffi.Void Function(
     native_window_manager_set_will_show_hook_callback_t,
     ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
   )
 >()
 external void native_window_manager_set_will_show_hook(
   native_window_manager_set_will_show_hook_callback_t hook,
   ffi.Pointer<ffi.Void> hook_user_data,
+  native_release_user_data_t hook_release_user_data,
 );
 
 @ffi.Native<ffi.Void Function(native_window_t)>()
@@ -3535,6 +3569,23 @@ final class native_rectangle_t extends ffi.Struct {
     ..ref.height = height;
 }
 
+/// Takes back the `user_data` passed with a callback.
+///
+/// Every function taking a callback also takes one of these (may be NULL).
+/// The core calls it exactly once per call — including when the call fails
+/// or the callback is NULL — after the last time it can call that callback:
+/// when a listener is removed, a callback replaced, a registration ended, or
+/// its owner destroyed. It runs on the main thread, never inside the call
+/// that let the callback go.
+typedef native_release_user_data_t =
+    ffi.Pointer<ffi.NativeFunction<native_release_user_data_tFunction>>;
+typedef native_release_user_data_tFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_release_user_data_tFunction = void Function(
+  ffi.Pointer<ffi.Void> user_data,
+);
+
 enum native_resize_edge_t {
   NATIVE_RESIZE_EDGE_TOP(0),
   NATIVE_RESIZE_EDGE_LEFT(1),
@@ -3676,6 +3727,8 @@ final class native_shortcut_options_t extends ffi.Struct {
 
   external ffi.Pointer<ffi.Void> callback_user_data;
 
+  external native_release_user_data_t callback_release_user_data;
+
   external ffi.Pointer<ffi.Char> description;
 
   @ffi.UnsignedInt()
@@ -3693,6 +3746,7 @@ final class native_shortcut_options_t extends ffi.Struct {
     required ffi.Pointer<ffi.Char> accelerator,
     required native_shortcut_options_callback_t callback,
     required ffi.Pointer<ffi.Void> callback_user_data,
+    required native_release_user_data_t callback_release_user_data,
     required ffi.Pointer<ffi.Char> description,
     required native_shortcut_scope_t scope,
     required bool enabled,
@@ -3700,6 +3754,7 @@ final class native_shortcut_options_t extends ffi.Struct {
     ..ref.accelerator = accelerator
     ..ref.callback = callback
     ..ref.callback_user_data = callback_user_data
+    ..ref.callback_release_user_data = callback_release_user_data
     ..ref.description = description
     ..ref.scope = scope
     ..ref.enabled = enabled;

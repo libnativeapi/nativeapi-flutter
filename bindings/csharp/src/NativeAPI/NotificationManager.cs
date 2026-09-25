@@ -70,13 +70,12 @@ public sealed partial class NotificationManager
 
     /// <summary>Registers <paramref name="callback"/> for every NotificationEvent this NotificationManager emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<NotificationEvent> callback)
     {
-        var native = CallbackKeeper.Retain<NotificationEventNativeCallback>((evt, userData) =>
+        NotificationEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -87,8 +86,8 @@ public sealed partial class NotificationManager
             {
                 callback(value);
             }
-        });
-        return Interop.native_notification_manager_add_listener(native, IntPtr.Zero);
+        };
+        return Interop.native_notification_manager_add_listener(native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>

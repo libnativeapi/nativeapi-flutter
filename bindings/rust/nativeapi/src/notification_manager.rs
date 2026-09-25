@@ -76,9 +76,8 @@ impl NotificationManager {
 
     /// Registers `callback` for every `NotificationEvent` this `NotificationManager` emits.
     ///
-    /// The closure is leaked: the C ABI takes a `user_data` pointer but
-    /// offers no hook to reclaim it, so removing the listener stops the
-    /// calls without freeing the closure.
+    /// The closure is dropped on the main thread once the listener is removed
+    /// or its emitter destroyed.
     pub fn add_listener(callback: impl Fn(&NotificationEvent) + 'static) -> ListenerId {
         unsafe extern "C" fn trampoline(event: *const cnativeapi::native_notification_event_t, user_data: *mut std::ffi::c_void) {
             if event.is_null() || user_data.is_null() {
@@ -91,7 +90,10 @@ impl NotificationManager {
         }
         let boxed: Box<Box<dyn Fn(&NotificationEvent)>> = Box::new(Box::new(callback));
         let user_data = Box::into_raw(boxed) as *mut std::ffi::c_void;
-        unsafe { cnativeapi::native_notification_manager_add_listener(Some(trampoline), user_data) }
+        unsafe extern "C" fn release(user_data: *mut std::ffi::c_void) {
+            drop(Box::from_raw(user_data as *mut Box<dyn Fn(&NotificationEvent)>));
+        }
+        unsafe { cnativeapi::native_notification_manager_add_listener(Some(trampoline), user_data, Some(release)) }
     }
 
     /// Unregisters a listener. Returns false if unknown.

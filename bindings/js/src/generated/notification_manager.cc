@@ -108,12 +108,7 @@ napi_value Js_native_notification_manager_add_listener(napi_env env, napi_callba
     if (event != nullptr) {
       Callback::Dispatch(user_data, {ToValue(*event)});
     }
-  }, callback); });
-  if (id == 0) {
-    callback->Release();
-  } else {
-    RememberListener("native_notification_manager_add_listener", self, id, callback);
-  }
+  }, callback, &Callback::ReleaseUserData); });
   return Value::Number(static_cast<double>(id)).ToJs(env);
 }
 
@@ -128,9 +123,6 @@ napi_value Js_native_notification_manager_remove_listener(napi_env env, napi_cal
     return nullptr;
   }
   bool removed = OnMainThread([&] { return native_notification_manager_remove_listener(id); });
-  if (removed) {
-    ForgetListener("native_notification_manager_add_listener", self, id);
-  }
   return Value::Bool(removed).ToJs(env);
 }
 

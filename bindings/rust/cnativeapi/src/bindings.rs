@@ -6,6 +6,9 @@
 
 #[doc = " Identifies one registered event listener."]
 pub type native_listener_id_t = u64;
+#[doc = " Takes back the `user_data` passed with a callback.\n\n Every function taking a callback also takes one of these (may be NULL).\n The core calls it exactly once per call — including when the call fails\n or the callback is NULL — after the last time it can call that callback:\n when a listener is removed, a callback replaced, a registration ended, or\n its owner destroyed. It runs on the main thread, never inside the call\n that let the callback go."]
+pub type native_release_user_data_t =
+    ::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void)>;
 unsafe extern "C" {
     pub fn native_accessibility_manager_enable();
 }
@@ -1012,6 +1015,7 @@ unsafe extern "C" {
         menu_item: native_menu_item_t,
         callback: native_menu_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -1118,6 +1122,7 @@ unsafe extern "C" {
         menu: native_menu_t,
         callback: native_menu_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -1227,6 +1232,7 @@ unsafe extern "C" {
     pub fn native_application_add_listener(
         callback: native_application_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -1386,6 +1392,7 @@ unsafe extern "C" {
     pub fn native_display_manager_add_listener(
         callback: native_display_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -1566,6 +1573,7 @@ unsafe extern "C" {
         drag_source: native_drag_source_t,
         callback: native_drag_source_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -1672,6 +1680,7 @@ unsafe extern "C" {
         drop_target: native_drop_target_t,
         callback: native_drop_target_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -1780,6 +1789,7 @@ unsafe extern "C" {
         keyboard_monitor: native_keyboard_monitor_t,
         callback: native_keyboard_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -2068,6 +2078,7 @@ unsafe extern "C" {
     pub fn native_notification_manager_add_listener(
         callback: native_notification_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -2223,6 +2234,7 @@ pub struct native_shortcut_options_t {
     pub accelerator: *mut ::std::os::raw::c_char,
     pub callback: native_shortcut_options_callback_t,
     pub callback_user_data: *mut ::std::os::raw::c_void,
+    pub callback_release_user_data: native_release_user_data_t,
     pub description: *mut ::std::os::raw::c_char,
     pub scope: native_shortcut_scope_t,
     pub enabled: bool,
@@ -2330,6 +2342,7 @@ unsafe extern "C" {
         accelerator: *const ::std::os::raw::c_char,
         callback: native_shortcut_create_with_id_and_accelerator_and_callback_t,
         callback_user_data: *mut ::std::os::raw::c_void,
+        callback_release_user_data: native_release_user_data_t,
     ) -> native_shortcut_t;
 }
 unsafe extern "C" {
@@ -2370,6 +2383,7 @@ unsafe extern "C" {
         shortcut: native_shortcut_t,
         callback: native_shortcut_set_callback_t,
         callback_user_data: *mut ::std::os::raw::c_void,
+        callback_release_user_data: native_release_user_data_t,
     );
 }
 unsafe extern "C" {
@@ -2395,6 +2409,7 @@ unsafe extern "C" {
         accelerator: *const ::std::os::raw::c_char,
         callback: native_shortcut_manager_register_callback_t,
         callback_user_data: *mut ::std::os::raw::c_void,
+        callback_release_user_data: native_release_user_data_t,
     ) -> native_shortcut_t;
 }
 unsafe extern "C" {
@@ -2458,6 +2473,7 @@ unsafe extern "C" {
     pub fn native_shortcut_manager_add_listener(
         callback: native_shortcut_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -2675,6 +2691,7 @@ unsafe extern "C" {
         tray_icon: native_tray_icon_t,
         callback: native_tray_icon_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -2800,6 +2817,7 @@ unsafe extern "C" {
         window_drag_session: native_window_drag_session_t,
         callback: native_window_drag_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {
@@ -2837,12 +2855,14 @@ unsafe extern "C" {
     pub fn native_window_manager_set_will_show_hook(
         hook: native_window_manager_set_will_show_hook_callback_t,
         hook_user_data: *mut ::std::os::raw::c_void,
+        hook_release_user_data: native_release_user_data_t,
     );
 }
 unsafe extern "C" {
     pub fn native_window_manager_set_will_hide_hook(
         hook: native_window_manager_set_will_hide_hook_callback_t,
         hook_user_data: *mut ::std::os::raw::c_void,
+        hook_release_user_data: native_release_user_data_t,
     );
 }
 unsafe extern "C" {
@@ -2868,6 +2888,7 @@ unsafe extern "C" {
     pub fn native_window_manager_add_listener(
         callback: native_window_event_callback_t,
         user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
     ) -> native_listener_id_t;
 }
 unsafe extern "C" {

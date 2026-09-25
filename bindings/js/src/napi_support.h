@@ -134,9 +134,9 @@ napi_value Undefined(napi_env env);
 // Callbacks
 // ---------------------------------------------------------------------------
 
-// A JS function handed to the C ABI as `user_data`. The C ABI has no hook to
-// tell us when it drops a callback, so a Callback is never freed: Release()
-// only drops the JS function, after which calls are ignored.
+// A JS function handed to the C ABI as `user_data`, with ReleaseUserData as
+// its release: the core calls that once it can no longer call the function,
+// and the Callback is freed then.
 class Callback {
  public:
   // `*out` stays null for an optional null/undefined argument.
@@ -147,11 +147,15 @@ class Callback {
   // and the function runs on the JS thread later.
   static void Dispatch(void* user_data, std::vector<Value> args);
 
-  void Release();
+  // The `native_release_user_data_t` passed with every Callback. The core
+  // calls it on the platform main thread, which need not be the JS thread;
+  // the JS function is dropped and the Callback freed on the JS thread.
+  static void ReleaseUserData(void* user_data);
 
  private:
   Callback() = default;
   void Call(napi_env env, const std::vector<Value>& args);
+  void ReleaseOnJsThread();
   static void CallFromQueue(napi_env env, napi_value js_callback, void* context, void* data);
 
   napi_env env_ = nullptr;
@@ -160,12 +164,6 @@ class Callback {
 };
 
 bool GetCallback(napi_env env, napi_value value, bool optional, Callback** out);
-
-// Listener bookkeeping, so removing a listener also drops its JS function.
-// `scope` is the add-listener symbol and `owner` the emitter's handle (0 for
-// singletons): listener ids are only unique per emitter.
-void RememberListener(const char* scope, uint64_t owner, uint64_t id, Callback* callback);
-void ForgetListener(const char* scope, uint64_t owner, uint64_t id);
 
 // ---------------------------------------------------------------------------
 // Threads

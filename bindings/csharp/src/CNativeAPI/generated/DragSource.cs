@@ -60,7 +60,7 @@ public static partial class Interop
     public static extern native_string_list_t native_drag_source_get_file_paths(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_drag_source_add_listener(ulong self, DragSourceEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_drag_source_add_listener(ulong self, DragSourceEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_drag_source_create();

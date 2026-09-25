@@ -140,13 +140,12 @@ public sealed partial class Application
 
     /// <summary>Registers <paramref name="callback"/> for every ApplicationEvent this Application emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<ApplicationEvent> callback)
     {
-        var native = CallbackKeeper.Retain<ApplicationEventNativeCallback>((evt, userData) =>
+        ApplicationEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -157,8 +156,8 @@ public sealed partial class Application
             {
                 callback(value);
             }
-        });
-        return Interop.native_application_add_listener(native, IntPtr.Zero);
+        };
+        return Interop.native_application_add_listener(native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>

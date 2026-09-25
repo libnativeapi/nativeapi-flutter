@@ -147,7 +147,7 @@ public static partial class Interop
     public static extern uint native_menu_item_get_id(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_menu_add_listener(ulong self, MenuEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_menu_add_listener(ulong self, MenuEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_menu_create();
@@ -162,7 +162,7 @@ public static partial class Interop
     public static extern ulong native_menu_get_item_by_id(ulong self, uint itemId);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_menu_item_add_listener(ulong self, MenuEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_menu_item_add_listener(ulong self, MenuEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_menu_item_create_with_label_and_type([MarshalAs(UnmanagedType.LPUTF8Str)] string? label, int type);

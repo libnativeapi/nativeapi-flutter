@@ -249,13 +249,12 @@ public sealed partial class MenuItem : IDisposable
 
     /// <summary>Registers <paramref name="callback"/> for every MenuEvent this MenuItem emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<MenuEvent> callback)
     {
-        var native = CallbackKeeper.Retain<MenuEventNativeCallback>((evt, userData) =>
+        MenuEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -266,8 +265,8 @@ public sealed partial class MenuItem : IDisposable
             {
                 callback(value);
             }
-        });
-        return Interop.native_menu_item_add_listener(NativeHandle, native, IntPtr.Zero);
+        };
+        return Interop.native_menu_item_add_listener(NativeHandle, native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>
@@ -449,13 +448,12 @@ public sealed partial class Menu : IDisposable
 
     /// <summary>Registers <paramref name="callback"/> for every MenuEvent this Menu emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<MenuEvent> callback)
     {
-        var native = CallbackKeeper.Retain<MenuEventNativeCallback>((evt, userData) =>
+        MenuEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -466,8 +464,8 @@ public sealed partial class Menu : IDisposable
             {
                 callback(value);
             }
-        });
-        return Interop.native_menu_add_listener(NativeHandle, native, IntPtr.Zero);
+        };
+        return Interop.native_menu_add_listener(NativeHandle, native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>

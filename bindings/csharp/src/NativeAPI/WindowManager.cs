@@ -54,9 +54,9 @@ public sealed partial class WindowManager
         WindowManagerSetWillShowHookHookNativeCallback? nativeHook = null;
         if (hook is { } bodyHook)
         {
-            nativeHook = CallbackKeeper.Retain<WindowManagerSetWillShowHookHookNativeCallback>((arg0, userData) => bodyHook(arg0));
+            nativeHook = (arg0, userData) => bodyHook(arg0);
         }
-        Interop.native_window_manager_set_will_show_hook(nativeHook, IntPtr.Zero);
+        Interop.native_window_manager_set_will_show_hook(nativeHook, CallbackKeeper.Hold(nativeHook), CallbackKeeper.Release);
     }
 
     public void SetWillHideHook(Action<uint>? hook)
@@ -64,9 +64,9 @@ public sealed partial class WindowManager
         WindowManagerSetWillHideHookHookNativeCallback? nativeHook = null;
         if (hook is { } bodyHook)
         {
-            nativeHook = CallbackKeeper.Retain<WindowManagerSetWillHideHookHookNativeCallback>((arg0, userData) => bodyHook(arg0));
+            nativeHook = (arg0, userData) => bodyHook(arg0);
         }
-        Interop.native_window_manager_set_will_hide_hook(nativeHook, IntPtr.Zero);
+        Interop.native_window_manager_set_will_hide_hook(nativeHook, CallbackKeeper.Hold(nativeHook), CallbackKeeper.Release);
     }
 
     public bool HasWillShowHook()
@@ -105,13 +105,12 @@ public sealed partial class WindowManager
 
     /// <summary>Registers <paramref name="callback"/> for every WindowEvent this WindowManager emits.</summary>
     /// <remarks>
-    /// The delegate is retained for good: the C ABI keeps the context
-    /// pointer but offers no hook to release it, so removing the listener
-    /// stops the calls without freeing the delegate.
+    /// The delegate is kept alive until the listener is removed or its emitter
+    /// destroyed; the core releases it then.
     /// </remarks>
     public ulong AddListener(Action<WindowEvent> callback)
     {
-        var native = CallbackKeeper.Retain<WindowEventNativeCallback>((evt, userData) =>
+        WindowEventNativeCallback native = (evt, userData) =>
         {
             if (evt == IntPtr.Zero)
             {
@@ -122,8 +121,8 @@ public sealed partial class WindowManager
             {
                 callback(value);
             }
-        });
-        return Interop.native_window_manager_add_listener(native, IntPtr.Zero);
+        };
+        return Interop.native_window_manager_add_listener(native, CallbackKeeper.Hold(native), CallbackKeeper.Release);
     }
 
     /// <summary>Unregisters a listener. Returns false if unknown.</summary>

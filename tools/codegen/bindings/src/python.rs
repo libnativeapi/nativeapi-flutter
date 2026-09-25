@@ -25,7 +25,8 @@ use codegen_shared::ir::{
 use codegen_shared::naming::{
     c_add_listener_symbol, c_constructor_symbol, c_free_symbol, c_list_field,
     c_list_free_symbol, c_list_release_symbol, c_list_type_name, c_method_symbol,
-    c_native_object_symbol, c_remove_listener_symbol, c_type_name, c_user_data_param,
+    c_native_object_symbol, c_release_user_data_param, c_remove_listener_symbol, c_type_name,
+    c_user_data_param, RELEASE_USER_DATA_TYPE,
     constructor_suffix, is_binding_accessor, listed_classes, struct_has_owned_fields,
     TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_LIST_TYPE, STRING_MAP_FREE_FN,
     STRING_MAP_TYPE,
@@ -168,6 +169,10 @@ type Callbacks = BTreeMap<String, String>;
 fn capi_module(api: &Api, prefix: &str) -> String {
     let mut aggregates: Vec<RawAggregate> = Vec::new();
     let mut callbacks = Callbacks::new();
+    callbacks.insert(
+        RELEASE_USER_DATA_TYPE.to_string(),
+        "CFUNCTYPE(None, c_void_p)".to_string(),
+    );
 
     for header in &api.headers {
         for item in &header.structs {
@@ -178,6 +183,10 @@ fn capi_module(api: &Api, prefix: &str) -> String {
                     TypeRef::Callback { params } => {
                         fields.push((name, callback_type(&mut callbacks, params, prefix)));
                         fields.push((c_user_data_param(&field.name), "c_void_p".to_string()));
+                        fields.push((
+                            c_release_user_data_param(&field.name),
+                            RELEASE_USER_DATA_TYPE.to_string(),
+                        ));
                     }
                     other => fields.push((name, raw_type(other, prefix))),
                 }
@@ -502,6 +511,7 @@ fn render_header_functions(
             let mut add_args = receiver.clone();
             add_args.push(event_callback_type(prefix, &group.name));
             add_args.push("c_void_p".to_string());
+            add_args.push(RELEASE_USER_DATA_TYPE.to_string());
             lines.push(function_decl(
                 &c_add_listener_symbol(prefix, &class.name),
                 "c_uint64",
@@ -555,6 +565,7 @@ fn param_ctypes(params: &[Param], callbacks: &mut Callbacks, prefix: &str) -> Ve
                 TypeRef::Callback { params } => {
                     out.push(callback_type(callbacks, params, prefix));
                     out.push("c_void_p".to_string());
+                    out.push(RELEASE_USER_DATA_TYPE.to_string());
                 }
                 TypeRef::String | TypeRef::CString => out.push("c_char_p".to_string()),
                 other => out.push(raw_type(other, prefix)),
@@ -883,10 +894,23 @@ fn render_struct(out: &mut String, module: &mut Module, item: &Struct) {
                 writeln!(out, "            fn = {value}").unwrap();
                 write_call(
                     out,
-                    &format!("            {raw} = _rt.retain_callback("),
+                    &format!("            {raw} = _rt.make_callback("),
                     &[cb_ty, trampoline],
                     ")",
                 );
+                // Released by the core once it drops the callback.
+                writeln!(
+                    out,
+                    "            raw.{} = _rt.user_data({raw})",
+                    c_user_data_param(&field.name)
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "            raw.{} = _rt.release_user_data",
+                    c_release_user_data_param(&field.name)
+                )
+                .unwrap();
             }
             ty => {
                 writeln!(out, "        {raw} = {}", c_value(module, ty, &value)).unwrap();
@@ -1319,8 +1343,8 @@ fn render_call_body(
     }
 }
 
-/// `native_<param>`: the retained C function pointer for each callback
-/// parameter, which `call_args` passes on.
+/// `native_<param>`: the C function pointer for each callback parameter,
+/// which `call_args` passes on together with its `user_data` key.
 fn render_callback_locals(out: &mut String, module: &mut Module, params: &[Param], indent: &str) {
     for param in params {
         if let TypeRef::Callback { params: args } = param.ty.unwrap_optional() {
@@ -1328,18 +1352,20 @@ fn render_callback_locals(out: &mut String, module: &mut Module, params: &[Param
             let trampoline = callback_trampoline(module, args, &name);
             let cb_ty = format!("_C.{}", callback_type(&mut Callbacks::new(), args, module.prefix));
             if matches!(param.ty, TypeRef::Optional { .. }) {
-                writeln!(out, "{indent}native_{name} = None").unwrap();
+                // ctypes rejects None for a CFUNCTYPE argument; an empty
+                // instance is the NULL function pointer.
+                writeln!(out, "{indent}native_{name} = {cb_ty}()").unwrap();
                 writeln!(out, "{indent}if {name} is not None:").unwrap();
                 write_call(
                     out,
-                    &format!("{indent}    native_{name} = _rt.retain_callback("),
+                    &format!("{indent}    native_{name} = _rt.make_callback("),
                     &[cb_ty, trampoline],
                     ")",
                 );
             } else {
                 write_call(
                     out,
-                    &format!("{indent}native_{name} = _rt.retain_callback("),
+                    &format!("{indent}native_{name} = _rt.make_callback("),
                     &[cb_ty, trampoline],
                     ")",
                 );
@@ -1420,7 +1446,7 @@ fn split_args(args: &str) -> Vec<String> {
 }
 
 /// Arguments for a C call, receiver first; a callback expands into the
-/// function pointer plus its (unused) `user_data`.
+/// function pointer, its `user_data` key, and the release that drops it.
 fn call_args(module: &mut Module, params: &[Param], receiver: Vec<String>) -> Vec<String> {
     let mut args = receiver;
     for param in params {
@@ -1432,7 +1458,8 @@ fn call_args(module: &mut Module, params: &[Param], receiver: Vec<String>) -> Ve
                 }
                 TypeRef::Callback { .. } => {
                     args.push(format!("native_{name}"));
-                    args.push("None".to_string());
+                    args.push(format!("_rt.user_data(native_{name})"));
+                    args.push("_rt.release_user_data".to_string());
                 }
                 TypeRef::String | TypeRef::CString => {
                     args.push(format!("_rt.encode_optional({name})"))
@@ -1442,7 +1469,8 @@ fn call_args(module: &mut Module, params: &[Param], receiver: Vec<String>) -> Ve
             },
             TypeRef::Callback { .. } => {
                 args.push(format!("native_{name}"));
-                args.push("None".to_string());
+                args.push(format!("_rt.user_data(native_{name})"));
+                args.push("_rt.release_user_data".to_string());
             }
             other => args.push(c_value(module, other, &name)),
         }

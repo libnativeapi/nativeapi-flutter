@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import ctypes
+import itertools
 import signal
 import sys
 import threading
@@ -228,11 +229,13 @@ def to_enum(cls: Callable[[int], _E], value: int) -> _E | int:
 # Callbacks
 # ---------------------------------------------------------------------------
 
-# The C ABI stores a callback's function pointer but has no hook to release
-# it, so these live for the rest of the process.
-_retained: list[Any] = []
-# Listener trampolines, dropped by remove_listener().
-_listeners: dict[tuple, Any] = {}
+# Each ctypes callback handed to the C ABI stays referenced here for as long
+# as the core may call it: the user_data passed with it is its key, and the
+# core hands that key to `release_user_data` (on the main thread) once it lets
+# the callback go -- listener removed, callback replaced, registration ended,
+# owner destroyed, or the call failed.
+_callbacks: dict[int, Any] = {}
+_next_key = itertools.count(1)
 
 
 def _guard(fn: Callable[..., None]) -> Callable[..., None]:
@@ -247,25 +250,36 @@ def _guard(fn: Callable[..., None]) -> Callable[..., None]:
     return call
 
 
-def retain_callback(callback_type, fn: Callable[..., None]):
-    native = callback_type(_guard(fn))
-    _retained.append(native)
-    return native
+def _release(key: int | None) -> None:
+    if key is not None:
+        _callbacks.pop(key, None)
+
+
+# Passed with every callback; referenced for the life of the process.
+release_user_data = _C.native_release_user_data_t(_release)
+
+
+def make_callback(callback_type, fn: Callable[..., None]):
+    return callback_type(_guard(fn))
+
+
+def user_data(native) -> int | None:
+    """The key to pass as user_data with `native`, which keeps it alive until
+    the core releases it. None for no callback (None, or a NULL pointer)."""
+    if not native:
+        return None
+    key = next(_next_key)
+    _callbacks[key] = native
+    return key
 
 
 def add_listener(add, callback_type, trampoline, *receiver: int) -> int:
-    native = callback_type(_guard(trampoline))
-    listener_id = add(*receiver, native, None)
-    if listener_id:
-        _listeners[(add.__name__, *receiver, listener_id)] = native
-    return listener_id
+    native = make_callback(callback_type, trampoline)
+    return add(*receiver, native, user_data(native), release_user_data)
 
 
 def remove_listener(remove, listener_id: int, *receiver: int) -> bool:
-    removed = bool(remove(*receiver, listener_id))
-    add_name = remove.__name__.replace("_remove_listener", "_add_listener")
-    _listeners.pop((add_name, *receiver, listener_id), None)
-    return removed
+    return bool(remove(*receiver, listener_id))
 
 
 def _report(exc: BaseException) -> None:

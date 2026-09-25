@@ -399,12 +399,7 @@ napi_value Js_native_menu_item_add_listener(napi_env env, napi_callback_info inf
     if (event != nullptr) {
       Callback::Dispatch(user_data, {ToValue(*event)});
     }
-  }, callback); });
-  if (id == 0) {
-    callback->Release();
-  } else {
-    RememberListener("native_menu_item_add_listener", self, id, callback);
-  }
+  }, callback, &Callback::ReleaseUserData); });
   return Value::Number(static_cast<double>(id)).ToJs(env);
 }
 
@@ -422,9 +417,6 @@ napi_value Js_native_menu_item_remove_listener(napi_env env, napi_callback_info 
     return nullptr;
   }
   bool removed = OnMainThread([&] { return native_menu_item_remove_listener(self, id); });
-  if (removed) {
-    ForgetListener("native_menu_item_add_listener", self, id);
-  }
   return Value::Bool(removed).ToJs(env);
 }
 
@@ -825,12 +817,7 @@ napi_value Js_native_menu_add_listener(napi_env env, napi_callback_info info) {
     if (event != nullptr) {
       Callback::Dispatch(user_data, {ToValue(*event)});
     }
-  }, callback); });
-  if (id == 0) {
-    callback->Release();
-  } else {
-    RememberListener("native_menu_add_listener", self, id, callback);
-  }
+  }, callback, &Callback::ReleaseUserData); });
   return Value::Number(static_cast<double>(id)).ToJs(env);
 }
 
@@ -848,9 +835,6 @@ napi_value Js_native_menu_remove_listener(napi_env env, napi_callback_info info)
     return nullptr;
   }
   bool removed = OnMainThread([&] { return native_menu_remove_listener(self, id); });
-  if (removed) {
-    ForgetListener("native_menu_add_listener", self, id);
-  }
   return Value::Bool(removed).ToJs(env);
 }
 

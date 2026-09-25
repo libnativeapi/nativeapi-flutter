@@ -21,7 +21,7 @@ public static partial class Interop
     public static extern native_point_t native_display_manager_get_cursor_position();
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong native_display_manager_add_listener(DisplayEventNativeCallback callback, IntPtr userData);
+    public static extern ulong native_display_manager_add_listener(DisplayEventNativeCallback callback, IntPtr userData, ReleaseUserDataNativeCallback releaseUserData);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_display_manager_get_primary();

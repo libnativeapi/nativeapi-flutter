@@ -15,6 +15,8 @@ import 'positioning_strategy.dart';
 
 import 'support.dart';
 
+import 'callbacks.dart';
+
 typedef MenuId = int;
 
 typedef MenuItemId = int;
@@ -314,20 +316,17 @@ class MenuItem {
           final value = MenuEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_menu_item_add_listener(
       nativeHandle,
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_menu_item_remove_listener(nativeHandle, listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }
 
 class Menu {
@@ -483,18 +482,15 @@ class Menu {
           final value = MenuEvent.fromNative(event.ref);
           if (value != null) callback(value);
         });
-    _listeners.add(callable); // keeps the trampoline alive
     return c.native_menu_add_listener(
       nativeHandle,
       callable.nativeFunction,
-      ffi.nullptr,
+      NativeCallbacks.userData(callable),
+      NativeCallbacks.release,
     );
   }
 
   /// Unregisters a listener. Returns false if unknown.
   bool removeListener(ListenerId listenerId) =>
       c.native_menu_remove_listener(nativeHandle, listenerId);
-
-  /// Trampolines stay reachable for as long as the C side may call them.
-  static final List<Object> _listeners = <Object>[];
 }
