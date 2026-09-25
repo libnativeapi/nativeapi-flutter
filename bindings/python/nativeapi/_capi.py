@@ -69,6 +69,10 @@ class native_rectangle_t(Structure):
     pass
 
 
+class native_edge_insets_t(Structure):
+    pass
+
+
 class native_color_t(Structure):
     pass
 
@@ -106,6 +110,18 @@ class native_notification_event_data_t(Union):
 
 
 class native_notification_event_t(Structure):
+    pass
+
+
+class native_view_event_text_field_changed_t(Structure):
+    pass
+
+
+class native_view_event_data_t(Union):
+    pass
+
+
+class native_view_event_t(Structure):
     pass
 
 
@@ -245,6 +261,10 @@ class native_tray_icon_list_t(Structure):
     pass
 
 
+class native_view_list_t(Structure):
+    pass
+
+
 class native_window_list_t(Structure):
     pass
 
@@ -294,6 +314,7 @@ native_tray_icon_event_callback_t = CFUNCTYPE(
     c_void_p,
 )
 native_uint_callback_t = CFUNCTYPE(None, c_uint, c_void_p)
+native_view_event_callback_t = CFUNCTYPE(None, POINTER(native_view_event_t), c_void_p)
 native_void_callback_t = CFUNCTYPE(None, c_void_p)
 native_window_drag_event_callback_t = CFUNCTYPE(
     None,
@@ -321,6 +342,12 @@ native_rectangle_t._fields_ = [
     ("y", c_double),
     ("width", c_double),
     ("height", c_double),
+]
+native_edge_insets_t._fields_ = [
+    ("top", c_double),
+    ("right", c_double),
+    ("bottom", c_double),
+    ("left", c_double),
 ]
 native_color_t._fields_ = [
     ("r", c_ubyte),
@@ -361,6 +388,17 @@ native_notification_event_data_t._fields_ = [
 native_notification_event_t._fields_ = [
     ("type", c_int),
     ("data", native_notification_event_data_t),
+]
+native_view_event_text_field_changed_t._fields_ = [
+    ("text", c_char_p),
+]
+native_view_event_data_t._fields_ = [
+    ("text_field_changed", native_view_event_text_field_changed_t),
+]
+native_view_event_t._fields_ = [
+    ("type", c_int),
+    ("view_id", c_uint),
+    ("data", native_view_event_data_t),
 ]
 native_window_event_moved_t._fields_ = [
     ("new_position", native_point_t),
@@ -498,6 +536,10 @@ native_tray_icon_list_t._fields_ = [
     ("tray_icons", POINTER(c_uint64)),
     ("count", c_long),
 ]
+native_view_list_t._fields_ = [
+    ("views", POINTER(c_uint64)),
+    ("count", c_long),
+]
 native_window_list_t._fields_ = [
     ("windows", POINTER(c_uint64)),
     ("count", c_long),
@@ -516,6 +558,24 @@ NATIVE_COLOR_CYAN = constant("NATIVE_COLOR_CYAN", native_color_t)
 NATIVE_COLOR_MAGENTA = constant("NATIVE_COLOR_MAGENTA", native_color_t)
 
 # --- functions ---
+
+# foundation/geometry.h
+
+native_edge_insets_all = function(
+    "native_edge_insets_all",
+    native_edge_insets_t,
+    [
+        c_double,
+    ],
+)
+native_edge_insets_symmetric = function(
+    "native_edge_insets_symmetric",
+    native_edge_insets_t,
+    [
+        c_double,
+        c_double,
+    ],
+)
 
 # foundation/color.h
 
@@ -1400,6 +1460,414 @@ native_window_shadow_get_offset = function(
     ],
 )
 
+# view.h
+
+native_view_list_free = function(
+    "native_view_list_free",
+    None,
+    [
+        POINTER(native_view_list_t),
+    ],
+)
+native_view_list_release = function(
+    "native_view_list_release",
+    None,
+    [
+        POINTER(native_view_list_t),
+    ],
+)
+native_view_free = function("native_view_free", None, [c_uint64])
+native_view_get_native_object = function(
+    "native_view_get_native_object",
+    c_void_p,
+    [
+        c_uint64,
+    ],
+)
+native_view_create = function("native_view_create", c_uint64, [])
+native_view_create_with_native_view = function(
+    "native_view_create_with_native_view",
+    c_uint64,
+    [
+        c_void_p,
+    ],
+)
+native_view_is_supported = function("native_view_is_supported", c_bool, [])
+native_view_get_id = function("native_view_get_id", c_uint, [c_uint64])
+native_view_add_subview = function(
+    "native_view_add_subview",
+    None,
+    [
+        c_uint64,
+        c_uint64,
+    ],
+)
+native_view_insert_subview = function(
+    "native_view_insert_subview",
+    None,
+    [
+        c_uint64,
+        c_ulong,
+        c_uint64,
+    ],
+)
+native_view_remove_subview = function(
+    "native_view_remove_subview",
+    c_bool,
+    [
+        c_uint64,
+        c_uint64,
+    ],
+)
+native_view_remove_subview_at = function(
+    "native_view_remove_subview_at",
+    c_bool,
+    [
+        c_uint64,
+        c_ulong,
+    ],
+)
+native_view_clear_subviews = function("native_view_clear_subviews", None, [c_uint64])
+native_view_get_subview_count = function(
+    "native_view_get_subview_count",
+    c_ulong,
+    [
+        c_uint64,
+    ],
+)
+native_view_get_subview_at = function(
+    "native_view_get_subview_at",
+    c_uint64,
+    [
+        c_uint64,
+        c_ulong,
+    ],
+)
+native_view_get_subviews = function(
+    "native_view_get_subviews",
+    native_view_list_t,
+    [
+        c_uint64,
+    ],
+)
+native_view_get_parent = function("native_view_get_parent", c_uint64, [c_uint64])
+native_view_get_window = function("native_view_get_window", c_uint64, [c_uint64])
+native_view_set_frame = function(
+    "native_view_set_frame",
+    None,
+    [
+        c_uint64,
+        native_rectangle_t,
+    ],
+)
+native_view_get_frame = function(
+    "native_view_get_frame",
+    native_rectangle_t,
+    [
+        c_uint64,
+    ],
+)
+native_view_set_preferred_size = function(
+    "native_view_set_preferred_size",
+    None,
+    [
+        c_uint64,
+        native_size_t,
+    ],
+)
+native_view_get_preferred_size = function(
+    "native_view_get_preferred_size",
+    native_size_t,
+    [
+        c_uint64,
+    ],
+)
+native_view_get_intrinsic_size = function(
+    "native_view_get_intrinsic_size",
+    native_size_t,
+    [
+        c_uint64,
+    ],
+)
+native_view_set_flex = function("native_view_set_flex", None, [c_uint64, c_double])
+native_view_get_flex = function("native_view_get_flex", c_double, [c_uint64])
+native_view_set_alignment = function(
+    "native_view_set_alignment",
+    None,
+    [
+        c_uint64,
+        c_int,
+    ],
+)
+native_view_get_alignment = function("native_view_get_alignment", c_int, [c_uint64])
+native_view_set_layout = function("native_view_set_layout", None, [c_uint64, c_int])
+native_view_get_layout = function("native_view_get_layout", c_int, [c_uint64])
+native_view_set_spacing = function(
+    "native_view_set_spacing",
+    None,
+    [
+        c_uint64,
+        c_double,
+    ],
+)
+native_view_get_spacing = function("native_view_get_spacing", c_double, [c_uint64])
+native_view_set_padding = function(
+    "native_view_set_padding",
+    None,
+    [
+        c_uint64,
+        native_edge_insets_t,
+    ],
+)
+native_view_get_padding = function(
+    "native_view_get_padding",
+    native_edge_insets_t,
+    [
+        c_uint64,
+    ],
+)
+native_view_set_visible = function("native_view_set_visible", None, [c_uint64, c_bool])
+native_view_is_visible = function("native_view_is_visible", c_bool, [c_uint64])
+native_view_set_enabled = function("native_view_set_enabled", None, [c_uint64, c_bool])
+native_view_is_enabled = function("native_view_is_enabled", c_bool, [c_uint64])
+native_view_set_background_color = function(
+    "native_view_set_background_color",
+    None,
+    [
+        c_uint64,
+        native_color_t,
+    ],
+)
+native_view_get_background_color = function(
+    "native_view_get_background_color",
+    native_color_t,
+    [
+        c_uint64,
+    ],
+)
+native_view_set_tooltip = function(
+    "native_view_set_tooltip",
+    None,
+    [
+        c_uint64,
+        c_char_p,
+    ],
+)
+native_view_get_tooltip = function("native_view_get_tooltip", c_void_p, [c_uint64])
+native_view_focus = function("native_view_focus", None, [c_uint64])
+native_view_blur = function("native_view_blur", None, [c_uint64])
+native_view_is_focused = function("native_view_is_focused", c_bool, [c_uint64])
+native_view_add_listener = function(
+    "native_view_add_listener",
+    c_uint64,
+    [
+        c_uint64,
+        native_view_event_callback_t,
+        c_void_p,
+        native_release_user_data_t,
+    ],
+)
+native_view_remove_listener = function(
+    "native_view_remove_listener",
+    c_bool,
+    [
+        c_uint64,
+        c_uint64,
+    ],
+)
+native_label_free = function("native_label_free", None, [c_uint64])
+native_label_create = function("native_label_create", c_uint64, [c_char_p])
+native_label_set_text = function("native_label_set_text", None, [c_uint64, c_char_p])
+native_label_get_text = function("native_label_get_text", c_void_p, [c_uint64])
+native_label_set_text_color = function(
+    "native_label_set_text_color",
+    None,
+    [
+        c_uint64,
+        native_color_t,
+    ],
+)
+native_label_get_text_color = function(
+    "native_label_get_text_color",
+    native_color_t,
+    [
+        c_uint64,
+    ],
+)
+native_label_set_font_size = function(
+    "native_label_set_font_size",
+    None,
+    [
+        c_uint64,
+        c_double,
+    ],
+)
+native_label_get_font_size = function(
+    "native_label_get_font_size",
+    c_double,
+    [
+        c_uint64,
+    ],
+)
+native_label_set_text_alignment = function(
+    "native_label_set_text_alignment",
+    None,
+    [
+        c_uint64,
+        c_int,
+    ],
+)
+native_label_get_text_alignment = function(
+    "native_label_get_text_alignment",
+    c_int,
+    [
+        c_uint64,
+    ],
+)
+native_button_free = function("native_button_free", None, [c_uint64])
+native_button_create = function("native_button_create", c_uint64, [c_char_p])
+native_button_set_text = function("native_button_set_text", None, [c_uint64, c_char_p])
+native_button_get_text = function("native_button_get_text", c_void_p, [c_uint64])
+native_text_field_free = function("native_text_field_free", None, [c_uint64])
+native_text_field_create = function("native_text_field_create", c_uint64, [c_char_p])
+native_text_field_set_text = function(
+    "native_text_field_set_text",
+    None,
+    [
+        c_uint64,
+        c_char_p,
+    ],
+)
+native_text_field_get_text = function(
+    "native_text_field_get_text",
+    c_void_p,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_text_color = function(
+    "native_text_field_set_text_color",
+    None,
+    [
+        c_uint64,
+        native_color_t,
+    ],
+)
+native_text_field_get_text_color = function(
+    "native_text_field_get_text_color",
+    native_color_t,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_font_size = function(
+    "native_text_field_set_font_size",
+    None,
+    [
+        c_uint64,
+        c_double,
+    ],
+)
+native_text_field_get_font_size = function(
+    "native_text_field_get_font_size",
+    c_double,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_text_alignment = function(
+    "native_text_field_set_text_alignment",
+    None,
+    [
+        c_uint64,
+        c_int,
+    ],
+)
+native_text_field_get_text_alignment = function(
+    "native_text_field_get_text_alignment",
+    c_int,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_placeholder = function(
+    "native_text_field_set_placeholder",
+    None,
+    [
+        c_uint64,
+        c_char_p,
+    ],
+)
+native_text_field_get_placeholder = function(
+    "native_text_field_get_placeholder",
+    c_void_p,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_editable = function(
+    "native_text_field_set_editable",
+    None,
+    [
+        c_uint64,
+        c_bool,
+    ],
+)
+native_text_field_is_editable = function(
+    "native_text_field_is_editable",
+    c_bool,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_secure = function(
+    "native_text_field_set_secure",
+    None,
+    [
+        c_uint64,
+        c_bool,
+    ],
+)
+native_text_field_is_secure = function(
+    "native_text_field_is_secure",
+    c_bool,
+    [
+        c_uint64,
+    ],
+)
+native_text_field_set_multiline = function(
+    "native_text_field_set_multiline",
+    None,
+    [
+        c_uint64,
+        c_bool,
+    ],
+)
+native_text_field_is_multiline = function(
+    "native_text_field_is_multiline",
+    c_bool,
+    [
+        c_uint64,
+    ],
+)
+native_image_view_free = function("native_image_view_free", None, [c_uint64])
+native_image_view_create = function("native_image_view_create", c_uint64, [])
+native_image_view_set_image = function(
+    "native_image_view_set_image",
+    None,
+    [
+        c_uint64,
+        c_uint64,
+    ],
+)
+native_image_view_get_image = function(
+    "native_image_view_get_image",
+    c_uint64,
+    [
+        c_uint64,
+    ],
+)
+
 # window.h
 
 native_window_list_free = function(
@@ -1433,6 +1901,13 @@ native_window_create_with_native_window = function(
     ],
 )
 native_window_get_id = function("native_window_get_id", c_uint, [c_uint64])
+native_window_get_content_view = function(
+    "native_window_get_content_view",
+    c_uint64,
+    [
+        c_uint64,
+    ],
+)
 native_window_focus = function("native_window_focus", None, [c_uint64])
 native_window_blur = function("native_window_blur", None, [c_uint64])
 native_window_is_focused = function("native_window_is_focused", c_bool, [c_uint64])

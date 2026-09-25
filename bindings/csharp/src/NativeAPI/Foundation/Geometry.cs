@@ -90,3 +90,34 @@ public struct Rectangle
     }
 }
 
+public struct EdgeInsets
+{
+    public double Top;
+    public double Right;
+    public double Bottom;
+    public double Left;
+
+    public EdgeInsets(double top, double right, double bottom, double left)
+    {
+        Top = top;
+        Right = right;
+        Bottom = bottom;
+        Left = left;
+    }
+
+    internal static EdgeInsets FromRaw(in native_edge_insets_t raw)
+    {
+        return new EdgeInsets(raw.top, raw.right, raw.bottom, raw.left);
+    }
+
+    internal native_edge_insets_t ToRaw()
+    {
+        var raw = new native_edge_insets_t();
+        raw.top = Top;
+        raw.right = Right;
+        raw.bottom = Bottom;
+        raw.left = Left;
+        return raw;
+    }
+}
+

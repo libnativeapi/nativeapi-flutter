@@ -36,6 +36,7 @@ impl DropTargetEvent {
 
 /// Owned handle to a native `DropTarget`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct DropTarget {
     handle: cnativeapi::native_drop_target_t,
 }

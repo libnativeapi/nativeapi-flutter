@@ -97,21 +97,21 @@ sealed class KeyboardEvent {
             .native_keyboard_event_type_t
             .NATIVE_KEYBOARD_EVENT_TYPE_KEY_PRESSED
             .value) {
-      return KeyboardKeyPressedEvent(keycode: raw.keycode);
+      return KeyPressedEvent(keycode: raw.keycode);
     }
     if (raw.typeAsInt ==
         c
             .native_keyboard_event_type_t
             .NATIVE_KEYBOARD_EVENT_TYPE_KEY_RELEASED
             .value) {
-      return KeyboardKeyReleasedEvent(keycode: raw.keycode);
+      return KeyReleasedEvent(keycode: raw.keycode);
     }
     if (raw.typeAsInt ==
         c
             .native_keyboard_event_type_t
             .NATIVE_KEYBOARD_EVENT_TYPE_MODIFIER_KEYS_CHANGED
             .value) {
-      return KeyboardModifierKeysChangedEvent(
+      return ModifierKeysChangedEvent(
         keycode: raw.keycode,
         modifierKeys: raw.data.modifier_keys_changed.modifier_keys,
       );
@@ -120,22 +120,22 @@ sealed class KeyboardEvent {
   }
 }
 
-final class KeyboardKeyPressedEvent extends KeyboardEvent {
-  const KeyboardKeyPressedEvent({required this.keycode});
+final class KeyPressedEvent extends KeyboardEvent {
+  const KeyPressedEvent({required this.keycode});
 
   @override
   final int keycode;
 }
 
-final class KeyboardKeyReleasedEvent extends KeyboardEvent {
-  const KeyboardKeyReleasedEvent({required this.keycode});
+final class KeyReleasedEvent extends KeyboardEvent {
+  const KeyReleasedEvent({required this.keycode});
 
   @override
   final int keycode;
 }
 
-final class KeyboardModifierKeysChangedEvent extends KeyboardEvent {
-  const KeyboardModifierKeysChangedEvent({
+final class ModifierKeysChangedEvent extends KeyboardEvent {
+  const ModifierKeysChangedEvent({
     required this.keycode,
     required this.modifierKeys,
   });

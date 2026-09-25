@@ -61,6 +61,7 @@ impl FileDialogResult {
 
 /// Owned handle to a native `FileDialog`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct FileDialog {
     handle: cnativeapi::native_file_dialog_t,
 }

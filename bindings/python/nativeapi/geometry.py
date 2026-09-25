@@ -59,3 +59,33 @@ class Rectangle:
         raw.width = self.width
         raw.height = self.height
         return raw
+
+
+@dataclass
+class EdgeInsets:
+    top: float = 0.0
+    right: float = 0.0
+    bottom: float = 0.0
+    left: float = 0.0
+
+    @classmethod
+    def _from_c(cls, raw: _C.native_edge_insets_t) -> EdgeInsets:
+        return cls(raw.top, raw.right, raw.bottom, raw.left)
+
+    def _to_c(self) -> _C.native_edge_insets_t:
+        raw = _C.native_edge_insets_t()
+        raw.top = self.top
+        raw.right = self.right
+        raw.bottom = self.bottom
+        raw.left = self.left
+        return raw
+
+    @classmethod
+    def all(cls, value: float) -> EdgeInsets:
+        raw = _C.native_edge_insets_all(value)
+        return EdgeInsets._from_c(raw)
+
+    @classmethod
+    def symmetric(cls, vertical: float, horizontal: float) -> EdgeInsets:
+        raw = _C.native_edge_insets_symmetric(vertical, horizontal)
+        return EdgeInsets._from_c(raw)

@@ -96,3 +96,37 @@ pub(crate) struct RawOfRectangle {
     _owned: (),
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct EdgeInsets {
+    pub top: f64,
+    pub right: f64,
+    pub bottom: f64,
+    pub left: f64,
+}
+
+impl EdgeInsets {
+    pub(crate) unsafe fn from_raw(raw: &cnativeapi::native_edge_insets_t) -> Self {
+        Self {
+            top: raw.top,
+            right: raw.right,
+            bottom: raw.bottom,
+            left: raw.left,
+        }
+    }
+
+    pub(crate) fn to_raw(&self) -> RawOfEdgeInsets {
+        let mut raw = cnativeapi::native_edge_insets_t::default();
+        raw.top = self.top;
+        raw.right = self.right;
+        raw.bottom = self.bottom;
+        raw.left = self.left;
+        RawOfEdgeInsets { raw, _owned: () }
+    }
+}
+
+/// `EdgeInsets` in its C form, keeping any borrowed buffers alive.
+pub(crate) struct RawOfEdgeInsets {
+    pub(crate) raw: cnativeapi::native_edge_insets_t,
+    _owned: (),
+}
+

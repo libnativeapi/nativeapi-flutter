@@ -114,6 +114,7 @@ impl MenuEvent {
 
 /// Owned handle to a native `MenuItem`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct MenuItem {
     handle: cnativeapi::native_menu_item_t,
 }
@@ -345,6 +346,7 @@ impl MenuItemRef {
 
 /// Owned handle to a native `Menu`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Menu {
     handle: cnativeapi::native_menu_t,
 }

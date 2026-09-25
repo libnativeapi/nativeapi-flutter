@@ -124,6 +124,15 @@ public sealed partial class Window : IDisposable
         }
     }
 
+    public View? ContentView
+    {
+        get
+        {
+            var rawResult = Interop.native_window_get_content_view(NativeHandle);
+            return rawResult == 0 ? null : new View(rawResult);
+        }
+    }
+
     public void Focus()
     {
         Interop.native_window_focus(NativeHandle);

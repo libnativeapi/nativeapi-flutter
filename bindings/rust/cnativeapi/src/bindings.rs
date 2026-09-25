@@ -31,6 +31,14 @@ unsafe extern "C" {
     #[doc = " Caller owns the returned string; free it with free_c_str()."]
     pub fn native_app_info_get_build_number() -> *mut ::std::os::raw::c_char;
 }
+#[doc = " Opaque Menu handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_MENU rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_menu_t = u64;
+#[doc = " Opaque Window handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_window_t = u64;
+#[doc = " Opaque Image handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_IMAGE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_image_t = u64;
+#[doc = " Opaque PositioningStrategy handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_POSITIONING_STRATEGY rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_positioning_strategy_t = u64;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct native_point_t {
@@ -51,8 +59,20 @@ pub struct native_rectangle_t {
     pub width: f64,
     pub height: f64,
 }
-#[doc = " Opaque Image handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_IMAGE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
-pub type native_image_t = u64;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct native_edge_insets_t {
+    pub top: f64,
+    pub right: f64,
+    pub bottom: f64,
+    pub left: f64,
+}
+unsafe extern "C" {
+    pub fn native_edge_insets_all(value: f64) -> native_edge_insets_t;
+}
+unsafe extern "C" {
+    pub fn native_edge_insets_symmetric(vertical: f64, horizontal: f64) -> native_edge_insets_t;
+}
 unsafe extern "C" {
     #[doc = " Caller owns the returned handle; release it with native_image_free()."]
     pub fn native_image_from_file(file_path: *const ::std::os::raw::c_char) -> native_image_t;
@@ -186,6 +206,12 @@ pub const NATIVE_PLACEMENT_LEFT: native_placement_t = 9;
 pub const NATIVE_PLACEMENT_LEFT_START: native_placement_t = 10;
 pub const NATIVE_PLACEMENT_LEFT_END: native_placement_t = 11;
 pub type native_placement_t = ::std::os::raw::c_uint;
+#[doc = " Opaque View handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_VIEW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_view_t = u64;
+#[doc = " Opaque WindowShadow handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHADOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_window_shadow_t = u64;
+#[doc = " Opaque WindowShape handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHAPE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
+pub type native_window_shape_t = u64;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct native_color_t {
@@ -238,8 +264,408 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn native_color_to_argb(color: native_color_t) -> ::std::os::raw::c_uint;
 }
-#[doc = " Opaque WindowShadow handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHADOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
-pub type native_window_shadow_t = u64;
+pub type native_view_id_t = ::std::os::raw::c_uint;
+pub const NATIVE_VIEW_LAYOUT_ABSOLUTE: native_view_layout_t = 0;
+pub const NATIVE_VIEW_LAYOUT_ROW: native_view_layout_t = 1;
+pub const NATIVE_VIEW_LAYOUT_COLUMN: native_view_layout_t = 2;
+pub type native_view_layout_t = ::std::os::raw::c_uint;
+pub const NATIVE_VIEW_ALIGNMENT_STRETCH: native_view_alignment_t = 0;
+pub const NATIVE_VIEW_ALIGNMENT_START: native_view_alignment_t = 1;
+pub const NATIVE_VIEW_ALIGNMENT_CENTER: native_view_alignment_t = 2;
+pub const NATIVE_VIEW_ALIGNMENT_END: native_view_alignment_t = 3;
+pub type native_view_alignment_t = ::std::os::raw::c_uint;
+pub const NATIVE_TEXT_ALIGNMENT_START: native_text_alignment_t = 0;
+pub const NATIVE_TEXT_ALIGNMENT_CENTER: native_text_alignment_t = 1;
+pub const NATIVE_TEXT_ALIGNMENT_END: native_text_alignment_t = 2;
+pub type native_text_alignment_t = ::std::os::raw::c_uint;
+#[doc = " Owning list of View handles."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct native_view_list_t {
+    pub views: *mut native_view_t,
+    pub count: ::std::os::raw::c_long,
+}
+impl Default for native_view_list_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[doc = " Opaque Label handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_LABEL rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory.\n\n A Label is a View: this handle is accepted wherever a native_view_t is,\n including its listener registration."]
+pub type native_label_t = u64;
+#[doc = " Opaque Button handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_BUTTON rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory.\n\n A Button is a View: this handle is accepted wherever a native_view_t is,\n including its listener registration."]
+pub type native_button_t = u64;
+#[doc = " Opaque TextField handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_TEXT_FIELD rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory.\n\n A TextField is a View: this handle is accepted wherever a native_view_t is,\n including its listener registration."]
+pub type native_text_field_t = u64;
+#[doc = " Opaque ImageView handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_IMAGE_VIEW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory.\n\n A ImageView is a View: this handle is accepted wherever a native_view_t is,\n including its listener registration."]
+pub type native_image_view_t = u64;
+pub const NATIVE_VIEW_EVENT_TYPE_FOCUSED: native_view_event_type_t = 0;
+pub const NATIVE_VIEW_EVENT_TYPE_BLURRED: native_view_event_type_t = 1;
+pub const NATIVE_VIEW_EVENT_TYPE_BUTTON_CLICKED: native_view_event_type_t = 2;
+pub const NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_CHANGED: native_view_event_type_t = 3;
+pub const NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_SUBMITTED: native_view_event_type_t = 4;
+#[doc = " Which concrete ViewEvent arrived."]
+pub type native_view_event_type_t = ::std::os::raw::c_uint;
+#[doc = " One ViewEvent, tagged by its concrete type.\n\n Valid only for the duration of the callback: anything it points at\n is released as soon as the callback returns. Copy what you need."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct native_view_event_t {
+    pub type_: native_view_event_type_t,
+    pub view_id: native_view_id_t,
+    pub data: native_view_event_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union native_view_event_t__bindgen_ty_1 {
+    pub text_field_changed: native_view_event_t__bindgen_ty_1__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct native_view_event_t__bindgen_ty_1__bindgen_ty_1 {
+    pub text: *mut ::std::os::raw::c_char,
+}
+impl Default for native_view_event_t__bindgen_ty_1__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_view_event_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for native_view_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type native_view_event_callback_t = ::std::option::Option<
+    unsafe extern "C" fn(event: *const native_view_event_t, user_data: *mut ::std::os::raw::c_void),
+>;
+unsafe extern "C" {
+    #[doc = " Creates a View instance; release it with native_view_free()."]
+    pub fn native_view_create() -> native_view_t;
+}
+unsafe extern "C" {
+    #[doc = " Creates a View instance; release it with native_view_free()."]
+    pub fn native_view_create_with_native_view(
+        native_view: *mut ::std::os::raw::c_void,
+    ) -> native_view_t;
+}
+unsafe extern "C" {
+    pub fn native_view_is_supported() -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_get_id(view: native_view_t) -> native_view_id_t;
+}
+unsafe extern "C" {
+    pub fn native_view_add_subview(view: native_view_t, subview: native_view_t);
+}
+unsafe extern "C" {
+    pub fn native_view_insert_subview(
+        view: native_view_t,
+        index: ::std::os::raw::c_ulong,
+        subview: native_view_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_view_remove_subview(view: native_view_t, subview: native_view_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_remove_subview_at(
+        view: native_view_t,
+        index: ::std::os::raw::c_ulong,
+    ) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_clear_subviews(view: native_view_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_subview_count(view: native_view_t) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_view_free()."]
+    pub fn native_view_get_subview_at(
+        view: native_view_t,
+        index: ::std::os::raw::c_ulong,
+    ) -> native_view_t;
+}
+unsafe extern "C" {
+    pub fn native_view_get_subviews(view: native_view_t) -> native_view_list_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_view_free()."]
+    pub fn native_view_get_parent(view: native_view_t) -> native_view_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_window_free()."]
+    pub fn native_view_get_window(view: native_view_t) -> native_window_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_frame(view: native_view_t, frame: native_rectangle_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_frame(view: native_view_t) -> native_rectangle_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_preferred_size(view: native_view_t, size: native_size_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_preferred_size(view: native_view_t) -> native_size_t;
+}
+unsafe extern "C" {
+    pub fn native_view_get_intrinsic_size(view: native_view_t) -> native_size_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_flex(view: native_view_t, flex: f64);
+}
+unsafe extern "C" {
+    pub fn native_view_get_flex(view: native_view_t) -> f64;
+}
+unsafe extern "C" {
+    pub fn native_view_set_alignment(view: native_view_t, alignment: native_view_alignment_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_alignment(view: native_view_t) -> native_view_alignment_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_layout(view: native_view_t, layout: native_view_layout_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_layout(view: native_view_t) -> native_view_layout_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_spacing(view: native_view_t, spacing: f64);
+}
+unsafe extern "C" {
+    pub fn native_view_get_spacing(view: native_view_t) -> f64;
+}
+unsafe extern "C" {
+    pub fn native_view_set_padding(view: native_view_t, padding: native_edge_insets_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_padding(view: native_view_t) -> native_edge_insets_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_visible(view: native_view_t, is_visible: bool);
+}
+unsafe extern "C" {
+    pub fn native_view_is_visible(view: native_view_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_set_enabled(view: native_view_t, is_enabled: bool);
+}
+unsafe extern "C" {
+    pub fn native_view_is_enabled(view: native_view_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_view_set_background_color(view: native_view_t, color: native_color_t);
+}
+unsafe extern "C" {
+    pub fn native_view_get_background_color(view: native_view_t) -> native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_view_set_tooltip(view: native_view_t, tooltip: *const ::std::os::raw::c_char);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_view_get_tooltip(view: native_view_t) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_view_focus(view: native_view_t);
+}
+unsafe extern "C" {
+    pub fn native_view_blur(view: native_view_t);
+}
+unsafe extern "C" {
+    pub fn native_view_is_focused(view: native_view_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Platform-specific native object (NSScreen*, HMONITOR, ...)."]
+    pub fn native_view_get_native_object(view: native_view_t) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_view_free(view: native_view_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees the array and releases every handle it contains."]
+    pub fn native_view_list_free(list: *mut native_view_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Frees only the array; the caller takes over the handles."]
+    pub fn native_view_list_release(list: *mut native_view_list_t);
+}
+unsafe extern "C" {
+    #[doc = " Registers @p callback for every ViewEvent this View emits.\n @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure."]
+    pub fn native_view_add_listener(
+        view: native_view_t,
+        callback: native_view_event_callback_t,
+        user_data: *mut ::std::os::raw::c_void,
+        release_user_data: native_release_user_data_t,
+    ) -> native_listener_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Unregisters a listener. Returns false if unknown."]
+    pub fn native_view_remove_listener(
+        view: native_view_t,
+        listener_id: native_listener_id_t,
+    ) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Creates a Label instance; release it with native_label_free()."]
+    pub fn native_label_create(text: *const ::std::os::raw::c_char) -> native_label_t;
+}
+unsafe extern "C" {
+    pub fn native_label_set_text(label: native_label_t, text: *const ::std::os::raw::c_char);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_label_get_text(label: native_label_t) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_label_set_text_color(label: native_label_t, color: native_color_t);
+}
+unsafe extern "C" {
+    pub fn native_label_get_text_color(label: native_label_t) -> native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_label_set_font_size(label: native_label_t, size: f64);
+}
+unsafe extern "C" {
+    pub fn native_label_get_font_size(label: native_label_t) -> f64;
+}
+unsafe extern "C" {
+    pub fn native_label_set_text_alignment(
+        label: native_label_t,
+        alignment: native_text_alignment_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_label_get_text_alignment(label: native_label_t) -> native_text_alignment_t;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_label_free(label: native_label_t);
+}
+unsafe extern "C" {
+    #[doc = " Creates a Button instance; release it with native_button_free()."]
+    pub fn native_button_create(text: *const ::std::os::raw::c_char) -> native_button_t;
+}
+unsafe extern "C" {
+    pub fn native_button_set_text(button: native_button_t, text: *const ::std::os::raw::c_char);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_button_get_text(button: native_button_t) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_button_free(button: native_button_t);
+}
+unsafe extern "C" {
+    #[doc = " Creates a TextField instance; release it with native_text_field_free()."]
+    pub fn native_text_field_create(text: *const ::std::os::raw::c_char) -> native_text_field_t;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_text(
+        text_field: native_text_field_t,
+        text: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_text_field_get_text(
+        text_field: native_text_field_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_text_color(text_field: native_text_field_t, color: native_color_t);
+}
+unsafe extern "C" {
+    pub fn native_text_field_get_text_color(text_field: native_text_field_t) -> native_color_t;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_font_size(text_field: native_text_field_t, size: f64);
+}
+unsafe extern "C" {
+    pub fn native_text_field_get_font_size(text_field: native_text_field_t) -> f64;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_text_alignment(
+        text_field: native_text_field_t,
+        alignment: native_text_alignment_t,
+    );
+}
+unsafe extern "C" {
+    pub fn native_text_field_get_text_alignment(
+        text_field: native_text_field_t,
+    ) -> native_text_alignment_t;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_placeholder(
+        text_field: native_text_field_t,
+        placeholder: *const ::std::os::raw::c_char,
+    );
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned string; free it with free_c_str()."]
+    pub fn native_text_field_get_placeholder(
+        text_field: native_text_field_t,
+    ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_editable(text_field: native_text_field_t, is_editable: bool);
+}
+unsafe extern "C" {
+    pub fn native_text_field_is_editable(text_field: native_text_field_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_secure(text_field: native_text_field_t, is_secure: bool);
+}
+unsafe extern "C" {
+    pub fn native_text_field_is_secure(text_field: native_text_field_t) -> bool;
+}
+unsafe extern "C" {
+    pub fn native_text_field_set_multiline(text_field: native_text_field_t, is_multiline: bool);
+}
+unsafe extern "C" {
+    pub fn native_text_field_is_multiline(text_field: native_text_field_t) -> bool;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_text_field_free(text_field: native_text_field_t);
+}
+unsafe extern "C" {
+    #[doc = " Creates a ImageView instance; release it with native_image_view_free()."]
+    pub fn native_image_view_create() -> native_image_view_t;
+}
+unsafe extern "C" {
+    pub fn native_image_view_set_image(image_view: native_image_view_t, image: native_image_t);
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_image_free()."]
+    pub fn native_image_view_get_image(image_view: native_image_view_t) -> native_image_t;
+}
+unsafe extern "C" {
+    #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
+    pub fn native_image_view_free(image_view: native_image_view_t);
+}
 unsafe extern "C" {
     #[doc = " Creates a WindowShadow instance; release it with native_window_shadow_free()."]
     pub fn native_window_shadow_create() -> native_window_shadow_t;
@@ -276,8 +702,6 @@ unsafe extern "C" {
     #[doc = " Releases the caller's reference. Safe to call with an invalid or\n already-released handle."]
     pub fn native_window_shadow_free(window_shadow: native_window_shadow_t);
 }
-#[doc = " Opaque WindowShape handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW_SHAPE rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
-pub type native_window_shape_t = u64;
 unsafe extern "C" {
     #[doc = " Creates a WindowShape instance; release it with native_window_shape_free()."]
     pub fn native_window_shape_create() -> native_window_shape_t;
@@ -328,8 +752,6 @@ pub const NATIVE_RESIZE_EDGE_TOP_RIGHT: native_resize_edge_t = 5;
 pub const NATIVE_RESIZE_EDGE_BOTTOM_LEFT: native_resize_edge_t = 6;
 pub const NATIVE_RESIZE_EDGE_BOTTOM_RIGHT: native_resize_edge_t = 7;
 pub type native_resize_edge_t = ::std::os::raw::c_uint;
-#[doc = " Opaque Window handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_WINDOW rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
-pub type native_window_t = u64;
 #[doc = " Owning list of Window handles."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -417,6 +839,10 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn native_window_get_id(window: native_window_t) -> native_window_id_t;
+}
+unsafe extern "C" {
+    #[doc = " Caller owns the returned handle; release it with native_view_free()."]
+    pub fn native_window_get_content_view(window: native_window_t) -> native_view_t;
 }
 unsafe extern "C" {
     pub fn native_window_focus(window: native_window_t);
@@ -745,8 +1171,6 @@ pub const NATIVE_POSITIONING_STRATEGY_TYPE_ABSOLUTE: native_positioning_strategy
 pub const NATIVE_POSITIONING_STRATEGY_TYPE_CURSOR_POSITION: native_positioning_strategy_type_t = 1;
 pub const NATIVE_POSITIONING_STRATEGY_TYPE_RELATIVE: native_positioning_strategy_type_t = 2;
 pub type native_positioning_strategy_type_t = ::std::os::raw::c_uint;
-#[doc = " Opaque PositioningStrategy handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_POSITIONING_STRATEGY rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
-pub type native_positioning_strategy_t = u64;
 unsafe extern "C" {
     #[doc = " Caller owns the returned handle; release it with native_positioning_strategy_free()."]
     pub fn native_positioning_strategy_absolute(
@@ -828,8 +1252,6 @@ impl Default for native_menu_item_list_t {
         }
     }
 }
-#[doc = " Opaque Menu handle.\n\n A generational index into the library's handle table, NOT a pointer:\n never dereference it, and compare it against NATIVE_INVALID_MENU rather than NULL.\n Releasing a handle invalidates it; later calls fail safely instead of\n touching freed memory."]
-pub type native_menu_t = u64;
 pub const NATIVE_MENU_EVENT_TYPE_OPENED: native_menu_event_type_t = 0;
 pub const NATIVE_MENU_EVENT_TYPE_CLOSED: native_menu_event_type_t = 1;
 pub const NATIVE_MENU_EVENT_TYPE_ITEM_CLICKED: native_menu_event_type_t = 2;

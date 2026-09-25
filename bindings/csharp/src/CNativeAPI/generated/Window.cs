@@ -239,6 +239,9 @@ public static partial class Interop
     public static extern ulong native_window_create_with_native_window(IntPtr nativeWindow);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong native_window_get_content_view(ulong self);
+
+    [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong native_window_get_custom_shadow(ulong self);
 
     [DllImport(Libraries.NativeApi, CallingConvention = CallingConvention.Cdecl)]

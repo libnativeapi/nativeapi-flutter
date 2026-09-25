@@ -10,6 +10,7 @@ use crate::geometry::Point;
 
 /// Owned handle to a native `WindowShape`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct WindowShape {
     handle: cnativeapi::native_window_shape_t,
 }

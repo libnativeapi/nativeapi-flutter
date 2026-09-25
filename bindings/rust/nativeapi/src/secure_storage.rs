@@ -8,6 +8,7 @@ use std::ffi::{CStr, CString};
 
 /// Owned handle to a native `SecureStorage`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct SecureStorage {
     handle: cnativeapi::native_secure_storage_t,
 }

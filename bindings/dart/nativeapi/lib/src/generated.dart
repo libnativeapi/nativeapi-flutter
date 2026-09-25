@@ -30,6 +30,7 @@ export 'support.dart';
 export 'tray_icon.dart';
 export 'tray_manager.dart';
 export 'url_opener.dart';
+export 'view.dart';
 export 'window.dart';
 export 'window_drag_session.dart';
 export 'window_manager.dart';

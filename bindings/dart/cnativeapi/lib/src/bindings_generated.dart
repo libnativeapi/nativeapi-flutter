@@ -133,6 +133,22 @@ external void native_application_set_primary_window(int window);
 @ffi.Native<ffi.Bool Function(ffi.Double)>()
 external bool native_application_set_progress_bar(double progress);
 
+/// Creates a Button instance; release it with native_button_free().
+@ffi.Native<native_button_t Function(ffi.Pointer<ffi.Char>)>()
+external int native_button_create(ffi.Pointer<ffi.Char> text);
+
+/// Releases the caller's reference. Safe to call with an invalid or
+/// already-released handle.
+@ffi.Native<ffi.Void Function(native_button_t)>()
+external void native_button_free(int button);
+
+/// Caller owns the returned string; free it with free_c_str().
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_button_t)>()
+external ffi.Pointer<ffi.Char> native_button_get_text(int button);
+
+@ffi.Native<ffi.Void Function(native_button_t, ffi.Pointer<ffi.Char>)>()
+external void native_button_set_text(int button, ffi.Pointer<ffi.Char> text);
+
 @ffi.Native<native_color_t Function(ffi.Pointer<ffi.Char>)>()
 external native_color_t native_color_from_hex(ffi.Pointer<ffi.Char> hex);
 
@@ -271,7 +287,7 @@ external native_display_list_t native_display_manager_get_all();
 external native_point_t native_display_manager_get_cursor_position();
 
 /// Caller owns the returned handle; release it with native_display_free().
-@ffi.Native<native_display_t Function()>()
+@ffi.Native<native_display_t$1 Function()>()
 external int native_display_manager_get_primary();
 
 /// Unregisters a listener. Returns false if unknown.
@@ -373,7 +389,7 @@ external void native_drag_source_set_text(
   ffi.Pointer<ffi.Char> text,
 );
 
-@ffi.Native<ffi.Bool Function(native_drag_source_t, native_window_t)>()
+@ffi.Native<ffi.Bool Function(native_drag_source_t, native_window_t$1)>()
 external bool native_drag_source_start_dragging(int drag_source, int window);
 
 /// Registers @p callback for every DropTargetEvent this DropTarget emits.
@@ -394,7 +410,7 @@ external int native_drop_target_add_listener(
 );
 
 /// Creates a DropTarget instance; release it with native_drop_target_free().
-@ffi.Native<native_drop_target_t Function(native_window_t)>()
+@ffi.Native<native_drop_target_t Function(native_window_t$2)>()
 external int native_drop_target_create(int window);
 
 /// Releases the caller's reference. Safe to call with an invalid or
@@ -445,6 +461,15 @@ void native_drop_target_set_drop_operation(
 ) {
   return _native_drop_target_set_drop_operation(drop_target, operation.value);
 }
+
+@ffi.Native<native_edge_insets_t Function(ffi.Double)>()
+external native_edge_insets_t native_edge_insets_all(double value);
+
+@ffi.Native<native_edge_insets_t Function(ffi.Double, ffi.Double)>()
+external native_edge_insets_t native_edge_insets_symmetric(
+  double vertical,
+  double horizontal,
+);
 
 @ffi.Native<ffi.Bool Function(native_file_dialog_t)>()
 external bool native_file_dialog_close(int file_dialog);
@@ -525,7 +550,7 @@ void native_file_dialog_set_modality(
   return _native_file_dialog_set_modality(file_dialog, modality.value);
 }
 
-@ffi.Native<ffi.Bool Function(native_file_dialog_t, native_window_t)>()
+@ffi.Native<ffi.Bool Function(native_file_dialog_t, native_window_t$3)>()
 external bool native_file_dialog_set_parent_window(int file_dialog, int window);
 
 @ffi.Native<ffi.Bool Function(native_file_dialog_t, ffi.Pointer<ffi.Char>)>()
@@ -536,37 +561,53 @@ external bool native_file_dialog_set_suggested_file_name(
 
 /// Releases the caller's reference. Safe to call with an invalid or
 /// already-released handle.
-@ffi.Native<ffi.Void Function(native_image_t)>()
+@ffi.Native<ffi.Void Function(native_image_t$1)>()
 external void native_image_free(int image);
 
 /// Caller owns the returned handle; release it with native_image_free().
-@ffi.Native<native_image_t Function(ffi.Pointer<ffi.Char>)>()
+@ffi.Native<native_image_t$1 Function(ffi.Pointer<ffi.Char>)>()
 external int native_image_from_base64(ffi.Pointer<ffi.Char> base64_data);
 
 /// Caller owns the returned handle; release it with native_image_free().
-@ffi.Native<native_image_t Function(ffi.Pointer<ffi.Char>)>()
+@ffi.Native<native_image_t$1 Function(ffi.Pointer<ffi.Char>)>()
 external int native_image_from_file(ffi.Pointer<ffi.Char> file_path);
 
 /// Caller owns the returned string; free it with free_c_str().
-@ffi.Native<ffi.Pointer<ffi.Char> Function(native_image_t)>()
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_image_t$1)>()
 external ffi.Pointer<ffi.Char> native_image_get_format(int image);
 
 /// Platform-specific native object (NSScreen*, HMONITOR, ...).
-@ffi.Native<ffi.Pointer<ffi.Void> Function(native_image_t)>()
+@ffi.Native<ffi.Pointer<ffi.Void> Function(native_image_t$1)>()
 external ffi.Pointer<ffi.Void> native_image_get_native_object(int image);
 
-@ffi.Native<native_size_t Function(native_image_t)>()
+@ffi.Native<native_size_t Function(native_image_t$1)>()
 external native_size_t native_image_get_size(int image);
 
-@ffi.Native<ffi.Bool Function(native_image_t, ffi.Pointer<ffi.Char>)>()
+@ffi.Native<ffi.Bool Function(native_image_t$1, ffi.Pointer<ffi.Char>)>()
 external bool native_image_save_to_file(
   int image,
   ffi.Pointer<ffi.Char> file_path,
 );
 
 /// Caller owns the returned string; free it with free_c_str().
-@ffi.Native<ffi.Pointer<ffi.Char> Function(native_image_t)>()
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_image_t$1)>()
 external ffi.Pointer<ffi.Char> native_image_to_base64(int image);
+
+/// Creates a ImageView instance; release it with native_image_view_free().
+@ffi.Native<native_image_view_t Function()>()
+external int native_image_view_create();
+
+/// Releases the caller's reference. Safe to call with an invalid or
+/// already-released handle.
+@ffi.Native<ffi.Void Function(native_image_view_t)>()
+external void native_image_view_free(int image_view);
+
+/// Caller owns the returned handle; release it with native_image_free().
+@ffi.Native<native_image_t$1 Function(native_image_view_t)>()
+external int native_image_view_get_image(int image_view);
+
+@ffi.Native<ffi.Void Function(native_image_view_t, native_image_t$1)>()
+external void native_image_view_set_image(int image_view, int image);
 
 /// Frees everything the struct owns.
 @ffi.Native<ffi.Void Function(ffi.Pointer<native_keyboard_accelerator_t>)>()
@@ -628,6 +669,59 @@ external void native_keyboard_monitor_start(int keyboard_monitor);
 
 @ffi.Native<ffi.Void Function(native_keyboard_monitor_t)>()
 external void native_keyboard_monitor_stop(int keyboard_monitor);
+
+/// Creates a Label instance; release it with native_label_free().
+@ffi.Native<native_label_t Function(ffi.Pointer<ffi.Char>)>()
+external int native_label_create(ffi.Pointer<ffi.Char> text);
+
+/// Releases the caller's reference. Safe to call with an invalid or
+/// already-released handle.
+@ffi.Native<ffi.Void Function(native_label_t)>()
+external void native_label_free(int label);
+
+@ffi.Native<ffi.Double Function(native_label_t)>()
+external double native_label_get_font_size(int label);
+
+/// Caller owns the returned string; free it with free_c_str().
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_label_t)>()
+external ffi.Pointer<ffi.Char> native_label_get_text(int label);
+
+@ffi.Native<ffi.UnsignedInt Function(native_label_t)>(
+  symbol: 'native_label_get_text_alignment',
+)
+external int _native_label_get_text_alignment(int label);
+
+native_text_alignment_t native_label_get_text_alignment(
+  Dartnative_label_t label,
+) {
+  return native_text_alignment_t.fromValue(
+    _native_label_get_text_alignment(label),
+  );
+}
+
+@ffi.Native<native_color_t Function(native_label_t)>()
+external native_color_t native_label_get_text_color(int label);
+
+@ffi.Native<ffi.Void Function(native_label_t, ffi.Double)>()
+external void native_label_set_font_size(int label, double size);
+
+@ffi.Native<ffi.Void Function(native_label_t, ffi.Pointer<ffi.Char>)>()
+external void native_label_set_text(int label, ffi.Pointer<ffi.Char> text);
+
+@ffi.Native<ffi.Void Function(native_label_t, ffi.UnsignedInt)>(
+  symbol: 'native_label_set_text_alignment',
+)
+external void _native_label_set_text_alignment(int label, int alignment);
+
+void native_label_set_text_alignment(
+  Dartnative_label_t label,
+  native_text_alignment_t alignment,
+) {
+  return _native_label_set_text_alignment(label, alignment.value);
+}
+
+@ffi.Native<ffi.Void Function(native_label_t, native_color_t)>()
+external void native_label_set_text_color(int label, native_color_t color);
 
 /// Creates a LaunchAtLogin instance; release it with native_launch_at_login_free().
 @ffi.Native<native_launch_at_login_t Function()>()
@@ -851,7 +945,7 @@ external native_keyboard_accelerator_t native_menu_item_get_accelerator(
 );
 
 /// Caller owns the returned handle; release it with native_image_free().
-@ffi.Native<native_image_t Function(native_menu_item_t)>()
+@ffi.Native<native_image_t$1 Function(native_menu_item_t)>()
 external int native_menu_item_get_icon(int menu_item);
 
 @ffi.Native<native_menu_item_id_t Function(native_menu_item_t)>()
@@ -937,7 +1031,7 @@ external void native_menu_item_set_accelerator(
 @ffi.Native<ffi.Void Function(native_menu_item_t, ffi.Bool)>()
 external void native_menu_item_set_enabled(int menu_item, bool enabled);
 
-@ffi.Native<ffi.Void Function(native_menu_item_t, native_image_t)>()
+@ffi.Native<ffi.Void Function(native_menu_item_t, native_image_t$1)>()
 external void native_menu_item_set_icon(int menu_item, int image);
 
 @ffi.Native<ffi.Void Function(native_menu_item_t, ffi.Pointer<ffi.Char>)>()
@@ -1160,7 +1254,7 @@ void native_message_dialog_set_modality(
   return _native_message_dialog_set_modality(message_dialog, modality.value);
 }
 
-@ffi.Native<ffi.Bool Function(native_message_dialog_t, native_window_t)>()
+@ffi.Native<ffi.Bool Function(native_message_dialog_t, native_window_t$4)>()
 external bool native_message_dialog_set_parent_window(
   int message_dialog,
   int window,
@@ -1544,13 +1638,13 @@ native_shortcut_list_t native_shortcut_manager_get_by_scope(
 }
 
 /// Caller owns the returned handle; release it with native_shortcut_free().
-@ffi.Native<native_shortcut_t Function(ffi.Pointer<ffi.Char>)>()
+@ffi.Native<native_shortcut_t$1 Function(ffi.Pointer<ffi.Char>)>()
 external int native_shortcut_manager_get_with_accelerator(
   ffi.Pointer<ffi.Char> accelerator,
 );
 
 /// Caller owns the returned handle; release it with native_shortcut_free().
-@ffi.Native<native_shortcut_t Function(native_shortcut_id_t)>()
+@ffi.Native<native_shortcut_t$1 Function(native_shortcut_id_t)>()
 external int native_shortcut_manager_get_with_id(int id);
 
 @ffi.Native<ffi.Bool Function(ffi.Pointer<ffi.Char>)>()
@@ -1571,7 +1665,7 @@ external bool native_shortcut_manager_is_valid_accelerator(
 
 /// Caller owns the returned handle; release it with native_shortcut_free().
 @ffi.Native<
-  native_shortcut_t Function(
+  native_shortcut_t$1 Function(
     ffi.Pointer<ffi.Char>,
     native_shortcut_manager_register_callback_t,
     ffi.Pointer<ffi.Void>,
@@ -1586,7 +1680,7 @@ external int native_shortcut_manager_register_with_accelerator_and_callback(
 );
 
 /// Caller owns the returned handle; release it with native_shortcut_free().
-@ffi.Native<native_shortcut_t Function(native_shortcut_options_t)>()
+@ffi.Native<native_shortcut_t$1 Function(native_shortcut_options_t)>()
 external int native_shortcut_manager_register_with_options(
   native_shortcut_options_t options,
 );
@@ -1649,6 +1743,101 @@ external void native_string_list_free(ffi.Pointer<native_string_list_t> list);
 @ffi.Native<ffi.Void Function(ffi.Pointer<native_string_map_t>)>()
 external void native_string_map_free(ffi.Pointer<native_string_map_t> map);
 
+/// Creates a TextField instance; release it with native_text_field_free().
+@ffi.Native<native_text_field_t Function(ffi.Pointer<ffi.Char>)>()
+external int native_text_field_create(ffi.Pointer<ffi.Char> text);
+
+/// Releases the caller's reference. Safe to call with an invalid or
+/// already-released handle.
+@ffi.Native<ffi.Void Function(native_text_field_t)>()
+external void native_text_field_free(int text_field);
+
+@ffi.Native<ffi.Double Function(native_text_field_t)>()
+external double native_text_field_get_font_size(int text_field);
+
+/// Caller owns the returned string; free it with free_c_str().
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_text_field_t)>()
+external ffi.Pointer<ffi.Char> native_text_field_get_placeholder(
+  int text_field,
+);
+
+/// Caller owns the returned string; free it with free_c_str().
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_text_field_t)>()
+external ffi.Pointer<ffi.Char> native_text_field_get_text(int text_field);
+
+@ffi.Native<ffi.UnsignedInt Function(native_text_field_t)>(
+  symbol: 'native_text_field_get_text_alignment',
+)
+external int _native_text_field_get_text_alignment(int text_field);
+
+native_text_alignment_t native_text_field_get_text_alignment(
+  Dartnative_text_field_t text_field,
+) {
+  return native_text_alignment_t.fromValue(
+    _native_text_field_get_text_alignment(text_field),
+  );
+}
+
+@ffi.Native<native_color_t Function(native_text_field_t)>()
+external native_color_t native_text_field_get_text_color(int text_field);
+
+@ffi.Native<ffi.Bool Function(native_text_field_t)>()
+external bool native_text_field_is_editable(int text_field);
+
+@ffi.Native<ffi.Bool Function(native_text_field_t)>()
+external bool native_text_field_is_multiline(int text_field);
+
+@ffi.Native<ffi.Bool Function(native_text_field_t)>()
+external bool native_text_field_is_secure(int text_field);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.Bool)>()
+external void native_text_field_set_editable(int text_field, bool is_editable);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.Double)>()
+external void native_text_field_set_font_size(int text_field, double size);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.Bool)>()
+external void native_text_field_set_multiline(
+  int text_field,
+  bool is_multiline,
+);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.Pointer<ffi.Char>)>()
+external void native_text_field_set_placeholder(
+  int text_field,
+  ffi.Pointer<ffi.Char> placeholder,
+);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.Bool)>()
+external void native_text_field_set_secure(int text_field, bool is_secure);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.Pointer<ffi.Char>)>()
+external void native_text_field_set_text(
+  int text_field,
+  ffi.Pointer<ffi.Char> text,
+);
+
+@ffi.Native<ffi.Void Function(native_text_field_t, ffi.UnsignedInt)>(
+  symbol: 'native_text_field_set_text_alignment',
+)
+external void _native_text_field_set_text_alignment(
+  int text_field,
+  int alignment,
+);
+
+void native_text_field_set_text_alignment(
+  Dartnative_text_field_t text_field,
+  native_text_alignment_t alignment,
+) {
+  return _native_text_field_set_text_alignment(text_field, alignment.value);
+}
+
+@ffi.Native<ffi.Void Function(native_text_field_t, native_color_t)>()
+external void native_text_field_set_text_color(
+  int text_field,
+  native_color_t color,
+);
+
 /// Registers @p callback for every TrayIconEvent this TrayIcon emits.
 /// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
 @ffi.Native<
@@ -1686,7 +1875,7 @@ external void native_tray_icon_free(int tray_icon);
 external native_rectangle_t native_tray_icon_get_bounds(int tray_icon);
 
 /// Caller owns the returned handle; release it with native_menu_free().
-@ffi.Native<native_menu_t Function(native_tray_icon_t)>()
+@ffi.Native<native_menu_t$1 Function(native_tray_icon_t)>()
 external int native_tray_icon_get_context_menu(int tray_icon);
 
 @ffi.Native<ffi.UnsignedInt Function(native_tray_icon_t)>(
@@ -1703,7 +1892,7 @@ native_context_menu_trigger_t native_tray_icon_get_context_menu_trigger(
 }
 
 /// Caller owns the returned handle; release it with native_image_free().
-@ffi.Native<native_image_t Function(native_tray_icon_t)>()
+@ffi.Native<native_image_t$2 Function(native_tray_icon_t)>()
 external int native_tray_icon_get_icon(int tray_icon);
 
 @ffi.Native<ffi.UnsignedInt Function(native_tray_icon_t)>(
@@ -1764,7 +1953,7 @@ external bool native_tray_icon_open_context_menu(int tray_icon);
 @ffi.Native<ffi.Bool Function(native_tray_icon_t, native_listener_id_t)>()
 external bool native_tray_icon_remove_listener(int tray_icon, int listener_id);
 
-@ffi.Native<ffi.Void Function(native_tray_icon_t, native_menu_t)>()
+@ffi.Native<ffi.Void Function(native_tray_icon_t, native_menu_t$1)>()
 external void native_tray_icon_set_context_menu(int tray_icon, int menu);
 
 @ffi.Native<ffi.Void Function(native_tray_icon_t, ffi.UnsignedInt)>(
@@ -1782,7 +1971,7 @@ void native_tray_icon_set_context_menu_trigger(
   return _native_tray_icon_set_context_menu_trigger(tray_icon, trigger.value);
 }
 
-@ffi.Native<ffi.Void Function(native_tray_icon_t, native_image_t)>()
+@ffi.Native<ffi.Void Function(native_tray_icon_t, native_image_t$2)>()
 external void native_tray_icon_set_icon(int tray_icon, int image);
 
 @ffi.Native<ffi.Void Function(native_tray_icon_t, ffi.UnsignedInt)>(
@@ -1822,7 +2011,7 @@ external void native_tray_icon_set_tooltip(
 external bool native_tray_icon_set_visible(int tray_icon, bool visible);
 
 /// Caller owns the returned handle; release it with native_tray_icon_free().
-@ffi.Native<native_tray_icon_t Function(native_tray_icon_id_t)>()
+@ffi.Native<native_tray_icon_t$1 Function(native_tray_icon_id_t)>()
 external int native_tray_manager_get(int id);
 
 @ffi.Native<native_tray_icon_list_t Function()>()
@@ -1847,6 +2036,202 @@ external bool native_url_opener_is_supported();
 external native_url_open_result_t native_url_opener_open(
   ffi.Pointer<ffi.Char> url,
 );
+
+/// Registers @p callback for every ViewEvent this View emits.
+/// @return the listener id, or NATIVE_INVALID_LISTENER_ID on failure.
+@ffi.Native<
+  native_listener_id_t Function(
+    native_view_t,
+    native_view_event_callback_t,
+    ffi.Pointer<ffi.Void>,
+    native_release_user_data_t,
+  )
+>()
+external int native_view_add_listener(
+  int view,
+  native_view_event_callback_t callback,
+  ffi.Pointer<ffi.Void> user_data,
+  native_release_user_data_t release_user_data,
+);
+
+@ffi.Native<ffi.Void Function(native_view_t, native_view_t)>()
+external void native_view_add_subview(int view, int subview);
+
+@ffi.Native<ffi.Void Function(native_view_t)>()
+external void native_view_blur(int view);
+
+@ffi.Native<ffi.Void Function(native_view_t)>()
+external void native_view_clear_subviews(int view);
+
+/// Creates a View instance; release it with native_view_free().
+@ffi.Native<native_view_t Function()>()
+external int native_view_create();
+
+/// Creates a View instance; release it with native_view_free().
+@ffi.Native<native_view_t Function(ffi.Pointer<ffi.Void>)>()
+external int native_view_create_with_native_view(
+  ffi.Pointer<ffi.Void> native_view,
+);
+
+@ffi.Native<ffi.Void Function(native_view_t)>()
+external void native_view_focus(int view);
+
+/// Releases the caller's reference. Safe to call with an invalid or
+/// already-released handle.
+@ffi.Native<ffi.Void Function(native_view_t)>()
+external void native_view_free(int view);
+
+@ffi.Native<ffi.UnsignedInt Function(native_view_t)>(
+  symbol: 'native_view_get_alignment',
+)
+external int _native_view_get_alignment(int view);
+
+native_view_alignment_t native_view_get_alignment(Dartnative_view_t view) {
+  return native_view_alignment_t.fromValue(_native_view_get_alignment(view));
+}
+
+@ffi.Native<native_color_t Function(native_view_t)>()
+external native_color_t native_view_get_background_color(int view);
+
+@ffi.Native<ffi.Double Function(native_view_t)>()
+external double native_view_get_flex(int view);
+
+@ffi.Native<native_rectangle_t Function(native_view_t)>()
+external native_rectangle_t native_view_get_frame(int view);
+
+@ffi.Native<native_view_id_t Function(native_view_t)>()
+external int native_view_get_id(int view);
+
+@ffi.Native<native_size_t Function(native_view_t)>()
+external native_size_t native_view_get_intrinsic_size(int view);
+
+@ffi.Native<ffi.UnsignedInt Function(native_view_t)>(
+  symbol: 'native_view_get_layout',
+)
+external int _native_view_get_layout(int view);
+
+native_view_layout_t native_view_get_layout(Dartnative_view_t view) {
+  return native_view_layout_t.fromValue(_native_view_get_layout(view));
+}
+
+/// Platform-specific native object (NSScreen*, HMONITOR, ...).
+@ffi.Native<ffi.Pointer<ffi.Void> Function(native_view_t)>()
+external ffi.Pointer<ffi.Void> native_view_get_native_object(int view);
+
+@ffi.Native<native_edge_insets_t Function(native_view_t)>()
+external native_edge_insets_t native_view_get_padding(int view);
+
+/// Caller owns the returned handle; release it with native_view_free().
+@ffi.Native<native_view_t Function(native_view_t)>()
+external int native_view_get_parent(int view);
+
+@ffi.Native<native_size_t Function(native_view_t)>()
+external native_size_t native_view_get_preferred_size(int view);
+
+@ffi.Native<ffi.Double Function(native_view_t)>()
+external double native_view_get_spacing(int view);
+
+/// Caller owns the returned handle; release it with native_view_free().
+@ffi.Native<native_view_t Function(native_view_t, ffi.UnsignedLong)>()
+external int native_view_get_subview_at(int view, int index);
+
+@ffi.Native<ffi.UnsignedLong Function(native_view_t)>()
+external int native_view_get_subview_count(int view);
+
+@ffi.Native<native_view_list_t Function(native_view_t)>()
+external native_view_list_t native_view_get_subviews(int view);
+
+/// Caller owns the returned string; free it with free_c_str().
+@ffi.Native<ffi.Pointer<ffi.Char> Function(native_view_t)>()
+external ffi.Pointer<ffi.Char> native_view_get_tooltip(int view);
+
+/// Caller owns the returned handle; release it with native_window_free().
+@ffi.Native<native_window_t Function(native_view_t)>()
+external int native_view_get_window(int view);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.UnsignedLong, native_view_t)>()
+external void native_view_insert_subview(int view, int index, int subview);
+
+@ffi.Native<ffi.Bool Function(native_view_t)>()
+external bool native_view_is_enabled(int view);
+
+@ffi.Native<ffi.Bool Function(native_view_t)>()
+external bool native_view_is_focused(int view);
+
+@ffi.Native<ffi.Bool Function()>()
+external bool native_view_is_supported();
+
+@ffi.Native<ffi.Bool Function(native_view_t)>()
+external bool native_view_is_visible(int view);
+
+/// Frees the array and releases every handle it contains.
+@ffi.Native<ffi.Void Function(ffi.Pointer<native_view_list_t>)>()
+external void native_view_list_free(ffi.Pointer<native_view_list_t> list);
+
+/// Frees only the array; the caller takes over the handles.
+@ffi.Native<ffi.Void Function(ffi.Pointer<native_view_list_t>)>()
+external void native_view_list_release(ffi.Pointer<native_view_list_t> list);
+
+/// Unregisters a listener. Returns false if unknown.
+@ffi.Native<ffi.Bool Function(native_view_t, native_listener_id_t)>()
+external bool native_view_remove_listener(int view, int listener_id);
+
+@ffi.Native<ffi.Bool Function(native_view_t, native_view_t)>()
+external bool native_view_remove_subview(int view, int subview);
+
+@ffi.Native<ffi.Bool Function(native_view_t, ffi.UnsignedLong)>()
+external bool native_view_remove_subview_at(int view, int index);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.UnsignedInt)>(
+  symbol: 'native_view_set_alignment',
+)
+external void _native_view_set_alignment(int view, int alignment);
+
+void native_view_set_alignment(
+  Dartnative_view_t view,
+  native_view_alignment_t alignment,
+) {
+  return _native_view_set_alignment(view, alignment.value);
+}
+
+@ffi.Native<ffi.Void Function(native_view_t, native_color_t)>()
+external void native_view_set_background_color(int view, native_color_t color);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.Bool)>()
+external void native_view_set_enabled(int view, bool is_enabled);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.Double)>()
+external void native_view_set_flex(int view, double flex);
+
+@ffi.Native<ffi.Void Function(native_view_t, native_rectangle_t)>()
+external void native_view_set_frame(int view, native_rectangle_t frame);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.UnsignedInt)>(
+  symbol: 'native_view_set_layout',
+)
+external void _native_view_set_layout(int view, int layout);
+
+void native_view_set_layout(
+  Dartnative_view_t view,
+  native_view_layout_t layout,
+) {
+  return _native_view_set_layout(view, layout.value);
+}
+
+@ffi.Native<ffi.Void Function(native_view_t, native_edge_insets_t)>()
+external void native_view_set_padding(int view, native_edge_insets_t padding);
+
+@ffi.Native<ffi.Void Function(native_view_t, native_size_t)>()
+external void native_view_set_preferred_size(int view, native_size_t size);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.Double)>()
+external void native_view_set_spacing(int view, double spacing);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.Pointer<ffi.Char>)>()
+external void native_view_set_tooltip(int view, ffi.Pointer<ffi.Char> tooltip);
+
+@ffi.Native<ffi.Void Function(native_view_t, ffi.Bool)>()
+external void native_view_set_visible(int view, bool is_visible);
 
 @ffi.Native<ffi.Void Function(native_window_t)>()
 external void native_window_blur(int window);
@@ -1916,7 +2301,7 @@ external bool native_window_drag_session_remove_listener(
 @ffi.Native<
   ffi.Bool Function(
     native_window_drag_session_t,
-    native_window_t,
+    native_window_t$5,
     native_point_t,
   )
 >()
@@ -1948,6 +2333,10 @@ external native_rectangle_t native_window_get_content_bounds(int window);
 
 @ffi.Native<native_size_t Function(native_window_t)>()
 external native_size_t native_window_get_content_size(int window);
+
+/// Caller owns the returned handle; release it with native_view_free().
+@ffi.Native<native_view_t Function(native_window_t)>()
+external int native_window_get_content_view(int window);
 
 /// Caller owns the returned handle; release it with native_window_shadow_free().
 @ffi.Native<native_window_shadow_t Function(native_window_t)>()
@@ -2131,18 +2520,18 @@ external bool native_window_manager_call_original_hide(int id);
 external bool native_window_manager_call_original_show(int id);
 
 /// Caller owns the returned handle; release it with native_window_free().
-@ffi.Native<native_window_t Function(native_window_id_t)>()
+@ffi.Native<native_window_t$6 Function(native_window_id_t)>()
 external int native_window_manager_get(int id);
 
 @ffi.Native<native_window_list_t Function()>()
 external native_window_list_t native_window_manager_get_all();
 
 /// Caller owns the returned handle; release it with native_window_free().
-@ffi.Native<native_window_t Function()>()
+@ffi.Native<native_window_t$6 Function()>()
 external int native_window_manager_get_current();
 
 /// Caller owns the returned handle; release it with native_window_free().
-@ffi.Native<native_window_t Function(native_point_t, native_window_id_t)>()
+@ffi.Native<native_window_t$6 Function(native_point_t, native_window_id_t)>()
 external int native_window_manager_get_window_at_point(
   native_point_t point,
   int excluded_window_id,
@@ -2455,6 +2844,8 @@ void native_window_start_resizing(
 @ffi.Native<ffi.Void Function(native_window_t)>()
 external void native_window_unmaximize(int window);
 
+const int NATIVE_INVALID_BUTTON = 0;
+
 const int NATIVE_INVALID_DISPLAY = 0;
 
 const int NATIVE_INVALID_DRAG_SOURCE = 0;
@@ -2465,7 +2856,11 @@ const int NATIVE_INVALID_FILE_DIALOG = 0;
 
 const int NATIVE_INVALID_IMAGE = 0;
 
+const int NATIVE_INVALID_IMAGE_VIEW = 0;
+
 const int NATIVE_INVALID_KEYBOARD_MONITOR = 0;
+
+const int NATIVE_INVALID_LABEL = 0;
 
 const int NATIVE_INVALID_LAUNCH_AT_LOGIN = 0;
 
@@ -2485,7 +2880,11 @@ const int NATIVE_INVALID_SECURE_STORAGE = 0;
 
 const int NATIVE_INVALID_SHORTCUT = 0;
 
+const int NATIVE_INVALID_TEXT_FIELD = 0;
+
 const int NATIVE_INVALID_TRAY_ICON = 0;
+
+const int NATIVE_INVALID_VIEW = 0;
 
 const int NATIVE_INVALID_WINDOW = 0;
 
@@ -2559,10 +2958,19 @@ final class UnnamedStruct$13 extends ffi.Struct {
 }
 
 final class UnnamedStruct$14 extends ffi.Struct {
-  external native_point_t new_position;
+  external ffi.Pointer<ffi.Char> text;
+
+  static ffi.Pointer<UnnamedStruct$14> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Char> text,
+  }) => $allocator<UnnamedStruct$14>()..ref.text = text;
 }
 
 final class UnnamedStruct$15 extends ffi.Struct {
+  external native_point_t new_position;
+}
+
+final class UnnamedStruct$16 extends ffi.Struct {
   external native_size_t new_size;
 }
 
@@ -2686,9 +3094,13 @@ final class UnnamedUnion$7 extends ffi.Union {
 }
 
 final class UnnamedUnion$8 extends ffi.Union {
-  external UnnamedStruct$14 moved;
+  external UnnamedStruct$14 text_field_changed;
+}
 
-  external UnnamedStruct$15 resized;
+final class UnnamedUnion$9 extends ffi.Union {
+  external UnnamedStruct$15 moved;
+
+  external UnnamedStruct$16 resized;
 }
 
 typedef native_application_event_callback_t =
@@ -2758,6 +3170,18 @@ enum native_brightness_t {
     _ => throw ArgumentError('Unknown value for native_brightness_t: $value'),
   };
 }
+
+/// Opaque Button handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_BUTTON rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+///
+/// A Button is a View: this handle is accepted wherever a native_view_t is,
+/// including its listener registration.
+typedef native_button_t = ffi.Uint64;
+typedef Dartnative_button_t = int;
 
 final class native_color_t extends ffi.Struct {
   @ffi.UnsignedChar()
@@ -2924,6 +3348,8 @@ enum native_display_orientation_t {
 /// touching freed memory.
 typedef native_display_t = ffi.Uint64;
 typedef Dartnative_display_t = int;
+typedef native_display_t$1 = ffi.Uint64;
+typedef Dartnative_display_t$1 = int;
 
 enum native_drag_operation_t {
   NATIVE_DRAG_OPERATION_NONE(0),
@@ -3066,6 +3492,32 @@ enum native_drop_target_event_type_t {
 typedef native_drop_target_t = ffi.Uint64;
 typedef Dartnative_drop_target_t = int;
 
+final class native_edge_insets_t extends ffi.Struct {
+  @ffi.Double()
+  external double top;
+
+  @ffi.Double()
+  external double right;
+
+  @ffi.Double()
+  external double bottom;
+
+  @ffi.Double()
+  external double left;
+
+  static ffi.Pointer<native_edge_insets_t> $allocate(
+    ffi.Allocator $allocator, {
+    required double top,
+    required double right,
+    required double bottom,
+    required double left,
+  }) => $allocator<native_edge_insets_t>()
+    ..ref.top = top
+    ..ref.right = right
+    ..ref.bottom = bottom
+    ..ref.left = left;
+}
+
 enum native_file_dialog_mode_t {
   NATIVE_FILE_DIALOG_MODE_OPEN_FILE(0),
   NATIVE_FILE_DIALOG_MODE_OPEN_FILES(1),
@@ -3114,6 +3566,8 @@ enum native_file_dialog_result_t {
 /// touching freed memory.
 typedef native_file_dialog_t = ffi.Uint64;
 typedef Dartnative_file_dialog_t = int;
+typedef native_image_t = ffi.Uint64;
+typedef Dartnative_image_t = int;
 
 /// Opaque Image handle.
 ///
@@ -3121,8 +3575,26 @@ typedef Dartnative_file_dialog_t = int;
 /// never dereference it, and compare it against NATIVE_INVALID_IMAGE rather than NULL.
 /// Releasing a handle invalidates it; later calls fail safely instead of
 /// touching freed memory.
-typedef native_image_t = ffi.Uint64;
-typedef Dartnative_image_t = int;
+typedef native_image_t$1 = ffi.Uint64;
+typedef Dartnative_image_t$1 = int;
+typedef native_image_t$2 = ffi.Uint64;
+typedef Dartnative_image_t$2 = int;
+typedef native_image_t$3 = ffi.Uint64;
+typedef Dartnative_image_t$3 = int;
+typedef native_image_t$4 = ffi.Uint64;
+typedef Dartnative_image_t$4 = int;
+
+/// Opaque ImageView handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_IMAGE_VIEW rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+///
+/// A ImageView is a View: this handle is accepted wherever a native_view_t is,
+/// including its listener registration.
+typedef native_image_view_t = ffi.Uint64;
+typedef Dartnative_image_view_t = int;
 
 final class native_keyboard_accelerator_t extends ffi.Struct {
   @ffi.UnsignedInt()
@@ -3199,6 +3671,18 @@ enum native_keyboard_event_type_t {
 /// touching freed memory.
 typedef native_keyboard_monitor_t = ffi.Uint64;
 typedef Dartnative_keyboard_monitor_t = int;
+
+/// Opaque Label handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_LABEL rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+///
+/// A Label is a View: this handle is accepted wherever a native_view_t is,
+/// including its listener registration.
+typedef native_label_t = ffi.Uint64;
+typedef Dartnative_label_t = int;
 
 /// Opaque LaunchAtLogin handle.
 ///
@@ -3354,6 +3838,10 @@ enum native_menu_item_type_t {
 /// touching freed memory.
 typedef native_menu_t = ffi.Uint64;
 typedef Dartnative_menu_t = int;
+typedef native_menu_t$1 = ffi.Uint64;
+typedef Dartnative_menu_t$1 = int;
+typedef native_menu_t$2 = ffi.Uint64;
+typedef Dartnative_menu_t$2 = int;
 
 enum native_message_dialog_result_t {
   NATIVE_MESSAGE_DIALOG_RESULT_NONE(0),
@@ -3514,6 +4002,8 @@ final class native_point_t extends ffi.Struct {
 /// touching freed memory.
 typedef native_positioning_strategy_t = ffi.Uint64;
 typedef Dartnative_positioning_strategy_t = int;
+typedef native_positioning_strategy_t$1 = ffi.Uint64;
+typedef Dartnative_positioning_strategy_t$1 = int;
 
 enum native_positioning_strategy_type_t {
   NATIVE_POSITIONING_STRATEGY_TYPE_ABSOLUTE(0),
@@ -3793,6 +4283,8 @@ typedef Dartnative_shortcut_set_callback_tFunction = void Function(
 /// touching freed memory.
 typedef native_shortcut_t = ffi.Uint64;
 typedef Dartnative_shortcut_t = int;
+typedef native_shortcut_t$1 = ffi.Uint64;
+typedef Dartnative_shortcut_t$1 = int;
 
 final class native_size_t extends ffi.Struct {
   @ffi.Double()
@@ -3850,6 +4342,36 @@ final class native_string_map_t extends ffi.Struct {
     ..ref.values = values
     ..ref.count = count;
 }
+
+enum native_text_alignment_t {
+  NATIVE_TEXT_ALIGNMENT_START(0),
+  NATIVE_TEXT_ALIGNMENT_CENTER(1),
+  NATIVE_TEXT_ALIGNMENT_END(2);
+
+  final int value;
+  const native_text_alignment_t(this.value);
+
+  static native_text_alignment_t fromValue(int value) => switch (value) {
+    0 => NATIVE_TEXT_ALIGNMENT_START,
+    1 => NATIVE_TEXT_ALIGNMENT_CENTER,
+    2 => NATIVE_TEXT_ALIGNMENT_END,
+    _ => throw ArgumentError(
+      'Unknown value for native_text_alignment_t: $value',
+    ),
+  };
+}
+
+/// Opaque TextField handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_TEXT_FIELD rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+///
+/// A TextField is a View: this handle is accepted wherever a native_view_t is,
+/// including its listener registration.
+typedef native_text_field_t = ffi.Uint64;
+typedef Dartnative_text_field_t = int;
 
 enum native_title_bar_style_t {
   NATIVE_TITLE_BAR_STYLE_NORMAL(0),
@@ -3955,6 +4477,8 @@ enum native_tray_icon_position_t {
 /// touching freed memory.
 typedef native_tray_icon_t = ffi.Uint64;
 typedef Dartnative_tray_icon_t = int;
+typedef native_tray_icon_t$1 = ffi.Uint64;
+typedef Dartnative_tray_icon_t$1 = int;
 
 enum native_url_open_error_code_t {
   NATIVE_URL_OPEN_ERROR_CODE_NONE(0),
@@ -4004,6 +4528,122 @@ final class native_url_open_result_t extends ffi.Struct {
     ..ref.error_code = error_code
     ..ref.error_message = error_message;
 }
+
+enum native_view_alignment_t {
+  NATIVE_VIEW_ALIGNMENT_STRETCH(0),
+  NATIVE_VIEW_ALIGNMENT_START(1),
+  NATIVE_VIEW_ALIGNMENT_CENTER(2),
+  NATIVE_VIEW_ALIGNMENT_END(3);
+
+  final int value;
+  const native_view_alignment_t(this.value);
+
+  static native_view_alignment_t fromValue(int value) => switch (value) {
+    0 => NATIVE_VIEW_ALIGNMENT_STRETCH,
+    1 => NATIVE_VIEW_ALIGNMENT_START,
+    2 => NATIVE_VIEW_ALIGNMENT_CENTER,
+    3 => NATIVE_VIEW_ALIGNMENT_END,
+    _ => throw ArgumentError(
+      'Unknown value for native_view_alignment_t: $value',
+    ),
+  };
+}
+
+typedef native_view_event_callback_t =
+    ffi.Pointer<ffi.NativeFunction<native_view_event_callback_tFunction>>;
+typedef native_view_event_callback_tFunction = ffi.Void Function(
+  ffi.Pointer<native_view_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+typedef Dartnative_view_event_callback_tFunction = void Function(
+  ffi.Pointer<native_view_event_t> event,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+/// One ViewEvent, tagged by its concrete type.
+///
+/// Valid only for the duration of the callback: anything it points at
+/// is released as soon as the callback returns. Copy what you need.
+final class native_view_event_t extends ffi.Struct {
+  @ffi.UnsignedInt()
+  external int typeAsInt;
+
+  native_view_event_type_t get type =>
+      native_view_event_type_t.fromValue(typeAsInt);
+  set type(native_view_event_type_t value) => typeAsInt = value.value;
+
+  @native_view_id_t()
+  external int view_id;
+
+  external UnnamedUnion$8 data;
+}
+
+/// Which concrete ViewEvent arrived.
+enum native_view_event_type_t {
+  NATIVE_VIEW_EVENT_TYPE_FOCUSED(0),
+  NATIVE_VIEW_EVENT_TYPE_BLURRED(1),
+  NATIVE_VIEW_EVENT_TYPE_BUTTON_CLICKED(2),
+  NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_CHANGED(3),
+  NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_SUBMITTED(4);
+
+  final int value;
+  const native_view_event_type_t(this.value);
+
+  static native_view_event_type_t fromValue(int value) => switch (value) {
+    0 => NATIVE_VIEW_EVENT_TYPE_FOCUSED,
+    1 => NATIVE_VIEW_EVENT_TYPE_BLURRED,
+    2 => NATIVE_VIEW_EVENT_TYPE_BUTTON_CLICKED,
+    3 => NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_CHANGED,
+    4 => NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_SUBMITTED,
+    _ => throw ArgumentError(
+      'Unknown value for native_view_event_type_t: $value',
+    ),
+  };
+}
+
+typedef native_view_id_t = ffi.UnsignedInt;
+typedef Dartnative_view_id_t = int;
+
+enum native_view_layout_t {
+  NATIVE_VIEW_LAYOUT_ABSOLUTE(0),
+  NATIVE_VIEW_LAYOUT_ROW(1),
+  NATIVE_VIEW_LAYOUT_COLUMN(2);
+
+  final int value;
+  const native_view_layout_t(this.value);
+
+  static native_view_layout_t fromValue(int value) => switch (value) {
+    0 => NATIVE_VIEW_LAYOUT_ABSOLUTE,
+    1 => NATIVE_VIEW_LAYOUT_ROW,
+    2 => NATIVE_VIEW_LAYOUT_COLUMN,
+    _ => throw ArgumentError('Unknown value for native_view_layout_t: $value'),
+  };
+}
+
+/// Owning list of View handles.
+final class native_view_list_t extends ffi.Struct {
+  external ffi.Pointer<native_view_t> views;
+
+  @ffi.Long()
+  external int count;
+
+  static ffi.Pointer<native_view_list_t> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<native_view_t> views,
+    required int count,
+  }) => $allocator<native_view_list_t>()
+    ..ref.views = views
+    ..ref.count = count;
+}
+
+/// Opaque View handle.
+///
+/// A generational index into the library's handle table, NOT a pointer:
+/// never dereference it, and compare it against NATIVE_INVALID_VIEW rather than NULL.
+/// Releasing a handle invalidates it; later calls fail safely instead of
+/// touching freed memory.
+typedef native_view_t = ffi.Uint64;
+typedef Dartnative_view_t = int;
 
 enum native_visual_effect_t {
   NATIVE_VISUAL_EFFECT_NONE(0),
@@ -4118,7 +4758,7 @@ final class native_window_event_t extends ffi.Struct {
   @native_window_id_t()
   external int window_id;
 
-  external UnnamedUnion$8 data;
+  external UnnamedUnion$9 data;
 }
 
 /// Which concrete WindowEvent arrived.
@@ -4200,6 +4840,8 @@ typedef Dartnative_window_manager_set_will_show_hook_callback_tFunction =
 /// touching freed memory.
 typedef native_window_shadow_t = ffi.Uint64;
 typedef Dartnative_window_shadow_t = int;
+typedef native_window_shadow_t$1 = ffi.Uint64;
+typedef Dartnative_window_shadow_t$1 = int;
 
 /// Opaque WindowShape handle.
 ///
@@ -4209,6 +4851,8 @@ typedef Dartnative_window_shadow_t = int;
 /// touching freed memory.
 typedef native_window_shape_t = ffi.Uint64;
 typedef Dartnative_window_shape_t = int;
+typedef native_window_shape_t$1 = ffi.Uint64;
+typedef Dartnative_window_shape_t$1 = int;
 
 /// Opaque Window handle.
 ///
@@ -4218,3 +4862,19 @@ typedef Dartnative_window_shape_t = int;
 /// touching freed memory.
 typedef native_window_t = ffi.Uint64;
 typedef Dartnative_window_t = int;
+typedef native_window_t$1 = ffi.Uint64;
+typedef Dartnative_window_t$1 = int;
+typedef native_window_t$2 = ffi.Uint64;
+typedef Dartnative_window_t$2 = int;
+typedef native_window_t$3 = ffi.Uint64;
+typedef Dartnative_window_t$3 = int;
+typedef native_window_t$4 = ffi.Uint64;
+typedef Dartnative_window_t$4 = int;
+typedef native_window_t$5 = ffi.Uint64;
+typedef Dartnative_window_t$5 = int;
+typedef native_window_t$6 = ffi.Uint64;
+typedef Dartnative_window_t$6 = int;
+typedef native_window_t$7 = ffi.Uint64;
+typedef Dartnative_window_t$7 = int;
+typedef native_window_t$8 = ffi.Uint64;
+typedef Dartnative_window_t$8 = int;

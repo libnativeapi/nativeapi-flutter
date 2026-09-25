@@ -10,6 +10,7 @@ import 'package:ffi/ffi.dart' as pkg_ffi;
 
 import 'foundation/color.dart';
 import 'foundation/geometry.dart';
+import 'view.dart';
 import 'window_shadow.dart';
 import 'window_shape.dart';
 
@@ -247,6 +248,12 @@ class Window {
 
   WindowId get id {
     return c.native_window_get_id(nativeHandle);
+  }
+
+  View? get contentView {
+    final handle = c.native_window_get_content_view(nativeHandle);
+    if (handle == 0) return null;
+    return View.fromHandle(handle);
   }
 
   void focus() {

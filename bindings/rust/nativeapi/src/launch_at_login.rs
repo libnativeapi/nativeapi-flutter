@@ -8,6 +8,7 @@ use std::ffi::{CStr, CString};
 
 /// Owned handle to a native `LaunchAtLogin`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct LaunchAtLogin {
     handle: cnativeapi::native_launch_at_login_t,
 }

@@ -82,6 +82,7 @@ impl TrayIconEvent {
 
 /// Owned handle to a native `TrayIcon`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct TrayIcon {
     handle: cnativeapi::native_tray_icon_t,
 }

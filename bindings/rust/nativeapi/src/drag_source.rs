@@ -55,6 +55,7 @@ impl DragSourceEvent {
 
 /// Owned handle to a native `DragSource`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct DragSource {
     handle: cnativeapi::native_drag_source_t,
 }

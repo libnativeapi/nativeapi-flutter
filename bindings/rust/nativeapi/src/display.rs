@@ -56,6 +56,7 @@ impl DisplayEvent {
 
 /// Owned handle to a native `Display`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Display {
     handle: cnativeapi::native_display_t,
 }

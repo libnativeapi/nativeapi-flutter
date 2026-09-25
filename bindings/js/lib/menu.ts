@@ -47,7 +47,7 @@ export class MenuItem extends NativeObject {
     super(handle, owned ? native.native_menu_item_free : undefined);
   }
 
-  static createWithLabelAndType(label: string, type: MenuItemType): MenuItem | null {
+  static createWithLabelAndType(label: string = "", type: MenuItemType = MenuItemType.Normal): MenuItem | null {
     const handle: bigint = native.native_menu_item_create_with_label_and_type(label, type);
     return handle ? new MenuItem(handle) : null;
   }

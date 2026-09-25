@@ -11,6 +11,7 @@ use crate::geometry::Point;
 
 /// Owned handle to a native `WindowShadow`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct WindowShadow {
     handle: cnativeapi::native_window_shadow_t,
 }

@@ -8,6 +8,7 @@ use std::ffi::{CStr, CString};
 
 /// Owned handle to a native `Preferences`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Preferences {
     handle: cnativeapi::native_preferences_t,
 }

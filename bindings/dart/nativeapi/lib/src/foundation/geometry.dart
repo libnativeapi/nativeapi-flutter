@@ -119,3 +119,54 @@ class Rectangle {
     pkg_ffi.calloc.free(pointer);
   }
 }
+
+class EdgeInsets {
+  const EdgeInsets({
+    required this.top,
+    required this.right,
+    required this.bottom,
+    required this.left,
+  });
+
+  final double top;
+  final double right;
+  final double bottom;
+  final double left;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EdgeInsets &&
+          other.top == top &&
+          other.right == right &&
+          other.bottom == bottom &&
+          other.left == left);
+
+  @override
+  int get hashCode => Object.hash(top, right, bottom, left);
+
+  @override
+  String toString() =>
+      'EdgeInsets(top: $top, right: $right, bottom: $bottom, left: $left)';
+
+  factory EdgeInsets.fromNative(c.native_edge_insets_t raw) => EdgeInsets(
+    top: raw.top,
+    right: raw.right,
+    bottom: raw.bottom,
+    left: raw.left,
+  );
+
+  /// Allocates the C form; free it with [freeNative].
+  ffi.Pointer<c.native_edge_insets_t> allocNative() {
+    final pointer = pkg_ffi.calloc<c.native_edge_insets_t>();
+    pointer.ref.top = top;
+    pointer.ref.right = right;
+    pointer.ref.bottom = bottom;
+    pointer.ref.left = left;
+    return pointer;
+  }
+
+  static void freeNative(ffi.Pointer<c.native_edge_insets_t> pointer) {
+    pkg_ffi.calloc.free(pointer);
+  }
+}

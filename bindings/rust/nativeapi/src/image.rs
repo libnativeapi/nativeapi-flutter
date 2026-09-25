@@ -10,6 +10,7 @@ use crate::geometry::Size;
 
 /// Owned handle to a native `Image`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Image {
     handle: cnativeapi::native_image_t,
 }

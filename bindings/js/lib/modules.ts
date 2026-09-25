@@ -21,6 +21,7 @@ export * from "./notification_manager.ts";
 export * from "./image.ts";
 export * from "./window_shape.ts";
 export * from "./window_shadow.ts";
+export * from "./view.ts";
 export * from "./window.ts";
 export * from "./window_manager.ts";
 export * from "./window_drag_session.ts";

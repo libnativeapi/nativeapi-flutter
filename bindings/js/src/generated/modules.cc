@@ -25,6 +25,7 @@ void RegisterNotificationManager(napi_env env, napi_value exports);
 void RegisterImage(napi_env env, napi_value exports);
 void RegisterWindowShape(napi_env env, napi_value exports);
 void RegisterWindowShadow(napi_env env, napi_value exports);
+void RegisterView(napi_env env, napi_value exports);
 void RegisterWindow(napi_env env, napi_value exports);
 void RegisterWindowManager(napi_env env, napi_value exports);
 void RegisterWindowDragSession(napi_env env, napi_value exports);
@@ -60,6 +61,7 @@ void RegisterGenerated(napi_env env, napi_value exports) {
   RegisterImage(env, exports);
   RegisterWindowShape(env, exports);
   RegisterWindowShadow(env, exports);
+  RegisterView(env, exports);
   RegisterWindow(env, exports);
   RegisterWindowManager(env, exports);
   RegisterWindowDragSession(env, exports);

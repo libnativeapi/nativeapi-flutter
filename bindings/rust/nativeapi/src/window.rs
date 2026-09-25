@@ -8,6 +8,7 @@ use std::ffi::{CStr, CString};
 
 use crate::color::Color;
 use crate::geometry::{Point, Rectangle, Size};
+use crate::view::View;
 use crate::window_shadow::WindowShadow;
 use crate::window_shape::WindowShape;
 
@@ -133,6 +134,7 @@ impl WindowEvent {
 
 /// Owned handle to a native `Window`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Window {
     handle: cnativeapi::native_window_t,
 }
@@ -177,6 +179,12 @@ impl Window {
     pub fn id(&self) -> WindowId {
         unsafe {
             cnativeapi::native_window_get_id(self.handle)
+        }
+    }
+
+    pub fn content_view(&self) -> Option<View> {
+        unsafe {
+            View::from_raw(cnativeapi::native_window_get_content_view(self.handle))
         }
     }
 

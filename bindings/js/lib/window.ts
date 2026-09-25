@@ -4,6 +4,7 @@
 import { native, NativeObject, wrapHandle } from "./runtime.ts";
 import { Color } from "./color.ts";
 import { type Point, type Rectangle, type Size } from "./geometry.ts";
+import { View } from "./view.ts";
 import { WindowShadow } from "./window_shadow.ts";
 import { WindowShape } from "./window_shape.ts";
 
@@ -69,6 +70,10 @@ export class Window extends NativeObject {
 
   get id(): WindowId {
     return native.native_window_get_id(this.nativeHandle);
+  }
+
+  get contentView(): View | null {
+    return wrapHandle(View, native.native_window_get_content_view(this.nativeHandle));
   }
 
   focus(): void {

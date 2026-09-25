@@ -110,6 +110,7 @@ impl ShortcutEvent {
 
 /// Owned handle to a native `Shortcut`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Shortcut {
     handle: cnativeapi::native_shortcut_t,
 }

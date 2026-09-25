@@ -13,6 +13,7 @@ pub type ListenerId = cnativeapi::native_listener_id_t;
 
 /// Owned handle to a native `KeyboardMonitor`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct KeyboardMonitor {
     handle: cnativeapi::native_keyboard_monitor_t,
 }

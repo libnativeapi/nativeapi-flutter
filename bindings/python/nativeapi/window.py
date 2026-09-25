@@ -11,6 +11,7 @@ from . import _capi as _C
 from . import _runtime as _rt
 from . import color as _color
 from . import geometry as _geometry
+from . import view as _view
 from . import window_shadow as _window_shadow
 from . import window_shape as _window_shape
 
@@ -151,6 +152,11 @@ class Window(_rt.NativeObject):
     def id(self) -> WindowId:
         raw = _C.native_window_get_id(self._handle)
         return raw
+
+    @property
+    def content_view(self) -> _view.View | None:
+        raw = _C.native_window_get_content_view(self._handle)
+        return _view.View._owned(raw)
 
     def focus(self) -> None:
         _C.native_window_focus(self._handle)

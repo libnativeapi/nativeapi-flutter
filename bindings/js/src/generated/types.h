@@ -25,6 +25,7 @@
 #include "capi/image_c.h"
 #include "capi/window_shape_c.h"
 #include "capi/window_shadow_c.h"
+#include "capi/view_c.h"
 #include "capi/window_c.h"
 #include "capi/window_manager_c.h"
 #include "capi/window_drag_session_c.h"
@@ -47,6 +48,8 @@ inline Value ToValue(const native_size_t& value);
 inline bool FromJs(napi_env env, napi_value value, native_size_t* out, Arena& arena);
 inline Value ToValue(const native_rectangle_t& value);
 inline bool FromJs(napi_env env, napi_value value, native_rectangle_t* out, Arena& arena);
+inline Value ToValue(const native_edge_insets_t& value);
+inline bool FromJs(napi_env env, napi_value value, native_edge_insets_t* out, Arena& arena);
 inline Value ToValue(const native_color_t& value);
 inline bool FromJs(napi_env env, napi_value value, native_color_t* out, Arena& arena);
 inline Value ToValue(const native_keyboard_accelerator_t& value);
@@ -56,6 +59,7 @@ inline Value ToValue(const native_display_event_t& event);
 inline Value ToValue(const native_url_open_result_t& value);
 inline bool FromJs(napi_env env, napi_value value, native_url_open_result_t* out, Arena& arena);
 inline Value ToValue(const native_notification_event_t& event);
+inline Value ToValue(const native_view_event_t& event);
 inline Value ToValue(const native_window_event_t& event);
 inline Value ToValue(const native_window_drag_event_t& event);
 inline Value ToValue(const native_drag_source_event_t& event);
@@ -172,6 +176,55 @@ inline bool FromJs(napi_env env, napi_value value, native_rectangle_t* out, Aren
   }
   if (field != nullptr) {
     if (!GetNumber(env, field, &out->height)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline Value ToValue(const native_edge_insets_t& value) {
+  Value result = Value::Object();
+  result.Set("top", Value::Number(static_cast<double>(value.top)));
+  result.Set("right", Value::Number(static_cast<double>(value.right)));
+  result.Set("bottom", Value::Number(static_cast<double>(value.bottom)));
+  result.Set("left", Value::Number(static_cast<double>(value.left)));
+  return result;
+}
+
+inline bool FromJs(napi_env env, napi_value value, native_edge_insets_t* out, Arena& arena) {
+  if (!ExpectObject(env, value, "EdgeInsets")) {
+    return false;
+  }
+  napi_value field = nullptr;
+  if (!GetField(env, value, "top", &field)) {
+    return false;
+  }
+  if (field != nullptr) {
+    if (!GetNumber(env, field, &out->top)) {
+      return false;
+    }
+  }
+  if (!GetField(env, value, "right", &field)) {
+    return false;
+  }
+  if (field != nullptr) {
+    if (!GetNumber(env, field, &out->right)) {
+      return false;
+    }
+  }
+  if (!GetField(env, value, "bottom", &field)) {
+    return false;
+  }
+  if (field != nullptr) {
+    if (!GetNumber(env, field, &out->bottom)) {
+      return false;
+    }
+  }
+  if (!GetField(env, value, "left", &field)) {
+    return false;
+  }
+  if (field != nullptr) {
+    if (!GetNumber(env, field, &out->left)) {
       return false;
     }
   }
@@ -347,6 +400,32 @@ inline Value ToValue(const native_notification_event_t& event) {
     default:
       return Value::Null();
   }
+  return result;
+}
+
+inline Value ToValue(const native_view_event_t& event) {
+  Value result = Value::Object();
+  switch (event.type) {
+    case NATIVE_VIEW_EVENT_TYPE_FOCUSED:
+      result.Set("type", Value::String("focused"));
+      break;
+    case NATIVE_VIEW_EVENT_TYPE_BLURRED:
+      result.Set("type", Value::String("blurred"));
+      break;
+    case NATIVE_VIEW_EVENT_TYPE_BUTTON_CLICKED:
+      result.Set("type", Value::String("buttonClicked"));
+      break;
+    case NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_CHANGED:
+      result.Set("type", Value::String("textFieldChanged"));
+      result.Set("text", Value::String(event.data.text_field_changed.text));
+      break;
+    case NATIVE_VIEW_EVENT_TYPE_TEXT_FIELD_SUBMITTED:
+      result.Set("type", Value::String("textFieldSubmitted"));
+      break;
+    default:
+      return Value::Null();
+  }
+  result.Set("viewId", Value::Number(static_cast<double>(event.view_id)));
   return result;
 }
 

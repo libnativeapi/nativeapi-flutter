@@ -31,3 +31,12 @@ public struct native_rectangle_t
     public double height;
 }
 
+[StructLayout(LayoutKind.Sequential)]
+public struct native_edge_insets_t
+{
+    public double top;
+    public double right;
+    public double bottom;
+    public double left;
+}
+

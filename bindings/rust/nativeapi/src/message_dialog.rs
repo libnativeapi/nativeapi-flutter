@@ -36,6 +36,7 @@ impl MessageDialogResult {
 
 /// Owned handle to a native `MessageDialog`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct MessageDialog {
     handle: cnativeapi::native_message_dialog_t,
 }

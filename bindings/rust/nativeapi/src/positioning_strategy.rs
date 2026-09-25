@@ -34,6 +34,7 @@ impl PositioningStrategyType {
 
 /// Owned handle to a native `PositioningStrategy`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct PositioningStrategy {
     handle: cnativeapi::native_positioning_strategy_t,
 }

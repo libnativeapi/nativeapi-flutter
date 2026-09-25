@@ -33,6 +33,7 @@ impl WindowDragEvent {
 
 /// Owned handle to a native `WindowDragSession`.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct WindowDragSession {
     handle: cnativeapi::native_window_drag_session_t,
 }
