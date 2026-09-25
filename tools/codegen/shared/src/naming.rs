@@ -381,6 +381,31 @@ pub fn constructor_suffix(class: &Class, ctor: &Constructor) -> Option<String> {
     ctor.overload_suffix()
 }
 
+/// Constructors of every class `class` derives from, nearest base first, each
+/// with its owning class. A derived class's static constructor shares a name
+/// with its base's (`Button.create` / `View.create`), which TypeScript wants
+/// marked `override` and C# `new` when the signatures match.
+pub fn ancestor_constructors<'a>(
+    api: &'a Api,
+    class: &Class,
+) -> Vec<(&'a Class, &'a Constructor)> {
+    let mut found = Vec::new();
+    let mut base = class.base.as_deref();
+    while let Some(name) = base {
+        let Some(parent) = api
+            .headers
+            .iter()
+            .flat_map(|header| header.classes.iter())
+            .find(|candidate| candidate.name == name)
+        else {
+            break;
+        };
+        found.extend(parent.constructors.iter().map(|ctor| (parent, ctor)));
+        base = parent.base.as_deref();
+    }
+    found
+}
+
 /// Binding-side constructor name: `new` for the default constructor,
 /// `with_scope` for overloads.
 pub fn rust_constructor_name(class: &Class, ctor: &Constructor) -> String {

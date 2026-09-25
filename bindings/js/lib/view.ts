@@ -252,7 +252,7 @@ export class Label extends View {
     super(handle, owned);
   }
 
-  static create(text: string = ""): Label | null {
+  static override create(text: string = ""): Label | null {
     const handle: bigint = native.native_label_create(text);
     return handle ? new Label(handle) : null;
   }
@@ -297,7 +297,7 @@ export class Button extends View {
     super(handle, owned);
   }
 
-  static create(text: string = ""): Button | null {
+  static override create(text: string = ""): Button | null {
     const handle: bigint = native.native_button_create(text);
     return handle ? new Button(handle) : null;
   }
@@ -318,7 +318,7 @@ export class TextField extends View {
     super(handle, owned);
   }
 
-  static create(text: string = ""): TextField | null {
+  static override create(text: string = ""): TextField | null {
     const handle: bigint = native.native_text_field_create(text);
     return handle ? new TextField(handle) : null;
   }
@@ -395,7 +395,7 @@ export class ImageView extends View {
     super(handle, owned);
   }
 
-  static create(): ImageView | null {
+  static override create(): ImageView | null {
     const handle: bigint = native.native_image_view_create();
     return handle ? new ImageView(handle) : null;
   }

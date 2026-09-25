@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 
 use codegen_shared::naming::{
-    c_add_listener_symbol, c_constructor_symbol, c_free_symbol, c_list_field,
+    ancestor_constructors, c_add_listener_symbol, c_constructor_symbol, c_free_symbol, c_list_field,
     c_list_release_symbol, c_list_type_name, c_method_symbol, c_native_object_symbol,
     c_remove_listener_symbol, c_type_name, constructor_suffix, is_binding_accessor,
     listed_classes, struct_has_owned_fields, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN,
@@ -861,6 +861,19 @@ fn generate_constructor(ctx: &mut Ctx, api: &Api, class: &Class, ctor: &Construc
         Some(suffix) => format!("Create{}", pascal(&suffix)),
         None => "Create".to_string(),
     };
+    // A base constructor with the same name and parameter types is hidden.
+    let hides_base = ancestor_constructors(api, class)
+        .into_iter()
+        .any(|(base, base_ctor)| {
+            let base_label = match constructor_suffix(base, base_ctor) {
+                Some(suffix) => format!("Create{}", pascal(&suffix)),
+                None => "Create".to_string(),
+            };
+            base_label == label
+                && base_ctor.params.len() == ctor.params.len()
+                && base_ctor.params.iter().zip(&ctor.params).all(|(a, b)| a.ty == b.ty)
+        });
+    let modifier = if hides_base { "new " } else { "" };
     let symbol = c_constructor_symbol(prefix, class, ctor);
     let owner = format!("{}.{label}", class.name);
     let delegates = param_delegates(&mut ctx.delegates, &owner, &ctor.params, prefix);
@@ -896,7 +909,7 @@ fn generate_constructor(ctx: &mut Ctx, api: &Api, class: &Class, ctor: &Construc
     .unwrap();
     writeln!(
         out,
-        "    public static {}? {label}({})",
+        "    public {modifier}static {}? {label}({})",
         class.name,
         cs_params(&ctor.params)
     )

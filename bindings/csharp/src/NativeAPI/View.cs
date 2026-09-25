@@ -675,7 +675,7 @@ public partial class ImageView : View
     public ImageView(ulong nativeHandle, bool ownsHandle = true) : base(nativeHandle, ownsHandle) { }
 
     /// <summary>Creates a new ImageView; returns null if the native side failed.</summary>
-    public static ImageView? Create()
+    public new static ImageView? Create()
     {
         var handle = Interop.native_image_view_create();
         return handle == 0 ? null : new ImageView(handle);

@@ -24,7 +24,7 @@ use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 
 use codegen_shared::ir::{Api, Class, EventGroup, Header, Method, Param, Struct, TypeRef};
 use codegen_shared::naming::{
-    c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
+    ancestor_constructors, c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
     c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol, c_native_object_symbol,
     c_param_type, c_release_user_data_param, c_remove_listener_symbol, c_type_name,
     c_user_data_param, constructor_suffix,
@@ -1094,10 +1094,21 @@ fn ts_class(out: &mut String, api: &Api, class: &Class, prefix: &str) {
                 writeln!(out).unwrap();
             }
         }
+        let ts_constructor_name = |class: &Class, ctor| match constructor_suffix(class, ctor) {
+            Some(suffix) => format!("create_{suffix}").to_lower_camel_case(),
+            None => "create".to_string(),
+        };
+        let inherited: Vec<String> = ancestor_constructors(api, class)
+            .into_iter()
+            .map(|(base, ctor)| ts_constructor_name(base, ctor))
+            .collect();
         for ctor in &class.constructors {
-            let name = match constructor_suffix(class, ctor) {
-                Some(suffix) => format!("create_{suffix}").to_lower_camel_case(),
-                None => "create".to_string(),
+            let name = ts_constructor_name(class, ctor);
+            // Statics are inherited too; redeclaring one is an override.
+            let modifier = if inherited.contains(&name) {
+                "override "
+            } else {
+                ""
             };
             let symbol = c_constructor_symbol(prefix, class, ctor);
             let params: Vec<String> = ctor
@@ -1108,7 +1119,7 @@ fn ts_class(out: &mut String, api: &Api, class: &Class, prefix: &str) {
             let args: Vec<String> = ctor.params.iter().map(ts_arg).collect();
             writeln!(
                 out,
-                "  static {name}({}): {} | null {{",
+                "  static {modifier}{name}({}): {} | null {{",
                 params.join(", "),
                 class.name
             )
