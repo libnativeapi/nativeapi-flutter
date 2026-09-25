@@ -1,0 +1,19 @@
+[package]
+name = "gpui_browser_tabs_example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Kept out of the root workspace: gpui is a large dependency with its own
+# platform requirements, and the workspace CI builds every member.
+[workspace]
+
+[dependencies]
+nativeapi = { path = "../../bindings/rust/nativeapi" }
+# Compile shaders at startup: no Metal toolchain needed to build on macOS.
+gpui = { version = "0.2.2", features = ["runtime_shaders"] }
+raw-window-handle = "0.6"
+futures = "0.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"

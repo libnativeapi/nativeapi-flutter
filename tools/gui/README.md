@@ -14,6 +14,9 @@ runner) lives in [`.agents/skills/`](../../.agents/skills); read
 | `flutter_window_shape_smoke_macos.py` / `flutter_window_shape_test_windows.ps1` | `shaped_window_example` | macOS / Windows | macOS: no-input shape and pixel-alpha smoke test; Windows: native regions, real button clicks/drag, resize, clear/reapply, click-through to the underlying app window |
 | `flutter_detachable_window_test.py` / `.ps1` | `detachable_window_example` | macOS / Windows | tear a panel off, exact content size, header stays under the cursor, dock into the other window, `State` preserved |
 | `gpui_detachable_window_test.py` | `gpui_detachable_window_example` (Rust, GPUI) | macOS | a click on a header opens nothing; tear a panel off, exact content size, header stays under the cursor, dock it back by dragging onto its slot; Pop out, then closing the floating window docks it |
+| `gpui_window_drag_areas_test.py` | `gpui_window_drag_areas_example` (Rust, GPUI) | macOS | `Window::start_dragging` from the bar: the window follows, a click does not move it, a double click maximizes and restores; `Window::start_resizing`: the bottom-right and left handles move exactly the edges they own |
+| `gpui_floating_toolbar_test.py` | `gpui_floating_toolbar_example` (Rust, GPUI) | macOS | the toolbar attached with `set_parent_window` starts centred 10 px above the main window and re-centres after the main window is dragged by its title bar and resized from its corner |
+| `gpui_browser_tabs_test.py` | `gpui_browser_tabs_example` (Rust, GPUI) | macOS | tear a tab off into a third window (tab under the cursor), move that window by its empty strip, merge its tab into the other window's strip |
 | `flutter_window_drag_areas_test.py` / `.ps1` | `window_drag_areas_example` | macOS / Windows | `DragToMoveArea`: window follows the mouse, a click does not move it, double click maximizes and restores; `DragToResizeArea`: all eight handles, the other edges stay anchored, minimum size, `enableResizeEdges`, clicks pass through the middle |
 | `flutter_menu_test.py` / `.ps1` | `menu_example` | macOS / Windows (WinUI 3 and Native backends) | context menu opens at the click point; placement Top End (also after the menu changed); item types and states (checkbox, radio group, disabled, submenu, special characters); click / open / close / submenu events; dismissing fires no click; label change, added item and detached submenu show on the next open; absolute and cursor positioning |
 | `flutter_floating_toolbar_test.py` / `.ps1` / `_linux.py` | `floating_toolbar_example` | macOS / Windows / Linux (inside only) | `Window.setParentWindow` with two Flutter windows: the toolbar window starts centred above the main one, follows a move and re-centres after a resize (through Accessibility, `--no-input` stops here); follows a real drag of the title bar; a press in the toolbar counts up in the main window; detached it stays put, attached it comes back; hidden it is not brought back by moving its parent. Windows runs the same steps (moves through `SetWindowPos`). Linux: multi-window Flutter only runs as a Wayland client, which cannot be measured or pressed from outside, so the twin only checks from the inside that both views render, `setParentWindow` succeeded, the toolbar view has the size it was given (it was 52 px short while core un-decorated the window instead of hiding its header bar) and the app keeps running |
@@ -48,6 +51,9 @@ input is ever sent.
 tools/gui/flutter_detachable_window_test.py
 tools/gui/flutter_window_drag_areas_test.py
 tools/gui/gpui_detachable_window_test.py --build        # cargo build in the example
+tools/gui/gpui_window_drag_areas_test.py --build
+tools/gui/gpui_floating_toolbar_test.py --build
+tools/gui/gpui_browser_tabs_test.py --build
 tools/gui/flutter_menu_test.py
 tools/gui/flutter_window_events_test.py
 tools/gui/flutter_floating_toolbar_test.py          # --no-input: only the part that needs no mouse

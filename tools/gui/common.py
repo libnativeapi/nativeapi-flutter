@@ -34,6 +34,18 @@ def build_example(name):
 
 
 
+def gpui_example(name, args=()):
+    """A GuiApp for the GPUI example examples/gpui_<name> (built with `cargo build` there,
+    into $CARGO_TARGET_DIR when that is set)."""
+    project = os.path.join(EXAMPLES, 'gpui_' + name)
+    target = os.environ.get('CARGO_TARGET_DIR', os.path.join(project, 'target'))
+    return GuiApp(os.path.join(target, 'debug', 'gpui_' + name), args=args)
+
+
+def build_gpui_example(name):
+    subprocess.run(['cargo', 'build'], check=True, cwd=os.path.join(EXAMPLES, 'gpui_' + name))
+
+
 def core_example(name):
     """A GuiApp for a C++ example of core/examples (built into core/build)."""
     return GuiApp(os.path.join(CORE_BUILD, 'examples', name, name))

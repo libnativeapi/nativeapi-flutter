@@ -10,15 +10,12 @@ a 260 px sidebar, a 220 px bottom slot). Built on the gui-test skill (.agents/sk
 It takes over the mouse for ~15 s.
 """
 
-import os
-import subprocess
 import sys
 
-from common import EXAMPLES
-from guiapp import Abort, Checks, GuiApp, assert_idle, pause
+from common import build_gpui_example, gpui_example
+from guiapp import Abort, Checks, assert_idle, pause
 
-PROJECT = os.path.join(EXAMPLES, 'gpui_detachable_window_example')
-EXECUTABLE = os.path.join(PROJECT, 'target', 'debug', 'gpui_detachable_window_example')
+NAME = 'detachable_window_example'
 MAIN = 'Detachable Window'
 CONTENT = (960, 640)                  # main window content size
 SIDEBAR = (8, 8, 260, CONTENT[1] - 16)  # slot rect in content coordinates
@@ -27,9 +24,9 @@ HEADER = (40, 20)                     # a point on a panel header, relative to i
 
 def main():
     if '--build' in sys.argv:
-        subprocess.run(['cargo', 'build'], check=True, cwd=PROJECT)
+        build_gpui_example(NAME)
     assert_idle()
-    app = GuiApp(EXECUTABLE)
+    app = gpui_example(NAME)
     checks = Checks()
     app.launch(flutter=False)
     try:
