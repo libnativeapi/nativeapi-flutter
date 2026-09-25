@@ -10,7 +10,6 @@
 //! Usage:
 //!   cargo run   # in examples/gpui_floating_toolbar_example
 
-mod native;
 mod toolbar;
 mod views;
 
@@ -20,9 +19,9 @@ use gpui::{
 };
 use nativeapi::display_manager::DisplayManager;
 
-use crate::native::native_window_of;
 use crate::toolbar::{Toolbar, GAP, MAIN_SIZE, TOOLBAR_SIZE};
 use crate::views::{MainView, ToolbarView};
+use nativeapi_gpui::WindowExt;
 
 fn main() {
     Application::new().run(|cx: &mut App| {
@@ -52,7 +51,7 @@ fn main() {
         };
         let mut main_native = None;
         cx.open_window(main_options, |window, cx| {
-            main_native = native_window_of(window);
+            main_native = window.native_window();
             // Closing the main window closes the toolbar first, then itself.
             let closing = model.clone();
             window.on_window_should_close(cx, move |_, cx| {
@@ -91,7 +90,7 @@ fn main() {
         let mut toolbar_native = None;
         let toolbar_handle = cx
             .open_window(toolbar_options, |window, cx| {
-                toolbar_native = native_window_of(window);
+                toolbar_native = window.native_window();
                 // The toolbar has no close button; closing the main window closes it.
                 window.on_window_should_close(cx, |_, _| false);
                 cx.new(|cx| ToolbarView::new(model.clone(), cx))

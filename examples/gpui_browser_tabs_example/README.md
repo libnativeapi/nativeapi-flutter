@@ -52,15 +52,15 @@ not:
 | `WindowDragSession` | Follows the mouse button globally, even after the dragged tab moved to another window. `start(None, …)` tracks the pointer only (reordering), `start(Some(window), anchor)` retargets it mid-gesture to a window that follows the cursor (tear-off). |
 | `WindowManager::get_window_at_point(point, excluded)` | Which window's strip is under the cursor, looking through the dragged window (merge). |
 | `Window::content_bounds` / `set_content_bounds` / `focus` | Strip hit testing in screen coordinates, exact placement of a torn-off window, and keeping it in front after the release. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind a GPUI window (`src/native.rs`, through `raw-window-handle`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind a GPUI window (the `NSWindow*` / `HWND`). |
 
 - `Tabs` (`src/tabs.rs`) owns the windows, their tab lists and the gesture. On
   a press it starts a pointer-only session; from then on **every** step is
   driven by the session's cursor position, including reordering: after a
   merge the target window never saw the press, so GPUI has no mouse events to
   report there. nativeapi calls the drag listener from the platform event
-  loop, so the events are forwarded over a channel to a GPUI task that has a
-  context to act in.
+  loop, so `nativeapi_gpui::observe_drag_session` hands the events to the
+  model from a GPUI task, with a context to act in.
   - in a strip: the dragged tab's left edge follows the cursor and its index is
     updated as it crosses its neighbours;
   - leaving the strip vertically: a new window gets the tab, placed so the

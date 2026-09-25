@@ -17,4 +17,6 @@ members = [
     "examples/rust_window_example",
 ]
 # The code generator is a separate cargo workspace (it needs libclang).
-exclude = ["tools/codegen"]
+# nativeapi_gpui builds on gpui, a large dependency with its own platform
+# requirements; it is built on its own, like the gpui_* examples.
+exclude = ["tools/codegen", "bindings/rust/nativeapi_gpui"]

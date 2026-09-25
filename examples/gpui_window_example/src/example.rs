@@ -7,8 +7,6 @@ use std::collections::VecDeque;
 use std::rc::Rc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use futures::channel::mpsc;
-use futures::StreamExt;
 use gpui::prelude::*;
 use gpui::{
     anchored, deferred, div, point, px, AnyElement, Bounds, Context, Corner, FontWeight, Hsla,
@@ -18,6 +16,7 @@ use nativeapi::display::Display;
 use nativeapi::display_manager::DisplayManager;
 use nativeapi::window::{Window as NativeWindow, WindowEvent, WindowId};
 use nativeapi::window_manager::WindowManager;
+use nativeapi_gpui::observe_window_events;
 
 use crate::ui::{self, color};
 
@@ -87,23 +86,7 @@ pub struct WindowExample {
 
 impl WindowExample {
     pub fn new(own_window: Option<NativeWindow>, cx: &mut Context<Self>) -> Self {
-        // nativeapi calls the listener synchronously from the platform event
-        // loop; hop onto a GPUI task so the handler gets a context.
-        let (tx, mut rx) = mpsc::unbounded::<WindowEvent>();
-        WindowManager::add_listener(move |event| {
-            let _ = tx.unbounded_send(event.clone());
-        });
-        cx.spawn(async move |this, cx| {
-            while let Some(event) = rx.next().await {
-                if this
-                    .update(cx, |this, cx| this.on_window_event(event, cx))
-                    .is_err()
-                {
-                    break;
-                }
-            }
-        })
-        .detach();
+        observe_window_events(cx, Self::on_window_event).detach();
 
         // The window properties have no change events of their own: poll.
         cx.spawn(async move |this, cx| loop {

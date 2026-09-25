@@ -73,10 +73,11 @@ GPUI draws the page; everything it shows comes from nativeapi:
 | `DisplayManager::get_all` | The displays on the canvas. |
 | `Window` getters (`bounds`, `content_bounds`, `title`, `is_*`, `opacity`, `visual_effect`, `background_color`, …) | Read on every render: the canvas, the badges, the switches and the toggling labels. |
 | `Window` setters and actions (`show`, `maximize`, `set_size`, `set_title_bar_style`, `set_opacity`, `start_dragging`, …) | The buttons, switches and slider. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind the GPUI window (`src/native.rs`, through `raw-window-handle`), to tell whether nativeapi can reach GPUI's windows at all. |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind the GPUI window (the `NSWindow*` / `HWND`), to tell whether nativeapi can reach GPUI's windows at all. |
 
-nativeapi calls the event listener from the platform event loop, so the events
-are forwarded over a channel to a GPUI task that has a context to act in.
+nativeapi calls the event listener from the platform event loop, so
+`nativeapi_gpui::observe_window_events` hands the events to the entity from a
+GPUI task, with a context to act in.
 Window calls also run on a GPUI task rather than inside the click handler: a
 call like `set_size` resizes the window synchronously, and GPUI only takes note
 of its window's new size when it is not in the middle of an update.

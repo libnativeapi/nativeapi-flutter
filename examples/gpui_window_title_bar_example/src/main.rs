@@ -10,8 +10,6 @@
 //!   cargo run                          # in examples/gpui_window_title_bar_example
 //!   TITLE_BAR_AUTOPLAY=1 cargo run     # walk through the states by itself
 
-mod native;
-
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -22,7 +20,7 @@ use gpui::{
 };
 use nativeapi::window::{TitleBarStyle, Window as NativeWindow};
 
-use crate::native::native_window_of;
+use nativeapi_gpui::WindowExt;
 
 const INK: u32 = 0x1b1b1f;
 const MUTED: u32 = 0x6b6b76;
@@ -60,7 +58,7 @@ fn main() {
             ..Default::default()
         };
         cx.open_window(options, |window, cx| {
-            let native = native_window_of(window);
+            let native = window.native_window();
             window.on_window_should_close(cx, |_, cx| {
                 cx.quit();
                 true

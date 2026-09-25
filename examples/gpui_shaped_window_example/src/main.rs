@@ -10,7 +10,6 @@
 
 mod art;
 mod geometry;
-mod native;
 mod palette;
 mod playground;
 mod views;
@@ -21,9 +20,9 @@ use gpui::{
     WindowBounds, WindowOptions,
 };
 
-use crate::native::native_window_of;
 use crate::playground::{Playground, SMALL};
 use crate::views::{ControlsView, PreviewView};
+use nativeapi_gpui::WindowExt;
 
 fn main() {
     Application::new().run(|cx: &mut App| {
@@ -43,7 +42,7 @@ fn main() {
         };
         let mut main_native = None;
         cx.open_window(main_options, |window, cx| {
-            main_native = native_window_of(window);
+            main_native = window.native_window();
             window.on_window_should_close(cx, |_, cx| {
                 // Closing the control window closes both.
                 cx.quit();
@@ -73,7 +72,7 @@ fn main() {
         };
         let mut preview_native = None;
         cx.open_window(preview_options, |window, cx| {
-            preview_native = native_window_of(window);
+            preview_native = window.native_window();
             let hide = playground.clone();
             window.on_window_should_close(cx, move |_, cx| {
                 hide.update(cx, |p, cx| p.hide_preview(cx));

@@ -18,8 +18,6 @@ use std::cell::Cell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use futures::channel::mpsc;
-use futures::StreamExt;
 use gpui::{
     point, px, size, AnyWindowHandle, App, AppContext, Bounds, Context, Entity, Pixels,
     SharedString, TitlebarOptions, WindowBounds, WindowOptions,
@@ -30,9 +28,10 @@ use nativeapi::window_drag_session::{WindowDragEvent, WindowDragSession};
 use nativeapi::window_manager::WindowManager;
 
 use crate::layout::{TabLayout, DETACH_MARGIN, TAB_TOP};
-use crate::native::{contains, content_offset, native_window_of, to_screen};
+use crate::native::{contains, content_offset, to_screen};
 use crate::page::TabPage;
 use crate::views::BrowserWindowView;
+use nativeapi_gpui::{observe_drag_session, WindowExt};
 
 pub type TabId = usize;
 pub type WindowKey = usize;
@@ -106,7 +105,7 @@ pub struct Tabs {
     pub layout: TabLayout,
     tabs: HashMap<TabId, BrowserTab>,
     windows: Vec<BrowserWindow>,
-    session: Option<WindowDragSession>,
+    session: Option<Rc<WindowDragSession>>,
     drag: Option<Drag>,
     next_tab: TabId,
     next_window: WindowKey,
@@ -114,37 +113,24 @@ pub struct Tabs {
 
 impl Tabs {
     pub fn new(cx: &mut Context<Self>) -> Self {
-        // nativeapi calls the listener synchronously from the platform event
-        // loop; hop onto a GPUI task so the handler gets a context.
         let session = if cfg!(any(target_os = "macos", target_os = "windows")) {
-            WindowDragSession::new()
+            WindowDragSession::new().map(Rc::new)
         } else {
             None
         };
         if let Some(session) = &session {
-            let (tx, mut rx) = mpsc::unbounded::<WindowDragEvent>();
-            session.add_listener(move |event| {
-                let _ = tx.unbounded_send(event.clone());
-            });
-            cx.spawn(async move |this, cx| {
-                while let Some(event) = rx.next().await {
-                    let Ok(tear_off) = this.update(cx, |tabs, cx| tabs.on_drag(event, cx)) else {
-                        break;
-                    };
-                    let Some(tear_off) = tear_off else {
-                        continue;
-                    };
-                    let Some(this) = this.upgrade() else {
-                        break;
-                    };
-                    // Outside the update above: opening a window draws it
-                    // once, and drawing reads this entity.
-                    let _ = cx.update(|cx| {
-                        let opened =
-                            open_browser_window(&this, vec![tear_off.tab], &tear_off.content, cx);
-                        this.update(cx, |tabs, cx| tabs.follow_torn_off(&tear_off, opened, cx));
-                    });
-                }
+            observe_drag_session(session, cx, |this, event, cx| {
+                let Some(tear_off) = this.on_drag(event, cx) else {
+                    return;
+                };
+                // Deferred past this update: opening a window draws it once,
+                // and drawing reads this entity.
+                let this = cx.entity();
+                cx.defer(move |cx| {
+                    let opened =
+                        open_browser_window(&this, vec![tear_off.tab], &tear_off.content, cx);
+                    this.update(cx, |this, cx| this.follow_torn_off(&tear_off, opened, cx));
+                });
             })
             .detach();
         }
@@ -647,7 +633,7 @@ pub fn open_browser_window(
     };
     let mut native = None;
     let opened = cx.open_window(options, |window, cx| {
-        native = native_window_of(window);
+        native = window.native_window();
         let tabs = this.clone();
         window.on_window_should_close(cx, move |_, cx| {
             tabs.update(cx, |tabs, cx| tabs.close_window(key, cx));

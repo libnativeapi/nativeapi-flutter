@@ -10,12 +10,9 @@ publish = false
 
 [dependencies]
 nativeapi = { path = "../../bindings/rust/nativeapi" }
+nativeapi_gpui = { path = "../../bindings/rust/nativeapi_gpui" }
 # Compile shaders at startup: no Metal toolchain needed to build on macOS.
 gpui = { version = "0.2.2", features = ["runtime_shaders"] }
 # The gallery thumbnails are rasterized once into `gpui::RenderImage`s, whose
 # frames are `image` buffers (the version gpui itself uses).
 image = { version = "0.25", default-features = false }
-raw-window-handle = "0.6"
-
-[target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.6"

@@ -42,7 +42,7 @@ call `WindowManager::call_original_show(id)` never appears.
 | `Window::set_size` / `set_position` | The layout (frame size, top-left corner). |
 | `WindowManager::call_original_show` | Lets the show through. |
 | `Window::show` | Shows each window, through the hook. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind a GPUI window (`src/native.rs`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind a GPUI window (the `NSWindow*` / `HWND`). |
 
 ### Does the hook catch GPUI's own show?
 

@@ -10,8 +10,6 @@
 //!   cargo run                            # in examples/gpui_visual_effect_example
 //!   VISUAL_EFFECT_AUTOPLAY=1 cargo run   # show the backdrop and walk the effects
 
-mod native;
-
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -25,7 +23,7 @@ use nativeapi::color::Color;
 use nativeapi::geometry::Rectangle;
 use nativeapi::window::{VisualEffect, Window as NativeWindow};
 
-use crate::native::native_window_of;
+use nativeapi_gpui::WindowExt;
 
 const INK: u32 = 0x1b1b1f;
 const ACCENT: u32 = 0x3f51b5;
@@ -76,7 +74,7 @@ fn main() {
             ..Default::default()
         };
         cx.open_window(options, |window, cx| {
-            let native = native_window_of(window);
+            let native = window.native_window();
             window.on_window_should_close(cx, |_, cx| {
                 cx.quit();
                 true

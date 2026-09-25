@@ -47,6 +47,10 @@ cargo run -p tray_icon_example
 
 `shortcut_example` and `keyboard_example` need accessibility permission on macOS — run `accessibility_example` first.
 
+## GPUI
+
+[`nativeapi_gpui`](nativeapi_gpui) integrates nativeapi with [GPUI](https://www.gpui.rs): the nativeapi `Window` behind a GPUI window, event delivery to GPUI entities, geometry and color conversions, and `DragToMoveArea` / `DragToResizeArea` elements. The `gpui_*` directories in [`examples/`](../../examples) are built on it; each is its own cargo workspace (`cd examples/gpui_window_example && cargo run`).
+
 ## Contributing
 
 Development happens in [nativeapi](https://github.com/libnativeapi/nativeapi), which holds every binding and the code generator and checks out the core library as a submodule:

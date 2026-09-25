@@ -48,7 +48,7 @@ macOS does not need Xcode's Metal toolchain.
 | `Window::set_visual_effect` / `visual_effect` / `is_visual_effect_supported` | The material, and which chips are available. |
 | `Window::set_content_under_title_bar` | Lets the material (and GPUI's content) run under the macOS title bar. |
 | `Window::new`, `set_background_color`, `set_parent_window` | The red backdrop window, kept below this one. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind the GPUI window (`src/native.rs`, through `raw-window-handle`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind the GPUI window (the `NSWindow*` / `HWND`). |
 
 On macOS nativeapi puts an `NSVisualEffectView` at the bottom of the window's
 content view. GPUI draws into a view of its own that is a *subview* of that

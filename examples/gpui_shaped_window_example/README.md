@@ -53,7 +53,7 @@ paints the content square; nativeapi does the rest:
 | `WindowShadow` + `Window::set_custom_shadow` / `set_has_shadow` | The contour shadow, which follows the polygon and receives no clicks. |
 | `Window::set_content_bounds` | The size animation, keeping the top-left corner in place. |
 | `Window::start_dragging` | Moves the preview from the drag handle. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind a GPUI window (`src/native.rs`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind a GPUI window (the `NSWindow*` / `HWND`). |
 
 `src/geometry.rs` is a faithful port of the Flutter example's
 `shape_geometry.dart`: the same polygons, the sampled quadratic corner arcs and

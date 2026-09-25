@@ -10,10 +10,6 @@ publish = false
 
 [dependencies]
 nativeapi = { path = "../../bindings/rust/nativeapi" }
+nativeapi_gpui = { path = "../../bindings/rust/nativeapi_gpui" }
 # Compile shaders at startup: no Metal toolchain needed to build on macOS.
 gpui = { version = "0.2.2", features = ["runtime_shaders"] }
-raw-window-handle = "0.6"
-futures = "0.3"
-
-[target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.6"

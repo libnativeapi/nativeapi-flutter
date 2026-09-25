@@ -61,7 +61,7 @@ without touching the mouse.
 | `Window::set_window_control_buttons_visible` / `is_window_control_buttons_visible` | The button override. |
 | `Window::content_size` | The readout. |
 | `Window::start_dragging` | Moving the window by the strip. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind the GPUI window (`src/native.rs`, through `raw-window-handle`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind the GPUI window (the `NSWindow*` / `HWND`). |
 
 ### How GPUI follows the change (macOS)
 

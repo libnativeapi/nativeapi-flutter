@@ -2,25 +2,22 @@
 //! that moves the window (`Window::start_dragging`, double click maximizes and
 //! restores) and eight inset resize handles (`Window::start_resizing`).
 //!
-//! The GPUI counterpart of `flutter_window_drag_areas_example`, doing from
-//! GPUI mouse handlers what nativeapi_flutter's `DragToMoveArea` and
-//! `DragToResizeArea` do from gesture callbacks.
+//! The GPUI counterpart of `flutter_window_drag_areas_example`, built on
+//! nativeapi_gpui's `DragToMoveArea` and `DragToResizeArea` — the elements
+//! mirroring nativeapi_flutter's widgets of the same names.
 //!
 //! Usage:
 //!   cargo run   # in examples/gpui_window_drag_areas_example
-
-mod native;
 
 use std::rc::Rc;
 
 use gpui::prelude::*;
 use gpui::{
-    div, px, rgb, rgba, size, App, Application, Bounds, CursorStyle, MouseButton, MouseDownEvent,
-    MouseMoveEvent, Pixels, SharedString, TitlebarOptions, Window, WindowBounds, WindowOptions,
+    div, px, rgb, rgba, size, App, Application, Bounds, Edges, TitlebarOptions, Window,
+    WindowBounds, WindowOptions,
 };
 use nativeapi::window::{ResizeEdge, TitleBarStyle, Window as NativeWindow};
-
-use crate::native::native_window_of;
+use nativeapi_gpui::{DragToMoveArea, DragToResizeArea, WindowExt};
 
 /// Thickness of the resize handles and their distance from the window edge.
 ///
@@ -31,9 +28,6 @@ const RESIZE_EDGE_SIZE: f32 = 12.;
 const RESIZE_EDGE_INSET: f32 = 16.;
 /// Height of the move bar, at the top of the panel inside the handles.
 const MOVE_BAR_HEIGHT: f32 = 44.;
-/// How far the pointer travels with the button down before a press becomes a
-/// drag, like a pan gesture starting.
-const DRAG_SLOP: f32 = 2.;
 
 // Material 3 colours of the Flutter example's indigo-seeded light theme.
 const SURFACE_CONTAINER_HIGHEST: u32 = 0xe3e1ec;
@@ -80,7 +74,7 @@ fn main() {
             ..Default::default()
         };
         cx.open_window(options, |window, cx| {
-            let native = native_window_of(window).map(Rc::new);
+            let native = window.native_window().map(Rc::new);
             // Custom chrome: no native title bar or buttons, so moving and
             // resizing is left to the two drag areas.
             if let Some(native) = &native {
@@ -94,7 +88,6 @@ fn main() {
                 native,
                 clicks: 0,
                 limited: false,
-                pressed: None,
             })
         })
         .expect("failed to open the window");
@@ -102,155 +95,37 @@ fn main() {
     });
 }
 
-/// What a press will start once the pointer moves.
-#[derive(Clone, Copy)]
-enum Target {
-    Move,
-    Resize(ResizeEdge),
-}
-
 struct DragAreasView {
     native: Option<Rc<NativeWindow>>,
     clicks: usize,
     limited: bool,
-    /// A press on the bar or on a handle that has not turned into a drag yet.
-    pressed: Option<(Target, gpui::Point<Pixels>)>,
 }
 
-impl DragAreasView {
-    /// Runs `f` on the native window once the current event has been handled.
-    ///
-    /// Both calls track the mouse until the button is released (resizing in a
-    /// nested event loop on macOS, a modal size/move loop on Windows) and
-    /// move or resize the window meanwhile. Inside a GPUI event handler, GPUI
-    /// cannot take the resulting resize events (its app state is borrowed) and
-    /// the content would not follow; from a task, it can.
-    fn with_native(&self, cx: &mut Context<Self>, f: impl FnOnce(&NativeWindow) + 'static) {
-        let Some(native) = self.native.clone() else {
-            return;
-        };
-        cx.spawn(async move |_, _| f(&native)).detach();
-    }
+impl Render for DragAreasView {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let viewport = window.viewport_size();
 
-    fn press(&mut self, target: Target, event: &MouseDownEvent) {
-        self.pressed = Some((target, event.position));
-    }
-
-    /// The first move with the button down starts the native drag, like a
-    /// pan gesture starts `DragToMoveArea` / `DragToResizeArea`.
-    fn mouse_move(&mut self, event: &MouseMoveEvent, cx: &mut Context<Self>) {
-        let Some((target, from)) = self.pressed else {
-            return;
-        };
-        if event.pressed_button != Some(MouseButton::Left) {
-            self.pressed = None;
-            return;
+        let mut move_bar = DragToMoveArea::new("move-bar");
+        let mut resize_area = DragToResizeArea::new("resize-area");
+        if let Some(native) = &self.native {
+            move_bar = move_bar.window(native.clone());
+            resize_area = resize_area.window(native.clone());
         }
-        let delta = event.position - from;
-        if f32::from(delta.x).hypot(f32::from(delta.y)) < DRAG_SLOP {
-            return;
-        }
-        self.pressed = None;
-        match target {
-            Target::Move => self.with_native(cx, |native| native.start_dragging()),
-            Target::Resize(edge) => self.with_native(cx, move |native| native.start_resizing(edge)),
-        }
-    }
-
-    fn toggle_maximized(&mut self, cx: &mut Context<Self>) {
-        self.pressed = None;
-        self.with_native(cx, |native| {
-            if native.is_maximized() {
-                native.unmaximize();
-            } else {
-                native.maximize();
-            }
-        });
-    }
-
-    fn move_bar(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-            .id("move-bar")
+        let move_bar = move_bar
             .h(px(MOVE_BAR_HEIGHT))
             .flex_none()
             .flex()
             .items_center()
             .justify_center()
             .bg(rgb(PRIMARY_CONTAINER))
-            .child("Drag here to move")
-            .on_mouse_down(
-                MouseButton::Left,
-                cx.listener(|this, event: &MouseDownEvent, _, cx| {
-                    if event.click_count >= 2 {
-                        this.toggle_maximized(cx);
-                    } else {
-                        this.press(Target::Move, event);
-                    }
-                }),
-            )
-    }
+            .child("Drag here to move");
 
-    /// The eight handles over the edges and corners of the area inset by
-    /// `RESIZE_EDGE_INSET` from the window, as `DragToResizeArea` lays them out.
-    fn resize_handles(
-        &self,
-        viewport: gpui::Size<Pixels>,
-        cx: &mut Context<Self>,
-    ) -> Vec<gpui::AnyElement> {
-        let inset = RESIZE_EDGE_INSET;
-        let w = (f32::from(viewport.width) - 2. * inset).max(0.);
-        let h = (f32::from(viewport.height) - 2. * inset).max(0.);
-        let x = RESIZE_EDGE_SIZE.min(w / 2.);
-        let y = RESIZE_EDGE_SIZE.min(h / 2.);
-        let enabled: &[ResizeEdge] = if self.limited {
-            &LIMITED_EDGES
-        } else {
-            &ALL_EDGES
-        };
-        enabled
-            .iter()
-            .map(|&edge| {
-                let (left, top, width, height) = match edge {
-                    ResizeEdge::TopLeft => (0., 0., x, y),
-                    ResizeEdge::Top => (x, 0., w - 2. * x, y),
-                    ResizeEdge::TopRight => (w - x, 0., x, y),
-                    ResizeEdge::Left => (0., y, x, h - 2. * y),
-                    ResizeEdge::Right => (w - x, y, x, h - 2. * y),
-                    ResizeEdge::BottomLeft => (0., h - y, x, y),
-                    ResizeEdge::Bottom => (x, h - y, w - 2. * x, y),
-                    ResizeEdge::BottomRight => (w - x, h - y, x, y),
-                };
-                div()
-                    .id(SharedString::from(format!("resize-{edge:?}")))
-                    .absolute()
-                    .left(px(inset + left))
-                    .top(px(inset + top))
-                    .w(px(width))
-                    .h(px(height))
-                    .bg(rgba(RESIZE_EDGE_COLOR))
-                    .cursor(cursor_for(edge))
-                    .on_mouse_down(
-                        MouseButton::Left,
-                        cx.listener(move |this, event: &MouseDownEvent, _, cx| {
-                            this.press(Target::Resize(edge), event);
-                            cx.stop_propagation();
-                        }),
-                    )
-                    .into_any_element()
-            })
-            .collect()
-    }
-}
-
-impl Render for DragAreasView {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let viewport = window.viewport_size();
         let content = div()
             .size_full()
             .flex()
             .flex_col()
             .bg(rgb(SURFACE))
-            .child(self.move_bar(cx))
+            .child(move_bar)
             .child(
                 div()
                     .flex_1()
@@ -290,38 +165,20 @@ impl Render for DragAreasView {
                     ),
             );
 
-        div()
-            .id("root")
-            .relative()
-            .size_full()
+        resize_area
+            .resize_edge_size(px(RESIZE_EDGE_SIZE))
+            .resize_edge_margin(Edges::all(px(RESIZE_EDGE_INSET)))
+            .resize_edge_color(rgba(RESIZE_EDGE_COLOR))
+            .enabled_edges(if self.limited {
+                LIMITED_EDGES.to_vec()
+            } else {
+                ALL_EDGES.to_vec()
+            })
             .bg(rgb(SURFACE_CONTAINER_HIGHEST))
             .text_color(rgb(ON_SURFACE))
             .text_sm()
             .p(px(RESIZE_EDGE_INSET + RESIZE_EDGE_SIZE))
-            .on_mouse_move(
-                cx.listener(|this, event: &MouseMoveEvent, _, cx| this.mouse_move(event, cx)),
-            )
-            .on_mouse_up(
-                MouseButton::Left,
-                cx.listener(|this, _, _, _| this.pressed = None),
-            )
-            .on_mouse_up_out(
-                MouseButton::Left,
-                cx.listener(|this, _, _, _| this.pressed = None),
-            )
             .child(content)
-            .children(self.resize_handles(viewport, cx))
-    }
-}
-
-fn cursor_for(edge: ResizeEdge) -> CursorStyle {
-    match edge {
-        ResizeEdge::Top => CursorStyle::ResizeUp,
-        ResizeEdge::Bottom => CursorStyle::ResizeDown,
-        ResizeEdge::Left => CursorStyle::ResizeLeft,
-        ResizeEdge::Right => CursorStyle::ResizeRight,
-        ResizeEdge::TopLeft | ResizeEdge::BottomRight => CursorStyle::ResizeUpLeftDownRight,
-        ResizeEdge::TopRight | ResizeEdge::BottomLeft => CursorStyle::ResizeUpRightDownLeft,
     }
 }
 

@@ -1,0 +1,24 @@
+[package]
+name = "nativeapi_gpui"
+version = "0.0.1"
+edition = "2021"
+authors = ["LiJianying <lijy91@foxmail.com>"]
+description = "GPUI integration for nativeapi: native windows behind GPUI windows, conversions, event bridging and drag areas."
+license = "MIT"
+repository = "https://github.com/libnativeapi/nativeapi"
+
+# Not a member of the root workspace (see the root Cargo.toml): gpui is a large
+# dependency with its own platform requirements.
+
+[dependencies]
+nativeapi = { version = "0.0.1", path = "../nativeapi" }
+gpui = "0.2.2"
+raw-window-handle = "0.6"
+futures = "0.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+
+[dev-dependencies]
+# Compile shaders at startup: no Metal toolchain needed to build the tests on macOS.
+gpui = { version = "0.2.2", features = ["runtime_shaders"] }

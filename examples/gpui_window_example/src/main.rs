@@ -15,7 +15,6 @@
 mod actions;
 mod canvas;
 mod example;
-mod native;
 mod ui;
 
 use gpui::{
@@ -23,7 +22,7 @@ use gpui::{
 };
 
 use crate::example::WindowExample;
-use crate::native::native_window_of;
+use nativeapi_gpui::WindowExt;
 
 fn main() {
     Application::new().run(|cx: &mut App| {
@@ -40,7 +39,7 @@ fn main() {
             ..Default::default()
         };
         cx.open_window(options, |window, cx| {
-            let native = native_window_of(window);
+            let native = window.native_window();
             window.on_window_should_close(cx, |_, cx| {
                 cx.quit();
                 true

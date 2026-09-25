@@ -38,18 +38,20 @@ The native title bar and window buttons are hidden, the window opens at
 | `Window::start_dragging` | Hands the press to the platform's window move (`-performWindowDragWithEvent:` on macOS, `WM_NCLBUTTONDOWN`/`HTCAPTION` on Windows). |
 | `Window::start_resizing(ResizeEdge)` | Resizes from one edge or corner until the button is released. |
 | `Window::is_maximized` / `maximize` / `unmaximize` | The double click on the bar. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind the GPUI window (`src/native.rs`, through `raw-window-handle`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind the GPUI window. |
 
-Like nativeapi_flutter's `DragToMoveArea` and `DragToResizeArea`, a press only
-arms the bar or a handle; the first move with the button down (2 px) starts the
-native drag, as a pan gesture would. The double click is read from GPUI's
-`MouseDownEvent::click_count`.
+The bar is nativeapi_gpui's `DragToMoveArea` and the handles its
+`DragToResizeArea`, the GPUI counterparts of nativeapi_flutter's widgets of the
+same names. Like those, a press only arms the bar or a handle; the first move
+with the button down (2 px) starts the native drag, as a pan gesture would. The
+double click is read from GPUI's `MouseDownEvent::click_count`.
 
-The native calls run from a GPUI task, not from the mouse handler itself: both
-track the mouse until release (a nested event loop on macOS, the modal
-size/move loop on Windows) and resize or move the window meanwhile. Inside an
-event handler GPUI's app state is borrowed, so GPUI would drop the resize
-notifications and the content would not follow the new size.
+The elements make the native calls from a GPUI task (`nativeapi_gpui::defer_native`),
+not from the mouse handler itself: both track the mouse until release (a nested
+event loop on macOS, the modal size/move loop on Windows) and resize or move the
+window meanwhile. Inside an event handler GPUI's app state is borrowed, so GPUI
+would drop the resize notifications and the content would not follow the new
+size.
 
 ### Geometry for a GUI test
 

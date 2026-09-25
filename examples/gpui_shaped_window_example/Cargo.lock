@@ -2288,8 +2288,7 @@ dependencies = [
  "gpui",
  "image",
  "nativeapi",
- "objc2",
- "raw-window-handle",
+ "nativeapi_gpui",
 ]
 
 [[package]]
@@ -3258,6 +3257,17 @@ version = "0.0.1"
 dependencies = [
  "cnativeapi",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nativeapi_gpui"
+version = "0.0.1"
+dependencies = [
+ "futures",
+ "gpui",
+ "nativeapi",
+ "objc2",
+ "raw-window-handle",
 ]
 
 [[package]]

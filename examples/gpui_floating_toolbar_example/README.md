@@ -36,7 +36,7 @@ macOS does not need Xcode's Metal toolchain.
    the primary display's work area, 120 px below its top, the toolbar (380 × 64)
    hidden, with `WindowBackgroundAppearance::Transparent` and a transparent
    title bar.
-2. `Window::with_native_window` (`src/native.rs`) turns each into a nativeapi
+2. `nativeapi_gpui::WindowExt::native_window` turns each into a nativeapi
    `Window`.
 3. The toolbar window is dressed through nativeapi:
    `set_title_bar_style(Hidden)` (which takes the window buttons with it),
@@ -48,7 +48,9 @@ macOS does not need Xcode's Metal toolchain.
    `show_inactive` shows it without taking focus.
 5. A `WindowManager` listener re-centres the toolbar on the main window's
    `Moved` and `Resized` events. nativeapi calls it from the platform event
-   loop, without a GPUI context, so the events go over a channel to a GPUI task.
+   loop, without a GPUI context; `nativeapi_gpui::observe_window_events` hands
+   them to the model from a GPUI task, and the move itself is deferred past the
+   update with `nativeapi_gpui::defer_native`.
 6. Closing the main window detaches and closes the toolbar first, then itself.
 
 Every native call that moves, resizes, shows or hides a window runs from a GPUI

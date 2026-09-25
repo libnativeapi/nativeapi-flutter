@@ -39,13 +39,14 @@ not:
 | `WindowDragSession` | Follows the mouse button globally, even after the drag's content moved to a new window; `start(Some(window), anchor)` retargets it mid-gesture. |
 | `WindowManager::get_window_at_point(point, excluded)` | What is under the cursor, looking through the dragged window. |
 | `Window::content_bounds` / `set_content_bounds` / `set_opacity` | Exact placement and the drop-target feedback. |
-| `Window::with_native_window` | Wraps the `NSWindow*` / `HWND` behind a GPUI window (`src/native.rs`, through `raw-window-handle`). |
+| `nativeapi_gpui::WindowExt::native_window` | The nativeapi `Window` behind a GPUI window (the `NSWindow*` / `HWND`). |
 
 A panel's content is a GPUI entity, rendered by whichever window currently
 shows it, so moving it between windows never recreates it. `src/detach.rs` owns
 which panel sits in which slot, which panels float, and the gesture; nativeapi
-calls the drag listener from the platform event loop, so the events are
-forwarded over a channel to a GPUI task that has a context to act in.
+calls the drag listener from the platform event loop, so
+`nativeapi_gpui::observe_drag_session` hands the events to the entity from a
+GPUI task, with a context to act in.
 
 ## Platform notes
 

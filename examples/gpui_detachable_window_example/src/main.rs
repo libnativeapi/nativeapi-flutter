@@ -19,8 +19,8 @@ use gpui::{
 };
 
 use crate::detach::Detach;
-use crate::native::native_window_of;
 use crate::views::{Inspector, MainView, Stopwatch};
+use nativeapi_gpui::WindowExt;
 
 fn main() {
     Application::new().run(|cx: &mut App| {
@@ -41,7 +41,7 @@ fn main() {
             ..Default::default()
         };
         cx.open_window(options, |window, cx| {
-            let native = native_window_of(window);
+            let native = window.native_window();
             detach.update(cx, |detach, _| detach.set_main_window(native));
             window.on_window_should_close(cx, |_, cx| {
                 cx.quit();

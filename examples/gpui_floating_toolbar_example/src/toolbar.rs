@@ -5,13 +5,11 @@
 
 use std::rc::Rc;
 
-use futures::channel::mpsc;
-use futures::StreamExt;
-use gpui::{AnyWindowHandle, AsyncApp, Context, WeakEntity};
+use gpui::{AnyWindowHandle, Context};
 use nativeapi::color::Color;
 use nativeapi::geometry::{Point, Size};
 use nativeapi::window::{TitleBarStyle, Window as NativeWindow, WindowEvent};
-use nativeapi::window_manager::{ListenerId, WindowManager};
+use nativeapi_gpui::{defer_native, observe_window_events, NativeSubscription};
 
 /// Content size of the main window.
 pub const MAIN_SIZE: (f64, f64) = (720.0, 520.0);
@@ -37,7 +35,7 @@ pub struct Toolbar {
     pub log: Vec<String>,
     natives: Option<Natives>,
     toolbar_handle: Option<AnyWindowHandle>,
-    listener: Option<ListenerId>,
+    events: Option<NativeSubscription>,
     closing: bool,
 }
 
@@ -51,7 +49,7 @@ impl Toolbar {
             log: Vec::new(),
             natives: None,
             toolbar_handle: None,
-            listener: None,
+            events: None,
             closing: false,
         }
     }
@@ -102,12 +100,7 @@ impl Toolbar {
         };
         self.natives = Some(natives.clone());
 
-        // nativeapi calls the listener synchronously from the platform event
-        // loop; hop onto a GPUI task so the handler gets a context.
-        let (tx, mut rx) = mpsc::unbounded::<WindowEvent>();
-        self.listener = Some(WindowManager::add_listener(move |event| {
-            let _ = tx.unbounded_send(event.clone());
-        }));
+        self.events = Some(observe_window_events(cx, Self::on_window_event));
         cx.spawn(async move |this, cx| {
             // Everything that makes a window a floating toolbar. Done here,
             // outside any GPUI update: these calls resize and move the window,
@@ -131,12 +124,6 @@ impl Toolbar {
             let attached = attach(&natives);
             toolbar.show_inactive();
             let _ = this.update(cx, |this, cx| this.attached_changed(attached, cx));
-
-            while let Some(event) = rx.next().await {
-                if !on_window_event(&this, &natives, event, cx) {
-                    break;
-                }
-            }
         })
         .detach();
     }
@@ -218,6 +205,43 @@ impl Toolbar {
         );
     }
 
+    fn on_window_event(&mut self, event: WindowEvent, cx: &mut Context<Self>) {
+        let Some(natives) = self.natives.clone().filter(|_| !self.closing) else {
+            return;
+        };
+        let main_id = natives.main.id();
+        let toolbar_id = natives.toolbar.id();
+        let name = |id| {
+            if id == main_id {
+                "main".to_string()
+            } else if id == toolbar_id {
+                "toolbar".to_string()
+            } else {
+                format!("#{id}")
+            }
+        };
+        let follow = match event {
+            WindowEvent::Moved { window_id, .. }
+            | WindowEvent::Resized { window_id, .. }
+            | WindowEvent::Restored { window_id } => window_id == main_id && self.attached,
+            _ => false,
+        };
+        if follow {
+            // Moving a window from inside an update would keep GPUI from
+            // hearing about it.
+            let natives = natives.clone();
+            defer_native(cx, move || place_toolbar(&natives));
+        }
+        let message = match event {
+            WindowEvent::Created { window_id } => format!("created: {}", name(window_id)),
+            WindowEvent::Closed { window_id } => format!("closed: {}", name(window_id)),
+            WindowEvent::Minimized { window_id } => format!("minimized: {}", name(window_id)),
+            WindowEvent::Restored { window_id } => format!("restored: {}", name(window_id)),
+            _ => return,
+        };
+        self.note(message, cx);
+    }
+
     /// Children first, then the parent: what closing a parent does to its
     /// children differs between platforms, closing them yourself does not.
     pub fn close_everything(&mut self, cx: &mut Context<Self>) {
@@ -225,9 +249,7 @@ impl Toolbar {
             return;
         }
         self.closing = true;
-        if let Some(listener) = self.listener.take() {
-            WindowManager::remove_listener(listener);
-        }
+        self.events = None;
         if let Some(natives) = self.natives.take() {
             natives.toolbar.set_parent_window(None);
         }
@@ -259,53 +281,4 @@ fn place_toolbar(natives: &Natives) {
         x: frame.x + (frame.width - size.width) / 2.0,
         y: frame.y - size.height - GAP,
     });
-}
-
-/// Handles one window event; false once the model is gone.
-fn on_window_event(
-    this: &WeakEntity<Toolbar>,
-    natives: &Natives,
-    event: WindowEvent,
-    cx: &mut AsyncApp,
-) -> bool {
-    let Ok((closing, attached)) = this.read_with(cx, |this, _| (this.closing, this.attached))
-    else {
-        return false;
-    };
-    if closing {
-        return false;
-    }
-    let main_id = natives.main.id();
-    let toolbar_id = natives.toolbar.id();
-    let name = |id| {
-        if id == main_id {
-            "main".to_string()
-        } else if id == toolbar_id {
-            "toolbar".to_string()
-        } else {
-            format!("#{id}")
-        }
-    };
-    let message = match event {
-        WindowEvent::Moved { window_id, .. } | WindowEvent::Resized { window_id, .. } => {
-            if window_id == main_id && attached {
-                place_toolbar(natives);
-            }
-            None
-        }
-        WindowEvent::Created { window_id } => Some(format!("created: {}", name(window_id))),
-        WindowEvent::Closed { window_id } => Some(format!("closed: {}", name(window_id))),
-        WindowEvent::Minimized { window_id } => Some(format!("minimized: {}", name(window_id))),
-        WindowEvent::Restored { window_id } => {
-            if window_id == main_id && attached {
-                place_toolbar(natives);
-            }
-            Some(format!("restored: {}", name(window_id)))
-        }
-        _ => None,
-    };
-    if let Some(message) = message {
-        return this.update(cx, |this, cx| this.note(message, cx)).is_ok();
-    }
-    true
 }

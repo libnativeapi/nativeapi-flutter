@@ -11,8 +11,6 @@
 //! Usage:
 //!   cargo run   # in examples/gpui_multiple_window_example
 
-mod native;
-
 use gpui::prelude::*;
 use gpui::{
     div, px, rgb, size, App, Application, Bounds, SharedString, TitlebarOptions, Window,
@@ -24,7 +22,7 @@ use nativeapi::geometry::{Point, Size};
 use nativeapi::window::Window as NativeWindow;
 use nativeapi::window_manager::WindowManager;
 
-use crate::native::native_window_of;
+use nativeapi_gpui::WindowExt;
 
 const PRIMARY: &str = "Primary Window";
 const SECONDARY: &str = "Secondary Window";
@@ -89,7 +87,7 @@ fn main() {
             };
             let mut native = None;
             let opened = cx.open_window(options, |window, cx| {
-                native = native_window_of(window);
+                native = window.native_window();
                 cx.new(|_| PageView { title })
             });
             if opened.is_ok() {
