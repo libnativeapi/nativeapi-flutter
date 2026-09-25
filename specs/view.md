@@ -188,6 +188,10 @@ Window ──shared_ptr──▶ root View (包装窗口内容区)
   固有尺寸：`sizeThatFits` / `GetTextExtent` / `gtk_widget_get_preferred_size`），
   剩余空间按 `SetFlex()` 的权重分给 flex > 0 的子 View；交叉轴按 `SetAlignment()`，
   默认 `Stretch`。`SetSpacing()` 是相邻间距，`SetPadding()` 是容器内边距。
+- **容器的固有尺寸是它的内容**：Row / Column 容器的 `GetIntrinsicSize()` 是它的可见子
+  View 按各自首选（或固有）尺寸排开所需的大小——主轴首尾相接加间距，交叉轴取最大，
+  再加内边距；flex 子 View 也按自然尺寸计入。所以嵌套的行列不设 `SetPreferredSize()`
+  也不会塌成 0。Absolute 容器的固有尺寸是 0（子 View 自己定位）。
 - 布局是**同步的**：任何影响布局的 setter（增删子 View、`SetFrame`、`SetPreferredSize`、
   `SetFlex`、`SetVisible`、固有尺寸型控件的 `SetText`）都在返回前重排该容器及其祖先。
   简单实现优先；发现性能问题再引入延迟到下一轮主循环的 dirty 标记。

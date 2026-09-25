@@ -1,0 +1,15 @@
+name: view_example
+description: "Native views from plain Dart: a window built from labels, buttons, text fields and image views, with no Flutter."
+publish_to: "none"
+version: 1.0.0
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  nativeapi:
+    path: ../../bindings/dart/nativeapi
+
+dev_dependencies:
+  lints: ^5.1.1

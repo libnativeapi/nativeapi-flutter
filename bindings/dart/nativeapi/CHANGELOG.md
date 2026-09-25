@@ -1,3 +1,21 @@
+## Unreleased
+
+* `runNativeApp()`: windows and native views from a plain Dart program, no
+  Flutter needed. The app runs in an isolate of its own on the platform's UI
+  thread, with Dart's timers, futures and streams working in between; on
+  macOS that is the process's first thread, taken over from the Dart VM.
+  `nativeapi_flutter` does not re-export it.
+* Row and Column containers size to their content: a container's
+  `intrinsicSize` is what its subviews need, so nested rows and columns no
+  longer collapse to zero without a `preferredSize`.
+* macOS: `View.create()` no longer crashes (the container was released as soon
+  as it was created); buttons are no longer clipped in a process linked against
+  an older macOS SDK, such as the Dart VM; destroying a view that holds the
+  focused text field no longer emits `ViewBlurredEvent` into the tree being
+  torn down, which crashed at exit.
+* `Application.quit()` from a host-run loop now emits `ApplicationExitingEvent`
+  on Windows and Linux as well, and ends the process on Linux, as documented.
+
 ## 0.4.0
 
 * `ViewBackend` and `View.isBackendSupported`, `View.setDefaultBackend`,

@@ -92,9 +92,39 @@ window?.isAlwaysOnTop = true;
 
 All windows share one engine and one isolate, so they talk to each other through ordinary Dart objects — no runner changes, no message channels. Flutter's multi-window API is experimental and internal to the framework, which is why the bridge lives in its own library, `package:nativeapi_flutter/windowing.dart`. It is written against the **stable** channel (checked with 3.47.5); stable does not offer `flutter config --enable-windowing`, so the examples set Flutter's internal `isWindowingEnabled` in `main()`. See [`floating_toolbar_example`](../../examples/flutter_floating_toolbar_example) for a child window built this way, and [`browser_tabs_example`](../../examples/flutter_browser_tabs_example) and [`detachable_window_example`](../../examples/flutter_detachable_window_example).
 
+### Windows and native views from plain Dart
+
+A Dart program without Flutter can open windows too. Hand the app to `runNativeApp()`, which runs it on the platform's UI thread and keeps the platform loop turning between Dart's timers and futures:
+
+```dart
+import 'package:nativeapi/nativeapi.dart';
+
+void app() {
+  final window = Window.create()!..title = 'Hello';
+  final root = window.contentView!
+    ..layout = ViewLayout.column
+    ..padding = const EdgeInsets(top: 16, right: 16, bottom: 16, left: 16)
+    ..spacing = 8;
+  final label = Label.create('Not clicked yet')!;
+  var clicks = 0;
+  final button = Button.create('Click me')!
+    ..addListener((event) {
+      if (event is ButtonClickedEvent) label.text = 'Clicked ${++clicks}×';
+    });
+  root
+    ..addSubview(label)
+    ..addSubview(button);
+  window.show();
+}
+
+void main() => runNativeApp(app);
+```
+
+`app` must be a top-level or static function: it runs in an isolate of its own. On macOS that isolate lives on the process's first thread, the only one AppKit accepts, which the Dart VM otherwise keeps parked. The process ends when the app quits (`Application.instance.quit()`, Cmd+Q). See [`dart_view_example`](../../examples/dart_view_example) for a larger app built this way.
+
 ## Examples
 
-The examples are the `flutter_*` directories in the repository's [`examples/`](../../examples). Each is a Flutter app for one module; they resolve through the pub workspace at the repository root:
+The examples are the `flutter_*` directories in the repository's [`examples/`](../../examples), plus [`dart_view_example`](../../examples/dart_view_example), a plain Dart program (`dart run bin/main.dart`). Each Flutter one is an app for one module; they resolve through the pub workspace at the repository root:
 
 ```bash
 flutter pub get          # at the repository root

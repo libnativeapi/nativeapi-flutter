@@ -19,6 +19,9 @@
 /// final field = na.TextField.create('');
 /// window.contentView?.addSubview(field);
 /// ```
+///
+/// `runNativeApp` is left out too: it is for plain Dart programs, and a
+/// Flutter app's engine already runs the event loop.
 library;
 
 export 'package:nativeapi/nativeapi.dart'
@@ -29,6 +32,7 @@ export 'package:nativeapi/nativeapi.dart'
         EdgeInsets,
         Image,
         ModifierKey,
+        runNativeApp,
         ShortcutManager,
         Size,
         TextField,

@@ -5,3 +5,4 @@
 library;
 
 export 'src/bindings_generated.dart';
+export 'src/event_loop.dart';

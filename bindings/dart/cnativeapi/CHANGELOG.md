@@ -1,3 +1,11 @@
+## Unreleased
+
+* Event loop shim for plain Dart programs (`src/event_loop*`, bound in
+  `lib/src/event_loop.dart`): `cnativeapi_run_ui_thread`,
+  `cnativeapi_start_event_loop`, `cnativeapi_pump_event_loop` and
+  `cnativeapi_exit`, compiled into the same library as the core. They back
+  `runNativeApp()` in `nativeapi`.
+
 ## 0.4.0
 
 * `native_view_backend_t` and `native_view_is_backend_supported`,

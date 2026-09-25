@@ -1,5 +1,7 @@
 // Builds the nativeapi core, C ABI included, into the shared library that the
-// `@Native` functions in lib/src/bindings_generated.dart resolve against.
+// `@Native` functions in lib/src/bindings_generated.dart resolve against,
+// together with this package's own event loop shim (src/, bound in
+// lib/src/event_loop.dart).
 //
 // The source lists mirror core/src/CMakeLists.txt; keep the two in step.
 
@@ -28,6 +30,13 @@ void main(List<String> args) async {
       _ => throw UnsupportedError('cnativeapi does not support $targetOS'),
     };
     final apple = targetOS == OS.iOS || targetOS == OS.macOS;
+    final shim = input.packageRoot.resolve('src/');
+    final shimSource = switch (targetOS) {
+      OS.macOS => 'event_loop_macos.mm',
+      OS.windows => 'event_loop_windows.cpp',
+      OS.linux => 'event_loop_linux.cpp',
+      _ => 'event_loop_other.cpp',
+    };
 
     final sources = [
       ..._list(src, '', '.cpp'),
@@ -40,6 +49,7 @@ void main(List<String> args) async {
           r'(menu_winui3|message_dialog_winui3|window_winui3|winui3_runtime|view_winui3)_windows\.cpp$',
         ).hasMatch(path),
       ),
+      shim.resolve(shimSource).toFilePath(),
     ];
 
     final flags = <String>[];
@@ -96,7 +106,7 @@ void main(List<String> args) async {
       name: 'cnativeapi',
       assetName: 'cnativeapi.dart',
       sources: sources,
-      includes: [src.toFilePath()],
+      includes: [src.toFilePath(), shim.toFilePath()],
       frameworks: frameworks,
       libraries: libraries,
       libraryDirectories: libraryDirectories,

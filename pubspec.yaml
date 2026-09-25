@@ -4,6 +4,7 @@ environment:
   sdk: ^3.13.0
 
 workspace:
+  - examples/dart_view_example
   - examples/flutter_browser_tabs_example
   - examples/flutter_cocoapods_example
   - examples/flutter_detachable_window_example
@@ -32,6 +33,7 @@ dev_dependencies:
 melos:
   packages:
     - bindings/dart/**
+    - examples/dart_*
     - examples/flutter_*
 
   ignore:

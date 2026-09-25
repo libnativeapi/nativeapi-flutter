@@ -92,9 +92,39 @@ window?.isAlwaysOnTop = true;
 
 所有窗口共用一个 engine 和一个 isolate，窗口之间直接通过普通 Dart 对象通信——不需要改 runner，也不需要消息通道。Flutter 的多窗口 API 仍是实验性的、属于框架内部接口，因此这个桥接单独放在 `package:nativeapi_flutter/windowing.dart` 里。它针对 **stable** channel 编写（已在 3.47.5 上验证）；stable 不提供 `flutter config --enable-windowing`，所以示例在 `main()` 里直接打开 Flutter 内部的 `isWindowingEnabled`。子窗口的完整例子见 [`floating_toolbar_example`](../../examples/flutter_floating_toolbar_example)，另见 [`browser_tabs_example`](../../examples/flutter_browser_tabs_example) 和 [`detachable_window_example`](../../examples/flutter_detachable_window_example)。
 
+### 在纯 Dart 程序里用窗口和原生视图
+
+不依赖 Flutter 的 Dart 程序也能开窗口。把应用交给 `runNativeApp()`：它让应用跑在平台的 UI 线程上，并在 Dart 的定时器和 future 之间持续驱动平台事件循环：
+
+```dart
+import 'package:nativeapi/nativeapi.dart';
+
+void app() {
+  final window = Window.create()!..title = 'Hello';
+  final root = window.contentView!
+    ..layout = ViewLayout.column
+    ..padding = const EdgeInsets(top: 16, right: 16, bottom: 16, left: 16)
+    ..spacing = 8;
+  final label = Label.create('Not clicked yet')!;
+  var clicks = 0;
+  final button = Button.create('Click me')!
+    ..addListener((event) {
+      if (event is ButtonClickedEvent) label.text = 'Clicked ${++clicks}×';
+    });
+  root
+    ..addSubview(label)
+    ..addSubview(button);
+  window.show();
+}
+
+void main() => runNativeApp(app);
+```
+
+`app` 必须是顶层或静态函数：它跑在单独的 isolate 里。在 macOS 上这个 isolate 位于进程的第一个线程——AppKit 只认这个线程，而 Dart VM 平时让它闲置。应用退出（`Application.instance.quit()`、Cmd+Q）时进程结束。用这种方式写的完整应用见 [`dart_view_example`](../../examples/dart_view_example)。
+
 ## 示例
 
-示例是仓库 [`examples/`](../../examples) 下的 `flutter_*` 目录，每个目录是对应一个模块的 Flutter 应用，依赖通过仓库根目录的 pub workspace 解析：
+示例是仓库 [`examples/`](../../examples) 下的 `flutter_*` 目录，外加纯 Dart 程序 [`dart_view_example`](../../examples/dart_view_example)（`dart run bin/main.dart`）。每个 Flutter 示例是对应一个模块的应用，依赖通过仓库根目录的 pub workspace 解析：
 
 ```bash
 flutter pub get          # 在仓库根目录执行
