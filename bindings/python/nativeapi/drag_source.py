@@ -107,6 +107,22 @@ class DragSource(_rt.NativeObject):
         raw = _C.native_drag_source_is_dragging(self._handle)
         return raw
 
+    @file_paths.setter
+    def file_paths(self, value: list[str]) -> None:
+        self.set_file_paths(value)
+
+    @text.setter
+    def text(self, value: str | None) -> None:
+        self.set_text(value)
+
+    @image.setter
+    def image(self, value: _image.Image | None) -> None:
+        self.set_image(value)
+
+    @drag_operation.setter
+    def drag_operation(self, value: DragOperation) -> None:
+        self.set_drag_operation(value)
+
     def add_listener(self, callback: Callable[[DragSourceEvent], None]) -> int:
         """Calls `callback` with every DragSourceEvent this DragSource emits.
 

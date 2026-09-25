@@ -171,6 +171,18 @@ class TrayIcon(_rt.NativeObject):
         """The platform object behind this handle (NSWindow*, HWND, ...)."""
         return _C.native_tray_icon_get_native_object(self._handle)
 
+    @icon.setter
+    def icon(self, value: _image.Image | None) -> None:
+        self.set_icon(value)
+
+    @icon_size.setter
+    def icon_size(self, value: _geometry.Size) -> None:
+        self.set_icon_size(value)
+
+    @icon_position.setter
+    def icon_position(self, value: TrayIconPosition) -> None:
+        self.set_icon_position(value)
+
     def add_listener(self, callback: Callable[[TrayIconEvent], None]) -> int:
         """Calls `callback` with every TrayIconEvent this TrayIcon emits.
 

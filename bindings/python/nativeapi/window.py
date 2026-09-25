@@ -532,3 +532,47 @@ class Window(_rt.NativeObject):
     def native_object(self) -> int | None:
         """The platform object behind this handle (NSWindow*, HWND, ...)."""
         return _C.native_window_get_native_object(self._handle)
+
+    @bounds.setter
+    def bounds(self, value: _geometry.Rectangle) -> None:
+        self.set_bounds(value)
+
+    @content_bounds.setter
+    def content_bounds(self, value: _geometry.Rectangle) -> None:
+        self.set_content_bounds(value)
+
+    @content_size.setter
+    def content_size(self, value: _geometry.Size) -> None:
+        self.set_content_size(value)
+
+    @minimum_size.setter
+    def minimum_size(self, value: _geometry.Size) -> None:
+        self.set_minimum_size(value)
+
+    @maximum_size.setter
+    def maximum_size(self, value: _geometry.Size) -> None:
+        self.set_maximum_size(value)
+
+    @aspect_ratio.setter
+    def aspect_ratio(self, value: float) -> None:
+        self.set_aspect_ratio(value)
+
+    @position.setter
+    def position(self, value: _geometry.Point) -> None:
+        self.set_position(value)
+
+    @title.setter
+    def title(self, value: str) -> None:
+        self.set_title(value)
+
+    @title_bar_style.setter
+    def title_bar_style(self, value: TitleBarStyle) -> None:
+        self.set_title_bar_style(value)
+
+    @opacity.setter
+    def opacity(self, value: float) -> None:
+        self.set_opacity(value)
+
+    @background_color.setter
+    def background_color(self, value: _color.Color) -> None:
+        self.set_background_color(value)

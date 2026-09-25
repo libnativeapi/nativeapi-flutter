@@ -44,8 +44,10 @@ asyncio.run(main())
   `NativeApiError`. The reference is released by `dispose()` / `with`, or when
   the wrapper is garbage collected. Calls on a released handle fail safely.
 - **Getters** without arguments are properties (`window.title`,
-  `window.bounds`, `window.is_visible`); everything else is a method
-  (`window.set_title(...)`).
+  `window.bounds`, `window.is_visible`). One with a matching one-argument
+  setter is writable too (`window.title = "Hello"`); the `set_title(...)`
+  method stays, and setters that need more than the value
+  (`window.set_size(size, animate)`) are methods only.
 - **Values** (`Point`, `Size`, `Rectangle`, `Color`, …) are dataclasses.
 - **Enums** are `IntEnum`s (`TitleBarStyle.HIDDEN`); bit sets are `IntFlag`s
   (`ModifierKey.SHIFT | ModifierKey.ALT`).

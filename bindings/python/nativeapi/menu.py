@@ -197,6 +197,34 @@ class MenuItem(_rt.NativeObject):
         """The platform object behind this handle (NSWindow*, HWND, ...)."""
         return _C.native_menu_item_get_native_object(self._handle)
 
+    @label.setter
+    def label(self, value: str | None) -> None:
+        self.set_label(value)
+
+    @icon.setter
+    def icon(self, value: _image.Image | None) -> None:
+        self.set_icon(value)
+
+    @tooltip.setter
+    def tooltip(self, value: str | None) -> None:
+        self.set_tooltip(value)
+
+    @accelerator.setter
+    def accelerator(self, value: _keyboard.KeyboardAccelerator | None) -> None:
+        self.set_accelerator(value)
+
+    @state.setter
+    def state(self, value: MenuItemState) -> None:
+        self.set_state(value)
+
+    @radio_group.setter
+    def radio_group(self, value: int) -> None:
+        self.set_radio_group(value)
+
+    @submenu.setter
+    def submenu(self, value: Menu | None) -> None:
+        self.set_submenu(value)
+
     def add_listener(self, callback: Callable[[MenuEvent], None]) -> int:
         """Calls `callback` with every MenuEvent this MenuItem emits.
 

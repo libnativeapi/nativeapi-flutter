@@ -108,6 +108,10 @@ class DropTarget(_rt.NativeObject):
         raw = _C.native_drop_target_is_active(self._handle)
         return raw
 
+    @drop_operation.setter
+    def drop_operation(self, value: _drag_source.DragOperation) -> None:
+        self.set_drop_operation(value)
+
     def add_listener(self, callback: Callable[[DropTargetEvent], None]) -> int:
         """Calls `callback` with every DropTargetEvent this DropTarget emits.
 

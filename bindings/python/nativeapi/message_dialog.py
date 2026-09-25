@@ -131,3 +131,15 @@ class MessageDialog(_rt.NativeObject):
     def close(self) -> bool:
         raw = _C.native_message_dialog_close(self._handle)
         return raw
+
+    @title.setter
+    def title(self, value: str) -> None:
+        self.set_title(value)
+
+    @message.setter
+    def message(self, value: str) -> None:
+        self.set_message(value)
+
+    @modality.setter
+    def modality(self, value: _dialog.DialogModality) -> None:
+        self.set_modality(value)

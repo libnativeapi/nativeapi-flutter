@@ -177,3 +177,7 @@ class Shortcut(_rt.NativeObject):
             lambda _user_data: callback(),
         )
         _C.native_shortcut_set_callback(self._handle, native_callback, None)
+
+    @description.setter
+    def description(self, value: str) -> None:
+        self.set_description(value)

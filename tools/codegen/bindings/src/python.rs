@@ -1074,8 +1074,40 @@ fn render_instance_class(out: &mut String, module: &mut Module, class: &Class) {
         .unwrap();
     }
 
+    render_setters(out, module, class);
     render_listener(out, module, class);
     writeln!(out, "\n").unwrap();
+}
+
+/// `obj.title = value` for every `GetTitle` property with a matching
+/// one-argument `void SetTitle`. The `set_title()` method stays; setters are
+/// rendered last so the property object they extend is already in place.
+fn render_setters(out: &mut String, module: &mut Module, class: &Class) {
+    for getter in &class.methods {
+        if !(is_binding_accessor(class, getter) && getter.params.is_empty()) {
+            continue;
+        }
+        let Some(stem) = getter.accessor_stem() else {
+            continue;
+        };
+        let setter_name = format!("Set{stem}");
+        let mut setters = class.methods.iter().filter(|m| m.name == setter_name);
+        let (Some(setter), None) = (setters.next(), setters.next()) else {
+            // Absent, or overloaded: no single setter to pick.
+            continue;
+        };
+        if setter.is_static || setter.params.len() != 1 || !matches!(setter.return_type, TypeRef::Void)
+        {
+            continue;
+        }
+        let property = py_method_name(class, getter);
+        let method = py_method_name(class, setter);
+        let ty = annotation(module, &setter.params[0].ty, Position::Param);
+        writeln!(out).unwrap();
+        writeln!(out, "    @{property}.setter").unwrap();
+        write_def_raw(out, &property, &["self".to_string(), format!("value: {ty}")], "None");
+        writeln!(out, "        self.{method}(value)").unwrap();
+    }
 }
 
 fn render_constructor_body(
@@ -1501,6 +1533,11 @@ fn write_def(
             annotation(module, &param.ty, Position::Param)
         ));
     }
+    write_def_raw(out, name, &parts, ret);
+}
+
+/// `write_def` over already rendered parameters.
+fn write_def_raw(out: &mut String, name: &str, parts: &[String], ret: &str) {
     let line = format!("    def {name}({}) -> {ret}:", parts.join(", "));
     if line.len() <= 88 {
         writeln!(out, "{line}").unwrap();

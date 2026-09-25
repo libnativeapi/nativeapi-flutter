@@ -79,3 +79,13 @@ def test_singletons_and_classes_without_constructors():
     with pytest.raises(TypeError):
         nativeapi.Application()
     assert callable(Window.with_native_window)
+
+
+def test_getter_properties_with_a_setter_are_writable():
+    item = nativeapi.MenuItem.with_label_and_type("Open", nativeapi.MenuItemType.NORMAL)
+    item.label = "Open File"
+    assert item.label == "Open File"
+    item.set_label("Close")  # the method stays
+    assert item.label == "Close"
+    # A setter needing more than the value (SetSize(size, animate)) is not one.
+    assert Window.size.fset is None

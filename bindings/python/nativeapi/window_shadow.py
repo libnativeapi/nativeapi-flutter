@@ -51,3 +51,7 @@ class WindowShadow(_rt.NativeObject):
     def offset(self) -> _geometry.Point:
         raw = _C.native_window_shadow_get_offset(self._handle)
         return _geometry.Point._from_c(raw)
+
+    @color.setter
+    def color(self, value: _color.Color) -> None:
+        self.set_color(value)

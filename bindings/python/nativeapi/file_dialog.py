@@ -98,3 +98,7 @@ class FileDialog(_rt.NativeObject):
     def last_error(self) -> str:
         raw = _C.native_file_dialog_get_last_error(self._handle)
         return _rt.take_str(raw)
+
+    @modality.setter
+    def modality(self, value: _dialog.DialogModality) -> None:
+        self.set_modality(value)
