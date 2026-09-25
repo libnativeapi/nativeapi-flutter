@@ -82,10 +82,11 @@ def test_singletons_and_classes_without_constructors():
 
 
 def test_getter_properties_with_a_setter_are_writable():
-    item = nativeapi.MenuItem.with_label_and_type("Open", nativeapi.MenuItemType.NORMAL)
-    item.label = "Open File"
-    assert item.label == "Open File"
-    item.set_label("Close")  # the method stays
-    assert item.label == "Close"
+    # WindowShadow is plain data; a MenuItem would need GTK on Linux.
+    shadow = nativeapi.WindowShadow()
+    shadow.color = Color.RED
+    assert shadow.color == Color.RED
+    shadow.set_color(Color.BLUE)  # the method stays
+    assert shadow.color == Color.BLUE
     # A setter needing more than the value (SetSize(size, animate)) is not one.
     assert Window.size.fset is None
