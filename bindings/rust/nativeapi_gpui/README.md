@@ -17,8 +17,8 @@ On Linux nativeapi wraps a `GtkWindow*`, which GPUI does not use, so
 
 ```toml
 [dependencies]
-nativeapi = "0.0.1"
-nativeapi_gpui = "0.0.1"
+nativeapi = "0.4.0"
+nativeapi_gpui = "0.4.0"
 gpui = "0.2.2"
 ```
 

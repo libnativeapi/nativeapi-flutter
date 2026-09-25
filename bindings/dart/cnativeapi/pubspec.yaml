@@ -1,6 +1,6 @@
 name: cnativeapi
 description: "Raw Dart FFI bindings to the nativeapi C API. The native library is built from source by a build hook."
-version: 0.3.1
+version: 0.4.0
 homepage: https://github.com/libnativeapi/nativeapi
 repository: https://github.com/libnativeapi/nativeapi/tree/main/bindings/dart/cnativeapi
 resolution: workspace
@@ -16,11 +16,11 @@ platforms:
   windows:
 
 dependencies:
-  code_assets: any
+  code_assets: ^2.1.0
   ffi: ">=1.2.1 <3.0.0"
-  hooks: any
-  logging: any
-  native_toolchain_c: any
+  hooks: ^2.2.0
+  logging: ^1.3.0
+  native_toolchain_c: ^0.19.5
 
 dev_dependencies:
   ffigen: any

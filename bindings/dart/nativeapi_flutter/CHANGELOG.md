@@ -1,5 +1,6 @@
-## Unreleased
+## 0.4.0
 
+* Initial release. It re-exports `package:nativeapi`.
 * `View`, `TextField` and `EdgeInsets` from nativeapi are not re-exported, as
   Flutter already has widgets and a class of those names; use the native ones
   through a prefixed `package:nativeapi/nativeapi.dart` import.
@@ -13,7 +14,3 @@
 * The re-export of `package:nativeapi` leaves out `Brightness`, `Color`,
   `Display`, `Image`, `ModifierKey`, `ShortcutManager` and `Size`, which clash
   with Flutter's names.
-
-## 0.3.1
-
-* Initial release. It re-exports `package:nativeapi`.

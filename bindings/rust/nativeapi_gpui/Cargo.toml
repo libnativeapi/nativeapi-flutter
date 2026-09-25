@@ -1,17 +1,20 @@
 [package]
 name = "nativeapi_gpui"
-version = "0.0.1"
+version = "0.4.0"
 edition = "2021"
 authors = ["LiJianying <lijy91@foxmail.com>"]
 description = "GPUI integration for nativeapi: native windows behind GPUI windows, conversions, event bridging and drag areas."
 license = "MIT"
 repository = "https://github.com/libnativeapi/nativeapi"
+readme = "README.md"
+keywords = ["gpui", "native", "desktop", "window"]
+categories = ["gui"]
 
 # Not a member of the root workspace (see the root Cargo.toml): gpui is a large
 # dependency with its own platform requirements.
 
 [dependencies]
-nativeapi = { version = "0.0.1", path = "../nativeapi" }
+nativeapi = { version = "0.4.0", path = "../nativeapi" }
 gpui = "0.2.2"
 raw-window-handle = "0.6"
 futures = "0.3"

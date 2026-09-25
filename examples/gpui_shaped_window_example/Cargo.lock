@@ -850,7 +850,7 @@ dependencies = [
 
 [[package]]
 name = "cnativeapi"
-version = "0.0.1"
+version = "0.4.0"
 dependencies = [
  "cc",
  "cmake",
@@ -3253,7 +3253,7 @@ dependencies = [
 
 [[package]]
 name = "nativeapi"
-version = "0.0.1"
+version = "0.4.0"
 dependencies = [
  "cnativeapi",
  "thiserror 2.0.21",
@@ -3261,7 +3261,7 @@ dependencies = [
 
 [[package]]
 name = "nativeapi_gpui"
-version = "0.0.1"
+version = "0.4.0"
 dependencies = [
  "futures",
  "gpui",

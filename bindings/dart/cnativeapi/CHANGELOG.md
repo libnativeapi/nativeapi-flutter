@@ -1,4 +1,4 @@
-## Unreleased
+## 0.4.0
 
 * `native_view_backend_t` and `native_view_is_backend_supported`,
   `native_view_set_default_backend`, `native_view_get_default_backend`,
@@ -21,8 +21,6 @@
   on the main thread, once it can no longer call the callback.
 * The WinUI 3 backend on Windows (`NATIVEAPI_ENABLE_WINUI3`) is not built by
   the hook; the Win32 implementations are used.
-
-## 0.3.1
 
 * `native_window_set_content_under_title_bar`,
   `native_window_is_content_under_title_bar` and

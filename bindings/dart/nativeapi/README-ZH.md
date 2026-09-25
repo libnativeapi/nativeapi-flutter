@@ -1,1 +1,1 @@
-../../README-ZH.md
+../README-ZH.md
