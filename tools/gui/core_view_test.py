@@ -7,7 +7,7 @@ lines, and resizes the window to see the Row re-flow.
     tools/gui/core_view_test.py [--build]
 
 Built on the gui-test skill (.agents/skills). It takes over the mouse for ~10 s and
-sends no keyboard input.
+sends no keyboard input. The terminal it runs in needs Accessibility access.
 """
 
 import re
@@ -113,6 +113,13 @@ def main():
         near(checks, 'sign in followed the trailing edge', s2[0] + s2[2],
                     CONTENT[0] + 120 - PADDING)
         near(checks, 'button width unchanged by the resize', s2[2], s[2])
+
+        # Look again: the button answers where the re-flow put it.
+        app.click(to_screen(app.window(WINDOW), after, 'sign_in'))
+        pause(1.0)
+        st = statuses(app)
+        checks.check('sign in still answers after the re-flow',
+                     len(st) >= 3 and st[-1] == 'A username is required.', st)
     except Abort as e:
         checks.check('ran to the end', False, e)
     finally:

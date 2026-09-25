@@ -2,7 +2,7 @@
 
 > 状态：**已实施**（core 2026-09-25：`View` / `Label` / `Button` / `TextField` / `ImageView`，
 >   Absolute + Row / Column 布局，`Window::GetContentView()`；macOS 在真机上跑过
->   `tools/gui/core_view_test.py`，Windows 跑过 `core_view_test.ps1`，Linux 只做了语法检查，见 §9）
+>   三个桌面平台都跑过真机 GUI 测试，见 §9）
 > 适用范围：`core/src/view.h`、`core/src/window.h` 的 `GetContentView`、
 >   `foundation/geometry.h` 的 `EdgeInsets`、`foundation/id_allocator.h` 的 tag 20–24、
 >   `foundation/handle_table.h` 的基类链、六个平台目录的 `view_*` 文件、codegen 的类继承支持
@@ -593,9 +593,9 @@ Windows 后续可像 `Menu` 一样加 `ViewBackend::WinUI3`，本文不设计它
 
 | 平台 | 状态 |
 |---|---|
-| macOS | 编译、单测、`view_example` 真机运行；GUI 测试的布局断言 12 项全过。点击和缩放两段需要辅助功能权限，在有权限的终端里跑 |
-| Windows | MSVC 编译；`tools/gui/core_view_test.ps1` 在真机桌面上 25 项全过（布局、点击、焦点事件、缩放后重排） |
-| Linux | 已写（GTK 3），`clang++ -fsyntax-only` 通过，未链接未运行 |
+| macOS | `tools/gui/core_view_test.py` 在本机桌面全过（布局、点击、焦点事件、缩放后重排再点击）；运行它的终端需要辅助功能权限 |
+| Windows | MSVC 编译；`tools/gui/core_view_test.ps1` 在 Windows 主机桌面全过 |
+| Linux | Ubuntu 24.04 / GNOME Wayland，应用走 Xwayland（`GDK_BACKEND=x11`）；`tools/gui/core_view_test_linux.py` 全过。GTK 原生 Wayland 后端只能从内部断言，未测 |
 | Android / iOS / OHOS | 桩：`IsSupported()` 为 false |
 
 未决：
@@ -604,7 +604,11 @@ Windows 后续可像 `Menu` 一样加 `ViewBackend::WinUI3`，本文不设计它
   但和 `WindowDragSession`、`DropTarget` 的坐标与命中语义要对齐。先不做。
 - **多行文本高度**：`Label` 的固有高度不随宽度换行而变（单趟布局）。需要时再加两趟。
 - **焦点事件的覆盖面**：macOS 只有 `TextField` 发 `ViewFocusedEvent` / `ViewBlurredEvent`
-  （走 `NSTextFieldDelegate`），按钮不发；Windows / Linux 按各自控件的焦点通知发。
+  （成为第一响应者 / 字段编辑器结束时），按钮默认不接受键盘焦点所以不发；Windows / Linux
+  按各自控件的焦点通知发，按钮也发。
+- **没有视图级的尺寸变化事件**：Linux 上 `WindowResizedEvent` 早于 GTK 给内容分配尺寸，
+  在它的监听器里读到的子视图 frame 还是旧的。需要「布局完成」的时机再加
+  `ViewResizedEvent`。
 - **后续控件**，按需要加、每个一步：`Checkbox`（`SetChecked` / `CheckboxToggledEvent`）、
   `Dropdown`（`SetItems` / `SetSelectedIndex` / `DropdownSelectionChangedEvent`）、
   `Slider`（`SetMinimumValue` / `SetMaximumValue` / `SetValue` / `SliderValueChangedEvent`）、
