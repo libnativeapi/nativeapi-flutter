@@ -2,7 +2,7 @@
 
 > 状态：**已实施**（core 2026-09-25：`View` / `Label` / `Button` / `TextField` / `ImageView`，
 >   Absolute + Row / Column 布局，`Window::GetContentView()`；macOS 在真机上跑过
->   `tools/gui/core_view_test.py`，Windows 编译并启动过，Linux 只做了语法检查，见 §9）
+>   `tools/gui/core_view_test.py`，Windows 跑过 `core_view_test.ps1`，Linux 只做了语法检查，见 §9）
 > 适用范围：`core/src/view.h`、`core/src/window.h` 的 `GetContentView`、
 >   `foundation/geometry.h` 的 `EdgeInsets`、`foundation/id_allocator.h` 的 tag 20–24、
 >   `foundation/handle_table.h` 的基类链、六个平台目录的 `view_*` 文件、codegen 的类继承支持
@@ -594,7 +594,7 @@ Windows 后续可像 `Menu` 一样加 `ViewBackend::WinUI3`，本文不设计它
 | 平台 | 状态 |
 |---|---|
 | macOS | 编译、单测、`view_example` 真机运行；GUI 测试的布局断言 12 项全过。点击和缩放两段需要辅助功能权限，在有权限的终端里跑 |
-| Windows | 在 Windows 主机上用 MSVC 编译并启动了 `view_example`，布局输出与 macOS 一致；未做点击测试 |
+| Windows | MSVC 编译；`tools/gui/core_view_test.ps1` 在真机桌面上 25 项全过（布局、点击、焦点事件、缩放后重排） |
 | Linux | 已写（GTK 3），`clang++ -fsyntax-only` 通过，未链接未运行 |
 | Android / iOS / OHOS | 桩：`IsSupported()` 为 false |
 
