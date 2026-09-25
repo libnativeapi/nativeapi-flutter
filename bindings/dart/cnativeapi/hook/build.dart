@@ -37,7 +37,7 @@ void main(List<String> args) async {
         // The WinUI 3 backend is opt-in in core's CMake build and needs the
         // Windows App SDK; the Win32 implementations stand in for it.
         (path) => !RegExp(
-          r'(menu_winui3|message_dialog_winui3|window_winui3|winui3_runtime)_windows\.cpp$',
+          r'(menu_winui3|message_dialog_winui3|window_winui3|winui3_runtime|view_winui3)_windows\.cpp$',
         ).hasMatch(path),
       ),
     ];
