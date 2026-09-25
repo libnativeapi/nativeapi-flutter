@@ -1,6 +1,6 @@
 ---
 name: core-api-change
-description: Carry a change to the C++ public API in core/ all the way downstream — design check, header edit, six platform implementations, C ABI + Rust/Dart/C# regeneration, per-binding verification, and the commits in core and the workspace. Use this whenever a task adds, renames, removes or reshapes anything in core/src/*.h ("add SetSkipTaskbar to Window", "expose X to Flutter", "new module for Y"), whenever generated bindings are stale or `./codegen check` fails, and whenever the user says "sync the bindings", "regenerate", "propagate core", or asks why an API is missing from Dart / Rust / C#. Also use it before running `./codegen sync` for any reason — the script commits with `git add -A` in core and stages all of bindings/ in the workspace commit, and this skill is the pre-flight that keeps unrelated work out of those commits.
+description: Carry a change to the C++ public API in core/ all the way downstream — design check, header edit, six platform implementations, C ABI + Rust/Dart/C#/JS/Python regeneration, per-binding verification, and the commits in core and the workspace. Use this whenever a task adds, renames, removes or reshapes anything in core/src/*.h ("add SetSkipTaskbar to Window", "expose X to Flutter", "new module for Y"), whenever generated bindings are stale or `./codegen check` fails, and whenever the user says "sync the bindings", "regenerate", "propagate core", or asks why an API is missing from Dart / Rust / C# / JS / Python. Also use it before running `./codegen sync` for any reason — the script commits with `git add -A` in core and stages all of bindings/ in the workspace commit, and this skill is the pre-flight that keeps unrelated work out of those commits.
 ---
 
 # core-api-change
@@ -28,7 +28,7 @@ the nearest neighbour.
 ## 2. Pre-flight: look before the script commits
 
 `./codegen sync` runs `git add -A` in core and `git add bindings/<lang>` in the workspace,
-where all three bindings live. Anything lying around in those trees lands in a commit
+where every binding (dart, rust, csharp, js, python) lives. Anything lying around in those trees lands in a commit
 titled `Sync with core <sha>`.
 
 ```bash
@@ -76,7 +76,7 @@ Only the host platform compiles here. Say so in the report; for the others use t
 ## 4. Regenerate, then read the output
 
 ```bash
-./codegen 2>&1 | tee /tmp/codegen.log     # C ABI, then Rust / Dart / C#
+./codegen 2>&1 | tee /tmp/codegen.log     # C ABI, then Rust / Dart / C# / JS / Python
 grep -i 'skipped' /tmp/codegen.log
 ```
 
@@ -97,8 +97,8 @@ Then read the generated C header for your module (`core/src/capi/<module>_c.h`):
 - For events: every payload field you expect is in the C struct. Fields come from
   `GetXxx() const` on the event class; unsupported types vanish silently.
 
-Never edit a file that starts with `// AUTO-GENERATED. DO NOT EDIT.` — change the header
-or the generator and rerun.
+Never edit a file that starts with `// AUTO-GENERATED. DO NOT EDIT.` (`# AUTO-GENERATED.`
+in Python) — change the header or the generator and rerun.
 
 ## 5. Hand-written layers the generator does not touch
 
@@ -109,6 +109,8 @@ Files without the banner are never overwritten, so they are also never updated:
 | `bindings/dart` | `nativeapi/lib/nativeapi.dart` (exports), `lib/src/widgets/`, `CHANGELOG.md`, `examples/flutter_*` | new module → add the export; user-visible change → CHANGELOG entry |
 | `bindings/rust` | `nativeapi/src/lib.rs`, `examples/rust_*` | `modules.rs` is generated now, so a new module needs no manual `pub mod`; re-exports in `lib.rs` still do |
 | `bindings/csharp` | `examples/csharp_*`, tests | when a rename breaks them |
+| `bindings/js` | `lib/runtime.ts`, `lib/index.ts`, `src/addon.cc`, `src/napi_support.*`, `src/event_loop_*`, `test/`, `examples/js_*`, `examples/deno_*` | `lib/modules.ts` and `src/generated/` are generated, so a new module needs nothing; a rename breaks the tests and examples |
+| `bindings/python` | `nativeapi/_library.py`, `nativeapi/_runtime.py`, `src/event_loop_*`, `tests/`, `examples/python_*` | `nativeapi/__init__.py` and `_capi.py` are generated, so a new module needs nothing; a rename breaks the tests and examples |
 | core | `examples/<module>_example/`, `<module>_c_example/` | new module or a behaviour worth demonstrating |
 
 A rename or removal in core breaks hand-written callers in these places — grep each
@@ -121,7 +123,16 @@ binding for the old name.
 cargo check --workspace                                 # Rust crates + examples (root workspace)
 (cd bindings/dart/nativeapi && dart analyze)
 (cd bindings/csharp && dotnet build NativeAPI.slnx)
+npm install && (cd bindings/js && npx tsc -p tsconfig.json --noEmit && npm test)   # compiles the addon
+cmake -S bindings/python -B bindings/python/build && cmake --build bindings/python/build
+(cd bindings/python && uvx ruff check nativeapi tests --select E,F,W,B,UP,I \
+  && PYTHONPATH=. uvx --with pytest pytest)
 ```
+
+JS and Python have no raw-FFI step of their own: their C-facing code is generated
+straight from the IR, so `./codegen` is all they need. Python's `ctypes` layer is not
+checked by a compiler — a signature mismatch surfaces only when the function is called,
+so run the smoke tests (and the example, for event-loop or callback changes).
 
 `flutter analyze` may rewrite `nativeapi/analysis_options.yaml` — revert that
 before committing. A toolchain that is not installed is a skipped check, not a passed
@@ -146,7 +157,7 @@ core pointer plus everything regenerated under `bindings/`. The bindings build a
 
 1. Commit core yourself (`git -C core add <paths> && git -C core commit -m ...`).
 2. `./codegen`; rust → rerun bindgen (command in `tools/codegen/README.md`); dart →
-   `./codegen ffigen`.
+   `./codegen ffigen`. JS and Python need nothing beyond `./codegen`.
 3. Workspace: `git add core` plus only the generated paths under `bindings/`; commit as
    `Sync with core <sha9>`.
 

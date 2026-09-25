@@ -57,6 +57,11 @@ $ErrorActionPreference = "Stop"
   versions\stable`, fetch the branch from a `git bundle` made on the Mac
   (`git bundle create b stable ^$(git merge-base stable main)`), check it out, add the
   version tag. The Dart SDK and engine downloads are fast.
+- To build uncommitted work without touching the host's checkout, copy the tracked
+  files into a tarball, `push` it and unpack it in the scratch dir (`tar -xzf` exists
+  on Windows 10+). Create it with `COPYFILE_DISABLE=1 tar czf ...`: macOS tar otherwise
+  adds `._*` AppleDouble files, which a source glob (core's `*.cpp`) then feeds to
+  MSVC as garbage C++.
 - Put CMake build trees in the scratch dir (`-B $RemoteScratch\core-build`), not in the
   checkout.
 - `core.autocrlf` makes `git status` noisy and `flutter pub get` rewrites
