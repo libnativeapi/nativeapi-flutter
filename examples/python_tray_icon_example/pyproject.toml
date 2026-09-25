@@ -1,0 +1,11 @@
+[project]
+name = "python_tray_icon_example"
+version = "0.0.0"
+requires-python = ">=3.10"
+dependencies = ["nativeapi"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+nativeapi = { path = "../../bindings/python" }
