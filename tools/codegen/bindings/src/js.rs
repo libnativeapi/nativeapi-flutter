@@ -1061,28 +1061,50 @@ fn ts_class(out: &mut String, api: &Api, class: &Class, prefix: &str) {
             class.name
         )
         .unwrap();
-        writeln!(out, "export class {} extends NativeObject {{", class.name).unwrap();
-        writeln!(
-            out,
-            "  /** Wraps a raw handle; an owned one is released on `dispose()` or collection. */"
-        )
-        .unwrap();
-        writeln!(out, "  constructor(handle: bigint, owned = true) {{").unwrap();
-        writeln!(
-            out,
-            "    super(handle, owned ? native.{} : undefined);",
-            c_free_symbol(prefix, &class.name)
-        )
-        .unwrap();
-        writeln!(out, "  }}").unwrap();
-        writeln!(out).unwrap();
+        match &class.base {
+            Some(base) => {
+                // The C ABI resolves this handle as the base too, so the
+                // inherited methods and listeners work on it unchanged.
+                writeln!(out, "export class {} extends {base} {{", class.name).unwrap();
+                writeln!(
+                    out,
+                    "  /** Wraps a raw handle; an owned one is released on `dispose()` or collection. */"
+                )
+                .unwrap();
+                writeln!(out, "  constructor(handle: bigint, owned = true) {{").unwrap();
+                writeln!(out, "    super(handle, owned);").unwrap();
+                writeln!(out, "  }}").unwrap();
+                writeln!(out).unwrap();
+            }
+            None => {
+                writeln!(out, "export class {} extends NativeObject {{", class.name).unwrap();
+                writeln!(
+                    out,
+                    "  /** Wraps a raw handle; an owned one is released on `dispose()` or collection. */"
+                )
+                .unwrap();
+                writeln!(out, "  constructor(handle: bigint, owned = true) {{").unwrap();
+                writeln!(
+                    out,
+                    "    super(handle, owned ? native.{} : undefined);",
+                    c_free_symbol(prefix, &class.name)
+                )
+                .unwrap();
+                writeln!(out, "  }}").unwrap();
+                writeln!(out).unwrap();
+            }
+        }
         for ctor in &class.constructors {
             let name = match constructor_suffix(class, ctor) {
                 Some(suffix) => format!("create_{suffix}").to_lower_camel_case(),
                 None => "create".to_string(),
             };
             let symbol = c_constructor_symbol(prefix, class, ctor);
-            let params: Vec<String> = ctor.params.iter().map(ts_param).collect();
+            let params: Vec<String> = ctor
+                .params
+                .iter()
+                .map(|param| ts_param_with_default(api, param))
+                .collect();
             let args: Vec<String> = ctor.params.iter().map(ts_arg).collect();
             writeln!(
                 out,
@@ -1347,6 +1369,42 @@ fn ts_type(ty: &TypeRef, position: Position) -> String {
 fn ts_param(param: &Param) -> String {
     let name = ts_ident(&param.name.to_lower_camel_case());
     format!("{name}: {}", ts_type(&param.ty, Position::Param))
+}
+
+/// A constructor parameter; one with a C++ default becomes a TypeScript default
+/// parameter holding the type's neutral value. Besides matching the C++ call
+/// shape, this keeps a derived class's static `create(text = "")` assignable to
+/// its base's `create()` — TypeScript checks the static side of `extends`.
+fn ts_param_with_default(api: &Api, param: &Param) -> String {
+    let declared = ts_param(param);
+    if !param.has_default {
+        return declared;
+    }
+    match ts_default_value(api, &param.ty) {
+        Some(value) => format!("{declared} = {value}"),
+        None => declared,
+    }
+}
+
+fn ts_default_value(api: &Api, ty: &TypeRef) -> Option<String> {
+    Some(match ty {
+        TypeRef::Bool => "false".to_string(),
+        TypeRef::Int { .. } | TypeRef::Float { .. } => "0".to_string(),
+        TypeRef::String | TypeRef::CString => "\"\"".to_string(),
+        TypeRef::Alias { underlying, .. } => return ts_default_value(api, underlying),
+        TypeRef::Enum { name, .. } => {
+            let first = api
+                .headers
+                .iter()
+                .flat_map(|header| header.enums.iter())
+                .find(|item| &item.name == name)?
+                .variants
+                .first()?;
+            format!("{name}.{}", enum_member(&first.name))
+        }
+        TypeRef::Object { shared: true, .. } | TypeRef::Optional { .. } => "null".to_string(),
+        _ => return None,
+    })
 }
 
 /// How a public argument is handed to the raw function.

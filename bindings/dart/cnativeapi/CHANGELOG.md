@@ -1,5 +1,8 @@
 ## Unreleased
 
+* Raw bindings for the view module (`native_view_*`, `native_label_*`,
+  `native_button_*`, `native_text_field_*`, `native_image_view_*`,
+  `native_window_get_content_view`) and `native_edge_insets_t`.
 * cnativeapi is now a plain Dart package instead of a Flutter FFI plugin, so it
   works in Dart command-line apps as well as Flutter apps. A build hook
   (`hook/build.dart`) compiles the nativeapi core with the target's toolchain

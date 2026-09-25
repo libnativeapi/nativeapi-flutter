@@ -1,6 +1,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/nativeapi.dart'
-    hide Brightness, Color, Display, Image, ModifierKey, ShortcutManager, Size;
+    hide
+        Brightness,
+        Color,
+        Display,
+        EdgeInsets,
+        Image,
+        ModifierKey,
+        ShortcutManager,
+        Size,
+        TextField,
+        View;
 
 /// A custom title-bar region that drags the window and toggles maximization
 /// on double tap.

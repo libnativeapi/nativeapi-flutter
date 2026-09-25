@@ -5,21 +5,34 @@
 /// types and `dart:ui`'s (`Offset`, `Size`, `Rect`, `Color`, `Brightness`).
 ///
 /// A few nativeapi names are not re-exported because Flutter already uses
-/// them: `Brightness`, `Color`, `Display`, `Image` and `Size` would silently
-/// shadow `dart:ui`, and `ModifierKey` and `ShortcutManager` would be ambiguous
-/// with Flutter's. Values of those types still work through this library (the
-/// conversions below, `ImageAsset.fromAsset`); to name one, import
-/// `package:nativeapi/nativeapi.dart` with a prefix:
+/// them: `Brightness`, `Color`, `Display`, `EdgeInsets`, `Image` and `Size`
+/// would silently shadow `dart:ui` / `package:flutter`, and `ModifierKey`,
+/// `ShortcutManager`, `View` and `TextField` would be ambiguous with Flutter's.
+/// Values of those types still work through this library (the conversions
+/// below, `ImageAsset.fromAsset`); to name one — the native `View` family in
+/// particular — import `package:nativeapi/nativeapi.dart` with a prefix:
 ///
 /// ```dart
 /// import 'package:nativeapi/nativeapi.dart' as na;
 ///
 /// window.setMinimumSize(const na.Size(width: 400, height: 300));
+/// final field = na.TextField.create('');
+/// window.contentView?.addSubview(field);
 /// ```
 library;
 
 export 'package:nativeapi/nativeapi.dart'
-    hide Brightness, Color, Display, Image, ModifierKey, ShortcutManager, Size;
+    hide
+        Brightness,
+        Color,
+        Display,
+        EdgeInsets,
+        Image,
+        ModifierKey,
+        ShortcutManager,
+        Size,
+        TextField,
+        View;
 
 export 'src/conversions.dart';
 export 'src/widgets/context_menu_region.dart';

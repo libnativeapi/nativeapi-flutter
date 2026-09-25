@@ -72,6 +72,22 @@ pub fn parse(headers: &[PathBuf], includes: &[PathBuf]) -> Result<Api> {
         parsed_headers.push(parsed.0);
     }
 
+    // A base is only meaningful when it is exported itself; an abstract
+    // interface such as `Dialog` is skipped, so its derived classes stand alone.
+    let exported: HashSet<String> = parsed_headers
+        .iter()
+        .flat_map(|header| header.classes.iter().map(|class| class.name.clone()))
+        .collect();
+    for header in &mut parsed_headers {
+        for class in &mut header.classes {
+            if let Some(base) = &class.base {
+                if !exported.contains(base) || !class.is_instance() {
+                    class.base = None;
+                }
+            }
+        }
+    }
+
     Ok(Api {
         headers: parsed_headers,
         diagnostics,
@@ -714,9 +730,28 @@ fn parse_class(
         name,
         kind,
         native_object: derives_from(entity, NATIVE_OBJECT_PROVIDER),
+        base: class_base(entity),
         constructors,
         methods,
     })
+}
+
+/// The direct base class that is itself a library class, ignoring the mixin
+/// bases (`EventEmitter<T>`, `NativeObjectProvider`, `enable_shared_from_this`).
+/// Whether that base is exported is settled in `parse()`.
+fn class_base(entity: &Entity) -> Option<String> {
+    const MIXINS: [&str; 4] = [
+        EVENT_EMITTER,
+        NATIVE_OBJECT_PROVIDER,
+        "enable_shared_from_this",
+        EVENT_BASE,
+    ];
+    entity
+        .get_children()
+        .into_iter()
+        .filter(|child| child.get_kind() == EntityKind::BaseSpecifier)
+        .filter_map(|child| base_name(&child))
+        .find(|name| !MIXINS.contains(&name.as_str()))
 }
 
 fn has_pure_virtual(entity: &Entity) -> bool {
@@ -750,9 +785,21 @@ fn parse_params(entity: &Entity, types: &TypeIndex) -> Option<Vec<Param>> {
             Some(Param {
                 name: arg.get_name().unwrap_or_else(|| "arg".to_string()),
                 ty: map_entity_type(&arg, types)?,
+                has_default: has_default_argument(&arg),
             })
         })
         .collect::<Option<Vec<_>>>()
+}
+
+/// Whether a parameter declaration carries `= <default>`: the tokens of its
+/// extent include an `=` (a type never does).
+fn has_default_argument(arg: &Entity) -> bool {
+    arg.get_range().is_some_and(|range| {
+        range
+            .tokenize()
+            .iter()
+            .any(|token| token.get_spelling() == "=")
+    })
 }
 
 /// `Preferences(const Preferences&)` / `Preferences(Preferences&&)`.

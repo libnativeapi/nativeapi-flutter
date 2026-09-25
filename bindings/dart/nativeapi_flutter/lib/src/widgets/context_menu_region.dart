@@ -1,7 +1,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/nativeapi.dart'
-    hide Brightness, Color, Display, Image, ModifierKey, ShortcutManager, Size;
+    hide
+        Brightness,
+        Color,
+        Display,
+        EdgeInsets,
+        Image,
+        ModifierKey,
+        ShortcutManager,
+        Size,
+        TextField,
+        View;
 
 import '../conversions.dart';
 

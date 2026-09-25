@@ -745,6 +745,7 @@ mod tests {
             constructors: vec![],
             methods: vec![],
             event: None,
+            base: None,
         }
     }
 
@@ -810,6 +811,7 @@ mod tests {
         };
         let run_with_window = Method {
             params: vec![Param {
+                has_default: false,
                 name: "window".to_string(),
                 ty: TypeRef::Object {
                     name: "Window".to_string(),

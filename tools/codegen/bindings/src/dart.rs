@@ -668,7 +668,7 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
         writeln!(
             out,
             "      return {}({});",
-            event_variant_class(group, variant.discriminant.as_str()),
+            event_variant_class(variant),
             args.join(", ")
         )
         .unwrap();
@@ -680,7 +680,7 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
     writeln!(out).unwrap();
 
     for variant in &group.variants {
-        let class_name = event_variant_class(group, &variant.discriminant);
+        let class_name = event_variant_class(variant);
         let fields: Vec<&codegen_shared::ir::Field> =
             group.common.iter().chain(variant.fields.iter()).collect();
         writeln!(out, "final class {class_name} extends {} {{", group.name).unwrap();
@@ -714,9 +714,10 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
 }
 
 /// `WindowEvent` + `Focused` -> `WindowFocusedEvent`, matching the C++ name.
-fn event_variant_class(group: &EventGroup, discriminant: &str) -> String {
-    let stem = group.name.strip_suffix("Event").unwrap_or(&group.name);
-    format!("{stem}{}Event", discriminant.to_upper_camel_case())
+/// The C++ class name, unchanged: `ButtonClickedEvent` stays `ButtonClickedEvent`
+/// even though its group is `ViewEvent`.
+fn event_variant_class(variant: &codegen_shared::ir::EventVariant) -> String {
+    variant.name.clone()
 }
 
 fn dart_event_field_type(ty: &TypeRef) -> String {
@@ -732,9 +733,42 @@ fn dart_event_field_type(ty: &TypeRef) -> String {
 
 fn render_dart_class(out: &mut String, api: &Api, header: &Header, class: &Class, prefix: &str) {
     let instance = class.is_instance();
-    writeln!(out, "class {} {{", class.name).unwrap();
+    if let Some(base) = &class.base {
+        // A derived class shares its base's handle plumbing: the C ABI resolves
+        // this handle as the base too, so inherited methods just work.
+        writeln!(out, "class {} extends {base} {{", class.name).unwrap();
+        writeln!(
+            out,
+            "  /// Adopts a handle returned by the C API and releases it when this"
+        )
+        .unwrap();
+        writeln!(out, "  /// object becomes unreachable.").unwrap();
+        writeln!(
+            out,
+            "  {}.fromHandle(super.nativeHandle) : super.fromHandle();",
+            class.name
+        )
+        .unwrap();
+        writeln!(out).unwrap();
+        writeln!(
+            out,
+            "  /// Wraps a handle owned elsewhere; releasing it stays the owner's job."
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "  {}.borrowed(super.nativeHandle) : super.borrowed();",
+            class.name
+        )
+        .unwrap();
+        writeln!(out).unwrap();
+    } else {
+        writeln!(out, "class {} {{", class.name).unwrap();
+    }
 
-    if instance {
+    if class.base.is_some() {
+        // Handle field, finalizer and dispose() are inherited.
+    } else if instance {
         writeln!(
             out,
             "  /// Adopts a handle returned by the C API and releases it when this"
@@ -915,6 +949,7 @@ fn render_dart_method(
         vec![Param {
             name: "value".to_string(),
             ty: method.params[0].ty.clone(),
+            has_default: false,
         }]
     } else {
         method.params.clone()

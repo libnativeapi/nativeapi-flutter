@@ -1,5 +1,14 @@
 ## Unreleased
 
+* Native views: `View` (a container with Absolute, Row and Column layout),
+  `Label`, `Button`, `TextField` and `ImageView`, plus `Window.contentView` to
+  put them in a window. A control is a `View`, so it can be passed wherever a
+  `View` is expected. Events: `ButtonClickedEvent`, `TextFieldChangedEvent`,
+  `TextFieldSubmittedEvent`, `ViewFocusedEvent`, `ViewBlurredEvent`.
+* `EdgeInsets` value type (`EdgeInsets.all`, `EdgeInsets.symmetric`).
+* **Breaking:** event classes keep their C++ names. `KeyboardKeyPressedEvent`,
+  `KeyboardKeyReleasedEvent` and `KeyboardModifierKeysChangedEvent` are now
+  `KeyPressedEvent`, `KeyReleasedEvent` and `ModifierKeysChangedEvent`.
 * **Breaking:** nativeapi is a plain Dart package and no longer depends on
   Flutter; Flutter apps depend on `nativeapi_flutter` instead, which re-exports
   it.

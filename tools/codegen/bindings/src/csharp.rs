@@ -737,10 +737,26 @@ fn generate_handle_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) 
         symbol
     });
 
-    {
+    if let Some(base) = &class.base {
+        // The C ABI resolves this handle as the base too; handle ownership,
+        // Dispose and the inherited methods all come from the base class.
         let out = &mut ctx.public;
         writeln!(out, "/// <summary>Owned handle to a native {}.</summary>", class.name).unwrap();
-        writeln!(out, "public sealed partial class {} : IDisposable", class.name).unwrap();
+        writeln!(out, "public partial class {} : {base}", class.name).unwrap();
+        writeln!(out, "{{").unwrap();
+        writeln!(
+            out,
+            "    public {}(ulong nativeHandle, bool ownsHandle = true) : base(nativeHandle, ownsHandle) {{ }}",
+            class.name
+        )
+        .unwrap();
+        writeln!(out).unwrap();
+    } else {
+        let out = &mut ctx.public;
+        writeln!(out, "/// <summary>Owned handle to a native {}.</summary>", class.name).unwrap();
+        // A class other classes derive from cannot be sealed.
+        let sealed = if is_base_of_any(api, &class.name) { "" } else { "sealed " };
+        writeln!(out, "public {sealed}partial class {} : IDisposable", class.name).unwrap();
         writeln!(out, "{{").unwrap();
         writeln!(out, "    public ulong NativeHandle {{ get; private set; }}").unwrap();
         writeln!(out, "    private readonly bool _ownsHandle;").unwrap();
@@ -799,6 +815,13 @@ fn generate_handle_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) 
     let out = &mut ctx.public;
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
+}
+
+fn is_base_of_any(api: &Api, name: &str) -> bool {
+    api.headers
+        .iter()
+        .flat_map(|header| header.classes.iter())
+        .any(|class| class.base.as_deref() == Some(name))
 }
 
 fn generate_singleton_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {

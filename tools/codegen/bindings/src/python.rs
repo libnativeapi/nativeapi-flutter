@@ -1038,7 +1038,10 @@ fn render_class(out: &mut String, module: &mut Module, class: &Class) {
 
 fn render_instance_class(out: &mut String, module: &mut Module, class: &Class) {
     let prefix = module.prefix;
-    writeln!(out, "class {}(_rt.NativeObject):", class.name).unwrap();
+    // A derived class inherits the base's handle plumbing (and `_free`, which
+    // releases the same table slot): the C ABI resolves its handle as the base.
+    let parent = class.base.clone().unwrap_or_else(|| "_rt.NativeObject".to_string());
+    writeln!(out, "class {}({parent}):", class.name).unwrap();
     writeln!(
         out,
         "    \"\"\"Owned reference to a native {}.\n\n    `dispose()` (or `with`) releases it; otherwise it is released when the\n    wrapper is garbage collected.\n    \"\"\"",
@@ -1047,12 +1050,14 @@ fn render_instance_class(out: &mut String, module: &mut Module, class: &Class) {
     .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "    __slots__ = ()").unwrap();
-    writeln!(
-        out,
-        "    _free = staticmethod(_C.{})",
-        c_free_symbol(prefix, &class.name)
-    )
-    .unwrap();
+    if class.base.is_none() {
+        writeln!(
+            out,
+            "    _free = staticmethod(_C.{})",
+            c_free_symbol(prefix, &class.name)
+        )
+        .unwrap();
+    }
 
     let (default, named): (Vec<&Constructor>, Vec<&Constructor>) = class
         .constructors

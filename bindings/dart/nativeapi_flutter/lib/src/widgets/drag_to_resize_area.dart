@@ -2,7 +2,17 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/nativeapi.dart'
-    hide Brightness, Color, Display, Image, ModifierKey, ShortcutManager, Size;
+    hide
+        Brightness,
+        Color,
+        Display,
+        EdgeInsets,
+        Image,
+        ModifierKey,
+        ShortcutManager,
+        Size,
+        TextField,
+        View;
 
 /// Adds native resize handles over the edges and corners of [child].
 ///

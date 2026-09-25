@@ -240,6 +240,25 @@ writeln!(
         )
         .unwrap();
     }
+    // Handles are all uint64_t, so a foreign class can be forward-declared
+    // before its header is included. That is what lets two headers refer to
+    // each other's handles (view.h <-> window.h): the second one in the
+    // include chain sees the typedef before the first has finished.
+    let foreign_handles: Vec<String> = foreign_types(header, origins)
+        .into_iter()
+        .filter(|name| {
+            api.headers
+                .iter()
+                .flat_map(|other| other.classes.iter())
+                .any(|class| class.is_instance() && &class.name == name)
+        })
+        .collect();
+    for name in &foreign_handles {
+        writeln!(out, "typedef uint64_t {};", c_type_name(prefix, name)).unwrap();
+    }
+    if !foreign_handles.is_empty() {
+        writeln!(out).unwrap();
+    }
     for dep in header_dependencies(header, origins) {
         writeln!(out, "#include \"{dep}_c.h\"").unwrap();
     }
@@ -482,6 +501,17 @@ fn render_c_handle_types(out: &mut String, class: &Class, listed: bool, prefix: 
     )
     .unwrap();
     writeln!(out, "/// touching freed memory.").unwrap();
+    if let Some(base) = &class.base {
+        writeln!(out, "///").unwrap();
+        writeln!(
+            out,
+            "/// A {} is a {base}: this handle is accepted wherever a {} is,",
+            class.name,
+            c_type_name(prefix, base)
+        )
+        .unwrap();
+        writeln!(out, "/// including its listener registration.").unwrap();
+    }
     writeln!(out, "typedef uint64_t {handle};").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "/// Never refers to a live {}.", class.name).unwrap();

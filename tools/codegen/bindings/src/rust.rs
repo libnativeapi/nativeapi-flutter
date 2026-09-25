@@ -697,11 +697,48 @@ fn emitted_group<'a>(api: &'a Api, class: &Class) -> Option<&'a EventGroup> {
 fn render_rust_handle_type(out: &mut String, class: &Class, prefix: &str) {
     let handle_ty = format!("cnativeapi::{}", c_type_name(prefix, &class.name));
     writeln!(out, "/// Owned handle to a native `{}`.", class.name).unwrap();
+    if let Some(base) = &class.base {
+        writeln!(out, "///").unwrap();
+        writeln!(
+            out,
+            "/// Derefs to [`{base}`]: the C ABI resolves this handle as a `{base}` too, so"
+        )
+        .unwrap();
+        writeln!(out, "/// every `{base}` method is available and a `&{}` coerces to `&{base}`.", class.name).unwrap();
+    }
     writeln!(out, "#[derive(Debug)]").unwrap();
+    // Transparent over the handle so a derived class can reinterpret itself as
+    // its base (same single field, same layout).
+    writeln!(out, "#[repr(transparent)]").unwrap();
     writeln!(out, "pub struct {} {{", class.name).unwrap();
     writeln!(out, "    handle: {handle_ty},").unwrap();
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
+    if let Some(base) = &class.base {
+        writeln!(out, "impl std::ops::Deref for {} {{", class.name).unwrap();
+        writeln!(out, "    type Target = {base};").unwrap();
+        writeln!(out, "    fn deref(&self) -> &{base} {{").unwrap();
+        writeln!(
+            out,
+            "        // Both are #[repr(transparent)] over the same handle type."
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "        unsafe {{ &*(self as *const {} as *const {base}) }}",
+            class.name
+        )
+        .unwrap();
+        writeln!(out, "    }}").unwrap();
+        writeln!(out, "}}").unwrap();
+        writeln!(out).unwrap();
+        writeln!(out, "impl AsRef<{base}> for {} {{", class.name).unwrap();
+        writeln!(out, "    fn as_ref(&self) -> &{base} {{").unwrap();
+        writeln!(out, "        self").unwrap();
+        writeln!(out, "    }}").unwrap();
+        writeln!(out, "}}").unwrap();
+        writeln!(out).unwrap();
+    }
 }
 
 fn render_rust_handle_helpers(out: &mut String, class: &Class, prefix: &str) {

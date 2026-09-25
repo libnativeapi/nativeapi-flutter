@@ -118,6 +118,13 @@ pub struct Class {
     /// which turns into listener registration functions across the ABI.
     #[serde(default)]
     pub event: Option<String>,
+    /// Exported class this one derives from (`Button` -> `View`). Across the C
+    /// ABI a handle to this class also resolves as its base, so the base's
+    /// functions (and listener registration) accept it; bindings express the
+    /// same thing as class inheritance and generate only this class's own
+    /// methods.
+    #[serde(default)]
+    pub base: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -196,6 +203,11 @@ impl Method {
 pub struct Param {
     pub name: String,
     pub ty: TypeRef,
+    /// The C++ declaration gives this parameter a default (`text = ""`). The
+    /// value itself is not carried: bindings that can substitute the type's
+    /// neutral default (empty string, 0, false, first enum value, null) do so.
+    #[serde(default)]
+    pub has_default: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
