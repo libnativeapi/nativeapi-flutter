@@ -17,7 +17,7 @@ napi_value Js_native_keyboard_accelerator_to_string(napi_env env, napi_callback_
   if (!FromJs(env, args[0], &self, arena)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_keyboard_accelerator_to_string(self); });
+  auto result = native_keyboard_accelerator_to_string(self);
   Value value = Value::String(result ? result : "");
   free_c_str(result);
   return value.ToJs(env);
@@ -34,7 +34,7 @@ napi_value Js_native_keyboard_accelerator_is_empty(napi_env env, napi_callback_i
   if (!FromJs(env, args[0], &self, arena)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_keyboard_accelerator_is_empty(self); });
+  auto result = native_keyboard_accelerator_is_empty(self);
   return Value::Bool(result).ToJs(env);
 }
 

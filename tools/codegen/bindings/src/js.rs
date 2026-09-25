@@ -42,6 +42,13 @@ const LOOP_RUN: &str = "native_application_run";
 const LOOP_RUN_WITH_WINDOW: &str = "native_application_run_with_window";
 const LOOP_QUIT: &str = "native_application_quit";
 
+/// Classes that are plain data, touching no platform object. Their calls run
+/// on the JS thread even where every other call hops to the UI thread (see
+/// `OnMainThread` in src/napi_support.h), which matters for code that feeds
+/// them in bulk — a shape morph adds a thousand points per frame. Struct
+/// methods (`Color.fromHex`) never hop either.
+const THREAD_FREE_CLASSES: &[&str] = &["WindowShape", "WindowShadow"];
+
 // ---------------------------------------------------------------------------
 // Entry points
 // ---------------------------------------------------------------------------
@@ -391,6 +398,8 @@ struct Glue<'a> {
     prefix: &'a str,
     out: String,
     exports: Vec<String>,
+    /// Whether the functions being emitted run their C call on the UI thread.
+    hop: bool,
 }
 
 fn glue_file(api: &Api, header: &Header, prefix: &str) -> String {
@@ -399,6 +408,7 @@ fn glue_file(api: &Api, header: &Header, prefix: &str) -> String {
         prefix,
         out: String::new(),
         exports: Vec::new(),
+        hop: true,
     };
 
     for item in &header.structs {
@@ -451,6 +461,7 @@ fn glue_file(api: &Api, header: &Header, prefix: &str) -> String {
 
 impl Glue<'_> {
     fn struct_members(&mut self, item: &Struct) {
+        self.hop = false;
         let c_ty = c_type_name(self.prefix, &item.name);
         for method in &item.methods {
             let symbol = c_struct_method_symbol(self.prefix, item, method);
@@ -460,6 +471,7 @@ impl Glue<'_> {
     }
 
     fn class(&mut self, class: &Class) {
+        self.hop = !THREAD_FREE_CLASSES.contains(&class.name.as_str());
         let prefix = self.prefix;
         let self_receiver = || Receiver::Handle;
         if class.is_instance() {
@@ -537,10 +549,14 @@ impl Glue<'_> {
             render_param(out, self.prefix, param, &js, &local, &mut call_args);
         }
 
-        let call = format!(
-            "OnMainThread([&] {{ return {symbol}({}); }})",
-            call_args.join(", ")
-        );
+        let call = if self.hop {
+            format!(
+                "OnMainThread([&] {{ return {symbol}({}); }})",
+                call_args.join(", ")
+            )
+        } else {
+            format!("{symbol}({})", call_args.join(", "))
+        };
         if matches!(return_type, TypeRef::Void) {
             writeln!(out, "  {call};").unwrap();
             writeln!(out, "  return Undefined(env);").unwrap();

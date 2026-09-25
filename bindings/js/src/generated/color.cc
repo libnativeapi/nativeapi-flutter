@@ -29,7 +29,7 @@ napi_value Js_native_color_from_rgba(napi_env env, napi_callback_info info) {
   if (!GetNumber(env, args[3], &p3)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_color_from_rgba(p0, p1, p2, p3); });
+  auto result = native_color_from_rgba(p0, p1, p2, p3);
   Value value = ToValue(result);
   return value.ToJs(env);
 }
@@ -45,7 +45,7 @@ napi_value Js_native_color_from_hex(napi_env env, napi_callback_info info) {
   if (!GetString(env, args[0], arena, &p0)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_color_from_hex(p0); });
+  auto result = native_color_from_hex(p0);
   Value value = ToValue(result);
   return value.ToJs(env);
 }
@@ -61,7 +61,7 @@ napi_value Js_native_color_to_rgba(napi_env env, napi_callback_info info) {
   if (!FromJs(env, args[0], &self, arena)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_color_to_rgba(self); });
+  auto result = native_color_to_rgba(self);
   return Value::Number(static_cast<double>(result)).ToJs(env);
 }
 
@@ -76,7 +76,7 @@ napi_value Js_native_color_to_argb(napi_env env, napi_callback_info info) {
   if (!FromJs(env, args[0], &self, arena)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_color_to_argb(self); });
+  auto result = native_color_to_argb(self);
   return Value::Number(static_cast<double>(result)).ToJs(env);
 }
 

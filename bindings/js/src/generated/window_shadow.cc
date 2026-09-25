@@ -13,7 +13,7 @@ napi_value Js_native_window_shadow_create(napi_env env, napi_callback_info info)
   }
   Arena arena;
   (void)arena;
-  auto result = OnMainThread([&] { return native_window_shadow_create(); });
+  auto result = native_window_shadow_create();
   return Value::BigInt(result).ToJs(env);
 }
 
@@ -28,7 +28,7 @@ napi_value Js_native_window_shadow_free(napi_env env, napi_callback_info info) {
   if (!GetHandle(env, args[0], &self)) {
     return nullptr;
   }
-  OnMainThread([&] { return native_window_shadow_free(self); });
+  native_window_shadow_free(self);
   return Undefined(env);
 }
 
@@ -47,7 +47,7 @@ napi_value Js_native_window_shadow_set_color(napi_env env, napi_callback_info in
   if (!FromJs(env, args[1], &p0, arena)) {
     return nullptr;
   }
-  OnMainThread([&] { return native_window_shadow_set_color(self, p0); });
+  native_window_shadow_set_color(self, p0);
   return Undefined(env);
 }
 
@@ -62,7 +62,7 @@ napi_value Js_native_window_shadow_get_color(napi_env env, napi_callback_info in
   if (!GetHandle(env, args[0], &self)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_window_shadow_get_color(self); });
+  auto result = native_window_shadow_get_color(self);
   Value value = ToValue(result);
   return value.ToJs(env);
 }
@@ -82,7 +82,7 @@ napi_value Js_native_window_shadow_set_blur_radius(napi_env env, napi_callback_i
   if (!GetNumber(env, args[1], &p0)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_window_shadow_set_blur_radius(self, p0); });
+  auto result = native_window_shadow_set_blur_radius(self, p0);
   return Value::Bool(result).ToJs(env);
 }
 
@@ -97,7 +97,7 @@ napi_value Js_native_window_shadow_get_blur_radius(napi_env env, napi_callback_i
   if (!GetHandle(env, args[0], &self)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_window_shadow_get_blur_radius(self); });
+  auto result = native_window_shadow_get_blur_radius(self);
   return Value::Number(static_cast<double>(result)).ToJs(env);
 }
 
@@ -116,7 +116,7 @@ napi_value Js_native_window_shadow_set_offset(napi_env env, napi_callback_info i
   if (!FromJs(env, args[1], &p0, arena)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_window_shadow_set_offset(self, p0); });
+  auto result = native_window_shadow_set_offset(self, p0);
   return Value::Bool(result).ToJs(env);
 }
 
@@ -131,7 +131,7 @@ napi_value Js_native_window_shadow_get_offset(napi_env env, napi_callback_info i
   if (!GetHandle(env, args[0], &self)) {
     return nullptr;
   }
-  auto result = OnMainThread([&] { return native_window_shadow_get_offset(self); });
+  auto result = native_window_shadow_get_offset(self);
   Value value = ToValue(result);
   return value.ToJs(env);
 }
