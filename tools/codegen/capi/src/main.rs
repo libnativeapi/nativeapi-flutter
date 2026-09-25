@@ -68,7 +68,9 @@ fn main() -> Result<()> {
         generator::generate_umbrella(&api, &repo_root.join("include"), &capi_dir),
     ];
     for header in &api.headers {
-        files.extend(generator::generate(&api, header, &origins, &capi_dir, prefix));
+        files.extend(generator::generate(
+            &api, header, &origins, &capi_dir, prefix,
+        ));
     }
 
     write_files(&files, args.check)

@@ -112,7 +112,12 @@ fn parse_header(
     for include in includes {
         // Clang's include search does not accept Windows verbatim path prefixes.
         let path = include.to_string_lossy();
-        args.push(format!("-I{}", path.strip_prefix(r"\\?\").unwrap_or(&path).replace('\\', "/")));
+        args.push(format!(
+            "-I{}",
+            path.strip_prefix(r"\\?\")
+                .unwrap_or(&path)
+                .replace('\\', "/")
+        ));
     }
 
     let tu = index
@@ -126,12 +131,7 @@ fn parse_header(
     let fatal: Vec<String> = tu
         .get_diagnostics()
         .into_iter()
-        .filter(|diagnostic| {
-            matches!(
-                diagnostic.get_severity(),
-                Severity::Error | Severity::Fatal
-            )
-        })
+        .filter(|diagnostic| matches!(diagnostic.get_severity(), Severity::Error | Severity::Fatal))
         .map(|diagnostic| diagnostic.get_text())
         .collect();
     if !fatal.is_empty() {
@@ -285,11 +285,7 @@ fn index_entity(entity: &Entity, enclosing: Option<&str>, types: &mut TypeIndex)
             format!("nativeapi::{outer}::{name}"),
             format!("{outer}::{name}"),
         ),
-        None => (
-            name.clone(),
-            format!("nativeapi::{name}"),
-            name.clone(),
-        ),
+        None => (name.clone(), format!("nativeapi::{name}"), name.clone()),
     };
 
     let entry = TypeEntry {
@@ -302,8 +298,10 @@ fn index_entity(entity: &Entity, enclosing: Option<&str>, types: &mut TypeIndex)
     // wins over a nested one, which is why `Type` alone stays ambiguous-safe.
     types.entry(name.clone()).or_insert(entry);
 
-    if matches!(entity.get_kind(), EntityKind::ClassDecl | EntityKind::StructDecl)
-        && entity.is_definition()
+    if matches!(
+        entity.get_kind(),
+        EntityKind::ClassDecl | EntityKind::StructDecl
+    ) && entity.is_definition()
     {
         for child in entity.get_children() {
             if child.get_accessibility() == Some(Accessibility::Public) {
@@ -514,7 +512,11 @@ fn emitted_event(entity: &Entity) -> Option<String> {
         .find(|child| base_name(child).as_deref() == Some(EVENT_EMITTER))
         .and_then(|child| {
             let ty = child.get_type()?;
-            let arg = ty.get_template_argument_types()?.first().copied().flatten()?;
+            let arg = ty
+                .get_template_argument_types()?
+                .first()
+                .copied()
+                .flatten()?;
             let name = arg.get_display_name();
             Some(name.rsplit("::").next().unwrap_or(&name).to_string())
         })
@@ -608,7 +610,10 @@ fn event_fields(entity: &Entity, types: &TypeIndex) -> Vec<Field> {
             child.get_kind() == EntityKind::Method
                 && child.get_accessibility() == Some(Accessibility::Public)
                 && child.is_const_method()
-                && child.get_arguments().map(|args| args.is_empty()).unwrap_or(false)
+                && child
+                    .get_arguments()
+                    .map(|args| args.is_empty())
+                    .unwrap_or(false)
         })
         .filter_map(|child| {
             let name = child.get_name()?;
@@ -629,11 +634,7 @@ fn event_fields(entity: &Entity, types: &TypeIndex) -> Vec<Field> {
         .collect()
 }
 
-fn parse_class(
-    entity: &Entity,
-    types: &TypeIndex,
-    diagnostics: &mut Vec<String>,
-) -> Option<Class> {
+fn parse_class(entity: &Entity, types: &TypeIndex, diagnostics: &mut Vec<String>) -> Option<Class> {
     let name = entity.get_name()?;
     let mut singleton = false;
     let mut methods = Vec::new();
@@ -714,9 +715,7 @@ fn parse_class(
     // An emitter with no bindable methods is still worth exposing: its listener
     // registration is the whole API.
     if kind == ClassKind::Instance && methods.is_empty() && emitted_event(entity).is_none() {
-        diagnostics.push(format!(
-            "skipped class {name}: no bindable public methods"
-        ));
+        diagnostics.push(format!("skipped class {name}: no bindable public methods"));
         return None;
     }
 
@@ -839,7 +838,10 @@ fn method_is_supported(method: &Method) -> bool {
     // A callback can be handed *to* the library, but handing one back would
     // require the binding to marshal a C++ closure into a function pointer,
     // which has nowhere to store its captures.
-    if matches!(method.return_type.unwrap_optional(), TypeRef::Callback { .. }) {
+    if matches!(
+        method.return_type.unwrap_optional(),
+        TypeRef::Callback { .. }
+    ) {
         return false;
     }
     // Same reasoning for a borrowed `const char*` return: nothing on the C side
@@ -899,7 +901,9 @@ fn map_type(ty: Type, types: &TypeIndex) -> TypeRef {
     // to unsigned long long otherwise makes bindings disagree with that ABI.
     // Changing the ABI's integer widths is tracked separately in spec C-ABI A1.
     if matches!(ty.get_display_name().as_str(), "size_t" | "std::size_t") {
-        return TypeRef::Int { name: "unsigned long".to_string() };
+        return TypeRef::Int {
+            name: "unsigned long".to_string(),
+        };
     }
 
     // A named integer alias keeps its own C spelling: `WindowId` must not
@@ -1021,8 +1025,11 @@ fn map_type(ty: Type, types: &TypeIndex) -> TypeRef {
             (key, value) => TypeRef::Unsupported {
                 name: format!(
                     "std::map<{}, {}>",
-                    key.map(|ty| ty.display_name()).unwrap_or_else(|| "?".into()),
-                    value.map(|ty| ty.display_name()).unwrap_or_else(|| "?".into())
+                    key.map(|ty| ty.display_name())
+                        .unwrap_or_else(|| "?".into()),
+                    value
+                        .map(|ty| ty.display_name())
+                        .unwrap_or_else(|| "?".into())
                 ),
             },
         };
@@ -1060,9 +1067,9 @@ fn map_type(ty: Type, types: &TypeIndex) -> TypeRef {
             TypeRef::Float { name: normalized }
         }
         TypeKind::Pointer
-            if canonical
-                .get_pointee_type()
-                .is_some_and(|pointee| pointee.get_canonical_type().get_kind() == TypeKind::Void) =>
+            if canonical.get_pointee_type().is_some_and(|pointee| {
+                pointee.get_canonical_type().get_kind() == TypeKind::Void
+            }) =>
         {
             TypeRef::RawPointer
         }
@@ -1081,33 +1088,35 @@ fn map_type(ty: Type, types: &TypeIndex) -> TypeRef {
         // the C side cannot know how long it stays valid, and the handle table
         // only accepts something it can hold a strong reference to.
         TypeKind::Pointer => TypeRef::Unsupported { name: display },
-        _ => match lookup_type(&normalized, types).or_else(|| lookup_type(&raw_normalized, types)) {
-            Some(entry) => match entry.category {
-                TypeCategory::Enum => TypeRef::Enum {
-                    name: entry.name.clone(),
-                    qualified_name: entry.qualified_name.clone(),
+        _ => {
+            match lookup_type(&normalized, types).or_else(|| lookup_type(&raw_normalized, types)) {
+                Some(entry) => match entry.category {
+                    TypeCategory::Enum => TypeRef::Enum {
+                        name: entry.name.clone(),
+                        qualified_name: entry.qualified_name.clone(),
+                    },
+                    TypeCategory::Struct => TypeRef::Struct {
+                        name: entry.name.clone(),
+                        qualified_name: entry.qualified_name.clone(),
+                    },
+                    TypeCategory::Class => TypeRef::Object {
+                        name: entry.name.clone(),
+                        qualified_name: entry.qualified_name.clone(),
+                        shared: false,
+                    },
+                    // Events only appear inside callback signatures, where they are
+                    // passed by const reference and never own anything.
+                    TypeCategory::Event => TypeRef::Struct {
+                        name: entry.name.clone(),
+                        qualified_name: entry.qualified_name.clone(),
+                    },
+                    // Reached only when the alias resolved to something other than
+                    // an integer, which has no distinct C spelling anyway.
+                    TypeCategory::Alias => TypeRef::Unsupported { name: display },
                 },
-                TypeCategory::Struct => TypeRef::Struct {
-                    name: entry.name.clone(),
-                    qualified_name: entry.qualified_name.clone(),
-                },
-                TypeCategory::Class => TypeRef::Object {
-                    name: entry.name.clone(),
-                    qualified_name: entry.qualified_name.clone(),
-                    shared: false,
-                },
-                // Events only appear inside callback signatures, where they are
-                // passed by const reference and never own anything.
-                TypeCategory::Event => TypeRef::Struct {
-                    name: entry.name.clone(),
-                    qualified_name: entry.qualified_name.clone(),
-                },
-                // Reached only when the alias resolved to something other than
-                // an integer, which has no distinct C spelling anyway.
-                TypeCategory::Alias => TypeRef::Unsupported { name: display },
-            },
-            None => TypeRef::Unsupported { name: display },
-        },
+                None => TypeRef::Unsupported { name: display },
+            }
+        }
     }
 }
 
@@ -1175,7 +1184,10 @@ fn map_function_type(ty: &Type, types: &TypeIndex) -> TypeRef {
 
 /// Nth template argument of a class template specialization.
 fn template_arg<'tu>(ty: &Type<'tu>, index: usize) -> Option<Type<'tu>> {
-    ty.get_template_argument_types()?.get(index).copied().flatten()
+    ty.get_template_argument_types()?
+        .get(index)
+        .copied()
+        .flatten()
 }
 
 /// Standard-library templates the mapper understands.
@@ -1201,7 +1213,9 @@ fn template_spelling<'tu>(ty: &Type<'tu>) -> Option<(Option<String>, Type<'tu>)>
         return Some((direct, *ty));
     }
     let canonical = ty.get_canonical_type();
-    let canonical_name = canonical.get_declaration().and_then(|entity| entity.get_name());
+    let canonical_name = canonical
+        .get_declaration()
+        .and_then(|entity| entity.get_name());
     if canonical_name
         .as_deref()
         .is_some_and(|name| KNOWN_TEMPLATES.contains(&name))

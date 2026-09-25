@@ -110,11 +110,12 @@ fn referenced_types(header: &Header) -> Vec<String> {
         }
     }
     for group in &header.events {
-        for field in group
-            .common
-            .iter()
-            .chain(group.variants.iter().flat_map(|variant| variant.fields.iter()))
-        {
+        for field in group.common.iter().chain(
+            group
+                .variants
+                .iter()
+                .flat_map(|variant| variant.fields.iter()),
+        ) {
             push(&field.ty, &mut names);
         }
     }
@@ -142,12 +143,7 @@ pub fn c_params(method: &Method, class: Option<&Class>, prefix: &str) -> String 
 
 /// Renders parameters, expanding each callback into the function pointer plus
 /// its `user_data` companion.
-pub fn c_param_list(
-    params: &[Param],
-    prefix: &str,
-    owner: &str,
-    member: &str,
-) -> Vec<String> {
+pub fn c_param_list(params: &[Param], prefix: &str, owner: &str, member: &str) -> Vec<String> {
     let mut out = Vec::new();
     for param in params {
         let name = param.name.to_snake_case();
@@ -199,7 +195,9 @@ pub fn cpp_argument_expr(ty: &TypeRef, name: &str) -> String {
         TypeRef::Object { shared: true, .. } => format!("{name}_cpp"),
         TypeRef::Object { .. } => format!("*{name}_cpp"),
         TypeRef::Struct { .. } => format!("{name}_cpp"),
-        TypeRef::Enum { name: enum_name, .. } => format!("{}({name})", c_to_cpp_fn(enum_name)),
+        TypeRef::Enum {
+            name: enum_name, ..
+        } => format!("{}({name})", c_to_cpp_fn(enum_name)),
         TypeRef::Vector { .. } | TypeRef::Map { .. } => format!("{name}_cpp"),
         TypeRef::Optional { .. } => format!("{name}_cpp"),
         TypeRef::Callback { .. } => format!("{name}_cpp"),
@@ -250,7 +248,11 @@ pub fn c_type_name(prefix: &str, name: &str) -> String {
 pub fn c_invalid_handle_macro(prefix: &str, name: &str) -> String {
     format!(
         "{}INVALID_{}",
-        prefix.to_shouty_snake_case().trim_end_matches('_').to_string() + "_",
+        prefix
+            .to_shouty_snake_case()
+            .trim_end_matches('_')
+            .to_string()
+            + "_",
         name.to_shouty_snake_case()
     )
 }
@@ -385,10 +387,7 @@ pub fn constructor_suffix(class: &Class, ctor: &Constructor) -> Option<String> {
 /// with its owning class. A derived class's static constructor shares a name
 /// with its base's (`Button.create` / `View.create`), which TypeScript wants
 /// marked `override` and C# `new` when the signatures match.
-pub fn ancestor_constructors<'a>(
-    api: &'a Api,
-    class: &Class,
-) -> Vec<(&'a Class, &'a Constructor)> {
+pub fn ancestor_constructors<'a>(api: &'a Api, class: &Class) -> Vec<(&'a Class, &'a Constructor)> {
     let mut found = Vec::new();
     let mut base = class.base.as_deref();
     while let Some(name) = base {
@@ -426,7 +425,6 @@ pub const USER_DATA_HEADER: &str = "user_data.h";
 
 /// Generated header holding the definitions no C++ header owns.
 pub const COMMON_HEADER: &str = "common_c.h";
-
 
 pub const LISTENER_ID_TYPE: &str = "native_listener_id_t";
 
@@ -596,9 +594,9 @@ pub fn c_field_type(ty: &TypeRef, prefix: &str) -> String {
         TypeRef::String => "char*".to_string(),
         TypeRef::CString => "const char*".to_string(),
         TypeRef::Alias { name, .. } => c_type_name(prefix, name),
-        TypeRef::Enum { name, .. } | TypeRef::Struct { name, .. } | TypeRef::Object { name, .. } => {
-            c_type_name(prefix, name)
-        }
+        TypeRef::Enum { name, .. }
+        | TypeRef::Struct { name, .. }
+        | TypeRef::Object { name, .. } => c_type_name(prefix, name),
         TypeRef::Vector { element } => match element.as_ref() {
             TypeRef::Object { name, .. } => c_list_type_name(prefix, name),
             TypeRef::String => STRING_LIST_TYPE.to_string(),
@@ -816,7 +814,10 @@ mod tests {
 
     #[test]
     fn creates_list_names() {
-        assert_eq!(c_list_type_name("native_", "Display"), "native_display_list_t");
+        assert_eq!(
+            c_list_type_name("native_", "Display"),
+            "native_display_list_t"
+        );
         assert_eq!(c_list_field("Display"), "displays");
         // Already-plural class names are left alone.
         assert_eq!(c_list_field("Preferences"), "preferences");

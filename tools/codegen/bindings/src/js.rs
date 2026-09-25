@@ -24,12 +24,12 @@ use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 
 use codegen_shared::ir::{Api, Class, EventGroup, Header, Method, Param, Struct, TypeRef};
 use codegen_shared::naming::{
-    ancestor_constructors, c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
-    c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol, c_native_object_symbol,
-    c_param_type, c_release_user_data_param, c_remove_listener_symbol, c_type_name,
-    c_user_data_param, constructor_suffix,
-    is_binding_accessor, struct_has_owned_fields, swift_method_name, TypeOrigins, STRING_FREE_FN,
-    STRING_LIST_FREE_FN, STRING_MAP_FREE_FN,
+    ancestor_constructors, c_add_listener_symbol, c_constructor_symbol, c_event_variant,
+    c_event_variant_field, c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol,
+    c_native_object_symbol, c_param_type, c_release_user_data_param, c_remove_listener_symbol,
+    c_type_name, c_user_data_param, constructor_suffix, is_binding_accessor,
+    struct_has_owned_fields, swift_method_name, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN,
+    STRING_MAP_FREE_FN,
 };
 use codegen_shared::GeneratedFile;
 

@@ -16,7 +16,9 @@ mod rust;
 
 #[derive(Debug, Parser)]
 #[command(name = "codegen-bindings")]
-#[command(about = "Generate Rust/Dart/C#/JS/Python FFI bindings from the IR emitted by codegen-capi.")]
+#[command(
+    about = "Generate Rust/Dart/C#/JS/Python FFI bindings from the IR emitted by codegen-capi."
+)]
 struct CliArgs {
     /// Path to the IR JSON emitted by `codegen-capi --emit-ir`.
     #[arg(long)]

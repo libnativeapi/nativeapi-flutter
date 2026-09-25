@@ -337,9 +337,7 @@ impl TypeRef {
     /// part of the signature mentions.
     pub fn named_types(&self) -> Vec<&str> {
         match self {
-            TypeRef::Callback { params } => {
-                params.iter().flat_map(TypeRef::named_types).collect()
-            }
+            TypeRef::Callback { params } => params.iter().flat_map(TypeRef::named_types).collect(),
             other => other.named_type().into_iter().collect(),
         }
     }

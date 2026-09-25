@@ -4,15 +4,14 @@ use std::path::{Path, PathBuf};
 
 use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 
-use codegen_shared::naming::{
-    ancestor_constructors, c_add_listener_symbol, c_constructor_symbol, c_free_symbol, c_list_field,
-    c_list_release_symbol, c_list_type_name, c_method_symbol, c_native_object_symbol,
-    c_remove_listener_symbol, c_type_name, constructor_suffix, is_binding_accessor,
-    listed_classes, struct_has_owned_fields, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN,
-    STRING_MAP_FREE_FN,
-};
 use codegen_shared::ir::{
     Api, Class, Constructor, EventGroup, Header, Method, Param, Struct, TypeRef,
+};
+use codegen_shared::naming::{
+    ancestor_constructors, c_add_listener_symbol, c_constructor_symbol, c_free_symbol,
+    c_list_field, c_list_release_symbol, c_list_type_name, c_method_symbol, c_native_object_symbol,
+    c_remove_listener_symbol, c_type_name, constructor_suffix, is_binding_accessor, listed_classes,
+    struct_has_owned_fields, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_MAP_FREE_FN,
 };
 use codegen_shared::GeneratedFile;
 
@@ -337,7 +336,13 @@ fn generate_enum(ctx: &mut Ctx, item: &codegen_shared::ir::Enum) {
     writeln!(out, "public enum {}", item.name).unwrap();
     writeln!(out, "{{").unwrap();
     for variant in &item.variants {
-        writeln!(out, "    {} = {},", enum_member(&variant.name), variant.value).unwrap();
+        writeln!(
+            out,
+            "    {} = {},",
+            enum_member(&variant.name),
+            variant.value
+        )
+        .unwrap();
     }
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
@@ -370,8 +375,12 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
                 .unwrap();
             }
             other => {
-                writeln!(raw_out, "    public {} {raw_name};", cs_raw_field_type(other, prefix))
-                    .unwrap();
+                writeln!(
+                    raw_out,
+                    "    public {} {raw_name};",
+                    cs_raw_field_type(other, prefix)
+                )
+                .unwrap();
             }
         }
     }
@@ -388,8 +397,9 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
         // The matching C free lives with the struct definition so every file
         // that returns this struct shares one extern declaration.
         let free = c_free_symbol(prefix, &item.name);
-        ctx.externs
-            .insert(format!("public static extern void {free}(ref {c_ty} value);"));
+        ctx.externs.insert(format!(
+            "public static extern void {free}(ref {c_ty} value);"
+        ));
     }
 
     // Public form.
@@ -423,13 +433,24 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
     writeln!(out, ")").unwrap();
     writeln!(out, "    {{").unwrap();
     for field in &item.fields {
-        writeln!(out, "        {} = {};", pascal(&field.name), cs_ident(&field.name)).unwrap();
+        writeln!(
+            out,
+            "        {} = {};",
+            pascal(&field.name),
+            cs_ident(&field.name)
+        )
+        .unwrap();
     }
     writeln!(out, "    }}").unwrap();
     writeln!(out).unwrap();
 
     // FromRaw: the borrowed view of a C value.
-    writeln!(out, "    internal static {} FromRaw(in {c_ty} raw)", item.name).unwrap();
+    writeln!(
+        out,
+        "    internal static {} FromRaw(in {c_ty} raw)",
+        item.name
+    )
+    .unwrap();
     writeln!(out, "    {{").unwrap();
     write!(out, "        return new {}(", item.name).unwrap();
     for (index, field) in item.fields.iter().enumerate() {
@@ -477,8 +498,7 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
                 writeln!(out, "        raw.{raw} = {name}.ToRaw();").unwrap();
             }
             TypeRef::Callback { params } => {
-                let delegate =
-                    struct_callback_delegate(delegates, item, field, params, prefix);
+                let delegate = struct_callback_delegate(delegates, item, field, params, prefix);
                 let user_data = codegen_shared::naming::c_user_data_param(&field.name);
                 let release = codegen_shared::naming::c_release_user_data_param(&field.name);
                 writeln!(out, "        if ({name} is {{ }} {raw}Body)").unwrap();
@@ -494,8 +514,16 @@ fn generate_struct(ctx: &mut Ctx, item: &Struct, prefix: &str) {
                     "            raw.{raw} = Marshal.GetFunctionPointerForDelegate({raw}Native);"
                 )
                 .unwrap();
-                writeln!(out, "            raw.{user_data} = CallbackKeeper.Hold({raw}Native);").unwrap();
-                writeln!(out, "            raw.{release} = CallbackKeeper.ReleasePointer;").unwrap();
+                writeln!(
+                    out,
+                    "            raw.{user_data} = CallbackKeeper.Hold({raw}Native);"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "            raw.{release} = CallbackKeeper.ReleasePointer;"
+                )
+                .unwrap();
                 writeln!(out, "        }}").unwrap();
             }
             TypeRef::Int { name: int_name } if int_needs_conv(int_name) => {
@@ -571,7 +599,12 @@ fn generate_event(ctx: &mut Ctx, group: &EventGroup, prefix: &str) {
         for variant in &union_variants {
             writeln!(raw_out).unwrap();
             writeln!(raw_out, "    [StructLayout(LayoutKind.Sequential)]").unwrap();
-            writeln!(raw_out, "    public struct {}Data", pascal(&variant.discriminant)).unwrap();
+            writeln!(
+                raw_out,
+                "    public struct {}Data",
+                pascal(&variant.discriminant)
+            )
+            .unwrap();
             writeln!(raw_out, "    {{").unwrap();
             for field in &variant.fields {
                 writeln!(
@@ -599,7 +632,12 @@ fn generate_event(ctx: &mut Ctx, group: &EventGroup, prefix: &str) {
 
     // Public form: one record per concrete event.
     let out = &mut ctx.public;
-    writeln!(out, "/// <summary>One {}, in its concrete form.</summary>", group.name).unwrap();
+    writeln!(
+        out,
+        "/// <summary>One {}, in its concrete form.</summary>",
+        group.name
+    )
+    .unwrap();
     writeln!(out, "public abstract record {}", group.name).unwrap();
     writeln!(out, "{{").unwrap();
     writeln!(out, "    private {}() {{ }}", group.name).unwrap();
@@ -609,13 +647,7 @@ fn generate_event(ctx: &mut Ctx, group: &EventGroup, prefix: &str) {
             .common
             .iter()
             .chain(variant.fields.iter())
-            .map(|field| {
-                format!(
-                    "{} {}",
-                    cs_event_field_type(&field.ty),
-                    pascal(&field.name)
-                )
-            })
+            .map(|field| format!("{} {}", cs_event_field_type(&field.ty), pascal(&field.name)))
             .collect();
         if fields.is_empty() {
             writeln!(
@@ -727,13 +759,15 @@ fn generate_list_struct(ctx: &mut Ctx, class_name: &str, prefix: &str) {
 
 fn generate_handle_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {
     let free_symbol = c_free_symbol(prefix, &class.name);
-    ctx.externs
-        .insert(format!("public static extern void {free_symbol}(ulong handle);"));
+    ctx.externs.insert(format!(
+        "public static extern void {free_symbol}(ulong handle);"
+    ));
 
     let native_object_symbol = class.native_object.then(|| {
         let symbol = c_native_object_symbol(prefix, &class.name);
-        ctx.externs
-            .insert(format!("public static extern IntPtr {symbol}(ulong handle);"));
+        ctx.externs.insert(format!(
+            "public static extern IntPtr {symbol}(ulong handle);"
+        ));
         symbol
     });
 
@@ -741,7 +775,12 @@ fn generate_handle_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) 
         // The C ABI resolves this handle as the base too; handle ownership,
         // Dispose and the inherited methods all come from the base class.
         let out = &mut ctx.public;
-        writeln!(out, "/// <summary>Owned handle to a native {}.</summary>", class.name).unwrap();
+        writeln!(
+            out,
+            "/// <summary>Owned handle to a native {}.</summary>",
+            class.name
+        )
+        .unwrap();
         writeln!(out, "public partial class {} : {base}", class.name).unwrap();
         writeln!(out, "{{").unwrap();
         writeln!(
@@ -753,10 +792,24 @@ fn generate_handle_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) 
         writeln!(out).unwrap();
     } else {
         let out = &mut ctx.public;
-        writeln!(out, "/// <summary>Owned handle to a native {}.</summary>", class.name).unwrap();
+        writeln!(
+            out,
+            "/// <summary>Owned handle to a native {}.</summary>",
+            class.name
+        )
+        .unwrap();
         // A class other classes derive from cannot be sealed.
-        let sealed = if is_base_of_any(api, &class.name) { "" } else { "sealed " };
-        writeln!(out, "public {sealed}partial class {} : IDisposable", class.name).unwrap();
+        let sealed = if is_base_of_any(api, &class.name) {
+            ""
+        } else {
+            "sealed "
+        };
+        writeln!(
+            out,
+            "public {sealed}partial class {} : IDisposable",
+            class.name
+        )
+        .unwrap();
         writeln!(out, "{{").unwrap();
         writeln!(out, "    public ulong NativeHandle {{ get; private set; }}").unwrap();
         writeln!(out, "    private readonly bool _ownsHandle;").unwrap();
@@ -806,7 +859,11 @@ fn generate_handle_class(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) 
             "    /// <summary>Platform-specific native object behind this handle.</summary>"
         )
         .unwrap();
-        writeln!(out, "    public IntPtr NativeObject => Interop.{symbol}(NativeHandle);").unwrap();
+        writeln!(
+            out,
+            "    public IntPtr NativeObject => Interop.{symbol}(NativeHandle);"
+        )
+        .unwrap();
         writeln!(out).unwrap();
     }
 
@@ -871,7 +928,11 @@ fn generate_constructor(ctx: &mut Ctx, api: &Api, class: &Class, ctor: &Construc
             };
             base_label == label
                 && base_ctor.params.len() == ctor.params.len()
-                && base_ctor.params.iter().zip(&ctor.params).all(|(a, b)| a.ty == b.ty)
+                && base_ctor
+                    .params
+                    .iter()
+                    .zip(&ctor.params)
+                    .all(|(a, b)| a.ty == b.ty)
         });
     let modifier = if hides_base { "new " } else { "" };
     let symbol = c_constructor_symbol(prefix, class, ctor);
@@ -923,7 +984,12 @@ fn generate_constructor(ctx: &mut Ctx, api: &Api, class: &Class, ctor: &Construc
     )
     .unwrap();
     render_param_cleanup(out, api, &ctor.params, &bindings, "        ");
-    writeln!(out, "        return handle == 0 ? null : new {}(handle);", class.name).unwrap();
+    writeln!(
+        out,
+        "        return handle == 0 ? null : new {}(handle);",
+        class.name
+    )
+    .unwrap();
     writeln!(out, "    }}").unwrap();
     writeln!(out).unwrap();
 }
@@ -1045,11 +1111,7 @@ fn generate_listener(ctx: &mut Ctx, api: &Api, class: &Class, prefix: &str) {
     )
     .unwrap();
     writeln!(out, "    {{").unwrap();
-    writeln!(
-        out,
-        "        {delegate} native = (evt, userData) =>"
-    )
-    .unwrap();
+    writeln!(out, "        {delegate} native = (evt, userData) =>").unwrap();
     writeln!(out, "        {{").unwrap();
     writeln!(out, "            if (evt == IntPtr.Zero)").unwrap();
     writeln!(out, "            {{").unwrap();
@@ -1228,9 +1290,7 @@ fn extern_decl(
             )),
             TypeRef::Bool => parts.push(format!("[MarshalAs(UnmanagedType.I1)] bool {name}")),
             TypeRef::Int { name: int } => parts.push(format!("{} {name}", cs_raw_int(int))),
-            TypeRef::Float { name: float } => {
-                parts.push(format!("{} {name}", cs_float(float)))
-            }
+            TypeRef::Float { name: float } => parts.push(format!("{} {name}", cs_float(float))),
             TypeRef::Enum { .. } => parts.push(format!("int {name}")),
             TypeRef::Struct { name: ty, .. } => {
                 if matches!(param.ty, TypeRef::Optional { .. }) {
@@ -1292,9 +1352,7 @@ fn extern_return(ty: &TypeRef, prefix: &str) -> (String, String) {
         TypeRef::Object { .. } => (String::new(), "ulong".to_string()),
         TypeRef::Alias { underlying, .. } => extern_return(underlying, prefix),
         TypeRef::Vector { element } => match element.as_ref() {
-            TypeRef::Object { name, .. } => {
-                (String::new(), c_list_type_name(prefix, name))
-            }
+            TypeRef::Object { name, .. } => (String::new(), c_list_type_name(prefix, name)),
             _ => (String::new(), "native_string_list_t".to_string()),
         },
         TypeRef::Map { .. } => (String::new(), "native_string_map_t".to_string()),
@@ -1337,7 +1395,9 @@ fn cs_params(params: &[Param]) -> String {
 fn cs_param_type(ty: &TypeRef) -> String {
     match ty {
         TypeRef::String | TypeRef::CString => "string".to_string(),
-        TypeRef::Object { name, shared: true, .. } => format!("{name}?"),
+        TypeRef::Object {
+            name, shared: true, ..
+        } => format!("{name}?"),
         TypeRef::Object { name, .. } => name.clone(),
         TypeRef::Vector { .. } => "IReadOnlyList<string>".to_string(),
         TypeRef::Map { .. } => "IReadOnlyDictionary<string, string>".to_string(),
@@ -1392,7 +1452,11 @@ fn render_param_bindings(
                 Binding::StructRaw
             }
             TypeRef::Vector { .. } => {
-                writeln!(out, "{indent}var items{local} = Interop.AllocUtf8Array({name});").unwrap();
+                writeln!(
+                    out,
+                    "{indent}var items{local} = Interop.AllocUtf8Array({name});"
+                )
+                .unwrap();
                 writeln!(
                     out,
                     "{indent}var block{local} = Interop.AllocPointerArray(items{local});"
@@ -1445,7 +1509,9 @@ fn render_param_bindings(
                 Binding::Callback
             }
             TypeRef::Optional { inner } => match inner.as_ref() {
-                TypeRef::Struct { name: type_name, .. } => {
+                TypeRef::Struct {
+                    name: type_name, ..
+                } => {
                     let c_ty = c_type_name(prefix, type_name);
                     writeln!(out, "{indent}var ptr{local} = IntPtr.Zero;").unwrap();
                     writeln!(out, "{indent}if ({name} is {{ }} value{local})").unwrap();
@@ -1550,9 +1616,7 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
         let name = cs_ident(&param.name);
         let local = param.name.to_snake_case().to_upper_camel_case();
         match &param.ty {
-            TypeRef::Object { shared: true, .. } => {
-                args.push(format!("{name}?.NativeHandle ?? 0"))
-            }
+            TypeRef::Object { shared: true, .. } => args.push(format!("{name}?.NativeHandle ?? 0")),
             TypeRef::Object { .. } => args.push(format!("{name}.NativeHandle")),
             TypeRef::Struct { .. } => args.push(format!("raw{local}")),
             TypeRef::Enum { .. } => args.push(format!("(int){name}")),
@@ -1563,9 +1627,7 @@ fn call_args(params: &[Param], receiver: Option<String>) -> String {
                 args.push(format!("CallbackKeeper.Hold(native{local})"));
                 args.push("CallbackKeeper.Release".to_string());
             }
-            TypeRef::Int { name: int } if int_needs_conv(int) => {
-                args.push(int_to_raw(int, &name))
-            }
+            TypeRef::Int { name: int } if int_needs_conv(int) => args.push(int_to_raw(int, &name)),
             TypeRef::Alias { underlying, .. } => match underlying.as_ref() {
                 TypeRef::Int { name: int } if int_needs_conv(int) => {
                     args.push(int_to_raw(int, &name))
@@ -1658,7 +1720,11 @@ fn render_return(out: &mut String, api: &Api, ty: &TypeRef, prefix: &str, indent
             }
         },
         TypeRef::Map { .. } => {
-            writeln!(out, "{indent}return Interop.ConsumeStringMap(ref rawResult);").unwrap();
+            writeln!(
+                out,
+                "{indent}return Interop.ConsumeStringMap(ref rawResult);"
+            )
+            .unwrap();
         }
         TypeRef::Optional { inner } => render_return(out, api, inner, prefix, indent),
         TypeRef::Int { name } if int_needs_conv(name) => {
@@ -1807,15 +1873,83 @@ fn pascal(name: &str) -> String {
 }
 
 const CSHARP_KEYWORDS: &[&str] = &[
-    "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
-    "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
-    "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for",
-    "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
-    "long", "namespace", "new", "null", "object", "operator", "out", "override", "params",
-    "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed", "short",
-    "sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw", "true",
-    "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using", "virtual",
-    "void", "volatile", "while",
+    "abstract",
+    "as",
+    "base",
+    "bool",
+    "break",
+    "byte",
+    "case",
+    "catch",
+    "char",
+    "checked",
+    "class",
+    "const",
+    "continue",
+    "decimal",
+    "default",
+    "delegate",
+    "do",
+    "double",
+    "else",
+    "enum",
+    "event",
+    "explicit",
+    "extern",
+    "false",
+    "finally",
+    "fixed",
+    "float",
+    "for",
+    "foreach",
+    "goto",
+    "if",
+    "implicit",
+    "in",
+    "int",
+    "interface",
+    "internal",
+    "is",
+    "lock",
+    "long",
+    "namespace",
+    "new",
+    "null",
+    "object",
+    "operator",
+    "out",
+    "override",
+    "params",
+    "private",
+    "protected",
+    "public",
+    "readonly",
+    "ref",
+    "return",
+    "sbyte",
+    "sealed",
+    "short",
+    "sizeof",
+    "stackalloc",
+    "static",
+    "string",
+    "struct",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typeof",
+    "uint",
+    "ulong",
+    "unchecked",
+    "unsafe",
+    "ushort",
+    "using",
+    "virtual",
+    "void",
+    "volatile",
+    "while",
 ];
 
 fn cs_ident(name: &str) -> String {

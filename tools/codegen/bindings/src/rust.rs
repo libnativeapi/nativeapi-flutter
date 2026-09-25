@@ -592,11 +592,7 @@ fn render_rust_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
         "    /// The closure is dropped on the main thread once the listener is removed"
     )
     .unwrap();
-    writeln!(
-        out,
-        "    /// or its emitter destroyed."
-    )
-    .unwrap();
+    writeln!(out, "    /// or its emitter destroyed.").unwrap();
     writeln!(
         out,
         "    pub fn add_listener({receiver}callback: impl Fn(&{}) + 'static) -> ListenerId {{",
@@ -704,7 +700,12 @@ fn render_rust_handle_type(out: &mut String, class: &Class, prefix: &str) {
             "/// Derefs to [`{base}`]: the C ABI resolves this handle as a `{base}` too, so"
         )
         .unwrap();
-        writeln!(out, "/// every `{base}` method is available and a `&{}` coerces to `&{base}`.", class.name).unwrap();
+        writeln!(
+            out,
+            "/// every `{base}` method is available and a `&{}` coerces to `&{base}`.",
+            class.name
+        )
+        .unwrap();
     }
     writeln!(out, "#[derive(Debug)]").unwrap();
     // Transparent over the handle so a derived class can reinterpret itself as

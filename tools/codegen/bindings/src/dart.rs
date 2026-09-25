@@ -10,9 +10,8 @@ use codegen_shared::naming::{
     c_add_listener_symbol, c_constructor_symbol, c_event_variant, c_event_variant_field,
     c_free_symbol, c_list_field, c_list_release_symbol, c_method_symbol, c_native_object_symbol,
     c_release_user_data_param, c_remove_listener_symbol, c_type_name, c_user_data_param,
-    constructor_suffix, foreign_types, is_binding_accessor,
-    struct_has_owned_fields, swift_method_name, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN,
-    STRING_MAP_FREE_FN,
+    constructor_suffix, foreign_types, is_binding_accessor, struct_has_owned_fields,
+    swift_method_name, TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_MAP_FREE_FN,
 };
 use codegen_shared::GeneratedFile;
 
@@ -409,15 +408,26 @@ fn render_dart_value_members(out: &mut String, item: &Struct) {
         .filter(|field| !is_callback(&field.ty))
         .map(|field| (field.name.to_lower_camel_case(), &field.ty))
         .collect();
-    let uses_list = fields.iter().any(|(_, ty)| matches!(ty, TypeRef::Vector { .. }));
-    let uses_map = fields.iter().any(|(_, ty)| matches!(ty, TypeRef::Map { .. }));
+    let uses_list = fields
+        .iter()
+        .any(|(_, ty)| matches!(ty, TypeRef::Vector { .. }));
+    let uses_map = fields
+        .iter()
+        .any(|(_, ty)| matches!(ty, TypeRef::Map { .. }));
 
     writeln!(out, "  @override").unwrap();
     writeln!(out, "  bool operator ==(Object other) =>").unwrap();
-    write!(out, "      identical(this, other) ||\n      (other is {}", item.name).unwrap();
+    write!(
+        out,
+        "      identical(this, other) ||\n      (other is {}",
+        item.name
+    )
+    .unwrap();
     for (name, ty) in &fields {
         match ty {
-            TypeRef::Vector { .. } => write!(out, " &&\n          _listEquals(other.{name}, {name})"),
+            TypeRef::Vector { .. } => {
+                write!(out, " &&\n          _listEquals(other.{name}, {name})")
+            }
             TypeRef::Map { .. } => write!(out, " &&\n          _mapEquals(other.{name}, {name})"),
             _ => write!(out, " &&\n          other.{name} == {name}"),
         }
@@ -440,7 +450,11 @@ fn render_dart_value_members(out: &mut String, item: &Struct) {
     match hashes.as_slice() {
         [] => writeln!(out, "  int get hashCode => 0;"),
         [single] => writeln!(out, "  int get hashCode => {single}.hashCode;"),
-        _ => writeln!(out, "  int get hashCode => Object.hash({});", hashes.join(", ")),
+        _ => writeln!(
+            out,
+            "  int get hashCode => Object.hash({});",
+            hashes.join(", ")
+        ),
     }
     .unwrap();
     writeln!(out).unwrap();
@@ -451,7 +465,13 @@ fn render_dart_value_members(out: &mut String, item: &Struct) {
         .map(|(name, _)| format!("{name}: ${name}"))
         .collect();
     writeln!(out, "  @override").unwrap();
-    writeln!(out, "  String toString() => '{}({})';", item.name, parts.join(", ")).unwrap();
+    writeln!(
+        out,
+        "  String toString() => '{}({})';",
+        item.name,
+        parts.join(", ")
+    )
+    .unwrap();
     writeln!(out).unwrap();
 
     if uses_list {
@@ -465,10 +485,18 @@ fn render_dart_value_members(out: &mut String, item: &Struct) {
         writeln!(out).unwrap();
     }
     if uses_map {
-        writeln!(out, "  static bool _mapEquals<K, V>(Map<K, V> a, Map<K, V> b) {{").unwrap();
+        writeln!(
+            out,
+            "  static bool _mapEquals<K, V>(Map<K, V> a, Map<K, V> b) {{"
+        )
+        .unwrap();
         writeln!(out, "    if (a.length != b.length) return false;").unwrap();
         writeln!(out, "    for (final entry in a.entries) {{").unwrap();
-        writeln!(out, "      if (!b.containsKey(entry.key) || b[entry.key] != entry.value) {{").unwrap();
+        writeln!(
+            out,
+            "      if (!b.containsKey(entry.key) || b[entry.key] != entry.value) {{"
+        )
+        .unwrap();
         writeln!(out, "        return false;").unwrap();
         writeln!(out, "      }}").unwrap();
         writeln!(out, "    }}").unwrap();
@@ -653,10 +681,7 @@ fn render_dart_event(out: &mut String, group: &EventGroup, prefix: &str) {
             args.push(format!(
                 "{}: {}",
                 field.name.to_lower_camel_case(),
-                dart_from_native(
-                    &field.ty,
-                    &format!("raw.data.{payload}.{}", c_field(field))
-                )
+                dart_from_native(&field.ty, &format!("raw.data.{payload}.{}", c_field(field)))
             ));
         }
         writeln!(
@@ -1090,14 +1115,22 @@ fn render_dart_listener(out: &mut String, api: &Api, class: &Class, prefix: &str
 /// Whether a module hands any callback to the C API, and so needs
 /// `NativeCallbacks`.
 fn header_passes_callbacks(header: &Header) -> bool {
-    header.structs.iter().any(|item| item.fields.iter().any(|field| is_callback(&field.ty)))
+    header
+        .structs
+        .iter()
+        .any(|item| item.fields.iter().any(|field| is_callback(&field.ty)))
         || header.classes.iter().any(|class| {
             class.event.is_some()
                 || class
                     .methods
                     .iter()
                     .flat_map(|method| method.params.iter())
-                    .chain(class.constructors.iter().flat_map(|ctor| ctor.params.iter()))
+                    .chain(
+                        class
+                            .constructors
+                            .iter()
+                            .flat_map(|ctor| ctor.params.iter()),
+                    )
                     .any(|param| is_callback(&param.ty))
         })
 }

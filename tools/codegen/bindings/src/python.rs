@@ -23,13 +23,12 @@ use codegen_shared::ir::{
     TypeRef,
 };
 use codegen_shared::naming::{
-    c_add_listener_symbol, c_constructor_symbol, c_free_symbol, c_list_field,
-    c_list_free_symbol, c_list_release_symbol, c_list_type_name, c_method_symbol,
-    c_native_object_symbol, c_release_user_data_param, c_remove_listener_symbol, c_type_name,
-    c_user_data_param, RELEASE_USER_DATA_TYPE,
-    constructor_suffix, is_binding_accessor, listed_classes, struct_has_owned_fields,
-    TypeOrigins, STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_LIST_TYPE, STRING_MAP_FREE_FN,
-    STRING_MAP_TYPE,
+    c_add_listener_symbol, c_constructor_symbol, c_free_symbol, c_list_field, c_list_free_symbol,
+    c_list_release_symbol, c_list_type_name, c_method_symbol, c_native_object_symbol,
+    c_release_user_data_param, c_remove_listener_symbol, c_type_name, c_user_data_param,
+    constructor_suffix, is_binding_accessor, listed_classes, struct_has_owned_fields, TypeOrigins,
+    RELEASE_USER_DATA_TYPE, STRING_FREE_FN, STRING_LIST_FREE_FN, STRING_LIST_TYPE,
+    STRING_MAP_FREE_FN, STRING_MAP_TYPE,
 };
 use codegen_shared::GeneratedFile;
 
@@ -86,9 +85,15 @@ fn init_module(api: &Api) -> String {
     let mut modules: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
     modules.insert(
         "_runtime".to_string(),
-        RUNTIME_EXPORTS.iter().map(|name| name.to_string()).collect(),
+        RUNTIME_EXPORTS
+            .iter()
+            .map(|name| name.to_string())
+            .collect(),
     );
-    let mut seen: BTreeSet<String> = RUNTIME_EXPORTS.iter().map(|name| name.to_string()).collect();
+    let mut seen: BTreeSet<String> = RUNTIME_EXPORTS
+        .iter()
+        .map(|name| name.to_string())
+        .collect();
     for header in &api.headers {
         for name in public_names(header) {
             if seen.insert(name.clone()) {
@@ -243,7 +248,11 @@ fn capi_module(api: &Api, prefix: &str) -> String {
 
     writeln!(out, "# --- structures ---\n\n").unwrap();
     for aggregate in &aggregates {
-        let base = if aggregate.union { "Union" } else { "Structure" };
+        let base = if aggregate.union {
+            "Union"
+        } else {
+            "Structure"
+        };
         writeln!(out, "class {}({base}):\n    pass\n\n", aggregate.name).unwrap();
     }
 
@@ -316,9 +325,25 @@ fn capi_module(api: &Api, prefix: &str) -> String {
 
 /// Everything `_capi.py` may import from `ctypes`, in import order.
 const CTYPES_NAMES: &[&str] = &[
-    "CFUNCTYPE", "POINTER", "Structure", "Union", "c_bool", "c_byte", "c_char_p", "c_double",
-    "c_float", "c_int", "c_long", "c_longlong", "c_short", "c_ubyte", "c_uint", "c_uint64",
-    "c_ulong", "c_ushort", "c_void_p",
+    "CFUNCTYPE",
+    "POINTER",
+    "Structure",
+    "Union",
+    "c_bool",
+    "c_byte",
+    "c_char_p",
+    "c_double",
+    "c_float",
+    "c_int",
+    "c_long",
+    "c_longlong",
+    "c_short",
+    "c_ubyte",
+    "c_uint",
+    "c_uint64",
+    "c_ulong",
+    "c_ushort",
+    "c_void_p",
 ];
 
 /// Whether `ident` occurs in `text` as a whole identifier.
@@ -365,7 +390,11 @@ fn event_aggregates(aggregates: &mut Vec<RawAggregate>, group: &EventGroup, pref
     let event_ty = c_type_name(prefix, &group.name);
     let union_ty = event_union_type(prefix, group);
     let mut union_fields = Vec::new();
-    for variant in group.variants.iter().filter(|variant| !variant.fields.is_empty()) {
+    for variant in group
+        .variants
+        .iter()
+        .filter(|variant| !variant.fields.is_empty())
+    {
         let payload_ty = event_payload_type(prefix, group, &variant.discriminant);
         aggregates.push(RawAggregate {
             name: payload_ty.clone(),
@@ -373,18 +402,23 @@ fn event_aggregates(aggregates: &mut Vec<RawAggregate>, group: &EventGroup, pref
             fields: variant
                 .fields
                 .iter()
-                .map(|field| (raw_field_name(&field.name), raw_type(field.ty.unwrap_optional(), prefix)))
+                .map(|field| {
+                    (
+                        raw_field_name(&field.name),
+                        raw_type(field.ty.unwrap_optional(), prefix),
+                    )
+                })
                 .collect(),
         });
         union_fields.push((event_payload_field(&variant.discriminant), payload_ty));
     }
     let mut fields = vec![("type".to_string(), "c_int".to_string())];
-    fields.extend(
-        group
-            .common
-            .iter()
-            .map(|field| (raw_field_name(&field.name), raw_type(field.ty.unwrap_optional(), prefix))),
-    );
+    fields.extend(group.common.iter().map(|field| {
+        (
+            raw_field_name(&field.name),
+            raw_type(field.ty.unwrap_optional(), prefix),
+        )
+    }));
     if !union_fields.is_empty() {
         aggregates.push(RawAggregate {
             name: union_ty.clone(),
@@ -466,7 +500,11 @@ fn render_header_functions(
                 c_list_free_symbol(prefix, &class.name),
                 c_list_release_symbol(prefix, &class.name),
             ] {
-                lines.push(function_decl(&symbol, "None", &[format!("POINTER({list_ty})")]));
+                lines.push(function_decl(
+                    &symbol,
+                    "None",
+                    &[format!("POINTER({list_ty})")],
+                ));
             }
         }
         if class.is_instance() {
@@ -539,7 +577,10 @@ fn render_header_functions(
 }
 
 fn function_decl(symbol: &str, restype: &str, args: &[String]) -> String {
-    let one_line = format!("{symbol} = function(\"{symbol}\", {restype}, [{}])", args.join(", "));
+    let one_line = format!(
+        "{symbol} = function(\"{symbol}\", {restype}, [{}])",
+        args.join(", ")
+    );
     if one_line.len() <= 88 {
         return one_line;
     }
@@ -606,7 +647,10 @@ fn callback_type(callbacks: &mut Callbacks, params: &[TypeRef], prefix: &str) ->
     let mut signature_args = vec!["None".to_string()];
     signature_args.extend(args);
     signature_args.push("c_void_p".to_string());
-    callbacks.insert(name.clone(), format!("CFUNCTYPE({})", signature_args.join(", ")));
+    callbacks.insert(
+        name.clone(),
+        format!("CFUNCTYPE({})", signature_args.join(", ")),
+    );
     name
 }
 
@@ -617,9 +661,12 @@ fn raw_type(ty: &TypeRef, prefix: &str) -> String {
         TypeRef::Void => "None".to_string(),
         TypeRef::Bool => "c_bool".to_string(),
         TypeRef::Int { name } => int_ctype(name).to_string(),
-        TypeRef::Float { name } => {
-            if name == "float" { "c_float" } else { "c_double" }.to_string()
+        TypeRef::Float { name } => if name == "float" {
+            "c_float"
+        } else {
+            "c_double"
         }
+        .to_string(),
         TypeRef::String | TypeRef::CString => "c_char_p".to_string(),
         TypeRef::Enum { .. } => "c_int".to_string(),
         TypeRef::Struct { name, .. } => c_type_name(prefix, name),
@@ -809,10 +856,20 @@ fn public_module(api: &Api, header: &Header, origins: &TypeOrigins, prefix: &str
 // --- enums ---
 
 fn render_enum(out: &mut String, item: &Enum) {
-    let base = if is_flag_enum(item) { "IntFlag" } else { "IntEnum" };
+    let base = if is_flag_enum(item) {
+        "IntFlag"
+    } else {
+        "IntEnum"
+    };
     writeln!(out, "class {}(enum.{base}):", item.name).unwrap();
     for variant in &item.variants {
-        writeln!(out, "    {} = {}", enum_member(&variant.name), variant.value).unwrap();
+        writeln!(
+            out,
+            "    {} = {}",
+            enum_member(&variant.name),
+            variant.value
+        )
+        .unwrap();
     }
     writeln!(out, "\n").unwrap();
 }
@@ -821,7 +878,9 @@ fn render_enum(out: &mut String, item: &Enum) {
 /// what a plain `0, 1, 2` sequence would.
 fn is_flag_enum(item: &Enum) -> bool {
     let values: Vec<i64> = item.variants.iter().map(|variant| variant.value).collect();
-    values.iter().all(|value| *value == 0 || (*value > 0 && value & (value - 1) == 0))
+    values
+        .iter()
+        .all(|value| *value == 0 || (*value > 0 && value & (value - 1) == 0))
         && values.iter().any(|value| *value >= 4)
         && !values.contains(&3)
 }
@@ -849,7 +908,12 @@ fn render_struct(out: &mut String, module: &mut Module, item: &Struct) {
             other => annotation(module, other, Position::Field),
         };
         let default = field_default(module, &field.ty);
-        writeln!(out, "    {}: {ty} = {default}", py_ident(&field.name.to_snake_case())).unwrap();
+        writeln!(
+            out,
+            "    {}: {ty} = {default}",
+            py_ident(&field.name.to_snake_case())
+        )
+        .unwrap();
     }
     for constant in &item.constants {
         writeln!(
@@ -953,7 +1017,15 @@ fn render_struct_method(out: &mut String, module: &mut Module, item: &Struct, me
         write_def(out, &name, "self", &method.params, module, &ret);
         args.push("self._to_c()".to_string());
     }
-    render_call_body(out, module, &symbol, args, &method.params, &method.return_type, "        ");
+    render_call_body(
+        out,
+        module,
+        &symbol,
+        args,
+        &method.params,
+        &method.return_type,
+        "        ",
+    );
 }
 
 // --- events ---
@@ -998,7 +1070,12 @@ fn render_event(out: &mut String, module: &mut Module, group: &EventGroup) {
                 .map(|field| event_value(module, field, &payload)),
         );
         writeln!(out, "        if raw.type == {index}:").unwrap();
-        write_call(out, &format!("            return {}(", variant.name), &values, ")");
+        write_call(
+            out,
+            &format!("            return {}(", variant.name),
+            &values,
+            ")",
+        );
     }
     writeln!(out, "        return None").unwrap();
     writeln!(out, "\n").unwrap();
@@ -1040,7 +1117,10 @@ fn render_instance_class(out: &mut String, module: &mut Module, class: &Class) {
     let prefix = module.prefix;
     // A derived class inherits the base's handle plumbing (and `_free`, which
     // releases the same table slot): the C ABI resolves its handle as the base.
-    let parent = class.base.clone().unwrap_or_else(|| "_rt.NativeObject".to_string());
+    let parent = class
+        .base
+        .clone()
+        .unwrap_or_else(|| "_rt.NativeObject".to_string());
     writeln!(out, "class {}({parent}):", class.name).unwrap();
     writeln!(
         out,
@@ -1125,7 +1205,9 @@ fn render_setters(out: &mut String, module: &mut Module, class: &Class) {
             // Absent, or overloaded: no single setter to pick.
             continue;
         };
-        if setter.is_static || setter.params.len() != 1 || !matches!(setter.return_type, TypeRef::Void)
+        if setter.is_static
+            || setter.params.len() != 1
+            || !matches!(setter.return_type, TypeRef::Void)
         {
             continue;
         }
@@ -1134,7 +1216,12 @@ fn render_setters(out: &mut String, module: &mut Module, class: &Class) {
         let ty = annotation(module, &setter.params[0].ty, Position::Param);
         writeln!(out).unwrap();
         writeln!(out, "    @{property}.setter").unwrap();
-        write_def_raw(out, &property, &["self".to_string(), format!("value: {ty}")], "None");
+        write_def_raw(
+            out,
+            &property,
+            &["self".to_string(), format!("value: {ty}")],
+            "None",
+        );
         writeln!(out, "        self.{method}(value)").unwrap();
     }
 }
@@ -1317,12 +1404,21 @@ fn render_listener(out: &mut String, module: &mut Module, class: &Class) {
         "    def remove_listener({receiver_param}listener_id: int) -> bool:"
     )
     .unwrap();
-    writeln!(out, "        \"\"\"Unregisters a listener. Returns False if unknown.\"\"\"").unwrap();
+    writeln!(
+        out,
+        "        \"\"\"Unregisters a listener. Returns False if unknown.\"\"\""
+    )
+    .unwrap();
     let mut remove_args = vec![format!("_C.{remove}"), "listener_id".to_string()];
     if class.is_instance() {
         remove_args.push("self._handle".to_string());
     }
-    write_call(out, "        return _rt.remove_listener(", &remove_args, ")");
+    write_call(
+        out,
+        "        return _rt.remove_listener(",
+        &remove_args,
+        ")",
+    );
 }
 
 // --- calls ---
@@ -1355,7 +1451,10 @@ fn render_callback_locals(out: &mut String, module: &mut Module, params: &[Param
         if let TypeRef::Callback { params: args } = param.ty.unwrap_optional() {
             let name = py_ident(&param.name.to_snake_case());
             let trampoline = callback_trampoline(module, args, &name);
-            let cb_ty = format!("_C.{}", callback_type(&mut Callbacks::new(), args, module.prefix));
+            let cb_ty = format!(
+                "_C.{}",
+                callback_type(&mut Callbacks::new(), args, module.prefix)
+            );
             if matches!(param.ty, TypeRef::Optional { .. }) {
                 // ctypes rejects None for a CFUNCTYPE argument; an empty
                 // instance is the NULL function pointer.
@@ -1383,7 +1482,9 @@ fn render_return(out: &mut String, module: &mut Module, ty: &TypeRef, indent: &s
     let prefix = module.prefix;
     let value = match ty {
         TypeRef::String | TypeRef::CString => "_rt.take_str(raw)".to_string(),
-        TypeRef::Optional { inner } if matches!(inner.as_ref(), TypeRef::String | TypeRef::CString) => {
+        TypeRef::Optional { inner }
+            if matches!(inner.as_ref(), TypeRef::String | TypeRef::CString) =>
+        {
             "_rt.take_optional_str(raw)".to_string()
         }
         TypeRef::Optional { inner } => {
@@ -1458,9 +1559,9 @@ fn call_args(module: &mut Module, params: &[Param], receiver: Vec<String>) -> Ve
         let name = py_ident(&param.name.to_snake_case());
         match &param.ty {
             TypeRef::Optional { inner } => match inner.as_ref() {
-                TypeRef::Struct { .. } => {
-                    args.push(format!("None if {name} is None else _rt.byref({name}._to_c())"))
-                }
+                TypeRef::Struct { .. } => args.push(format!(
+                    "None if {name} is None else _rt.byref({name}._to_c())"
+                )),
                 TypeRef::Callback { .. } => {
                     args.push(format!("native_{name}"));
                     args.push(format!("_rt.user_data(native_{name})"));
@@ -1674,7 +1775,9 @@ fn field_default(module: &mut Module, ty: &TypeRef) -> String {
                 None => format!("field(default_factory=lambda: {name}(0))"),
             }
         }
-        TypeRef::Struct { name, .. } => format!("field(default_factory=lambda: {}())", module.qual(name)),
+        TypeRef::Struct { name, .. } => {
+            format!("field(default_factory=lambda: {}())", module.qual(name))
+        }
         TypeRef::Vector { .. } => "field(default_factory=list)".to_string(),
         TypeRef::Map { .. } => "field(default_factory=dict)".to_string(),
         _ => "None".to_string(),
@@ -1716,10 +1819,10 @@ fn py_method_name(class: &Class, method: &Method) -> String {
 const NATIVE_OBJECT_MEMBERS: &[&str] = &["dispose", "native_handle"];
 
 const PYTHON_KEYWORDS: &[&str] = &[
-    "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class",
-    "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global",
-    "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return",
-    "try", "while", "with", "yield",
+    "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
+    "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import",
+    "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while",
+    "with", "yield",
 ];
 
 fn py_ident(name: &str) -> String {

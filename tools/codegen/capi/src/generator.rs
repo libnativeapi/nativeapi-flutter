@@ -4,24 +4,22 @@ use std::path::Path;
 
 use heck::ToSnakeCase;
 
+use codegen_shared::ir::{
+    Api, Class, Constructor, Enum, EventGroup, Field, Header, Method, Param, Struct, TypeRef,
+};
 use codegen_shared::naming::{
-    c_to_cpp_fn, cpp_to_c_fn,
     c_add_listener_symbol, c_call_args, c_callback_type_name, c_constructor_symbol, c_enum_variant,
     c_event_callback_type, c_event_type_enum, c_event_variant, c_event_variant_field, c_field_type,
     c_free_symbol, c_invalid_handle_macro, c_list_field, c_list_free_symbol, c_list_release_symbol,
     c_list_type_name, c_method_symbol, c_native_object_symbol, c_param_list, c_param_type,
-    c_params, c_remove_listener_symbol, c_return_type, c_self_param, c_type_name, cpp_argument_expr,
-    cpp_event_converter, cpp_event_releaser, foreign_types, header_dependencies, is_callback,
-    listed_classes, relative_include, struct_has_owned_fields, TypeOrigins, COMMON_HEADER,
-    LISTENER_ID_TYPE, STRING_DUP_FN, STRING_FREE_FN, STRING_LIST_DUP_FN, STRING_LIST_FREE_FN,
-    STRING_LIST_TYPE,
-    STRING_MAP_DUP_FN, STRING_MAP_TYPE, c_release_user_data_param, RELEASE_USER_DATA_TYPE,
-    USER_DATA_HEADER,
+    c_params, c_release_user_data_param, c_remove_listener_symbol, c_return_type, c_self_param,
+    c_to_cpp_fn, c_type_name, cpp_argument_expr, cpp_event_converter, cpp_event_releaser,
+    cpp_to_c_fn, foreign_types, header_dependencies, is_callback, listed_classes, relative_include,
+    struct_has_owned_fields, TypeOrigins, COMMON_HEADER, LISTENER_ID_TYPE, RELEASE_USER_DATA_TYPE,
+    STRING_DUP_FN, STRING_FREE_FN, STRING_LIST_DUP_FN, STRING_LIST_FREE_FN, STRING_LIST_TYPE,
+    STRING_MAP_DUP_FN, STRING_MAP_TYPE, USER_DATA_HEADER,
 };
 use codegen_shared::GeneratedFile;
-use codegen_shared::ir::{
-    Api, Class, Constructor, Enum, EventGroup, Field, Header, Method, Param, Struct, TypeRef,
-};
 
 pub fn generate(
     api: &Api,
@@ -65,7 +63,11 @@ pub fn generate_common(capi_out: &Path, prefix: &str) -> GeneratedFile {
     writeln!(out, "/// Identifies one registered event listener.").unwrap();
     writeln!(out, "typedef uint64_t {LISTENER_ID_TYPE};").unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "/// Returned by add_listener when registration failed.").unwrap();
+    writeln!(
+        out,
+        "/// Returned by add_listener when registration failed."
+    )
+    .unwrap();
     writeln!(
         out,
         "#define {}INVALID_LISTENER_ID (({LISTENER_ID_TYPE})0)",
@@ -85,7 +87,11 @@ pub fn generate_common(capi_out: &Path, prefix: &str) -> GeneratedFile {
     ] {
         writeln!(out, "{line}").unwrap();
     }
-    writeln!(out, "typedef void (*{RELEASE_USER_DATA_TYPE})(void* user_data);").unwrap();
+    writeln!(
+        out,
+        "typedef void (*{RELEASE_USER_DATA_TYPE})(void* user_data);"
+    )
+    .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "#ifdef __cplusplus").unwrap();
     writeln!(out, "}}").unwrap();
@@ -233,7 +239,7 @@ fn render_c_header(
     writeln!(out).unwrap();
     writeln!(out, "#include \"{COMMON_HEADER}\"").unwrap();
     if header_uses_string_containers(header) {
-writeln!(
+        writeln!(
             out,
             "#include \"{}\"",
             codegen_shared::naming::STRING_UTILS_HEADER
@@ -573,7 +579,11 @@ fn render_c_handle_functions_decl(out: &mut String, class: &Class, listed: bool,
         return;
     }
 
-    writeln!(out, "/// Frees the array and releases every handle it contains.").unwrap();
+    writeln!(
+        out,
+        "/// Frees the array and releases every handle it contains."
+    )
+    .unwrap();
     writeln!(out, "FFI_PLUGIN_EXPORT").unwrap();
     writeln!(
         out,
@@ -831,7 +841,12 @@ fn collect_callbacks(header: &Header, prefix: &str) -> Vec<CallbackDecl> {
     for class in &header.classes {
         for ctor in &class.constructors {
             for param in &ctor.params {
-                push(&class.name, &ctor_member_name(class, ctor), &param.ty, &mut out);
+                push(
+                    &class.name,
+                    &ctor_member_name(class, ctor),
+                    &param.ty,
+                    &mut out,
+                );
             }
         }
         for method in &class.methods {
@@ -1201,10 +1216,22 @@ fn render_c_struct_converter(out: &mut String, item: &Struct, prefix: &str) {
                 .unwrap();
             }
             TypeRef::Enum { name, .. } => {
-                writeln!(out, "  result.{c_name} = {}(value.{});", cpp_to_c_fn(name), field.name).unwrap();
+                writeln!(
+                    out,
+                    "  result.{c_name} = {}(value.{});",
+                    cpp_to_c_fn(name),
+                    field.name
+                )
+                .unwrap();
             }
             TypeRef::Struct { name, .. } => {
-                writeln!(out, "  result.{c_name} = {}(value.{});", cpp_to_c_fn(name), field.name).unwrap();
+                writeln!(
+                    out,
+                    "  result.{c_name} = {}(value.{});",
+                    cpp_to_c_fn(name),
+                    field.name
+                )
+                .unwrap();
             }
             // A callback field has no meaningful C++ -> C direction: the C side
             // supplies it, never receives it.
@@ -1316,7 +1343,9 @@ fn render_param_bindings(
                     writeln!(out, "{indent}}}").unwrap();
                 }
             }
-            TypeRef::Struct { name: type_name, .. } => {
+            TypeRef::Struct {
+                name: type_name, ..
+            } => {
                 writeln!(
                     out,
                     "{indent}auto {name}_cpp = {}({name});",
@@ -1420,7 +1449,16 @@ fn render_callback_binding(
         .collect();
 
     if optional {
-        writeln!(out, "{indent}std::optional<std::function<void({})>> {name}_cpp;", params.iter().map(cpp_lambda_param).collect::<Vec<_>>().join(", ")).unwrap();
+        writeln!(
+            out,
+            "{indent}std::optional<std::function<void({})>> {name}_cpp;",
+            params
+                .iter()
+                .map(cpp_lambda_param)
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+        .unwrap();
         writeln!(out, "{indent}if ({name}) {{").unwrap();
         writeln!(
             out,
@@ -1564,8 +1602,11 @@ fn render_return(out: &mut String, ty: &TypeRef, call: &str, prefix: &str, inden
             ..
         } => {
             if *shared {
-                writeln!(out, "{indent}return nativeapi::HandleTable::GetInstance().Insert({call});")
-                    .unwrap();
+                writeln!(
+                    out,
+                    "{indent}return nativeapi::HandleTable::GetInstance().Insert({call});"
+                )
+                .unwrap();
             } else {
                 writeln!(
                     out,
@@ -1670,7 +1711,9 @@ fn render_c_default_return(
     match ty {
         TypeRef::Void => writeln!(out, "{indent}  return;").unwrap(),
         TypeRef::Bool => writeln!(out, "{indent}  return false;").unwrap(),
-        TypeRef::Int { .. } | TypeRef::Float { .. } => writeln!(out, "{indent}  return 0;").unwrap(),
+        TypeRef::Int { .. } | TypeRef::Float { .. } => {
+            writeln!(out, "{indent}  return 0;").unwrap()
+        }
         TypeRef::Object { .. } => writeln!(out, "{indent}  return 0;").unwrap(),
         TypeRef::Enum { name, .. } => {
             let fallback = header
@@ -1683,10 +1726,21 @@ fn render_c_default_return(
                         .map(|variant| c_enum_variant(prefix, item, &variant.name))
                 })
                 .unwrap_or_else(|| "0".to_string());
-            writeln!(out, "{indent}  return ({}){};", c_type_name(prefix, name), fallback).unwrap();
+            writeln!(
+                out,
+                "{indent}  return ({}){};",
+                c_type_name(prefix, name),
+                fallback
+            )
+            .unwrap();
         }
         TypeRef::Struct { name, .. } => {
-            writeln!(out, "{indent}  {} result = {{}};", c_type_name(prefix, name)).unwrap();
+            writeln!(
+                out,
+                "{indent}  {} result = {{}};",
+                c_type_name(prefix, name)
+            )
+            .unwrap();
             if let Some(item) = header.structs.iter().find(|item| item.name == *name) {
                 for field in &item.fields {
                     match field.name.as_str() {
@@ -1736,12 +1790,7 @@ fn c_ctor_params(class: &Class, ctor: &Constructor, prefix: &str) -> String {
     params.join(", ")
 }
 
-fn render_c_constructor(
-    out: &mut String,
-    class: &Class,
-    ctor: &Constructor,
-    prefix: &str,
-) {
+fn render_c_constructor(out: &mut String, class: &Class, ctor: &Constructor, prefix: &str) {
     let symbol = c_constructor_symbol(prefix, class, ctor);
     writeln!(
         out,
@@ -1821,7 +1870,11 @@ fn render_c_handle_functions(out: &mut String, class: &Class, listed: bool, pref
         "  // The table invalidates the handle itself, so releasing an unknown or"
     )
     .unwrap();
-    writeln!(out, "  // already-released one is a no-op rather than a double free.").unwrap();
+    writeln!(
+        out,
+        "  // already-released one is a no-op rather than a double free."
+    )
+    .unwrap();
     writeln!(
         out,
         "  nativeapi::HandleTable::GetInstance().Release({self_param});"
@@ -2099,7 +2152,10 @@ fn render_event_bridge(out: &mut String, group: &EventGroup, prefix: &str) {
             c_event_variant(prefix, &group.name, &variant.discriminant)
         )
         .unwrap();
-        let target = format!("out->data.{}.", c_event_variant_field(&variant.discriminant));
+        let target = format!(
+            "out->data.{}.",
+            c_event_variant_field(&variant.discriminant)
+        );
         for field in &variant.fields {
             render_event_field_assign(out, &target, "typed->", field, "    ");
         }
@@ -2135,7 +2191,10 @@ fn render_event_bridge(out: &mut String, group: &EventGroup, prefix: &str) {
             c_event_variant(prefix, &group.name, &variant.discriminant)
         )
         .unwrap();
-        let target = format!("value->data.{}.", c_event_variant_field(&variant.discriminant));
+        let target = format!(
+            "value->data.{}.",
+            c_event_variant_field(&variant.discriminant)
+        );
         for field in &variant.fields {
             render_event_field_release(out, &target, field, "    ");
         }
@@ -2159,9 +2218,18 @@ fn render_event_field_assign(
             writeln!(out, "{indent}{target}{name} = {STRING_DUP_FN}({getter});").unwrap();
         }
         TypeRef::Vector { element } if matches!(element.as_ref(), TypeRef::String) => {
-            writeln!(out, "{indent}{target}{name} = {STRING_LIST_DUP_FN}({getter});").unwrap();
+            writeln!(
+                out,
+                "{indent}{target}{name} = {STRING_LIST_DUP_FN}({getter});"
+            )
+            .unwrap();
         }
-        TypeRef::Enum { name: type_name, .. } | TypeRef::Struct { name: type_name, .. } => {
+        TypeRef::Enum {
+            name: type_name, ..
+        }
+        | TypeRef::Struct {
+            name: type_name, ..
+        } => {
             writeln!(
                 out,
                 "{indent}{target}{name} = {}({getter});",
@@ -2169,7 +2237,11 @@ fn render_event_field_assign(
             )
             .unwrap();
         }
-        TypeRef::Object { qualified_name, shared, .. } => {
+        TypeRef::Object {
+            qualified_name,
+            shared,
+            ..
+        } => {
             // The handle lives only as long as the callback; the releaser drops
             // it right after, so a listener that wants to keep it must resolve
             // and re-insert on its own.
